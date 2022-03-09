@@ -61,6 +61,8 @@ def main(args: argparse.Namespace)-> int:
         f'* Output directory: "{args.output_dir}"\n'
     )
 
+    # Call the specified processors process document API with the contents of
+    # the input PDF file as input.
     with open(args.input, "rb") as pdf_file:
         document = client.process_document(request={
             "name": f'{parent}/processors/{processor_id}',
@@ -118,6 +120,11 @@ def find_processor_id_of_type(
     processors = client.list_processors(parent=parent).processors
     for processor in processors:
         if processor.type_ == processor_type:
+            # Processor names have the form:
+            # `projects/{project}/locations/{location}/processors/{processor_id}`
+            # See
+            # https://cloud.google.com/document-ai/docs/reference/rpc/google.cloud.documentai.v1beta3#google.cloud.documentai.v1beta3.Processor
+            # for more information.
             return processor.name.split('/')[-1]
     return None
 
