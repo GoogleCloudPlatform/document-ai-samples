@@ -22,7 +22,6 @@ import shutil
 from unittest.mock import MagicMock, patch
 
 from google.cloud import documentai_v1beta3 as docai
-# from google.auth import credentials
 
 from main import main
 
