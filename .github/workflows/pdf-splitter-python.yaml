@@ -11,28 +11,6 @@ on:
     paths:
       - "pdf-splitter-python/**"
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./pdf-splitter-python
-    strategy:
-      matrix:
-        python: ["3.6", "3.7", "3.8", "3.9", "3.10"]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install pylint
-        run: |
-          python -m pip install --upgrade pip
-          pip install pylint
-      - name: Analyze code with pylint
-        run: |
-          pylint $(git ls-files '*.py')
   unit:
     runs-on: ubuntu-latest
     defaults:
@@ -48,6 +26,10 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python }}
+      - name: Install requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: Install pylint
         run: |
           python -m pip install --upgrade pip
@@ -55,10 +37,6 @@ jobs:
       - name: Analyze code with pylint
         run: |
           pylint $(git ls-files '*.py')
-      - name: Install requirements.txt
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
       - name: Run unit tests
         run: |
           python main_test.py
