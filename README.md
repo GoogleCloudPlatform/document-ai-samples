@@ -8,6 +8,11 @@ Welcome to the Google Cloud [Document AI](https://cloud.google.com/document-ai) 
 
 The repository contains samples and [Community Samples](https://github.com/GoogleCloudPlatform/document-ai-samples/tree/main/community) that demonstrate how to analyze, classify and search documents using Google Cloud Document AI.
 
+## Samples
+
+### Document AI PDF Splitter Sample
+This project uses the Document AI API to split PDF documents.
+
 ## Contributing
 
 Contributions welcome! See the [Contributing Guide](https://github.com/GoogleCloudPlatform/document-ai-samples/blob/main/.github/CONTRIBUTING.md).
