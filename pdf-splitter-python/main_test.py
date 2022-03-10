@@ -33,7 +33,6 @@ PROCESSOR_ID = 'processor-id'
 PROCESSOR_NAME = f'projects/{PROJECT_ID}/locations/{LOCATION}/processors/{PROCESSOR_ID}'
 
 TEST_FILENAME = 'multi_document.pdf'
-TEST_FILE_RELATIVE_PATH = os.path.join('tests', 'resources', TEST_FILENAME)
 EXPECTED_FILENAME = 'subdoc_1_of_1_multi_document.pdf'
 
 
@@ -74,7 +73,7 @@ class TestMain(unittest.TestCase):
 
         # Get path to multi_document.pdf test file
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        test_filepath = os.path.join(dir_path, TEST_FILE_RELATIVE_PATH)
+        test_filepath = os.path.join(dir_path, TEST_FILENAME)
 
         # Create temporary directory to add test files to
         temp_out_dir = tempfile.mkdtemp()
