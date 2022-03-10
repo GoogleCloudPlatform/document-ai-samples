@@ -19,9 +19,10 @@ import argparse
 import unittest
 import tempfile
 import shutil
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from google.cloud import documentai_v1beta3 as docai
+# from google.auth import credentials
 
 from main import main
 
@@ -39,14 +40,16 @@ EXPECTED_FILENAME = 'subdoc_1_of_1_multi_document.pdf'
 class TestMain(unittest.TestCase):
     """Test class for Document AI PDF splitter sample"""
 
-    @patch("main.DocumentProcessorServiceClient.process_document")
-    @patch("main.DocumentProcessorServiceClient.list_processors")
+    @patch("main.DocumentProcessorServiceClient")
     # pylint: disable=no-self-use
-    def test_split_document(self, list_processors_mock, process_document_mock):
+    def test_split_document(self, mocked_client):
         """Test for Document AI PDF splitter sample"""
 
+        # Create a mocked client instance to mock methods used by main.py
+        mocked_client_instance = MagicMock()
+
         # Mock list processor API call to get a fake processor to use
-        list_processors_mock.return_value = docai.types.ListProcessorsResponse(
+        mocked_client_instance.list_processors.return_value = docai.types.ListProcessorsResponse(
             processors = [ docai.types.Processor(
                 type_ = PROCESSOR_TYPE,
                 name = 'projects/PROJECT_ID/locations/LOCATION/processors/PROCESSOR_ID',
@@ -54,7 +57,7 @@ class TestMain(unittest.TestCase):
         )
 
         # Mock process document API call to use a fake API response
-        process_document_mock.return_value = docai.types.ProcessResponse(
+        mocked_client_instance.process_document.return_value = docai.types.ProcessResponse(
             document = docai.types.Document(
                 entities = [ docai.types.Document.Entity(
                     page_anchor = docai.types.Document.PageAnchor(
@@ -70,6 +73,9 @@ class TestMain(unittest.TestCase):
                 )]
             )
         )
+
+        # Use mocked client instance as the mocked client
+        mocked_client.return_value = mocked_client_instance
 
         # Get path to multi_document.pdf test file
         dir_path = os.path.dirname(os.path.realpath(__file__))
