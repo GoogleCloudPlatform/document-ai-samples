@@ -13,6 +13,17 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 ### Document AI PDF Splitter Sample
 This project uses the Document AI API to split PDF documents.
 
+## Community Samples
+
+---
+**Disclaimer**
+
+Community samples are not officially maintained by Google.
+
+---
+
+* [PDF Annotator Sample](https://github.com/GoogleCloudPlatform/document-ai-samples/tree/main/community/pdf-annotator-python): This project uses the Document AI API to annotate PDF documents.
+
 ## Contributing
 
 Contributions welcome! See the [Contributing Guide](https://github.com/GoogleCloudPlatform/document-ai-samples/blob/main/.github/CONTRIBUTING.md).
