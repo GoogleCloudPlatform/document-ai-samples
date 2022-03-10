@@ -6,3 +6,6 @@
 
 # @GoogleCloudPlatform/ml-apis are the default owners for changes in this repo
 *     @GoogleCloudPlatform/ml-apis
+
+# @matthewayne is the default owner for PDF annotator sample changes
+/pdf-annotator-python/ @matthewayne
