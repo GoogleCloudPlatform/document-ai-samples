@@ -10,8 +10,7 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 
 ## Samples
 
-### Document AI PDF Splitter Sample
-This project uses the Document AI API to split PDF documents.
+* [PDF Splitter Sample](https://github.com/GoogleCloudPlatform/document-ai-samples/tree/main/pdf-splitter-python): This project uses the Document AI API to split PDF documents.
 
 ## Community Samples
 
