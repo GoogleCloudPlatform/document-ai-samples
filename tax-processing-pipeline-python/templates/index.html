@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700|" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/awsm.css/dist/awsm.min.css">
+    <link rel="icon" type="image/png"
+        href="https://fonts.gstatic.com/s/i/gcpiconsgreys/document_ai/v1/web-18dp/greys_document_ai_color_1x_web_18dp.png">
+    <title>Document AI - Automated Pipeline Demo</title>
+</head>
+
+<body>
+    <header>
+        <a href="/">
+        <img src="https://fonts.gstatic.com/s/i/gcpiconscolors/document_ai/v1/web-32dp/colors_document_ai_color_2x_web_32dp.png"
+            alt="">
+        <h1>Document AI - Automated Pipeline Demo</h1>
+        </a>
+    </header>
+    <main id="active-area">
+        {% if tax_data %}
+        <table class="tax-return">
+            <caption>Aggregated Data</caption>
+            <thead>
+                <tr>
+                    <th>Line Number</th>
+                    <th>Description</th>
+                    <th>Value</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in tax_data %}
+                <tr>
+                    {% for col in row %}
+                    <td>{{col}}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% elif extracted_data %}
+        {% for document_id, document_data in extracted_data.items() %}
+        <table>
+            <caption>{{ document_id }}</caption>
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, value in document_data.items() %}
+                <tr>
+                    <td> {{ key }} </td>
+                    <td> {{ value }} </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <hr>
+
+        {% endfor %}
+                <a href="/view_data_aggregation" class="button">Compute Data Aggregation</a>
+
+        {% elif message_error %}
+        <p>{{message_error}}</p>
+
+        {% elif message_success %}
+        <p>{{message_success}}</p>
+
+        <a href="/view_extracted_data" class="button">View Extracted Data</a>
+
+        {% else %}
+        <p><b>Instructions: </b>Upload PDF(s) of the following forms to calculate a US Income Tax Return.</p>
+        <div class="supported-forms">
+            <ul>
+                <li><a href="https://www.irs.gov/forms-pubs/about-form-w-2">W-2</a></li>
+                <li><a href="https://www.irs.gov/forms-pubs/about-form-1099-int">1099-INT</a></li>
+                <li><a href="https://www.irs.gov/forms-pubs/about-form-1099-div">1099-DIV</a></li>
+                <li><a href="https://www.irs.gov/forms-pubs/about-form-1099-misc">1099-MISC</a></li>
+                <li><a href="https://www.irs.gov/forms-pubs/about-form-1099-nec">1099-NEC</a></li>
+            </ul>
+        </div>
+        <p>
+        Use the sample files provided in the <a
+            href="https://github.com/holtskinner/docai-tax-demo/tree/main/sample-docs">Repository</a> for best results.
+        </p>
+<hr>
+
+        <form id="upload-documents" action="/file_upload" method="post" enctype=multipart/form-data>
+            <label for="file">Upload your file(s)</label>
+            <input type="file" name="files" id="files" multiple>
+            <input type="submit" value="Upload">
+        </form>
+<hr>
+
+        <a href="/view_data_aggregation" class="button">View Sample Output</a>
+        {% endif %}
+    </main>
+    <footer>
+        <p>Made by <a href="https://github.com/holtskinner">holtskinner@</a> - Source on <a
+                href="https://github.com/holtskinner/docai-tax-demo">GitHub</a></p>
+    </footer>
+</body>
+<style>
+    html {
+        font-family: 'Google Sans', 'Roboto', 'Helvetica', sans-serif !important;
+        text-align: center;
+    }
+
+    table > caption {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+
+    div.supported-forms ul {
+        list-style-type: none;
+        text-decoration: none;
+    }
+
+    /* unvisited link */
+    a:link {
+        color: #4285F4;
+    }
+
+    /* visited link */
+    a:visited {
+        color: #A142F4;
+    }
+
+    /* mouse over link */
+    a:hover {
+        color: #EA4335;
+    }
+
+    header a {
+        color: black !important;
+        text-decoration: none;
+    }
+
+    table.tax-return {
+       background-color: #DCFFFB;
+    }
+</style>
+
+
+</html>
