@@ -125,7 +125,3 @@ The following is a list of existing components and their functionality
 ## Contributing
 
 * See [CONTRIBUTING.md](CONTRIBUTING.md)
-
-## Licensing
-
-* See [LICENSE](LICENSE)
