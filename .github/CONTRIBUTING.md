@@ -115,13 +115,12 @@ request and assign it to `@GoogleCloudPlatform/ml-apis`
         ```
         name: PDF Splitter Python Sample
         on:
-            pull_request:
-                branches:
-                    - main
-                paths:
-                    - 'pdf-splitter-python/**'
-        jobs:
-            ...
+          push:
+            branches:
+              - main
+            paths:
+              - "pdf-splitter-python/**"
+        ...
         ```
         See
         [Github's Actions trigger documentation](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow)
@@ -132,27 +131,35 @@ request and assign it to `@GoogleCloudPlatform/ml-apis`
         ```
         ...
         jobs:
-            unit:
-                runs-on: ubuntu-latest
-                defaults:
-                    run:
-                        working-directory: ./pdf-splitter-python
-                strategy:
-                    matrix:
-                       python: ['3.6', '3.7', '3.8', '3.9', '3.10']
-                steps:
-                    - name: Checkout
-                    uses: actions/checkout@v2
-                    - name: Setup Python
-                    uses: actions/setup-python@v3
-                    with:
-                        python-version: ${{ matrix.python }}
-                    - name: Install requirements.txt
-                    run: |
-                        python -m pip install -U -r requirements.txt
-                    - name: Run unit tests
-                    run |
-                        python main_test.py
+          unit:
+            runs-on: ubuntu-latest
+            defaults:
+              run:
+                working-directory: ./pdf-splitter-python
+            strategy:
+              matrix:
+                python: ["3.7", "3.8", "3.9", "3.10"]
+            steps:
+              - name: Checkout
+                uses: actions/checkout@v2
+              - name: Setup Python
+                uses: actions/setup-python@v3
+                with:
+                  python-version: ${{ matrix.python }}
+              - name: Install requirements.txt
+                run: |
+                  python -m pip install --upgrade pip
+                  pip install -r requirements.txt
+              - name: Install pylint
+                run: |
+                  python -m pip install --upgrade pip
+                  pip install pylint
+              - name: Analyze code with pylint
+                run: |
+                  pylint $(git ls-files '*.py')
+              - name: Run unit tests
+                run: |
+                  python main_test.py
          ```
         See
         [Github's Actions job documentation](https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow)
