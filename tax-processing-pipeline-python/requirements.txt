@@ -1,0 +1,8 @@
+typing
+pyyaml
+
+google-cloud-documentai
+google-cloud-firestore
+
+Flask
+gunicorn
