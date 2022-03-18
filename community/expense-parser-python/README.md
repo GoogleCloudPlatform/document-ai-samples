@@ -1,7 +1,7 @@
-# DocAI Expense Parser Demo
+# Expense Parser Demo (Python)
 
 # Objective
-Learn how to use Google Cloud Platform to construct a pipeline to process expenses (ie. receipts). This repo serves as a sample code to build your own demo but is not tested for production. 
+Learn how to use Google Cloud Platform to construct a demo pipeline to process expenses (ie. receipts). This repo serves as a sample code to build your own demo but is not tested for production. 
 
 # Visualizing the workflow
 ![GCP Workflow](https://user-images.githubusercontent.com/47513414/150703075-8f608859-436e-4c22-8dc9-f71121705f3a.png)
@@ -42,7 +42,7 @@ Learn how to use Google Cloud Platform to construct a pipeline to process expens
 
 6. Activate your Command Shell and clone this GitHub Repo in your Command shell using the command:
 ```
-gh repo clone jiya-zhang/docai-expense-parser-demo
+gh repo clone GoogleCloudPlatform/document-ai-samples
 ```
 
 7. Execute Bash shell scripts in your Cloud Shell terminal to create cloud resources (i.e Google Cloud Storage Buckets, Pub/Sub topics, Cloud Functions, BigQuery dataset and table)
@@ -50,7 +50,7 @@ gh repo clone jiya-zhang/docai-expense-parser-demo
     1. Change directory to the scripts folder
 
         ```
-        cd docai-expense-parser-demo
+        cd community/expense-parser-python
         ```
     3. Update the following values in .env.local:
 
@@ -90,5 +90,9 @@ gh repo clone jiya-zhang/docai-expense-parser-demo
 8. Testing/Validating the demo
 
     1. Upload a sample receipt in the input bucket (<project_id>-input-receipts)
-    2. At the end of the processing, you should expect your BigQuery tables to be populated with extracted entities (eg. total_amount, supplier_name, etc.) 
+    2. At the end of the processing, you should expect your BigQuery tables to be populated with extracted entities (eg. total_amount, supplier_name, etc.). Note that each row is an extracted entity instead of a document.
     3. With the structured data in BigQuery, we can now design downstream analytical tools to gain actionable insights as well as detect errors/frauds.
+
+
+# Disclaimer
+This community sample is not officially maintained by Google.
