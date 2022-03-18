@@ -9,3 +9,6 @@
 
 # @matthewayne is the default owner for PDF annotator sample changes
 /pdf-annotator-python/ @matthewayne
+
+# @jiya-zhang is the default owner for the Expense Parser sample changes
+/expense-parser-python/ @jiya-zhang
