@@ -1,0 +1,5 @@
+# Function dependencies, for example:
+# package>=version
+google-cloud-documentai>=0.3.0
+google-cloud-storage>=1.30.0
+google-cloud-bigquery>=1.26.1
