@@ -43,10 +43,10 @@ def online_process(project_id: str, location: str,
 
 project_id = 'YOUR_PROJECT_ID'
 location = 'YOUR_PROJECT_LOCATION'  # Format is 'us' or 'eu'
-processor_id = 'PROCUREMENT_SPLITTER_ID'  # Create processor in Cloud Console
+processor_id = 'INVOICE_PARSER_ID'  # Create processor in Cloud Console
 
 # The local file in your current working directory
-file_path = 'procurement_multi_document.pdf'
+file_path = 'google_invoice.pdf'
 # Refer to https://cloud.google.com/document-ai/docs/processors-list for supported file types
 mime_type = 'application/pdf'
 
@@ -54,27 +54,27 @@ document = online_process(project_id=project_id, location=location,
                           processor_id=processor_id, file_path=file_path,
                           mime_type=mime_type)
 
-print("Document processing complete.")
-
 types = []
+raw_values = []
+normalized_values = []
 confidence = []
-pages = []
 
-# Each Document.entity is a classification
+# Grab each key/value pair and their corresponding confidence scores.
 for entity in document.entities:
-    classification = entity.type_
-    types.append(classification)
-    confidence.append(entity.confidence)
+    types.append(entity.type_)
+    raw_values.append(entity.mention_text)
+    normalized_values.append(entity.normalized_value.text)
+    confidence.append(round(entity.confidence, 4))
 
-    # entity.page_ref contains the pages that match the classification
-    pages_list = []
-    for page_ref in entity.page_anchor.page_refs:
-        pages_list.append(page_ref.page)
-    pages.append(pages_list)
+    # Get Properties (Sub-Entities) with confidence scores
+    for prop in entity.properties:
+        types.append(prop.type_)
+        raw_values.append(prop.mention_text)
+        normalized_values.append(prop.normalized_value.text)
+        confidence.append(round(prop.confidence, 4))
 
 # Create a Pandas Dataframe to print the values in tabular format.
-df = pd.DataFrame({'Classification': types,
-                   'Confidence': confidence,
-                   'Pages': pages})
+df = pd.DataFrame({'Type': types, 'Raw Value': raw_values,
+                  'Normalized Value': normalized_values, 'Confidence': confidence})
 
 print(df)
