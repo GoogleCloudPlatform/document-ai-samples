@@ -1,7 +1,7 @@
 # Expense Parser Demo (Python)
 
-# Objective
-Learn how to use Google Cloud Platform to construct a demo pipeline to process expenses (ie. receipts). This repo serves as a sample code to build your own demo but is not tested for production. 
+# Description
+This repo constructs an end-to-end pipeline on GCP to process expenses (ie. receipts) with the Document AI API. This repo serves as a sample code to build your own demo but is not tested for production. 
 
 # Visualizing the workflow
 ![GCP Workflow](https://user-images.githubusercontent.com/47513414/150703075-8f608859-436e-4c22-8dc9-f71121705f3a.png)
