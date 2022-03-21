@@ -25,6 +25,8 @@ Learn how to use Google Cloud Platform to *process and enrich* invoices so that 
 
 1. Create a Google Cloud Platform Project
 
+1. [Install and setup the `gcloud` SDK & CLI](https://cloud.google.com/sdk/docs/install-sdk)
+
 1. Enable the APIs in the project you created in step #1 above
    * Cloud Document AI API
    * Cloud Functions API
@@ -62,26 +64,22 @@ gcloud services enable cloudbuild.googleapis.com
 
    * [Create an API Key](https://cloud.google.com/docs/authentication/api-keys#creating_an_api_key) - Note the **api key value**, you will need to plug this values in your cloud function's environment variables
   
-   * Paste the API Key in the `geocode-addresses/.env.yaml` file.
+   * Paste the API Key in the [`geocode-addresses/.env.yaml`](cloud-functions/geocode-addresses/.env.yaml) file.
 
-   * [Add API restrictions](https://cloud.google.com/docs/authentication/api-keys#adding_api_restrictions) - To set API restrictions:
+   * [Add API restrictions](https://cloud.google.com/docs/authentication/api-keys#api_key_restrictions) - To set API restrictions:
         1. Select Restrict key in the API restrictions section.
         2. Select Geocoding API from the dropdown.
         3. Select the Save button.
 
 3. Create your Doc AI processor
     * Go to Console > Doc AI > Create Processor > Invoice Parser (Under Specilaized)
-      * Name the processor `fraud-detection-invoice-parser`
+      * Name the processor `fraud-detection-invoice-parser` (or something else you'll remember)
       * Note the **Region** and **ID** of the processor, you will need to plug these values in your cloud function's environment variables
-    * Paste the processor location and ID in the `process-invoices/.env.yaml` file
+    * Paste the processor location and ID in the [`process-invoices/.env.yaml`](cloud-functions/process-invoices/.env.yaml) file
 
 4. Execute Bash shell scripts in your Cloud Shell terminal to create cloud resources (i.e Google Cloud Storage Buckets, Pub/Sub topics, Cloud Functions, BigQuery tables)
 
-     1. Update the value of PROJECT_ID in `.env.local` to match your current projectID
-
-        ```sh
-        vim .env.local
-        ```
+     1. Update the value of PROJECT_ID in [`.env.local`](.env.local) to match your current projectID
 
      2. Execute your .sh files to create cloud resources
 

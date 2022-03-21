@@ -27,11 +27,11 @@
   {
     "mode": "NULLABLE",
     "name": "lat",
-    "type": "STRING"
+    "type": "FLOAT"
   },
   {
     "mode": "NULLABLE",
     "name": "lng",
-    "type": "STRING"
+    "type": "FLOAT"
   }
 ]
