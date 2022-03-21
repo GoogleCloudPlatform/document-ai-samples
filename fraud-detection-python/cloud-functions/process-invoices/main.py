@@ -1,7 +1,7 @@
 import re
 import os
 import json
-from typing import List, Tuple
+from typing import List
 
 from google.cloud import bigquery
 from google.cloud import documentai_v1 as documentai
@@ -72,7 +72,7 @@ def write_to_bq(dataset_name, table_name, entities_extracted_dict):
 
     job = bq_client.load_table_from_json(
         json_object, table_ref, job_config=job_config)
-    return job.result()  # Waits for table load to complete.
+    print(job.result())  # Waits for table load to complete.
 
 
 def extract_document_entities(document: documentai.Document) -> dict:
@@ -291,8 +291,7 @@ def process_invoice(event, context):
         print("Writing DocAI Entities to BQ")
 
         # Add Entities to DocAI Extracted Entities Table
-        result = write_to_bq(dataset_name, entities_table_name, entities)
-        print(result)
+        write_to_bq(dataset_name, entities_table_name, entities)
 
         # Send Address Data to PubSub
         for address_field in address_fields:
