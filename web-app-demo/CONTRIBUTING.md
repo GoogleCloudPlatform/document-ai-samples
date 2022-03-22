@@ -1,11 +1,11 @@
 # How to become a contributor and submit your own code
 
-New modules are always welcome!
+New components are always welcome!
 
-If you're interested in contributing a new module or making a changes to the existing application,
+If you're interested in contributing a new component or making a changes to the existing application,
 please open an issue for discussion first.
 
-## Contributing A New Module
+## Contributing A New Component
 
 1. Submit an issue describing your proposed change to this repository.
 2. A repo owner will respond to your issue promptly. If you don't see a response within
@@ -13,14 +13,14 @@ please open an issue for discussion first.
 3. If your proposed change is accepted, and you haven't already done so, sign a
    Contributor License Agreement (see details above).
 4. Fork this repo, develop and test your code changes. Tests are required for all
-   modules.
+   components.
 5. Ensure that your code adheres to the existing style.
 6. Ensure that your code has an appropriate set of unit tests which all pass.
 7. Submit a pull request.
 
-### Adding a New Module
+### Adding a New Component
 
-To add a module to the existing application make sure you're in the component directory.
+To add a component to the existing application make sure you're in the component directory.
 
 ```bash
 cd Frontend/src/app/components
@@ -30,11 +30,11 @@ Then run
 
 ```bash
 
-ng generate module <name> [options]
+ng generate component <name> [options]
 
 ```
 
-[For more information about generating modules][https://angular.io/cli/generate#module-command]
+[For more information about generating components][https://angular.io/cli/generate#component-command]
 
 This will create a folder with all the files you need for the component. To add this component to the main application all you need to do is copy the component selector and add it to the base-layer component.
 
