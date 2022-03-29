@@ -1,0 +1,9 @@
+{
+    "name": "web-app-demo",
+    "env": {
+        "BACKEND_URL": {
+            "description": "specify the backend url you deployed to",
+            "required": true
+        }
+    }
+}
