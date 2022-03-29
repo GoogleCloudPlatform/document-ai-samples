@@ -30,5 +30,5 @@ import {DataSharingServiceService} from './data-sharing-service.service';
 export class AppComponent {
   title = 'Document AI Modular App';
   sharingClient = new DataSharingServiceService();
-  public static backendURL = 'http://127.0.0.1:5000';
+  public static backendURL = process.env['BACKEND_URL'];
 }
