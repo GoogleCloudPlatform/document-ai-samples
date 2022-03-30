@@ -3,3 +3,4 @@
 google-cloud-documentai>=0.3.0
 google-cloud-storage>=1.30.0
 google-cloud-bigquery>=1.26.1
+python-dateutil>=2.8.2
