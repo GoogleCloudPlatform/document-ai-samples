@@ -15,42 +15,47 @@ from google.cloud import pubsub_v1
 from google.api_core.operation import Operation
 
 # Reading environment variables
-gcs_output_uri_prefix = os.environ.get('GCS_OUTPUT_URI_PREFIX')
-PROJECT_ID = os.environ.get('GCP_PROJECT')
-LOCATION = os.environ.get('PARSER_LOCATION')
-PROCESSOR_ID = os.environ.get('PROCESSOR_ID')
-geocode_request_topicname = os.environ.get('GEOCODE_REQUEST_TOPICNAME')
-timeout = int(os.environ.get('TIMEOUT'))
+gcs_output_uri_prefix = os.environ.get("GCS_OUTPUT_URI_PREFIX")
+PROJECT_ID = os.environ.get("GCP_PROJECT")
+LOCATION = os.environ.get("PARSER_LOCATION")
+PROCESSOR_ID = os.environ.get("PROCESSOR_ID")
+geocode_request_topicname = os.environ.get("GEOCODE_REQUEST_TOPICNAME")
+timeout = int(os.environ.get("TIMEOUT"))
 
 # An array of Future objects
 # Every call to publish() returns an instance of Future
 geocode_futures = []
 kg_futures = []
 # Setting variables
-address_fields = ['receiver_address', 'remit_to_address',
-                  'ship_from_address', 'ship_to_address', 'supplier_address']
+address_fields = [
+    "receiver_address",
+    "remit_to_address",
+    "ship_from_address",
+    "ship_to_address",
+    "supplier_address",
+]
 
 # GCS Variables
 gcs_output_bucket = f"{PROJECT_ID}-output-invoices"
 gcs_archive_bucket_name = f"{PROJECT_ID}-archived-invoices"
 destination_uri = f"gs://{gcs_output_bucket}/{gcs_output_uri_prefix}/"
 
-DATSET_NAME = 'invoice_parser_results'
-ENTITIES_TABLE_NAME = 'doc_ai_extracted_entities'
+DATSET_NAME = "invoice_parser_results"
+ENTITIES_TABLE_NAME = "doc_ai_extracted_entities"
 
-client_options = {
-    "api_endpoint": f"{LOCATION}-documentai.googleapis.com"
-}
+client_options = {"api_endpoint": f"{LOCATION}-documentai.googleapis.com"}
 
 docai_client = documentai.DocumentProcessorServiceClient(
-    client_options=client_options)
+    client_options=client_options
+)
 
 storage_client = storage.Client()
 bq_client = bigquery.Client()
 pub_client = pubsub_v1.PublisherClient()
 
-ACCEPTED_MIME_TYPES = set(['application/pdf', 'image/jpeg',
-                           'image/png', 'image/tiff', 'image/gif'])
+ACCEPTED_MIME_TYPES = set(
+    ["application/pdf", "image/jpeg", "image/png", "image/tiff", "image/gif"]
+)
 
 
 def write_to_bq(dataset_name, table_name, entities_extracted_dict):
@@ -66,17 +71,20 @@ def write_to_bq(dataset_name, table_name, entities_extracted_dict):
     # Convert to a JSON Object
     json_object = json.loads(json_data)
 
-    schema_update_options = [bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION,
-                             bigquery.SchemaUpdateOption.ALLOW_FIELD_RELAXATION]
+    schema_update_options = [
+        bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION,
+        bigquery.SchemaUpdateOption.ALLOW_FIELD_RELAXATION,
+    ]
     source_format = bigquery.SourceFormat.NEWLINE_DELIMITED_JSON
 
     job_config = bigquery.LoadJobConfig(
         schema_update_options=schema_update_options,
-        source_format=source_format
+        source_format=source_format,
     )
 
     job = bq_client.load_table_from_json(
-        json_object, table_ref, job_config=job_config)
+        json_object, table_ref, job_config=job_config
+    )
     print(job.result())  # Waits for table load to complete.
 
 
@@ -92,10 +100,12 @@ def extract_document_entities(document: documentai.Document) -> dict:
         """
         Extract Single Entity and Add to Entity Dictionary
         """
-        entity_key = entity.type_.replace('/', '_')
+        entity_key = entity.type_.replace("/", "_")
         normalized_value = getattr(entity, "normalized_value", None)
 
-        new_entity_value = normalized_value.text if normalized_value else entity.mention_text
+        new_entity_value = (
+            normalized_value.text if normalized_value else entity.mention_text
+        )
 
         existing_entity = document_entities.get(entity_key)
 
@@ -108,9 +118,7 @@ def extract_document_entities(document: documentai.Document) -> dict:
             existing_entity.append(new_entity_value)
             document_entities[entity_key] = existing_entity
         else:
-            document_entities.update({
-                entity_key: new_entity_value
-            })
+            document_entities.update({entity_key: new_entity_value})
 
     for entity in document.entities:
         # Fields detected. For a full list of fields for each processor see
@@ -141,13 +149,12 @@ def _batch_process_documents(
     # projects/project-id/locations/location/processor/processor-id
     # You must create new processors in the Cloud Console first
     resource_name = docai_client.processor_path(
-        project_id, location, processor_id)
+        project_id, location, processor_id
+    )
 
     # Load GCS Input URI Prefix into Input Config Object
     input_config = documentai.BatchDocumentsInputConfig(
-        gcs_prefix=documentai.GcsPrefix(
-            gcs_uri_prefix=gcs_input_uri
-        )
+        gcs_prefix=documentai.GcsPrefix(gcs_uri_prefix=gcs_input_uri)
     )
 
     # Cloud Storage URI for Output directory
@@ -157,13 +164,14 @@ def _batch_process_documents(
 
     # Load GCS Output URI into Output Config Object
     output_config = documentai.DocumentOutputConfig(
-        gcs_output_config=gcs_output_config)
+        gcs_output_config=gcs_output_config
+    )
 
     # Configure Process Request
     request = documentai.BatchProcessRequest(
         name=resource_name,
         input_documents=input_config,
-        document_output_config=output_config
+        document_output_config=output_config,
     )
 
     # Future for long-running operations returned from Google Cloud APIs.
@@ -173,15 +181,16 @@ def _batch_process_documents(
 
 
 def get_document_protos_from_gcs(
-        output_bucket: str,
-        output_directory: str) -> List[documentai.Document]:
+    output_bucket: str, output_directory: str
+) -> List[documentai.Document]:
     """
     Download document proto output from GCS. (Directory)
     """
 
     # List of all of the files in the directory `gs://gcs_output_uri/operation_id`
-    blob_list = list(storage_client.list_blobs(
-        output_bucket, prefix=output_directory))
+    blob_list = list(
+        storage_client.list_blobs(output_bucket, prefix=output_directory)
+    )
 
     document_protos = []
 
@@ -190,7 +199,8 @@ def get_document_protos_from_gcs(
         if ".json" in blob.name:
             print("Fetching from " + blob.name)
             document_proto = documentai.types.Document.from_json(
-                blob.download_as_bytes())
+                blob.download_as_bytes()
+            )
             document_protos.append(document_proto)
         else:
             print(f"Skipping non-supported file type {blob.name}")
@@ -198,19 +208,22 @@ def get_document_protos_from_gcs(
     return document_protos
 
 
-def cleanup_gcs(input_bucket: str,
-                input_filename: str,
-                output_bucket: str,
-                output_directory: str,
-                archive_bucket: str):
+def cleanup_gcs(
+    input_bucket: str,
+    input_filename: str,
+    output_bucket: str,
+    output_directory: str,
+    archive_bucket: str,
+):
     """
     Deleting the intermediate files created by the Doc AI Parser
     Moving Input Files to Archive
     """
 
     # Intermediate document.json files
-    blob_list = list(storage_client.list_blobs(
-        output_bucket, prefix=output_directory))
+    blob_list = list(
+        storage_client.list_blobs(output_bucket, prefix=output_directory)
+    )
 
     for blob in blob_list:
         blob.delete()
@@ -226,7 +239,9 @@ def cleanup_gcs(input_bucket: str,
     source_blob.delete()
 
 
-def process_address(address_type: str, address_value: str, input_filename: str) -> str:
+def process_address(
+    address_type: str, address_value: str, input_filename: str
+) -> str:
     """
     Creating and publishing a message via Pub Sub
     """
@@ -238,9 +253,9 @@ def process_address(address_type: str, address_value: str, input_filename: str) 
     message_data = json.dumps(message).encode("utf-8")
 
     geocode_topic_path = pub_client.topic_path(
-        PROJECT_ID, geocode_request_topicname)
-    geocode_future = pub_client.publish(
-        geocode_topic_path, data=message_data)
+        PROJECT_ID, geocode_request_topicname
+    )
+    geocode_future = pub_client.publish(geocode_topic_path, data=message_data)
     geocode_futures.append(geocode_future)
 
     return
@@ -259,17 +274,18 @@ def process_invoice(event, context):
         return
 
     if mime_type not in ACCEPTED_MIME_TYPES:
-        print('Cannot parse the file type: ' + mime_type)
+        print("Cannot parse the file type: " + mime_type)
         return
 
-    print('Mime Type: ' + mime_type)
+    print("Mime Type: " + mime_type)
 
-    gcs_input_uri = f'gs://{input_bucket}/{input_filename}'
+    gcs_input_uri = f"gs://{input_bucket}/{input_filename}"
 
     print("Input File: " + gcs_input_uri)
 
     operation = _batch_process_documents(
-        PROJECT_ID, LOCATION, PROCESSOR_ID, gcs_input_uri, destination_uri)
+        PROJECT_ID, LOCATION, PROCESSOR_ID, gcs_input_uri, destination_uri
+    )
 
     print("Document Processing Operation: " + operation.operation.name)
 
@@ -278,7 +294,8 @@ def process_invoice(event, context):
 
     # The output files will be in a new subdirectory with the Operation ID as the name
     operation_id = re.search(
-        r"operations\/(\d+)", operation.operation.name, re.IGNORECASE).group(1)
+        r"operations\/(\d+)", operation.operation.name, re.IGNORECASE
+    ).group(1)
 
     output_directory = f"{gcs_output_uri_prefix}/{operation_id}"
     print(f"Output Path: gs://{gcs_output_bucket}/{output_directory}")
@@ -286,7 +303,8 @@ def process_invoice(event, context):
     print("Output files:")
 
     output_document_protos = get_document_protos_from_gcs(
-        gcs_output_bucket, output_directory)
+        gcs_output_bucket, output_directory
+    )
 
     # Reading all entities into a dictionary to write into a BQ table
 
@@ -304,8 +322,14 @@ def process_invoice(event, context):
         for address_field in address_fields:
             if address_field in entities:
                 process_address(
-                    address_field, entities[address_field], input_filename)
+                    address_field, entities[address_field], input_filename
+                )
 
-    cleanup_gcs(input_bucket, input_filename, gcs_output_bucket,
-                output_directory, gcs_archive_bucket_name)
+    cleanup_gcs(
+        input_bucket,
+        input_filename,
+        gcs_output_bucket,
+        output_directory,
+        gcs_archive_bucket_name,
+    )
     return
