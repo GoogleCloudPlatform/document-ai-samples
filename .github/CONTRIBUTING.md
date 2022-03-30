@@ -95,6 +95,14 @@ request and assign it to `@GoogleCloudPlatform/ml-apis`
     `community` folder add your sample's name, link and description to the
     "Community" section of the repo's README.md.
 
+1.  Format and lint your code
+
+    This repo uses a tool from Github called [super-linter](https://github.com/github/super-linter) that
+    formats and lints code in multiple languages. This helps ensure consistency and prevents common issues.
+    
+    For Python, use [black](https://github.com/psf/black) to format your code.
+    Linting checks with flake8, isort, pylint, and mypy will also be performed.
+
 1.  [non-community samples only] Setup testing and Github Actions
 
     This step is not required for samples located in the `community` folder. All
