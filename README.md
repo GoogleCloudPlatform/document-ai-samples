@@ -14,6 +14,8 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 
 * [Web App Demo](https://github.com/GoogleCloudPlatform/document-ai-samples/tree/main/web-app-demo): This project is a fullstack application that uses Document AI to process different types of documents. This application currently supports Form, Invoice and OCR processors. 
 
+* [Fraud Detection](fraud-detection-python/): This project uses the Document AI Invoice Parser with EKG and Google Maps to store document Entities in BigQuery.
+
 ## Community Samples
 
 ---
