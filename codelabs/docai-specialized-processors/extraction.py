@@ -1,3 +1,6 @@
+"""
+Sends a request to a Document AI Specialized Parser Processor
+"""
 from google.cloud import documentai_v1 as documentai
 import pandas as pd
 
@@ -41,18 +44,18 @@ def online_process(project_id: str, location: str,
         return result.document
 
 
-project_id = 'YOUR_PROJECT_ID'
-location = 'YOUR_PROJECT_LOCATION'  # Format is 'us' or 'eu'
-processor_id = 'INVOICE_PARSER_ID'  # Create processor in Cloud Console
+PROJECT_ID = 'YOUR_PROJECT_ID'
+LOCATION = 'YOUR_PROJECT_LOCATION'  # Format is 'us' or 'eu'
+PROCESSOR_ID = 'INVOICE_PARSER_ID'  # Create processor in Cloud Console
 
 # The local file in your current working directory
-file_path = 'google_invoice.pdf'
+FILE_PATH = 'google_invoice.pdf'
 # Refer to https://cloud.google.com/document-ai/docs/processors-list for supported file types
-mime_type = 'application/pdf'
+MIME_TYPE = 'application/pdf'
 
-document = online_process(project_id=project_id, location=location,
-                          processor_id=processor_id, file_path=file_path,
-                          mime_type=mime_type)
+document = online_process(project_id=PROJECT_ID, location=LOCATION,
+                          processor_id=PROCESSOR_ID, file_path=FILE_PATH,
+                          mime_type=MIME_TYPE)
 
 types = []
 raw_values = []
