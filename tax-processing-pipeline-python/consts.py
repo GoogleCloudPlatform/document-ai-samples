@@ -7,29 +7,10 @@ from general_utils import read_yaml, invert_dictionary_with_array
 # Processors that Split & Classify
 CLASSIFIER_PROCESSOR_TYPES = set([
     "LENDING_DOCUMENT_SPLIT_PROCESSOR",
-    "PROCUREMENT_DOCUMENT_SPLIT_PROCESSOR"
 ])
 
 # Map Processor Type to Classifier Output
 PROCESSOR_SUPPORTED_DOCUMENT_TYPES = {
-    # Default for all non-classified documents
-    "FORM_PARSER_PROCESSOR": ["other"],
-    # Procurement Processors
-    "UTILITY_PROCESSOR": ["utility_statement"],
-    "INVOICE_PROCESSOR": [
-        "debit_note",
-        "credit_note",
-        "invoice_statement"
-    ],
-    "EXPENSE_PROCESSOR": [
-        "credit_card_slip",
-        "restaurant_statement",
-        "air_travel_statement",
-        "hotel_statement",
-        "car_rental_statement",
-        "ground_transportation_statement",
-        "receipt_statement"
-    ],
     # Lending Processors
     'BANK_STATEMENT_PROCESSOR': ['account_statement_bank'],
     'FORM_1040SCH_C_PROCESSOR': ['1040sc',
@@ -81,11 +62,6 @@ PROCESSOR_SUPPORTED_DOCUMENT_TYPES = {
     'MORTGAGE_STATEMENT_PROCESSOR': ['mortgage_statements'],
     'PAYSTUB_PROCESSOR': ['payslip'],
     'RETIREMENT_INVESTMENT_STATEMENT_PROCESSOR': ['account_statement_investment_and_retirement'],
-
-    # Identity Processors (Classified using Lending Classifier)
-    'US_DRIVER_LICENSE_PROCESSOR': ['us_driver_license'],
-    'US_PASSPORT_PROCESSOR': ['us_passport']
-
 }
 
 DOCUMENT_SUPPORTED_PROCESSOR_TYPES = invert_dictionary_with_array(
