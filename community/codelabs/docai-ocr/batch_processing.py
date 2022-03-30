@@ -22,15 +22,17 @@ def get_documents_from_gcs(
 
     # The output files will be in a new subdirectory with the Operation ID as the name
     operation_id = re.search(
-        r"operations\/(\d+)", operation_name, re.IGNORECASE).group(1)
+        r"operations\/(\d+)", operation_name, re.IGNORECASE
+    ).group(1)
 
     output_directory = f"{prefix}/{operation_id}"
 
     storage_client = storage.Client()
 
     # List of all of the files in the directory `gs://gcs_output_uri/operation_id`
-    blob_list = list(storage_client.list_blobs(
-        output_bucket, prefix=output_directory))
+    blob_list = list(
+        storage_client.list_blobs(output_bucket, prefix=output_directory)
+    )
 
     output_documents = []
 
@@ -38,7 +40,8 @@ def get_documents_from_gcs(
         # Document AI should only output JSON files to GCS
         if ".json" in blob.name:
             output_document = documentai.types.Document.from_json(
-                blob.download_as_bytes())
+                blob.download_as_bytes()
+            )
             output_documents.append(output_document)
         else:
             print(f"Skipping non-supported file type {blob.name}")
@@ -46,9 +49,9 @@ def get_documents_from_gcs(
     return output_documents
 
 
-PROJECT_ID = 'YOUR_PROJECT_ID'
-LOCATION = 'YOUR_PROJECT_LOCATION'  # Format is 'us' or 'eu'
-PROCESSOR_ID = 'YOUR_PROCESSOR_ID'  # Create processor in Cloud Console
+PROJECT_ID = "YOUR_PROJECT_ID"
+LOCATION = "YOUR_PROJECT_LOCATION"  # Format is 'us' or 'eu'
+PROCESSOR_ID = "YOUR_PROCESSOR_ID"  # Create processor in Cloud Console
 
 # Format 'gs://input_bucket/directory/file.pdf'
 GCS_INPUT_URI = "INPUT_BUCKET_URI"
@@ -57,13 +60,10 @@ INPUT_MIME_TYPE = "application/pdf"
 # Format 'gs://output_bucket/directory'
 GCS_OUTPUT_URI = "YOUR_OUTPUT_BUCKET_URI"
 
-opts = {
-    "api_endpoint": f"{LOCATION}-documentai.googleapis.com"
-}
+opts = {"api_endpoint": f"{LOCATION}-documentai.googleapis.com"}
 
 # Instantiates a client
-docai_client = documentai.DocumentProcessorServiceClient(
-    client_options=opts)
+docai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
 
 # The full resource name of the processor, e.g.:
 # projects/project-id/locations/location/processor/processor-id
@@ -87,7 +87,8 @@ gcs_output_config = documentai.DocumentOutputConfig.GcsOutputConfig(
 
 # Load GCS Output URI into OutputConfig object
 output_config = documentai.DocumentOutputConfig(
-    gcs_output_config=gcs_output_config)
+    gcs_output_config=gcs_output_config
+)
 
 # Configure Process Request
 request = documentai.BatchProcessRequest(
