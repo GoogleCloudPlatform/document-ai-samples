@@ -7,9 +7,12 @@ from google.cloud import documentai_v1 as documentai
 
 from consts import CLASSIFIER_PROCESSOR_TYPES, DOCUMENT_SUPPORTED_PROCESSOR_TYPES, DOCAI_PROJECT_ID, DOCAI_PROCESSOR_LOCATION, DOCAI_ACTIVE_PROCESSORS, DEFAULT_MIME_TYPE
 
-# Instantiates a client
-documentai_client = documentai.DocumentProcessorServiceClient()
+client_options = {
+    "api_endpoint": f"{DOCAI_PROCESSOR_LOCATION}-documentai.googleapis.com"
+}
 
+# Instantiates a client
+documentai_client = documentai.DocumentProcessorServiceClient(client_options=client_options)
 
 def process_document_bytes(project_id: str, location: str,
                            processor_id: str, file_content: bytes,
@@ -39,52 +42,23 @@ def process_document_bytes(project_id: str, location: str,
     return result.document
 
 
-def extract_data_from_entity(entity: documentai.Document.Entity, use_enriched: bool = False, use_structured_value: bool = False) -> Tuple[str, any]:
-    """
-    Extract Data from from Document.Entity
-    Returns Tuple of (key, value)
-    """
-
-    key = entity.type_
-    # some other value formats in addition to text are availible
-    # e.g. dates: `entity.normalized_value.date_value.year`
-    # Use EKG Enriched Data if available
-
-    normalized_value = getattr(entity, "normalized_value", None)
-    if use_enriched and normalized_value:
-        # Use Structured Value if available
-        structured_value = normalized_value._pb.WhichOneof('structured_value')
-
-        if use_structured_value and structured_value:
-            value = getattr(normalized_value, structured_value)
-        else:
-            value = normalized_value.text
-    else:
-        value = entity.mention_text
-
-    return key, value
-
-
-def extract_document_entities(document: documentai.Document, use_enriched: bool = False, use_structured_value: bool = False) -> dict:
+def extract_document_entities(document: documentai.Document) -> dict:
     """
     Get all entities from a document and output as a dictionary
-    Flattens nested entities/properties
-    Format: entity.type_: entity.mention_text OR entity.normalized_value.structured_value
+    Format: entity.type_: entity.mention_text OR entity.normalized_value.text
     """
     document_entities = {}
     for entity in document.entities:
         # Fields detected. For a full list of fields for each processor see
         # the processor documentation:
         # https://cloud.google.com/document-ai/docs/processors-list
-        entity_key, entity_value = extract_data_from_entity(
-            entity, use_enriched, use_structured_value)
-        document_entities[entity_key] = entity_value
 
-        # Properties are Sub-Entities
-        for prop in entity.properties:
-            prop_key, prop_value = extract_data_from_entity(
-                prop, use_enriched, use_structured_value)
-            document_entities[prop_key] = prop_value
+        key = entity.type_
+        # Use EKG Enriched Data if available
+        normalized_value = getattr(entity, "normalized_value", None)
+        value = normalized_value.text if normalized_value else entity.mention_text
+
+        document_entities[key] = value
 
     return document_entities
 

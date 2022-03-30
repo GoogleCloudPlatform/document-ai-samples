@@ -8,7 +8,7 @@ from docai_utils import classify_document_bytes, select_processor_from_classific
 from firestore_utils import save_to_firestore
 
 
-def run_docai_pipeline(local_files: List[Tuple[str, str]]) -> dict:
+def run_docai_pipeline(local_files: List[Tuple[str, str]]):
     """
     Classify Document Types,
     Select Appropriate Parser Processor,
@@ -56,7 +56,13 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]) -> dict:
             document_entities["broad_classification"] = processor_type.removesuffix(
                 '_PROCESSOR')
             document_entities["source_file"] = path_basename(file_path)
+            document_id = document_entities["broad_classification"]
 
             # Save Document Entities to Firestore
-            save_to_firestore(project_id=FIRESTORE_PROJECT_ID, collection=FIRESTORE_COLLECTION,
-                              document_id=document_entities["broad_classification"], data=document_entities)
+            print(f"Writing Document Entities to Firestore. Document ID: {document_id}")
+            save_to_firestore(
+                project_id=FIRESTORE_PROJECT_ID, 
+                collection=FIRESTORE_COLLECTION,
+                document_id=document_id,
+                data=document_entities
+            )

@@ -11,6 +11,8 @@ CLASSIFIER_PROCESSOR_TYPES = set([
 
 # Map Processor Type to Classifier Output
 PROCESSOR_SUPPORTED_DOCUMENT_TYPES = {
+    # Default for all non-classified documents
+    "FORM_PARSER_PROCESSOR": ["other"],
     # Lending Processors
     'BANK_STATEMENT_PROCESSOR': ['account_statement_bank'],
     'FORM_1040SCH_C_PROCESSOR': ['1040sc',
