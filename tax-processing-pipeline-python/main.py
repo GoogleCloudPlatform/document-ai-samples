@@ -13,20 +13,20 @@ from tax_pipeline import run_tax_pipeline, get_stored_data
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = '/tmp'
-ALLOWED_MIMETYPES = set(['application/pdf', 'image/tiff', 'image/jpeg'])
+UPLOAD_FOLDER = "/tmp"
+ALLOWED_MIMETYPES = set(["application/pdf", "image/tiff", "image/jpeg"])
 
 
-@app.route('/', methods=['GET'])
+@app.route("/", methods=["GET"])
 def index() -> str:
     """
     Web Server, Homepage
     """
 
-    return render_template('index.html')
+    return render_template("index.html")
 
 
-@app.route('/file_upload', methods=['POST'])
+@app.route("/file_upload", methods=["POST"])
 def file_upload() -> str:
     """
     Handle file upload request
@@ -41,8 +41,7 @@ def file_upload() -> str:
 
     # Check if POST Request includes Files
     if not request.files:
-        return render_template(
-            'index.html', message_error='No files provided')
+        return render_template("index.html", message_error="No files provided")
 
     files = request.files.getlist("files")
 
@@ -50,14 +49,17 @@ def file_upload() -> str:
 
     if not uploaded_filenames:
         return render_template(
-            'index.html', message_error='No valid files provided')
+            "index.html", message_error="No valid files provided"
+        )
 
     run_docai_pipeline(uploaded_filenames)
 
-    return render_template('index.html', message_success='Successfully uploaded files')
+    return render_template(
+        "index.html", message_success="Successfully uploaded files"
+    )
 
 
-@app.route('/view_extracted_data', methods=['GET'])
+@app.route("/view_extracted_data", methods=["GET"])
 def view_extracted_data() -> str:
     """
     Display Raw extracted data from Documents
@@ -65,11 +67,12 @@ def view_extracted_data() -> str:
     extracted_data = get_stored_data()
     if not extracted_data:
         return render_template(
-            'index.html', message_error='No data to display')
-    return render_template('index.html', extracted_data=extracted_data)
+            "index.html", message_error="No data to display"
+        )
+    return render_template("index.html", extracted_data=extracted_data)
 
 
-@app.route('/view_data_aggregation', methods=['GET'])
+@app.route("/view_data_aggregation", methods=["GET"])
 def view_data_aggregation() -> str:
     """
     Calculate Tax Return with Document Information from Firestore
@@ -77,8 +80,9 @@ def view_data_aggregation() -> str:
     tax_data = run_tax_pipeline()
     if not tax_data:
         return render_template(
-            'index.html', message_error='No data to display')
-    return render_template('index.html', tax_data=tax_data)
+            "index.html", message_error="No data to display"
+        )
+    return render_template("index.html", tax_data=tax_data)
 
 
 def save_files_to_temp_directory(files, temp_dir) -> List[Tuple[str, str]]:
@@ -89,12 +93,12 @@ def save_files_to_temp_directory(files, temp_dir) -> List[Tuple[str, str]]:
     uploaded_filenames = []
     for file in files:
 
-        if not file or file.filename == '':
-            print('Skipping corrupt file')
+        if not file or file.filename == "":
+            print("Skipping corrupt file")
             continue
 
         if file.mimetype not in ALLOWED_MIMETYPES:
-            print(f'Invalid File Type: {file.filename}: {file.mimetype}')
+            print(f"Invalid File Type: {file.filename}: {file.mimetype}")
             continue
 
         input_file_path = os.path.join(temp_dir.name, file.filename)
@@ -116,7 +120,9 @@ def handle_exception(e):
 
     # now you're handling non-HTTP exceptions only
     return render_template(
-        'index.html', message_error='An unknown error occurred, please try again later')
+        "index.html",
+        message_error="An unknown error occurred, please try again later",
+    )
 
 
 if __name__ == "__main__":

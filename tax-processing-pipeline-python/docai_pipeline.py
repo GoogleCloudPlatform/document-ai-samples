@@ -3,8 +3,18 @@ Document AI End to End Pipeline
 """
 from typing import List, Tuple
 from os.path import basename as path_basename
-from consts import DOCAI_PROJECT_ID, DOCAI_PROCESSOR_LOCATION, FIRESTORE_PROJECT_ID, FIRESTORE_COLLECTION
-from docai_utils import classify_document_bytes, select_processor_from_classification, process_document_bytes, extract_document_entities
+from consts import (
+    DOCAI_PROJECT_ID,
+    DOCAI_PROCESSOR_LOCATION,
+    FIRESTORE_PROJECT_ID,
+    FIRESTORE_COLLECTION,
+)
+from docai_utils import (
+    classify_document_bytes,
+    select_processor_from_classification,
+    process_document_bytes,
+    extract_document_entities,
+)
 from firestore_utils import save_to_firestore
 
 
@@ -23,7 +33,8 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]):
 
             print("Classifying file:", file_path)
             document_classification = classify_document_bytes(
-                file_content, mime_type)
+                file_content, mime_type
+            )
             print("Classification:", document_classification)
 
             # Optional: If you want to ignore unclassified documents
@@ -32,15 +43,21 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]):
                 continue
 
             # Get Specialized Processor
-            processor_type, processor_id = select_processor_from_classification(
-                document_classification)
-            print(
-                f"Using Processor {processor_type}: {processor_id}")
+            (
+                processor_type,
+                processor_id,
+            ) = select_processor_from_classification(document_classification)
+            print(f"Using Processor {processor_type}: {processor_id}")
 
             # Run Parser
             try:
-                document_proto = process_document_bytes(DOCAI_PROJECT_ID, DOCAI_PROCESSOR_LOCATION,
-                                                        processor_id, file_content, mime_type)
+                document_proto = process_document_bytes(
+                    DOCAI_PROJECT_ID,
+                    DOCAI_PROCESSOR_LOCATION,
+                    processor_id,
+                    file_content,
+                    mime_type,
+                )
             except Exception:
                 print("Skipping file:", file_path)
                 continue
@@ -53,16 +70,19 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]):
             document_entities["classification"] = document_classification
             # Processor Type corresponds to a Broad Category
             # e.g. Multiple W2 Years correspond to the same processor type
-            document_entities["broad_classification"] = processor_type.removesuffix(
-                '_PROCESSOR')
+            document_entities[
+                "broad_classification"
+            ] = processor_type.removesuffix("_PROCESSOR")
             document_entities["source_file"] = path_basename(file_path)
             document_id = document_entities["broad_classification"]
 
             # Save Document Entities to Firestore
-            print(f"Writing Document Entities to Firestore. Document ID: {document_id}")
+            print(
+                f"Writing Document Entities to Firestore. Document ID: {document_id}"
+            )
             save_to_firestore(
-                project_id=FIRESTORE_PROJECT_ID, 
+                project_id=FIRESTORE_PROJECT_ID,
                 collection=FIRESTORE_COLLECTION,
                 document_id=document_id,
-                data=document_entities
+                data=document_entities,
             )

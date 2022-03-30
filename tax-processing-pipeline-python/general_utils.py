@@ -8,7 +8,7 @@ def read_yaml(file_path):
     """
     Reads a yaml file and returns a dictionary
     """
-    with open(file_path, "r", encoding='utf8') as file:
+    with open(file_path, "r", encoding="utf8") as file:
         return yaml.safe_load(file)
 
 
@@ -16,7 +16,7 @@ def write_yaml(file_path, data):
     """
     Writes a yaml file from a dictionary
     """
-    with open(file_path, "w", encoding='utf8') as file:
+    with open(file_path, "w", encoding="utf8") as file:
         yaml.dump(data, file)
 
 
