@@ -1,3 +1,6 @@
+"""
+Sends address data from Invoices to Geocode API and writes to BigQuery
+"""
 import base64
 import json
 import os
@@ -6,8 +9,8 @@ import requests
 
 from google.cloud import bigquery
 
-dataset_name = 'invoice_parser_results'
-table_name = 'geocode_details'
+DATASET_NAME = 'invoice_parser_results'
+TABLE_NAME = 'geocode_details'
 
 bq_client = bigquery.Client()
 
@@ -53,7 +56,7 @@ def process_address(event, context):
     geocode_dict.update(geocode_response_dict)
     print(geocode_dict)
 
-    write_to_bq(dataset_name, table_name, geocode_dict)
+    write_to_bq(DATASET_NAME, TABLE_NAME, geocode_dict)
 
 
 def extract_geocode_info(query_address, data_type='json') -> dict:
@@ -62,10 +65,10 @@ def extract_geocode_info(query_address, data_type='json') -> dict:
     """
     geocode_response_dict = {}
     endpoint = f"https://maps.googleapis.com/maps/api/geocode/{data_type}"
-    API_key = os.environ.get('API_key')
+    api_key = os.environ.get('API_key')
     params = {
         "address": query_address,
-        "key": API_key
+        "key": api_key
     }
     url_params = urlencode(params)
     try:

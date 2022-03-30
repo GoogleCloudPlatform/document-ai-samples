@@ -1,3 +1,8 @@
+"""
+Sends Invoices to Document AI API
+Saves Extracted Info to BigQuery
+Sends addresses to Geocoding PubSub Topic.
+"""
 import re
 import os
 import json
@@ -11,9 +16,9 @@ from google.api_core.operation import Operation
 
 # Reading environment variables
 gcs_output_uri_prefix = os.environ.get('GCS_OUTPUT_URI_PREFIX')
-project_id = os.environ.get('GCP_PROJECT')
-location = os.environ.get('PARSER_LOCATION')
-processor_id = os.environ.get('PROCESSOR_ID')
+PROJECT_ID = os.environ.get('GCP_PROJECT')
+LOCATION = os.environ.get('PARSER_LOCATION')
+PROCESSOR_ID = os.environ.get('PROCESSOR_ID')
 geocode_request_topicname = os.environ.get('GEOCODE_REQUEST_TOPICNAME')
 timeout = int(os.environ.get('TIMEOUT'))
 
@@ -26,15 +31,15 @@ address_fields = ['receiver_address', 'remit_to_address',
                   'ship_from_address', 'ship_to_address', 'supplier_address']
 
 # GCS Variables
-gcs_output_bucket = f"{project_id}-output-invoices"
-gcs_archive_bucket_name = f"{project_id}-archived-invoices"
+gcs_output_bucket = f"{PROJECT_ID}-output-invoices"
+gcs_archive_bucket_name = f"{PROJECT_ID}-archived-invoices"
 destination_uri = f"gs://{gcs_output_bucket}/{gcs_output_uri_prefix}/"
 
-dataset_name = 'invoice_parser_results'
-entities_table_name = 'doc_ai_extracted_entities'
+DATSET_NAME = 'invoice_parser_results'
+ENTITIES_TABLE_NAME = 'doc_ai_extracted_entities'
 
 client_options = {
-    "api_endpoint": f"{location}-documentai.googleapis.com"
+    "api_endpoint": f"{LOCATION}-documentai.googleapis.com"
 }
 
 docai_client = documentai.DocumentProcessorServiceClient(
@@ -193,7 +198,11 @@ def get_document_protos_from_gcs(
     return document_protos
 
 
-def cleanup_gcs(input_bucket: str, input_filename: str, output_bucket: str, output_directory: str, archive_bucket: str):
+def cleanup_gcs(input_bucket: str,
+                input_filename: str,
+                output_bucket: str,
+                output_directory: str,
+                archive_bucket: str):
     """
     Deleting the intermediate files created by the Doc AI Parser
     Moving Input Files to Archive
@@ -216,8 +225,6 @@ def cleanup_gcs(input_bucket: str, input_filename: str, output_bucket: str, outp
     # delete from the input folder
     source_blob.delete()
 
-    return
-
 
 def process_address(address_type: str, address_value: str, input_filename: str) -> str:
     """
@@ -231,7 +238,7 @@ def process_address(address_type: str, address_value: str, input_filename: str) 
     message_data = json.dumps(message).encode("utf-8")
 
     geocode_topic_path = pub_client.topic_path(
-        project_id, geocode_request_topicname)
+        PROJECT_ID, geocode_request_topicname)
     geocode_future = pub_client.publish(
         geocode_topic_path, data=message_data)
     geocode_futures.append(geocode_future)
@@ -262,7 +269,7 @@ def process_invoice(event, context):
     print("Input File: " + gcs_input_uri)
 
     operation = _batch_process_documents(
-        project_id, location, processor_id, gcs_input_uri, destination_uri)
+        PROJECT_ID, LOCATION, PROCESSOR_ID, gcs_input_uri, destination_uri)
 
     print("Document Processing Operation: " + operation.operation.name)
 
@@ -291,7 +298,7 @@ def process_invoice(event, context):
         print("Writing DocAI Entities to BQ")
 
         # Add Entities to DocAI Extracted Entities Table
-        write_to_bq(dataset_name, entities_table_name, entities)
+        write_to_bq(DATSET_NAME, ENTITIES_TABLE_NAME, entities)
 
         # Send Address Data to PubSub
         for address_field in address_fields:
