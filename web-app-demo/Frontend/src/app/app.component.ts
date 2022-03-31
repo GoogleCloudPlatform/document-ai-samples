@@ -39,7 +39,7 @@ export class AppComponent {
   public static backendURL = '';
 
   ngOnInit() {
-    backendURL = "https://" + this.router.url.split('-')[3];
+    backendURL = "https://backend" + this.router.url.split('-')[3];
     console.log(this.router.url);
 }
   
