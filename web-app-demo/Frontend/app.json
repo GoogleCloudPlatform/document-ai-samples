@@ -4,20 +4,12 @@
         "BACKEND_URL": {
             "description": "specify the backend url you deployed to",
             "required": true
-        },
-        "PROJECT_ID": {
-            "description": "provide a project id",
-            "required": true
-        },
-        "REGION": {
-            "description": "provide a project id",
-            "required": true
         }
     },
     "hooks": {
         "prebuild": {
             "commands": [
-                "cd ../Backend/","gcloud run deploy backend --source  --project=$PROJECT_ID --region=$REGION"
+                "cloudshell_open --repo_url 'https://github.com/galz10/document-ai-samples.git' --dir 'web-app-demo/Backend' --page 'shell' --git_branch 'main' --force_new_clone"
             ]
         }
     }
