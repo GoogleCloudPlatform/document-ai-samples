@@ -18,6 +18,7 @@
 
 import {Component} from '@angular/core';
 import {DataSharingServiceService} from './data-sharing-service.service';
+import { Router } from '@angular/router';
 
 declare var backendURL: string;
 
@@ -30,9 +31,16 @@ declare var backendURL: string;
  * AppComponent sets title and backendURL
  */
 export class AppComponent {
+
+  constructor(private router: Router) {}
+
   title = 'Document AI Modular App';
   sharingClient = new DataSharingServiceService();
-  
   public static backendURL = '';
+
+  ngOnInit() {
+    backendURL = "https://" + this.router.url.split('-')[3];
+    console.log(this.router.url);
+}
   
 }
