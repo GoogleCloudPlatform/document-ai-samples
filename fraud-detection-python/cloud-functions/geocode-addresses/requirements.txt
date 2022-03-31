@@ -1,0 +1,5 @@
+requests
+urllib3
+googlemaps==4.4.2
+google-cloud-bigquery
+google-cloud-pubsub
