@@ -8,6 +8,10 @@
         "PROJECT_ID": {
             "description": "provide a project id",
             "required": true
+        },
+        "REGION": {
+            "description": "provide a project id",
+            "required": true
         }
     },
     "hooks": {
