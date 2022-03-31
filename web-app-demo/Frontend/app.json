@@ -13,7 +13,7 @@
     "hooks": {
         "prebuild": {
             "commands": [
-                "cd ../Backend/","gcloud run deploy backend --source  --project=$PROJECT --region=$REGION"
+                "cd ../Backend/","gcloud run deploy backend --source  --project=$PROJECT_ID --region=$REGION"
             ]
         }
     }
