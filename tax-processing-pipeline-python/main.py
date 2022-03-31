@@ -1,3 +1,4 @@
+# type: ignore[1]
 """
 Flask Web Server
 """
