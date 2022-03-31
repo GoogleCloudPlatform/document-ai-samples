@@ -34,9 +34,5 @@ export class AppComponent {
   sharingClient = new DataSharingServiceService();
   
   public static backendURL = '';
-
-  constructor(){
-    console.log(backendURL)
-  }
   
 }
