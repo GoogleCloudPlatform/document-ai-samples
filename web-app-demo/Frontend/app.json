@@ -9,7 +9,7 @@
     "hooks": {
         "prebuild": {
             "commands": [
-                "cd Backend","gcloud deploy"
+                "cd ../Backend/","gcloud deploy --source"
             ]
         }
     }
