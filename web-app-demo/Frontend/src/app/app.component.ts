@@ -32,15 +32,8 @@ declare var backendURL: string;
  */
 export class AppComponent {
 
-  constructor(private router: Router) {}
-
   title = 'Document AI Modular App';
   sharingClient = new DataSharingServiceService();
-  public static backendURL = '';
-
-  ngOnInit() {
-    backendURL = "https://backend" + this.router.url.split('-')[3];
-    console.log(this.router.url);
-}
+  public static backendURL = "https://backend" + Router.url.split('-')[3];
   
 }
