@@ -46,15 +46,15 @@ gcloud services enable geocoding-backend.googleapis.com
 gcloud services enable cloudbuild.googleapis.com
 ```
 
-1. Initialize Repository
+1. Initialize repositorysitory
 
-    * Activate your Command Shell and clone this GitHub Repo in your Command shell using the command:
+    * Activate your Command Shell and clone this GitHub repository in your Command shell using the command:
   
         ```sh
         git clone https://github.com/GoogleCloudPlatform/documentai-fraud-detection-demo.git
         ```
 
-    * Change Directory to the Repo Folder
+    * Change Directory to the repository Folder
 
        ```sh
        cd documentai-fraud-detection-demo
@@ -62,7 +62,7 @@ gcloud services enable cloudbuild.googleapis.com
 
 2. Manage API Key
 
-   * [Create an API Key](https://cloud.google.com/docs/authentication/api-keys#creating_an_api_key) - Note the **api key value**, you will need to plug this values in your cloud function's environment variables
+   * [Create an API Key](https://cloud.google.com/docs/authentication/api-keys#creating_an_api_key)
   
    * Paste the API Key in the [`geocode-addresses/.env.yaml`](cloud-functions/geocode-addresses/.env.yaml) file.
 
