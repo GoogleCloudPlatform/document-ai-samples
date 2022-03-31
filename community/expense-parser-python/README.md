@@ -1,18 +1,18 @@
 # Expense Parser Demo (Python)
 
-# Description
-This repo constructs an end-to-end pipeline on GCP to process expenses (ie. receipts) with the Document AI API. This repo serves as a sample code to build your own demo but is not tested for production. 
+## Description
+This repository constructs an end-to-end pipeline on GCP to process expenses (ie. receipts) with the Document AI API. This repository serves as a sample code to build your own demo but is not tested for production. 
 
-# Visualizing the workflow
+## Visualizing the workflow
 ![GCP Workflow](https://user-images.githubusercontent.com/47513414/150703075-8f608859-436e-4c22-8dc9-f71121705f3a.png)
 
-# GCP Services used in the Demo
+## GCP Services used in the Demo
 * [Google Cloud Procurement Document AI](https://cloud.google.com/solutions/procurement-doc-ai)
 * [Google Cloud Storage](https://cloud.google.com/storage)
 * [Google Cloud Functions](https://cloud.google.com/functions)
 * [BigQuery](https://cloud.google.com/bigquery)
 
-# Steps to re-create this demo in your own GCP environment
+## Steps to re-create this demo in your own GCP environment
 1. Create a Google Cloud Platform Project
 
 2. Enable the **Cloud Document AI API** and **Cloud Build API** in the project you created in step #1 
@@ -40,7 +40,7 @@ This repo constructs an end-to-end pipeline on GCP to process expenses (ie. rece
     * Name your processor and click **Create**
     * Take note of your processor's region (eg. us) and processor ID
 
-6. Activate your Command Shell and clone this GitHub Repo in your Command shell using the command:
+6. Activate your Command Shell and clone this GitHub repository in your Command shell using the command:
 ```
 gh repo clone GoogleCloudPlatform/document-ai-samples
 ```
@@ -94,5 +94,5 @@ gh repo clone GoogleCloudPlatform/document-ai-samples
     3. With the structured data in BigQuery, we can now design downstream analytical tools to gain actionable insights as well as detect errors/frauds.
 
 
-# Disclaimer
+## Disclaimer
 This community sample is not officially maintained by Google.
