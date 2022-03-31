@@ -4,20 +4,18 @@ Initialize Document AI Processors and Config File
 
 from google.api_core.exceptions import GoogleAPICallError
 
+from consts import (
+    CONFIG,
+    CONFIG_FILE_PATH,
+    DOCAI_PROCESSOR_LOCATION,
+    DOCAI_PROJECT_ID,
+)
 from docai_processors import (
     create_processor,
     fetch_processor_types,
     get_processor_id,
 )
-
 from general_utils import write_yaml
-
-from consts import (
-    CONFIG_FILE_PATH,
-    CONFIG,
-    DOCAI_PROJECT_ID,
-    DOCAI_PROCESSOR_LOCATION,
-)
 
 PROCESSOR_NAME_PREFIX = "taxdemo2022-"
 PROCESSOR_CONFIG_FIELD = "docai_active_processors"
