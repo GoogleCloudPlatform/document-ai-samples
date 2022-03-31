@@ -5,5 +5,12 @@
             "description": "specify the backend url you deployed to",
             "required": true
         }
+    },
+    "hooks": {
+        "prebuild": {
+            "commands": [
+                "cd Backend","gcloud deploy"
+            ]
+        }
     }
 }
