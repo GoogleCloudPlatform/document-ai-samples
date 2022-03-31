@@ -23,7 +23,7 @@ import google.auth
 from api.helper import process_document, store_file,populate_list_source
 
 _, project_id = google.auth.default()
-LOCATION = 'ENTER_YOUR_LOCATION_HERE'  # Format is 'us' or 'eu'
+LOCATION = 'us'  # Format is 'us' or 'eu'
 
 processor_id_by_processor_type = {}
 

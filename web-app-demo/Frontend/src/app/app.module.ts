@@ -64,6 +64,11 @@ import {CanvasComponent} from './components/canvas/canvas.component';
     MatCardModule,
     MatProgressSpinnerModule,
   ],
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.BACKEND_URL': JSON.stringify(process.env['BACKEND_URL']),
+    })
+  ],
   providers: [],
   bootstrap: [AppComponent],
 })
