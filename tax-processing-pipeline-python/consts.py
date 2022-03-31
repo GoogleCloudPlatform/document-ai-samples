@@ -2,7 +2,7 @@
 DocAI End-to-End Pipeline Demo Constant Definitions
 """
 
-from general_utils import read_yaml, invert_dictionary_with_array
+from general_utils import invert_dictionary_with_array, read_yaml
 
 # Processors that Split & Classify
 CLASSIFIER_PROCESSOR_TYPES = set(
@@ -86,13 +86,14 @@ DOCUMENT_SUPPORTED_PROCESSOR_TYPES = invert_dictionary_with_array(
     PROCESSOR_SUPPORTED_DOCUMENT_TYPES
 )
 
-_config = read_yaml("config.yaml")
+CONFIG_FILE_PATH = "config.yaml"
+CONFIG = read_yaml(CONFIG_FILE_PATH)
 
-DOCAI_PROJECT_ID = _config["docai_project_id"]
-DOCAI_PROCESSOR_LOCATION = _config["docai_processor_location"]
-DOCAI_ACTIVE_PROCESSORS = _config["docai_active_processors"]
+DOCAI_PROJECT_ID = CONFIG["docai_project_id"]
+DOCAI_PROCESSOR_LOCATION = CONFIG["docai_processor_location"]
+DOCAI_ACTIVE_PROCESSORS = CONFIG["docai_active_processors"]
 
-FIRESTORE_PROJECT_ID = _config["firestore"]["project_id"]
-FIRESTORE_COLLECTION = _config["firestore"]["collection"]
+FIRESTORE_PROJECT_ID = CONFIG["firestore"]["project_id"]
+FIRESTORE_COLLECTION = CONFIG["firestore"]["collection"]
 
 DEFAULT_MIME_TYPE = "application/pdf"

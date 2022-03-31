@@ -15,9 +15,9 @@
 <body>
     <header>
         <a href="/">
-        <img src="https://fonts.gstatic.com/s/i/gcpiconscolors/document_ai/v1/web-32dp/colors_document_ai_color_2x_web_32dp.png"
-            alt="">
-        <h1>Document AI - Automated Pipeline Demo</h1>
+            <img src="https://fonts.gstatic.com/s/i/gcpiconscolors/document_ai/v1/web-32dp/colors_document_ai_color_2x_web_32dp.png"
+                alt="">
+            <h1>Document AI - Automated Pipeline Demo</h1>
         </a>
     </header>
     <main id="active-area">
@@ -65,7 +65,7 @@
         <hr>
 
         {% endfor %}
-                <a href="/view_data_aggregation" class="button">Compute Data Aggregation</a>
+        <a href="/view_data_aggregation" class="button">Compute Data Aggregation</a>
 
         {% elif message_error %}
         <p>{{message_error}}</p>
@@ -87,17 +87,18 @@
             </ul>
         </div>
         <p>
-        Use the sample files provided in the <a
-            href="https://github.com/holtskinner/docai-tax-demo/tree/main/sample-docs">Repository</a> for best results.
+            Use the sample files provided in the <a
+                href="https://github.com/holtskinner/docai-tax-demo/tree/main/sample-docs">Repository</a> for best
+            results.
         </p>
-<hr>
+        <hr>
 
-        <form id="upload-documents" action="/file_upload" method="post" enctype=multipart/form-data>
+        <form id="upload-documents" action="/file_upload" method="post" enctype="multipart/form-data">
             <label for="file">Upload your file(s)</label>
             <input type="file" name="files" id="files" multiple>
             <input type="submit" value="Upload">
         </form>
-<hr>
+        <hr>
 
         <a href="/view_data_aggregation" class="button">View Sample Output</a>
         {% endif %}
@@ -113,7 +114,7 @@
         text-align: center;
     }
 
-    table > caption {
+    table>caption {
         font-size: 1.5em;
         font-weight: bold;
     }
@@ -144,8 +145,9 @@
     }
 
     table.tax-return {
-       background-color: #DCFFFB;
+        background-color: #DCFFFB;
     }
+
 </style>
 
 

@@ -1,11 +1,12 @@
+# type: ignore[1]
 """
 Tax Processing Functions
 """
 from decimal import Decimal
 from typing import List
-from firestore_utils import get_all_data_from_firestore_collection
 
-from consts import FIRESTORE_PROJECT_ID, FIRESTORE_COLLECTION
+from consts import FIRESTORE_COLLECTION, FIRESTORE_PROJECT_ID
+from firestore_utils import get_all_data_from_firestore_collection
 
 _FORM_1099DIV = "FORM_1099DIV"
 _FORM_1099INT = "FORM_1099INT"
@@ -49,6 +50,7 @@ def run_tax_pipeline() -> List[List]:
 
 
 def calculate_tax_values(data: dict) -> List[List]:
+    # pylint: disable=too-many-locals
     """
     Calculate tax values
     """
@@ -159,7 +161,8 @@ def calculate_tax_values(data: dict) -> List[List]:
         ],
         [
             "9",
-            "Add lines 1, 2b, 3b, 4b, 5b, 6b, 7, and 8. This is your total income",
+            "Add lines 1, 2b, 3b, 4b, 5b, 6b, 7, and 8. \
+                This is your total income",
             line_9,
             "",
         ],
@@ -170,7 +173,8 @@ def calculate_tax_values(data: dict) -> List[List]:
         ["14", "Add lines 12 and 13", line_14, ""],
         [
             "15",
-            "Taxable income. Subtract line 14 from line 11. If zero or less, enter 0",
+            "Taxable income. Subtract line 14 from line 11. \
+            If zero or less, enter 0",
             line_15,
             "",
         ],
@@ -181,7 +185,8 @@ def calculate_tax_values(data: dict) -> List[List]:
             "25b",
             "Tax Withheld from Form 1099(s)",
             line_25b,
-            f"{_FORM_1099DIV}, {_FORM_1099INT}, {_FORM_1099NEC}, {_FORM_1099MISC}",
+            f"{_FORM_1099DIV}, {_FORM_1099INT}, {_FORM_1099NEC}, \
+                {_FORM_1099MISC}",
         ],
         ["25d", "Total Tax Withheld", line_25d, ""],
         ["33", "Total Payments", line_33, ""],

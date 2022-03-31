@@ -62,7 +62,7 @@ For an example use case, the application is equipped to process an individual US
 2. Run setup scripts to create the processors and Cloud Run app in your project.
    - `python3 setup.py`
    - `gcloud run deploy tax-demo --source .`
-3. Visit the Deployed Webpage
+3. Visit the deployed web page
 4. Upload Sample Documents
     - Currently supports the following Document Types (2020 Editions)
         - `W-2`

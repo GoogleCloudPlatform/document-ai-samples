@@ -1,19 +1,22 @@
 """
 Document AI End to End Pipeline
 """
-from typing import List, Tuple
 from os.path import basename as path_basename
+from typing import List, Tuple
+
+from google.api_core.exceptions import GoogleAPICallError
+
 from consts import (
-    DOCAI_PROJECT_ID,
     DOCAI_PROCESSOR_LOCATION,
-    FIRESTORE_PROJECT_ID,
+    DOCAI_PROJECT_ID,
     FIRESTORE_COLLECTION,
+    FIRESTORE_PROJECT_ID,
 )
 from docai_utils import (
     classify_document_bytes,
-    select_processor_from_classification,
-    process_document_bytes,
     extract_document_entities,
+    process_document_bytes,
+    select_processor_from_classification,
 )
 from firestore_utils import save_to_firestore
 
@@ -58,7 +61,7 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]):
                     file_content,
                     mime_type,
                 )
-            except Exception:
+            except GoogleAPICallError:
                 print("Skipping file:", file_path)
                 continue
 
@@ -78,7 +81,8 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]):
 
             # Save Document Entities to Firestore
             print(
-                f"Writing Document Entities to Firestore. Document ID: {document_id}"
+                f"Writing Document Entities to Firestore. \
+                Document ID: {document_id}"
             )
             save_to_firestore(
                 project_id=FIRESTORE_PROJECT_ID,

@@ -1,6 +1,7 @@
 typing
 pyyaml
 
+google-api-core
 google-cloud-documentai
 google-cloud-firestore
 

@@ -2,14 +2,14 @@
 Flask Web Server
 """
 import os
-
 from tempfile import TemporaryDirectory
 from typing import List, Tuple
-from flask import Flask, after_this_request, render_template, request
+
+from flask import Flask, render_template, request
 from werkzeug.exceptions import HTTPException
 
 from docai_pipeline import run_docai_pipeline
-from tax_pipeline import run_tax_pipeline, get_stored_data
+from tax_pipeline import get_stored_data, run_tax_pipeline
 
 app = Flask(__name__)
 
@@ -32,31 +32,28 @@ def file_upload() -> str:
     Handle file upload request
     """
 
-    temp_dir = TemporaryDirectory()
+    with TemporaryDirectory() as temp_dir:
 
-    @after_this_request
-    def cleanup(response):
-        temp_dir.cleanup()
-        return response
+        # Check if POST Request includes Files
+        if not request.files:
+            return render_template(
+                "index.html", message_error="No files provided"
+            )
 
-    # Check if POST Request includes Files
-    if not request.files:
-        return render_template("index.html", message_error="No files provided")
+        files = request.files.getlist("files")
 
-    files = request.files.getlist("files")
+        uploaded_filenames = save_files_to_temp_directory(files, temp_dir)
 
-    uploaded_filenames = save_files_to_temp_directory(files, temp_dir)
+        if not uploaded_filenames:
+            return render_template(
+                "index.html", message_error="No valid files provided"
+            )
 
-    if not uploaded_filenames:
+        run_docai_pipeline(uploaded_filenames)
+
         return render_template(
-            "index.html", message_error="No valid files provided"
+            "index.html", message_success="Successfully uploaded files"
         )
-
-    run_docai_pipeline(uploaded_filenames)
-
-    return render_template(
-        "index.html", message_success="Successfully uploaded files"
-    )
 
 
 @app.route("/view_extracted_data", methods=["GET"])
@@ -110,13 +107,13 @@ def save_files_to_temp_directory(files, temp_dir) -> List[Tuple[str, str]]:
 
 
 @app.errorhandler(Exception)
-def handle_exception(e):
+def handle_exception(ex):
     """
     Handle Application Exceptions
     """
     # pass through HTTP errors
-    if isinstance(e, HTTPException):
-        return e
+    if isinstance(ex, HTTPException):
+        return ex
 
     # now you're handling non-HTTP exceptions only
     return render_template(

@@ -2,22 +2,22 @@
 Initialize Document AI Processors and Config File
 """
 
+from google.api_core.exceptions import GoogleAPICallError
+
 from docai_processors import (
     create_processor,
     fetch_processor_types,
     get_processor_id,
 )
-from general_utils import read_yaml, write_yaml
 
-CONFIG_FILE_PATH = "config.yaml"
+from general_utils import write_yaml
 
-CONFIG = read_yaml(CONFIG_FILE_PATH)
-
-DOCAI_PROJECT_ID = CONFIG["docai_project_id"]
-DOCAI_LOCATION = CONFIG["docai_processor_location"]
-
-FIRESTORE_PROJECT_ID = CONFIG["firestore"]["project_id"]
-FIRESTORE_COLLECTION = CONFIG["firestore"]["collection"]
+from consts import (
+    CONFIG_FILE_PATH,
+    CONFIG,
+    DOCAI_PROJECT_ID,
+    DOCAI_PROCESSOR_LOCATION,
+)
 
 PROCESSOR_NAME_PREFIX = "taxdemo2022-"
 PROCESSOR_CONFIG_FIELD = "docai_active_processors"
@@ -34,6 +34,9 @@ TAX_DEMO_PROCESSORS = set(
     ]
 )
 
+# pylint: disable-next=line-too-long
+ACCESS_REQUEST_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc_6s8jsHLZWWE0aSX0bdmk24XDoPiE_oq5enDApLcp1VKJ-Q/viewform?gxids=7826"  # noqa: E501
+
 
 def setup():
     """
@@ -41,7 +44,7 @@ def setup():
     """
     # List Available Processor Types
     available_processor_types = fetch_processor_types(
-        DOCAI_PROJECT_ID, DOCAI_LOCATION
+        DOCAI_PROJECT_ID, DOCAI_PROCESSOR_LOCATION
     )
 
     created_processors = {}
@@ -57,14 +60,15 @@ def setup():
         if not processor_type.allow_creation:
             # This demo requires Lending Processors.
             print(
-                f"Project {DOCAI_PROJECT_ID} does not have permission to create {processor_type_name}."
+                f"Project {DOCAI_PROJECT_ID} does not have \
+                    permission to create {processor_type_name}."
             )
             print(
-                "If you have a business use case for these processors, you can fill out and submit the Document AI limited access customer request form."
+                "If you have a business use case for these processors, you can \
+                    fill out and submit the Document AI limited access \
+                    customer request form."
             )
-            print(
-                "https://docs.google.com/forms/d/e/1FAIpQLSc_6s8jsHLZWWE0aSX0bdmk24XDoPiE_oq5enDApLcp1VKJ-Q/viewform?gxids=7826"
-            )
+            print(ACCESS_REQUEST_URL)
             return
 
         display_name = f"{PROCESSOR_NAME_PREFIX}{processor_type_name.lower()}"
@@ -73,11 +77,11 @@ def setup():
         try:
             processor = create_processor(
                 DOCAI_PROJECT_ID,
-                DOCAI_LOCATION,
+                DOCAI_PROCESSOR_LOCATION,
                 display_name,
                 processor_type=processor_type_name,
             )
-        except Exception as exception:
+        except GoogleAPICallError as exception:
             print("Could not create processor:", display_name)
             print(exception)
             return

@@ -3,20 +3,21 @@ Document AI Utility Functions
 """
 from typing import Tuple
 
+from google.api_core.client_options import ClientOptions
 from google.cloud import documentai_v1 as documentai
 
 from consts import (
     CLASSIFIER_PROCESSOR_TYPES,
-    DOCUMENT_SUPPORTED_PROCESSOR_TYPES,
-    DOCAI_PROJECT_ID,
-    DOCAI_PROCESSOR_LOCATION,
-    DOCAI_ACTIVE_PROCESSORS,
     DEFAULT_MIME_TYPE,
+    DOCAI_ACTIVE_PROCESSORS,
+    DOCAI_PROCESSOR_LOCATION,
+    DOCAI_PROJECT_ID,
+    DOCUMENT_SUPPORTED_PROCESSOR_TYPES,
 )
 
-client_options = {
-    "api_endpoint": f"{DOCAI_PROCESSOR_LOCATION}-documentai.googleapis.com"
-}
+client_options = ClientOptions(
+    api_endpoint=f"{DOCAI_PROCESSOR_LOCATION}-documentai.googleapis.com"
+)
 
 # Instantiates a client
 documentai_client = documentai.DocumentProcessorServiceClient(
@@ -127,7 +128,8 @@ def classify_document_bytes(file_content: bytes, mime_type: str) -> str:
             0
         ].type_
 
-        # Specialized Classifiers return "other" if it could not classify to a known type
+        # Specialized Classifiers return "other"
+        # if it could not classify to a known type
         if document_classification == "other":
             continue
 
