@@ -1,9 +1,10 @@
+# type: ignore[1]
 """
 Uses the Document AI online processing method to call a form parser processor
 Extracts the key value pairs found in the document.
 """
-from google.cloud import documentai_v1 as documentai
 import pandas as pd
+from google.cloud import documentai_v1 as documentai
 
 
 def online_process(
@@ -64,7 +65,8 @@ PROCESSOR_ID = "FORM_PARSER_ID"  # Create processor in Cloud Console
 
 # The local file in your current working directory
 FILE_PATH = "form.pdf"
-# Refer to https://cloud.google.com/document-ai/docs/processors-list for supported file types
+# Refer to https://cloud.google.com/document-ai/docs/processors-list
+# for supported file types
 MIME_TYPE = "application/pdf"
 
 document = online_process(

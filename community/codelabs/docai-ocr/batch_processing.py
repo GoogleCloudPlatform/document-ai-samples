@@ -1,3 +1,4 @@
+# type: ignore[1]
 """
 Makes a Batch Processing Request to Document AI
 """
@@ -20,7 +21,7 @@ def get_documents_from_gcs(
     output_bucket = match.group(1)
     prefix = match.group(2)
 
-    # The output files will be in a new subdirectory with the Operation ID as the name
+    # Output files will be in a new subdirectory with Operation ID as the name
     operation_id = re.search(
         r"operations\/(\d+)", operation_name, re.IGNORECASE
     ).group(1)
@@ -29,7 +30,8 @@ def get_documents_from_gcs(
 
     storage_client = storage.Client()
 
-    # List of all of the files in the directory `gs://gcs_output_uri/operation_id`
+    # List of all of the files in the directory
+    # `gs://gcs_output_uri/operation_id`
     blob_list = list(
         storage_client.list_blobs(output_bucket, prefix=output_directory)
     )

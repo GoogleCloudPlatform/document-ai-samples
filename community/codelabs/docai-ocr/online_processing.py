@@ -1,3 +1,4 @@
+# type: ignore[1]
 """
 Makes a Online Processing Request to Document AI
 """
@@ -9,7 +10,8 @@ PROCESSOR_ID = "YOUR_PROCESSOR_ID"  # Create processor in Cloud Console
 
 # The local file in your current working directory
 FILE_PATH = "form.pdf"
-# Refer to https://cloud.google.com/document-ai/docs/processors-list for supported file types
+# Refer to https://cloud.google.com/document-ai/docs/processors-list
+# for supported file types
 MIME_TYPE = "application/pdf"
 
 opts = {"api_endpoint": f"{LOCATION}-documentai.googleapis.com"}

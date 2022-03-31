@@ -1,8 +1,9 @@
+# type: ignore[1]
 """
 Sends a request to a Document AI Specialized Splitter/Classifier Processor
 """
-from google.cloud import documentai_v1 as documentai
 import pandas as pd
+from google.cloud import documentai_v1 as documentai
 
 
 def online_process(
@@ -56,7 +57,8 @@ PROCESSOR_ID = "PROCUREMENT_SPLITTER_ID"  # Create processor in Cloud Console
 
 # The local file in your current working directory
 FILE_PATH = "procurement_multi_document.pdf"
-# Refer to https://cloud.google.com/document-ai/docs/processors-list for supported file types
+# Refer to https://cloud.google.com/document-ai/docs/processors-list
+# for supported file types
 MIME_TYPE = "application/pdf"
 
 document = online_process(
