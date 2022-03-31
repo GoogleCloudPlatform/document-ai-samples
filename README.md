@@ -1,7 +1,7 @@
 # Google Cloud Document AI Samples
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-
+[![GitHub Super-Linter](https://github.com/GoogleCloudPlatform/document-ai-samples/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
 ![Document AI](https://storage.googleapis.com/gweb-cloudblog-publish/images/gcp_docai_platform.1000064920000870.max-2000x2000.jpg)
 
 Welcome to the Google Cloud [Document AI](https://cloud.google.com/document-ai) sample repository.
