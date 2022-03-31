@@ -1,3 +1,4 @@
+# type: ignore[1]
 """
 Sends address data from Invoices to Geocode API and writes to BigQuery
 """
@@ -5,8 +6,9 @@ import base64
 import json
 import os
 from urllib.parse import urlencode
-import requests
 
+import requests
+from google.api_core.exceptions import GoogleAPICallError
 from google.cloud import bigquery
 
 DATASET_NAME = "invoice_parser_results"
@@ -37,10 +39,11 @@ def write_to_bq(dataset_name, table_name, geocode_response_dict):
         )
         result = job.result()  # Waits for table load to complete.
         print(result)
-    except Exception as ex:
+    except GoogleAPICallError as ex:
         print(ex)
 
 
+# pylint: disable=unused-argument
 def process_address(event, context):
     """Triggered from a message on a Cloud Pub/Sub topic.
     Args:

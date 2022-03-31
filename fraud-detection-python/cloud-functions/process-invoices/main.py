@@ -1,18 +1,19 @@
+# type: ignore[1]
 """
 Sends Invoices to Document AI API
 Saves Extracted Info to BigQuery
 Sends addresses to Geocoding PubSub Topic.
 """
-import re
-import os
 import json
-from typing import List
+import os
+import re
+from typing import Any, Dict, List
 
+from google.api_core.client_options import ClientOptions
+from google.api_core.operation import Operation
 from google.cloud import bigquery
 from google.cloud import documentai_v1 as documentai
-from google.cloud import storage
-from google.cloud import pubsub_v1
-from google.api_core.operation import Operation
+from google.cloud import pubsub_v1, storage
 
 # Reading environment variables
 gcs_output_uri_prefix = os.environ.get("GCS_OUTPUT_URI_PREFIX")
@@ -25,7 +26,7 @@ timeout = int(os.environ.get("TIMEOUT"))
 # An array of Future objects
 # Every call to publish() returns an instance of Future
 geocode_futures = []
-kg_futures = []
+
 # Setting variables
 address_fields = [
     "receiver_address",
@@ -43,7 +44,9 @@ destination_uri = f"gs://{gcs_output_bucket}/{gcs_output_uri_prefix}/"
 DATSET_NAME = "invoice_parser_results"
 ENTITIES_TABLE_NAME = "doc_ai_extracted_entities"
 
-client_options = {"api_endpoint": f"{LOCATION}-documentai.googleapis.com"}
+client_options = ClientOptions(
+    api_endpoint=f"{LOCATION}-documentai.googleapis.com"
+)
 
 docai_client = documentai.DocumentProcessorServiceClient(
     client_options=client_options
@@ -94,7 +97,7 @@ def extract_document_entities(document: documentai.Document) -> dict:
     Flattens nested entities/properties
     Format: entity.type_: entity.mention_text OR entity.normalized_value.text
     """
-    document_entities = {}
+    document_entities: Dict[str, Any] = {}
 
     def extract_document_entity(entity: documentai.Document.Entity):
         """
@@ -187,7 +190,8 @@ def get_document_protos_from_gcs(
     Download document proto output from GCS. (Directory)
     """
 
-    # List of all of the files in the directory `gs://gcs_output_uri/operation_id`
+    # List of all of the files in the directory
+    # `gs://gcs_output_uri/operation_id`
     blob_list = list(
         storage_client.list_blobs(output_bucket, prefix=output_directory)
     )
@@ -241,7 +245,7 @@ def cleanup_gcs(
 
 def process_address(
     address_type: str, address_value: str, input_filename: str
-) -> str:
+):
     """
     Creating and publishing a message via Pub Sub
     """
@@ -258,9 +262,8 @@ def process_address(
     geocode_future = pub_client.publish(geocode_topic_path, data=message_data)
     geocode_futures.append(geocode_future)
 
-    return
 
-
+# pylint: disable=unused-argument
 def process_invoice(event, context):
     """
     Extract Invoice Entities and Save to BQ
@@ -292,7 +295,7 @@ def process_invoice(event, context):
     # Wait for the operation to finish
     operation.result(timeout=timeout)
 
-    # The output files will be in a new subdirectory with the Operation ID as the name
+    # Output files will be in a new subdirectory with Operation ID as the name
     operation_id = re.search(
         r"operations\/(\d+)", operation.operation.name, re.IGNORECASE
     ).group(1)
