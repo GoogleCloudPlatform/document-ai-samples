@@ -13,9 +13,8 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 ## Samples
 
 * [PDF Splitter Sample](https://github.com/GoogleCloudPlatform/document-ai-samples/tree/main/pdf-splitter-python): This project uses the Document AI API to split PDF documents.
-
 * [Web App Demo](https://github.com/GoogleCloudPlatform/document-ai-samples/tree/main/web-app-demo): This project is a fullstack application that uses Document AI to process different types of documents. This application currently supports Form, Invoice and OCR processors.
-
+* [Tax Processing Pipeline](tax-processing-pipeline-python/): This project uses the Document AI API to classify, parse, and calculate a tax form using multiple document types.
 * [Fraud Detection](fraud-detection-python/): This project uses the Document AI Invoice Parser with EKG and Google Maps to store document Entities in BigQuery.
 
 ## Codelabs
