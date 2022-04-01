@@ -16,7 +16,9 @@
 
 import os
 import unittest
+from typing import Dict
 from unittest.mock import patch
+
 import google.auth
 from google.cloud import documentai_v1beta3 as docai
 
@@ -25,7 +27,7 @@ from helper import process_document  # pylint: disable=E0401
 _, project_id = google.auth.default()
 LOCATION = "my-location"  # Format is 'us' or 'eu'
 
-processor_id_by_processor_type = {}
+processor_id_by_processor_type: Dict[str, str] = {}
 
 
 class TestHelper(unittest.TestCase):

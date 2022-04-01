@@ -17,10 +17,11 @@
 import argparse
 import os
 import sys
+from typing import Optional
 
-from google.cloud.documentai_v1beta3 import DocumentProcessorServiceClient, Processor
 import google.auth
-
+from google.cloud.documentai_v1beta3 import (DocumentProcessorServiceClient,
+                                             Processor)
 from pikepdf import Pdf
 
 DEFAULT_MULTI_REGION_LOCATION = "us"
@@ -112,7 +113,7 @@ def create_processor(
 
 def find_processor_id_of_type(
     client: DocumentProcessorServiceClient, parent: str, processor_type: str
-) -> str:
+) -> Optional[str]:
     """Searches for a processor ID for a given processor type."""
     processors = client.list_processors(parent=parent).processors
     for processor in processors:

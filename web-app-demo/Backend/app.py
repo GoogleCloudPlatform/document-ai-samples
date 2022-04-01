@@ -14,18 +14,19 @@
 
 """ Backend API that handles DocAI API calls """
 import os
-from flask import Flask, request
-from flask_restful import Api
-from flask_cors import CORS  # comment this on deployment
+from typing import Dict
 
 import google.auth
+from flask import Flask, request
+from flask_cors import CORS  # comment this on deployment
+from flask_restful import Api
 
-from api.helper import process_document, store_file, populate_list_source
+from api.helper import populate_list_source, process_document, store_file
 
 _, project_id = google.auth.default()
 LOCATION = "ENTER_YOUR_LOCATION_HERE"  # Format is 'us' or 'eu'
 
-processor_id_by_processor_type = {}
+processor_id_by_processor_type: Dict[str, str] = {}
 
 app = Flask(__name__, static_url_path="", static_folder="")
 

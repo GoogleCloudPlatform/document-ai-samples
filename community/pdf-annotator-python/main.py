@@ -17,14 +17,12 @@
 import argparse
 import os
 import sys
+from typing import Dict, Optional
 
-from google.cloud.documentai_v1beta3 import (
-    DocumentProcessorServiceClient,
-    Processor,
-)
 import google.auth
-
 import pikepdf
+from google.cloud.documentai_v1beta3 import (DocumentProcessorServiceClient,
+                                             Processor)
 
 DEFAULT_MULTI_REGION_LOCATION = "us"
 DEFAULT_PROCESSOR_TYPE = "FORM_PARSER_PROCESSOR"
@@ -125,7 +123,7 @@ def main(args):
     return 0
 
 
-def layout_to_text(layout: dict, text: str) -> str:
+def layout_to_text(layout: Dict[Dict[any, any]], text: str) -> str:
     """
     Document AI identifies form fields by their offsets in the entirety of the
     document's text. This function converts offsets to a string.
@@ -161,7 +159,7 @@ def create_processor(
 
 def find_processor_id_of_type(
     client: DocumentProcessorServiceClient, parent: str, tartget_processor_type: str
-) -> str:
+) -> Optional[str]:
     """Searches for a processor ID for a given processor type."""
     for processor in client.list_processors(parent=parent).processors:
         if processor.type_ == tartget_processor_type:
