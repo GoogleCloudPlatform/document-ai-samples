@@ -5,7 +5,7 @@
     ],
     "ignore": [
       "**/__snapshots__/**",
-      "**/_test.py"
+      "**/*_test.py"
     ],
     "absolute": true
   }
