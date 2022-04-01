@@ -1,10 +1,20 @@
-# type: ignore[1]
-"""
-Copyright 2022 Google LLC
-Author: Holt Skinner
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-Tax Processing Functions
-"""
+# type: ignore[1]
+"""Tax Processing Functions"""
+
 from decimal import Decimal
 from typing import List
 
@@ -65,7 +75,9 @@ def calculate_tax_values(data: dict) -> List[List]:
     form_w2 = data.get(_FORM_W2)
 
     # Don't continue if no data provided
-    if not any([form_1099div, form_1099int, form_1099misc, form_1099nec, form_w2]):
+    if not any(
+        [form_1099div, form_1099int, form_1099misc, form_1099nec, form_w2]
+    ):
         return []
 
     # The W2 Parser wasn't giving the full name
@@ -88,14 +100,25 @@ def calculate_tax_values(data: dict) -> List[List]:
     line_6b = 0
 
     # Capital gain or (loss).
-    line_7 = get_numerical_form_value(form_1099div, "TotalCapitalGainDistribution")
+    line_7 = get_numerical_form_value(
+        form_1099div, "TotalCapitalGainDistribution"
+    )
     # Other income from Schedule 1, line 9
     line_8 = get_numerical_form_value(
         form_1099nec, "NonemployeeCompensation"
     ) + get_numerical_form_value(form_1099misc, "Rents")
 
     # Add lines 1, 2b, 3b, 4b, 5b, 6b, 7, and 8
-    line_9 = line_1 + line_2b + line_3b + line_4b + line_5b + line_6b + line_7 + line_8
+    line_9 = (
+        line_1
+        + line_2b
+        + line_3b
+        + line_4b
+        + line_5b
+        + line_6b
+        + line_7
+        + line_8
+    )
 
     # total adjustments to income
     line_10c = 0

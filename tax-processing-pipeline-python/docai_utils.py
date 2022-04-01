@@ -1,9 +1,19 @@
-"""
-Copyright 2022 Google LLC
-Author: Holt Skinner
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-Document AI Utility Functions
-"""
+"""Document AI Utility Functions"""
+
 from typing import Tuple
 
 from google.api_core.client_options import ClientOptions
@@ -43,13 +53,19 @@ def process_document_bytes(
     # The full resource name of the processor, e.g.:
     # projects/project-id/locations/location/processor/processor-id
     # You must create new processors in the Cloud Console first
-    resource_name = documentai_client.processor_path(project_id, location, processor_id)
+    resource_name = documentai_client.processor_path(
+        project_id, location, processor_id
+    )
 
     # Load Binary Data into Document AI RawDocument Object
-    raw_document = documentai.RawDocument(content=file_content, mime_type=mime_type)
+    raw_document = documentai.RawDocument(
+        content=file_content, mime_type=mime_type
+    )
 
     # Configure the process request
-    request = documentai.ProcessRequest(name=resource_name, raw_document=raw_document)
+    request = documentai.ProcessRequest(
+        name=resource_name, raw_document=raw_document
+    )
 
     # Use the Document AI client to process the sample form
     result = documentai_client.process_document(request=request)
@@ -71,7 +87,9 @@ def extract_document_entities(document: documentai.Document) -> dict:
         key = entity.type_
         # Use EKG Enriched Data if available
         normalized_value = getattr(entity, "normalized_value", None)
-        value = normalized_value.text if normalized_value else entity.mention_text
+        value = (
+            normalized_value.text if normalized_value else entity.mention_text
+        )
 
         document_entities[key] = value
 
@@ -104,7 +122,9 @@ def classify_document_bytes(file_content: bytes, mime_type: str) -> str:
     # Cycle through all possible classifier Processor Types
     for classifier_processor_type in CLASSIFIER_PROCESSOR_TYPES:
         # Get Specific Processor ID for this Classifier Type
-        classifier_processor_id = DOCAI_ACTIVE_PROCESSORS.get(classifier_processor_type)
+        classifier_processor_id = DOCAI_ACTIVE_PROCESSORS.get(
+            classifier_processor_type
+        )
         if classifier_processor_id is None:
             continue
 
@@ -117,7 +137,9 @@ def classify_document_bytes(file_content: bytes, mime_type: str) -> str:
             mime_type,
         )
         # Translate Classification Output to Processor Type
-        document_classification = classification_document_proto.entities[0].type_
+        document_classification = classification_document_proto.entities[
+            0
+        ].type_
 
         # Specialized Classifiers return "other"
         # if it could not classify to a known type

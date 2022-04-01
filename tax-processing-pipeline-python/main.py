@@ -1,10 +1,20 @@
-# type: ignore[1]
-"""
-Copyright 2022 Google LLC
-Author: Holt Skinner
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-Flask Web Server
-"""
+# type: ignore[1]
+"""Flask Web Server"""
+
 import os
 
 from tempfile import TemporaryDirectory
@@ -52,7 +62,9 @@ def file_upload() -> str:
     uploaded_filenames = save_files_to_temp_directory(files, temp_dir)
 
     if not uploaded_filenames:
-        return render_template("index.html", message_error="No valid files provided")
+        return render_template(
+            "index.html", message_error="No valid files provided"
+        )
 
     status_messages = run_docai_pipeline(uploaded_filenames)
 
@@ -70,7 +82,9 @@ def view_extracted_data() -> str:
     """
     extracted_data = get_stored_data()
     if not extracted_data:
-        return render_template("index.html", message_error="No data to display")
+        return render_template(
+            "index.html", message_error="No data to display"
+        )
     return render_template("index.html", extracted_data=extracted_data)
 
 
@@ -81,7 +95,9 @@ def view_tax_bill() -> str:
     """
     tax_data = run_tax_pipeline()
     if not tax_data:
-        return render_template("index.html", message_error="No data to display")
+        return render_template(
+            "index.html", message_error="No data to display"
+        )
     return render_template("index.html", tax_data=tax_data)
 
 
