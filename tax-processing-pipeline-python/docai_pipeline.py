@@ -35,9 +35,7 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]):
             file_content = file.read()
 
             print("Classifying file:", file_path)
-            document_classification = classify_document_bytes(
-                file_content, mime_type
-            )
+            document_classification = classify_document_bytes(file_content, mime_type)
             print("Classification:", document_classification)
 
             # Optional: If you want to ignore unclassified documents
@@ -73,9 +71,9 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]):
             document_entities["classification"] = document_classification
             # Processor Type corresponds to a Broad Category
             # e.g. Multiple W2 Years correspond to the same processor type
-            document_entities[
-                "broad_classification"
-            ] = processor_type.removesuffix("_PROCESSOR")
+            document_entities["broad_classification"] = processor_type.removesuffix(
+                "_PROCESSOR"
+            )
             document_entities["source_file"] = path_basename(file_path)
             document_id = document_entities["broad_classification"]
 

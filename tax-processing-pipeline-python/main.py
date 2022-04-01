@@ -37,9 +37,7 @@ def file_upload() -> str:
 
         # Check if POST Request includes Files
         if not request.files:
-            return render_template(
-                "index.html", message_error="No files provided"
-            )
+            return render_template("index.html", message_error="No files provided")
 
         files = request.files.getlist("files")
 
@@ -64,9 +62,7 @@ def view_extracted_data() -> str:
     """
     extracted_data = get_stored_data()
     if not extracted_data:
-        return render_template(
-            "index.html", message_error="No data to display"
-        )
+        return render_template("index.html", message_error="No data to display")
     return render_template("index.html", extracted_data=extracted_data)
 
 
@@ -77,9 +73,7 @@ def view_data_aggregation() -> str:
     """
     tax_data = run_tax_pipeline()
     if not tax_data:
-        return render_template(
-            "index.html", message_error="No data to display"
-        )
+        return render_template("index.html", message_error="No data to display")
     return render_template("index.html", tax_data=tax_data)
 
 
