@@ -69,9 +69,7 @@ def view_extracted_data() -> str:
     """
     extracted_data = get_stored_data()
     if not extracted_data:
-        return render_template(
-            "index.html", message_error="No data to display"
-        )
+        return render_template("index.html", message_error="No data to display")
     return render_template("index.html", extracted_data=extracted_data)
 
 
@@ -82,9 +80,7 @@ def view_tax_bill() -> str:
     """
     tax_data = run_tax_pipeline()
     if not tax_data:
-        return render_template(
-            "index.html", message_error="No data to display"
-        )
+        return render_template("index.html", message_error="No data to display")
     return render_template("index.html", tax_data=tax_data)
 
 

@@ -14,69 +14,67 @@
 
 """ Backend API that handles DocAI API calls """
 import os
-from flask import Flask, request
-from flask_restful import Api
-from flask_cors import CORS  # comment this on deployment
+from typing import Dict
 
 import google.auth
+from flask import Flask, request
+from flask_cors import CORS  # comment this on deployment
+from flask_restful import Api
 
-from api.helper import process_document, store_file,populate_list_source
+from api.helper import populate_list_source, process_document, store_file
 
 _, project_id = google.auth.default()
-LOCATION = 'ENTER_YOUR_LOCATION_HERE'  # Format is 'us' or 'eu'
+LOCATION = "ENTER_YOUR_LOCATION_HERE"  # Format is 'us' or 'eu'
 
-processor_id_by_processor_type = {}
+processor_id_by_processor_type: Dict[str, str] = {}
 
-app = Flask(__name__, static_url_path='', static_folder='')
+app = Flask(__name__, static_url_path="", static_folder="")
 
 CORS(app, support_credentials=True)
 api = Api(app)
 
 
-@app.route('/api/init', methods=['GET'])
+@app.route("/api/init", methods=["GET"])
 def populate_list():
-    """ Gets all available processors that are in the specified GCP project """
-    return populate_list_source(project_id,LOCATION,processor_id_by_processor_type)
+    """Gets all available processors that are in the specified GCP project"""
+    return populate_list_source(project_id, LOCATION, processor_id_by_processor_type)
 
 
-@app.route('/api/docai', methods=['POST'])
+@app.route("/api/docai", methods=["POST"])
 def get_document():
-    """ Calls process_document and returns document proto """
-    directory = 'api/test_docs'
+    """Calls process_document and returns document proto"""
+    directory = "api/test_docs"
     for file in os.listdir(directory):
         os.remove(os.path.join(directory, file))
 
-    processor_type = request.form['fileProcessorType']
+    processor_type = request.form["fileProcessorType"]
 
-    file = request.files['file']
+    file = request.files["file"]
     file_type = file.content_type
 
     try:
         _destination = store_file(file)
-    except Exception as err: # pylint: disable=W0703
+    except Exception as err:  # pylint: disable=W0703
         return {
-            'resultStatus': 'ERROR',
-            'errorMessage': str(err),
+            "resultStatus": "ERROR",
+            "errorMessage": str(err),
         }, 400
 
     process_document_request = {
-        'project_id': project_id,
-        'location': LOCATION,
-        'processor_id': processor_id_by_processor_type[processor_type],
-        'file_path': _destination,
-        'processor_type': processor_type,
-        'file_type': file_type
+        "project_id": project_id,
+        "location": LOCATION,
+        "processor_id": processor_id_by_processor_type[processor_type],
+        "file_path": _destination,
+        "processor_type": processor_type,
+        "file_type": file_type,
     }
 
     return process_document(process_document_request)
 
 
-@app.route('/api/processor/list', methods=['GET'])
+@app.route("/api/processor/list", methods=["GET"])
 def get_list():
-    """ Returns list of available processors """
+    """Returns list of available processors"""
 
     processor_list = list(processor_id_by_processor_type.keys())
-    return {
-        'resultStatus': 'SUCCESS',
-        'processor_list': processor_list
-    }
+    return {"resultStatus": "SUCCESS", "processor_list": processor_list}

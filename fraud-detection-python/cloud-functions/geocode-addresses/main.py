@@ -79,9 +79,7 @@ def extract_geocode_info(query_address, data_type="json") -> dict:
         location = results["geometry"]["location"]
 
         geocode_response_dict["place_id"] = results["place_id"]
-        geocode_response_dict["formatted_address"] = results[
-            "formatted_address"
-        ]
+        geocode_response_dict["formatted_address"] = results["formatted_address"]
         geocode_response_dict["lat"] = str(location.get("lat"))
         geocode_response_dict["lng"] = str(location.get("lng"))
 

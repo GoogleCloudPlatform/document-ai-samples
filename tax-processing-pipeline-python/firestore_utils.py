@@ -4,9 +4,7 @@ Cloud Firestore Utility Functions
 from google.cloud import firestore
 
 
-def save_to_firestore(
-    project_id: str, collection: str, document_id: str, data: dict
-):
+def save_to_firestore(project_id: str, collection: str, document_id: str, data: dict):
     """
     Processes a single document from GCS using the Document AI Synchronous API.
     """
@@ -15,9 +13,7 @@ def save_to_firestore(
     doc_ref.set(data)
 
 
-def get_all_data_from_firestore_collection(
-    project_id: str, collection: str
-) -> dict:
+def get_all_data_from_firestore_collection(project_id: str, collection: str) -> dict:
     """
     Outputs all documents from a collection in Firestore as a dictionary.
     Format:
