@@ -17,7 +17,7 @@
 import argparse
 import os
 import sys
-from typing Optional
+from typing import Optional
 
 import google.auth
 import pikepdf
