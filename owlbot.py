@@ -23,9 +23,9 @@ s.move(templated_files / "noxfile.py")
 # Update BLACK_PATHS in order to run black on all files
 s.replace(
     "noxfile.py",
-    """BLACK_PATHS = \["docs", "google", "tests", "noxfile.py", "setup.py"\]""",
-    """BLACK_PATHS = ["."]""",
-)  # noqa: W605
+    r"""BLACK_PATHS = \["docs", "google", "tests", "noxfile.py", "setup.py"\]""",
+    r"""BLACK_PATHS = ["."]""",
+)
 
 # ----------------------------------------------------------------------------
 # Run blacken session
