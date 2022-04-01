@@ -20,16 +20,12 @@ def online_process(
     opts = {"api_endpoint": f"{location}-documentai.googleapis.com"}
 
     # Instantiates a client
-    documentai_client = documentai.DocumentProcessorServiceClient(
-        client_options=opts
-    )
+    documentai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
 
     # The full resource name of the processor, e.g.:
     # projects/project-id/locations/location/processor/processor-id
     # You must create new processors in the Cloud Console first
-    resource_name = documentai_client.processor_path(
-        project_id, location, processor_id
-    )
+    resource_name = documentai_client.processor_path(project_id, location, processor_id)
 
     # Read the file into memory
     with open(file_path, "rb") as image:

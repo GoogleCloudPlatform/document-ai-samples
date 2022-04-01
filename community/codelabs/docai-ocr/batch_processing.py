@@ -22,9 +22,9 @@ def get_documents_from_gcs(
     prefix = match.group(2)
 
     # Output files will be in a new subdirectory with Operation ID as the name
-    operation_id = re.search(
-        r"operations\/(\d+)", operation_name, re.IGNORECASE
-    ).group(1)
+    operation_id = re.search(r"operations\/(\d+)", operation_name, re.IGNORECASE).group(
+        1
+    )
 
     output_directory = f"{prefix}/{operation_id}"
 
@@ -32,9 +32,7 @@ def get_documents_from_gcs(
 
     # List of all of the files in the directory
     # `gs://gcs_output_uri/operation_id`
-    blob_list = list(
-        storage_client.list_blobs(output_bucket, prefix=output_directory)
-    )
+    blob_list = list(storage_client.list_blobs(output_bucket, prefix=output_directory))
 
     output_documents = []
 
@@ -88,9 +86,7 @@ gcs_output_config = documentai.DocumentOutputConfig.GcsOutputConfig(
 )
 
 # Load GCS Output URI into OutputConfig object
-output_config = documentai.DocumentOutputConfig(
-    gcs_output_config=gcs_output_config
-)
+output_config = documentai.DocumentOutputConfig(gcs_output_config=gcs_output_config)
 
 # Configure Process Request
 request = documentai.BatchProcessRequest(

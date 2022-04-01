@@ -30,9 +30,7 @@ def fetch_processor_types(
     Returns a list of processor types enabled for the given project.
     """
     client = documentai_v1beta3.DocumentProcessorServiceClient()
-    response = client.fetch_processor_types(
-        parent=get_parent(project_id, location)
-    )
+    response = client.fetch_processor_types(parent=get_parent(project_id, location))
     return response.processor_types
 
 
