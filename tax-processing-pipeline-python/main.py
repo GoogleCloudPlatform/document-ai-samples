@@ -62,9 +62,7 @@ def file_upload() -> str:
     uploaded_filenames = save_files_to_temp_directory(files, temp_dir)
 
     if not uploaded_filenames:
-        return render_template(
-            "index.html", message_error="No valid files provided"
-        )
+        return render_template("index.html", message_error="No valid files provided")
 
     status_messages = run_docai_pipeline(uploaded_filenames)
 
@@ -82,9 +80,7 @@ def view_extracted_data() -> str:
     """
     extracted_data = get_stored_data()
     if not extracted_data:
-        return render_template(
-            "index.html", message_error="No data to display"
-        )
+        return render_template("index.html", message_error="No data to display")
     return render_template("index.html", extracted_data=extracted_data)
 
 
@@ -95,9 +91,7 @@ def view_tax_bill() -> str:
     """
     tax_data = run_tax_pipeline()
     if not tax_data:
-        return render_template(
-            "index.html", message_error="No data to display"
-        )
+        return render_template("index.html", message_error="No data to display")
     return render_template("index.html", tax_data=tax_data)
 
 

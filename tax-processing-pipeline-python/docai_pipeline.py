@@ -59,9 +59,7 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]) -> List[str]:
 
             progress_update(f"Processing {file_name}")
 
-            document_classification = classify_document_bytes(
-                file_content, mime_type
-            )
+            document_classification = classify_document_bytes(file_content, mime_type)
 
             progress_update(f"\tClassification: {document_classification}")
 
@@ -76,9 +74,7 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]) -> List[str]:
                 processor_id,
             ) = select_processor_from_classification(document_classification)
 
-            progress_update(
-                f"\tUsing Processor {processor_type}: {processor_id}"
-            )
+            progress_update(f"\tUsing Processor {processor_type}: {processor_id}")
 
             # Run Parser
             try:
@@ -101,16 +97,14 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]) -> List[str]:
             document_entities["classification"] = document_classification
             # Processor Type corresponds to a Broad Category
             # e.g. Multiple W2 Years correspond to the same processor type
-            document_entities[
-                "broad_classification"
-            ] = processor_type.removesuffix("_PROCESSOR")
+            document_entities["broad_classification"] = processor_type.removesuffix(
+                "_PROCESSOR"
+            )
             document_entities["source_file"] = file_name
             document_id = document_entities["broad_classification"]
 
             # Save Document Entities to Firestore
-            progress_update(
-                f"\tWriting Document ID: {document_id} to Firestore.\n"
-            )
+            progress_update(f"\tWriting Document ID: {document_id} to Firestore.\n")
             save_to_firestore(
                 project_id=FIRESTORE_PROJECT_ID,
                 collection=FIRESTORE_COLLECTION,
