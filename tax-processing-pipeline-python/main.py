@@ -49,9 +49,7 @@ def file_upload() -> str:
     uploaded_filenames = save_files_to_temp_directory(files, temp_dir)
 
     if not uploaded_filenames:
-        return render_template(
-            "index.html", message_error="No valid files provided"
-        )
+        return render_template("index.html", message_error="No valid files provided")
 
     status_messages = run_docai_pipeline(uploaded_filenames)
 
