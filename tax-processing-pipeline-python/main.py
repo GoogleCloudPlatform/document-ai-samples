@@ -1,16 +1,29 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # type: ignore[1]
-"""
-Flask Web Server
-"""
+"""Flask Web Server"""
+
 import os
+
 from tempfile import TemporaryDirectory
 from typing import List, Tuple
-
-from flask import Flask, render_template, request
+from flask import Flask, after_this_request, render_template, request
 from werkzeug.exceptions import HTTPException
 
 from docai_pipeline import run_docai_pipeline
-from tax_pipeline import get_stored_data, run_tax_pipeline
+from tax_pipeline import run_tax_pipeline, get_stored_data
 
 app = Flask(__name__)
 
@@ -32,27 +45,32 @@ def file_upload() -> str:
     """
     Handle file upload request
     """
+    # pylint: disable=consider-using-with
+    temp_dir = TemporaryDirectory()
 
-    with TemporaryDirectory() as temp_dir:
+    @after_this_request
+    def cleanup(response):
+        temp_dir.cleanup()
+        return response
 
-        # Check if POST Request includes Files
-        if not request.files:
-            return render_template("index.html", message_error="No files provided")
+    # Check if POST Request includes Files
+    if not request.files:
+        return render_template("index.html", message_error="No files provided")
 
-        files = request.files.getlist("files")
+    files = request.files.getlist("files")
 
-        uploaded_filenames = save_files_to_temp_directory(files, temp_dir)
+    uploaded_filenames = save_files_to_temp_directory(files, temp_dir)
 
-        if not uploaded_filenames:
-            return render_template(
-                "index.html", message_error="No valid files provided"
-            )
+    if not uploaded_filenames:
+        return render_template("index.html", message_error="No valid files provided")
 
-        run_docai_pipeline(uploaded_filenames)
+    status_messages = run_docai_pipeline(uploaded_filenames)
 
-        return render_template(
-            "index.html", message_success="Successfully uploaded files"
-        )
+    return render_template(
+        "index.html",
+        message_success="Successfully uploaded & processed files",
+        status_messages=status_messages,
+    )
 
 
 @app.route("/view_extracted_data", methods=["GET"])
@@ -66,8 +84,8 @@ def view_extracted_data() -> str:
     return render_template("index.html", extracted_data=extracted_data)
 
 
-@app.route("/view_data_aggregation", methods=["GET"])
-def view_data_aggregation() -> str:
+@app.route("/view_tax_bill", methods=["GET"])
+def view_tax_bill() -> str:
     """
     Calculate Tax Return with Document Information from Firestore
     """
@@ -106,11 +124,11 @@ def handle_exception(ex):
     """
     Handle Application Exceptions
     """
-    # pass through HTTP errors
+    # Pass through HTTP errors
     if isinstance(ex, HTTPException):
         return ex
 
-    # now you're handling non-HTTP exceptions only
+    # Non-HTTP exceptions only
     return render_template(
         "index.html",
         message_error="An unknown error occurred, please try again later",
