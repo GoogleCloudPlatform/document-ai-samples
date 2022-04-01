@@ -14,7 +14,6 @@
 
 import synthtool as s
 import synthtool.gcp as gcp
-from synthtool.languages import python
 
 templated_files = gcp.CommonTemplates().py_library()
 
@@ -26,7 +25,7 @@ s.replace(
     "noxfile.py",
     """BLACK_PATHS = \["docs", "google", "tests", "noxfile.py", "setup.py"\]""",
     """BLACK_PATHS = ["."]""",
-)
+)  # noqa: W605
 
 # ----------------------------------------------------------------------------
 # Run blacken session
