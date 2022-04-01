@@ -20,8 +20,7 @@ import sys
 from typing import Optional
 
 import google.auth
-from google.cloud.documentai_v1beta3 import (DocumentProcessorServiceClient,
-                                             Processor)
+from google.cloud.documentai_v1beta3 import DocumentProcessorServiceClient, Processor
 from pikepdf import Pdf
 
 DEFAULT_MULTI_REGION_LOCATION = "us"

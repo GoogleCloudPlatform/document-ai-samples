@@ -21,8 +21,7 @@ from typing import Dict, Optional
 
 import google.auth
 import pikepdf
-from google.cloud.documentai_v1beta3 import (DocumentProcessorServiceClient,
-                                             Processor)
+from google.cloud.documentai_v1beta3 import DocumentProcessorServiceClient, Processor
 
 DEFAULT_MULTI_REGION_LOCATION = "us"
 DEFAULT_PROCESSOR_TYPE = "FORM_PARSER_PROCESSOR"
