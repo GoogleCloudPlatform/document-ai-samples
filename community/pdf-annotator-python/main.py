@@ -17,7 +17,7 @@
 import argparse
 import os
 import sys
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import google.auth
 import pikepdf
@@ -122,7 +122,7 @@ def main(args):
     return 0
 
 
-def layout_to_text(layout: Dict[Dict[any, any]], text: str) -> str:
+def layout_to_text(layout: Dict[Dict[Any, Any], Any], text: str) -> str:
     """
     Document AI identifies form fields by their offsets in the entirety of the
     document's text. This function converts offsets to a string.
