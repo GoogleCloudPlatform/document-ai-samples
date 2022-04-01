@@ -78,3 +78,8 @@ For an example use case, the application is equipped to process an individual US
 ![Example Output](img/ExampleOutput.png)
 
 > **WARNING: This is NOT financial advice, for educational purposes only!**
+
+-----
+
+> Copyright 2022 Google LLC
+> Author: Holt Skinner

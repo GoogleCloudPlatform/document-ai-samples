@@ -1,4 +1,7 @@
 """
+Copyright 2022 Google LLC
+Author: Holt Skinner
+
 Initialize Document AI Processors and Config File
 """
 

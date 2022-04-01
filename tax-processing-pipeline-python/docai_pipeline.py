@@ -1,4 +1,7 @@
 """
+Copyright 2022 Google LLC
+Author: Holt Skinner
+
 Document AI End to End Pipeline
 """
 from os.path import basename as path_basename

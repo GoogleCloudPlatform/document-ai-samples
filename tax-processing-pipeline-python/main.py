@@ -1,5 +1,8 @@
 # type: ignore[1]
 """
+Copyright 2022 Google LLC
+Author: Holt Skinner
+
 Flask Web Server
 """
 import os

@@ -1,4 +1,7 @@
 """
+Copyright 2022 Google LLC
+Author: Holt Skinner
+
 Cloud Firestore Utility Functions
 """
 from google.cloud import firestore

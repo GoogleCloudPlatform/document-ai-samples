@@ -1,4 +1,7 @@
 """
+Copyright 2022 Google LLC
+Author: Holt Skinner
+
 Document AI Utility Functions
 """
 from typing import Tuple

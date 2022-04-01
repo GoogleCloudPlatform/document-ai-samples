@@ -1,4 +1,7 @@
 """
+Copyright 2022 Google LLC
+Author: Holt Skinner
+
 DocAI End-to-End Pipeline Demo Constant Definitions
 """
 
