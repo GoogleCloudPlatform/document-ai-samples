@@ -36,8 +36,10 @@ api = Api(app)
 @app.route('/api/init', methods=['GET'])
 def populate_list():
     """ Gets all available processors that are in the specified GCP project """
-    print("DEBUGGING IN FUNCTION " + project_id + "  " + LOCATION)
-    return populate_list_source(project_id,LOCATION,processor_id_by_processor_type)
+    
+    populate_list_source(project_id,LOCATION,processor_id_by_processor_type)
+    print(processor_id_by_processor_type)
+    return "SUCCESS"
 
 
 @app.route('/api/docai', methods=['POST'])
@@ -77,6 +79,7 @@ def get_list():
     """ Returns list of available processors """
 
     processor_list = list(processor_id_by_processor_type.keys())
+    
     return {
         'resultStatus': 'SUCCESS',
         'processor_list': processor_list
