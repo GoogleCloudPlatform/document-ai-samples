@@ -64,9 +64,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
   processIsDone!: boolean;
   processInProgress = false;
   subscription!: Subscription;
-
   url!: string[];
-
   backend!: string;
 
   /**
@@ -75,7 +73,8 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
    */
   async ngOnInit(): Promise<void> {
     this.url = location.href.split('-');
-    this.url.shift()
+    this.url.splice(0,3)
+
     this.backend = 'https://backend-' + this.url.join('-')
     await fetch(this.backend + '/api/init', {
       method: 'GET',
