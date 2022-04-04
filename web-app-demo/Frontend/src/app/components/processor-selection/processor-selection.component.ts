@@ -98,6 +98,9 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
         (message) => this.processIsDone = message);
     this.subscription = this.data.showError.subscribe(
         (message) => this.showError = message);
+
+
+    console.log(location.href)
   }
 
   /**

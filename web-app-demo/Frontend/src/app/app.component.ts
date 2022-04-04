@@ -34,6 +34,6 @@ export class AppComponent {
 
   title = 'Document AI Modular App';
   sharingClient = new DataSharingServiceService();
-  public static backendURL = "https://backend" + Router.url.split('-')[3];
+  public static backendURL = "";
   
 }
