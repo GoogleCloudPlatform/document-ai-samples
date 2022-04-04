@@ -29,7 +29,7 @@ processor_id_by_processor_type = {}
 
 app = Flask(__name__, static_url_path='', static_folder='')
 
-CORS(app, support_credentials=True)
+CORS(app, resources={r"/*": {"origins": "*"}})
 api = Api(app)
 
 
