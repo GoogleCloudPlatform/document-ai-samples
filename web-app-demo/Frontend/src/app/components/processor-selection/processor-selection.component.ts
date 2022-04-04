@@ -65,12 +65,19 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
   processInProgress = false;
   subscription!: Subscription;
 
+  url!: string[];
+
+  backend!: string;
+
   /**
    * On init setup subscribed variables and inits backend
    * @return {void}
    */
   async ngOnInit(): Promise<void> {
-    await fetch(AppComponent.backendURL + '/api/init', {
+    this.url = location.href.split('-');
+    this.url.shift()
+    this.backend = 'https://backend-' + this.url.join('-')
+    await fetch(this.backend + '/api/init', {
       method: 'GET',
       mode: 'cors',
     }).then(async (response) => {
@@ -100,7 +107,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
         (message) => this.showError = message);
 
 
-    console.log(location.href)
+    
   }
 
   /**
@@ -119,7 +126,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
    * @return {void}
    */
   getAvailableProcessors() {
-    fetch(AppComponent.backendURL + '/api/processor/list', {
+    fetch(this.backend + '/api/processor/list', {
       method: 'GET',
       mode: 'cors',
     }).then(async (response) => {
@@ -166,7 +173,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
     data.append('fileProcessorType', (this.processorList[this.processor]));
     data.append('showBounding', String(this.showBounding));
 
-    fetch(AppComponent.backendURL + '/api/docai', {
+    fetch(this.backend + '/api/docai', {
       method: 'POST',
       mode: 'cors',
       body: data,

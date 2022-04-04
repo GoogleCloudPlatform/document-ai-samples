@@ -1,0 +1,10 @@
+{
+    "name": "web-app-demo",
+    "hooks": {
+        "prebuild": {
+            "commands": [
+                "cloudshell_open --repo_url 'https://github.com/galz10/document-ai-samples.git' --dir 'web-app-demo/Backend' --page 'shell' --git_branch 'main' --force_new_clone"
+            ]
+        }
+    }
+}
