@@ -76,7 +76,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
     this.url.splice(0,3)
 
     this.backend = 'https://backend-' + this.url.join('-')
-    await fetch(this.backend + '/api/init', {
+    await fetch(this.backend + 'api/init', {
       method: 'GET',
       mode: 'no-cors',
     }).then(async (response) => {
@@ -125,7 +125,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
    * @return {void}
    */
   getAvailableProcessors() {
-    fetch(this.backend + '/api/processor/list', {
+    fetch(this.backend + 'api/processor/list', {
       method: 'GET',
       mode: 'no-cors',
     }).then(async (response) => {
@@ -172,7 +172,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
     data.append('fileProcessorType', (this.processorList[this.processor]));
     data.append('showBounding', String(this.showBounding));
 
-    fetch(this.backend + '/api/docai', {
+    fetch(this.backend + 'api/docai', {
       method: 'POST',
       mode: 'no-cors',
       body: data,
