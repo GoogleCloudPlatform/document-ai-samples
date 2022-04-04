@@ -78,7 +78,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
     this.backend = 'https://backend-' + this.url.join('-')
     await fetch(this.backend + '/api/init', {
       method: 'GET',
-      mode: 'cors',
+      mode: 'no-cors',
     }).then(async (response) => {
       const json = await response.json();
       if (json.resultStatus == 'ERROR') {
@@ -127,7 +127,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
   getAvailableProcessors() {
     fetch(this.backend + '/api/processor/list', {
       method: 'GET',
-      mode: 'cors',
+      mode: 'no-cors',
     }).then(async (response) => {
       const json = await response.json();
       if (json.resultStatus == 'ERROR') {
@@ -174,7 +174,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
 
     fetch(this.backend + '/api/docai', {
       method: 'POST',
-      mode: 'cors',
+      mode: 'no-cors',
       body: data,
     }).then(async (response) => {
       const json = await response.json();
