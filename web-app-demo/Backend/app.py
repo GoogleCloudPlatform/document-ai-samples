@@ -36,6 +36,7 @@ api = Api(app)
 @app.route('/api/init', methods=['GET'])
 def populate_list():
     """ Gets all available processors that are in the specified GCP project """
+    print("DEBUGGING IN FUNCTION " + project_id + "  " + LOCATION)
     return populate_list_source(project_id,LOCATION,processor_id_by_processor_type)
 
 
