@@ -1,6 +1,19 @@
-"""
-Document AI End to End Pipeline
-"""
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Document AI End to End Pipeline"""
+
 from os.path import basename as path_basename
 from typing import List, Tuple
 
@@ -21,7 +34,7 @@ from docai_utils import (
 from firestore_utils import save_to_firestore
 
 
-def run_docai_pipeline(local_files: List[Tuple[str, str]]):
+def run_docai_pipeline(local_files: List[Tuple[str, str]]) -> List[str]:
     """
     Classify Document Types,
     Select Appropriate Parser Processor,
@@ -29,18 +42,30 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]):
     Save Entities to Firestore
     """
 
+    status_messages: List[str] = []
+
+    def progress_update(message: str):
+        """
+        Print progress update to stdout and add to message queue
+        """
+        print(message)
+        status_messages.append(message)
+
     for file_path, mime_type in local_files:
+        file_name = path_basename(file_path)
         # Read File into Memory
         with open(file_path, "rb") as file:
             file_content = file.read()
 
-            print("Classifying file:", file_path)
+            progress_update(f"Processing {file_name}")
+
             document_classification = classify_document_bytes(file_content, mime_type)
-            print("Classification:", document_classification)
+
+            progress_update(f"\tClassification: {document_classification}")
 
             # Optional: If you want to ignore unclassified documents
             if document_classification == "other":
-                print("Skipping file:", file_path)
+                progress_update(f"\tSkipping file: {file_name}")
                 continue
 
             # Get Specialized Processor
@@ -48,7 +73,8 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]):
                 processor_type,
                 processor_id,
             ) = select_processor_from_classification(document_classification)
-            print(f"Using Processor {processor_type}: {processor_id}")
+
+            progress_update(f"\tUsing Processor {processor_type}: {processor_id}")
 
             # Run Parser
             try:
@@ -74,17 +100,15 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]):
             document_entities["broad_classification"] = processor_type.removesuffix(
                 "_PROCESSOR"
             )
-            document_entities["source_file"] = path_basename(file_path)
+            document_entities["source_file"] = file_name
             document_id = document_entities["broad_classification"]
 
             # Save Document Entities to Firestore
-            print(
-                f"Writing Document Entities to Firestore. \
-                Document ID: {document_id}"
-            )
+            progress_update(f"\tWriting Document ID: {document_id} to Firestore.\n")
             save_to_firestore(
                 project_id=FIRESTORE_PROJECT_ID,
                 collection=FIRESTORE_COLLECTION,
                 document_id=document_id,
                 data=document_entities,
             )
+    return status_messages
