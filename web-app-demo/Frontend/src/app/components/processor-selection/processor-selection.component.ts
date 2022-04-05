@@ -75,14 +75,19 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
     this.url = location.href.split('-');
     this.url.splice(0,3)
 
-    this.backend = 'https://backend-' + this.url.join('-')
+    this.backend = 'http://127.0.0.1:5000/'
     await fetch(this.backend + 'api/init', {
       method: 'GET',
-      mode: 'no-cors',
+      mode: 'cors',
     }).then(async (response) => {
-      console.log(response.text())
-
-    })
+      const json = await response.json();
+      if (json['resultStatus'] == 'ERROR') {
+        throw new Error(json.errorMessage);
+      }
+    }).catch((error) => {
+      this.data.changeShowError(true);
+      this.data.changeErrorMessage(error);
+    });
     this.getAvailableProcessors();
 
     this.subscription = this.data.processor.subscribe(
@@ -122,14 +127,13 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
   getAvailableProcessors() {
     fetch(this.backend + 'api/processor/list', {
       method: 'GET',
-      mode: 'no-cors',
+      mode: 'cors',
     }).then(async (response) => {
-      const json = JSON.parse(await response.text())
-      console.log(json)
-      if (json.resultStatus == 'ERROR') {
-        throw new Error(json.errorMessage);
+      const json = await response.json();
+      if (json['resultStatus'] == 'ERROR') {
+        throw new Error(json['errorMessage']);
       }
-      const retrievedProcessor = json.processor_list;
+      const retrievedProcessor = json['processor_list'];
 
       for (let i = 0; i < retrievedProcessor.length; i++) {
         const key = retrievedProcessor[i].split('_')[0];
@@ -170,13 +174,12 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
 
     fetch(this.backend + 'api/docai', {
       method: 'POST',
-      mode: 'no-cors',
+      mode: 'cors',
       body: data,
     }).then(async (response) => {
-      const json = JSON.parse(await response.text())
-      console.log(response)
-      if (json.resultStatus != undefined && json.resultStatus == 'ERROR') {
-        throw new Error(json.errorMessage);
+      const json = await response.json();
+      if (json['resultStatus'] != undefined && json['resultStatus'] == 'ERROR') {
+        throw new Error(json['errorMessage']);
       } else {
         this.data.changeDocumentProto(json);
         return json;
