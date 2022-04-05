@@ -1,5 +1,7 @@
 # Document AI Modular Application
 
+[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
+
 This Document AI application is an end to end application that shows how to integrate Document AI into full-stack application.
 This is the starting point and uses modular architecture so developers could easily demo Document AI and add modules that fit their needs to quickly create a tailored demo.
 
