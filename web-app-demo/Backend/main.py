@@ -29,12 +29,11 @@ processor_id_by_processor_type = {}
 
 app = Flask(__name__, static_url_path='', static_folder='')
 
-CORS(app,support_credentials=True)
+CORS(app)
 api = Api(app)
 
 
 @app.route('/api/init', methods=['GET'])
-@crossdomain(origin='*',headers=['access-control-allow-origin'])
 def populate_list():
     """ Gets all available processors that are in the specified GCP project """
     
