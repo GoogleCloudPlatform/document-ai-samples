@@ -81,7 +81,7 @@ def calculate_tax_values(data: dict) -> List[List]:
     # The W2 Parser wasn't giving the full name
     full_name = form_1099div.get("RecipientName", "")
     ssn = form_w2.get("SSN", "")
-    address = form_w2.get("Address", "")
+    address = form_w2.get("EmployeeAddress", "")
 
     # Wages, salaries, tips, etc
     line_1 = get_numerical_form_value(form_w2, "WagesTipsOtherCompensation")
