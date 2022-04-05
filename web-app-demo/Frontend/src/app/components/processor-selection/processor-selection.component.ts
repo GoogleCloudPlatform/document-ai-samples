@@ -79,6 +79,9 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
     await fetch(this.backend + 'api/init', {
       method: 'GET',
       mode: 'cors',
+      headers: {
+        'Access-Control-Allow-Origin':'*'
+      }
     }).then(async (response) => {
       const json = await response.json();
       if (json['resultStatus'] == 'ERROR') {
@@ -176,6 +179,9 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
       method: 'POST',
       mode: 'cors',
       body: data,
+      headers: {
+        'Access-Control-Allow-Origin':'*'
+      }
     }).then(async (response) => {
       const json = await response.json();
       if (json['resultStatus'] != undefined && json['resultStatus'] == 'ERROR') {
