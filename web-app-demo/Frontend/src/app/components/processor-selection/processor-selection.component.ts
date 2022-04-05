@@ -86,10 +86,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
       if (json.resultStatus == 'ERROR') {
         throw new Error(json.errorMessage);
       }
-    }).catch((error) => {
-      this.data.changeShowError(true);
-      this.data.changeErrorMessage(error);
-    });
+    })
     this.getAvailableProcessors();
 
     this.subscription = this.data.processor.subscribe(
