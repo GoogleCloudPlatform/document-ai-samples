@@ -14,12 +14,11 @@
 
 """ Backend API that handles DocAI API calls """
 import os
-from flask import Flask, request
+from flask import Flask, request,jsonify
 from flask_restful import Api
 from flask_cors import CORS  # comment this on deployment
 
 import google.auth
-import json
 
 from api.helper import process_document, store_file,populate_list_source
 
@@ -38,7 +37,7 @@ api = Api(app)
 def populate_list():
     """ Gets all available processors that are in the specified GCP project """
     
-    return str(json.loads(str(populate_list_source(project_id,LOCATION,processor_id_by_processor_type))))
+    return jsonify(populate_list_source(project_id,LOCATION,processor_id_by_processor_type))
 
 
 @app.route('/api/docai', methods=['POST'])
@@ -70,7 +69,7 @@ def get_document():
         'file_type': file_type
     }
 
-    return str(process_document(process_document_request))
+    return jsonify(process_document(process_document_request))
 
 
 @app.route('/api/processor/list', methods=['GET'])
@@ -78,13 +77,11 @@ def get_list():
     """ Returns list of available processors """
 
     processor_list = list(processor_id_by_processor_type.keys())
-    
-    response = str({
+
+    return jsonify({
         'resultStatus': 'SUCCESS',
         'processor_list': processor_list,
     })
-
-    return str(json.loads(response))
 
 
 if __name__ == "__main__":
