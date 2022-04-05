@@ -80,7 +80,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
       method: 'GET',
       mode: 'no-cors',
     }).then(async (response) => {
-      const json = await response.json();
+      const json = JSON.parse(await response.text())
       console.log(response)
       console.log(json)
       if (json.resultStatus == 'ERROR') {
@@ -131,8 +131,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
       method: 'GET',
       mode: 'no-cors',
     }).then(async (response) => {
-      const json = await response.json();
-      console.log(response)
+      const json = JSON.parse(await response.text())
       console.log(json)
       if (json.resultStatus == 'ERROR') {
         throw new Error(json.errorMessage);
@@ -181,9 +180,8 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
       mode: 'no-cors',
       body: data,
     }).then(async (response) => {
-      const json = await response.json();
+      const json = JSON.parse(await response.text())
       console.log(response)
-      console.log(json)
       if (json.resultStatus != undefined && json.resultStatus == 'ERROR') {
         throw new Error(json.errorMessage);
       } else {
