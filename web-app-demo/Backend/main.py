@@ -37,9 +37,7 @@ api = Api(app)
 def populate_list():
     """ Gets all available processors that are in the specified GCP project """
     
-    populate_list_source(project_id,LOCATION,processor_id_by_processor_type)
-    print(processor_id_by_processor_type)
-    return "SUCCESS"
+    return str(populate_list_source(project_id,LOCATION,processor_id_by_processor_type))
 
 
 @app.route('/api/docai', methods=['POST'])
@@ -71,7 +69,7 @@ def get_document():
         'file_type': file_type
     }
 
-    return process_document(process_document_request)
+    return str(process_document(process_document_request))
 
 
 @app.route('/api/processor/list', methods=['GET'])
@@ -80,10 +78,10 @@ def get_list():
 
     processor_list = list(processor_id_by_processor_type.keys())
     
-    return {
+    return str({
         'resultStatus': 'SUCCESS',
         'processor_list': processor_list
-    }
+    })
 
 
 if __name__ == "__main__":
