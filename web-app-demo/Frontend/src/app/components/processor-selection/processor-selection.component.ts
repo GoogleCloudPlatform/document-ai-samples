@@ -75,7 +75,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
     this.url = location.href.split('-');
     this.url.splice(0,3)
 
-    this.backend = 'http://127.0.0.1:5000/'
+    this.backend = 'https://backend-' + this.url.join('-')
     await fetch(this.backend + 'api/init', {
       method: 'GET',
       mode: 'cors',
