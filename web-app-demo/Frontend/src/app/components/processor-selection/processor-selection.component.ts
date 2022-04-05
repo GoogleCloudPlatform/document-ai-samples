@@ -80,12 +80,8 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
       method: 'GET',
       mode: 'no-cors',
     }).then(async (response) => {
-      const json = JSON.parse(await response.text())
       console.log(response.text())
-      console.log(await JSON.parse(await response.text()))
-      if (json.resultStatus == 'ERROR') {
-        throw new Error(json.errorMessage);
-      }
+
     })
     this.getAvailableProcessors();
 
