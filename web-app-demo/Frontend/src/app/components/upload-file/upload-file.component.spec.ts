@@ -66,26 +66,4 @@ describe('UploadFileComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should populate global file information', () => {
-    const event = {
-      target: {
-        files: [{
-          content: 'testFileContent',
-          name: 'testFile',
-          type: 'application/pdf',
-          size: 0,
-        }],
-      },
-    };
-
-    component.handleFileInput(event);
-
-    let fileName: string | undefined;
-
-    dataSharing.fileName.subscribe((message) => {
-      fileName = message;
-    });
-
-    expect(fileName).toEqual('testFile');
-  });
 });
