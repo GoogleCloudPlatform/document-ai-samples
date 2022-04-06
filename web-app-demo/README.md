@@ -7,9 +7,9 @@ This application uses a Flask backend server to handle Document AI API calls and
 
 ## Quickstart 
 
-To run this application in cloud shell click bellow, before clicking make sure Document AI API is enabled and your project has at least one processor created. 
+Before clicking make sure Document AI API is enabled and your project has at least one processor created. 
 
-This applicaition currenlty support OCR, Invoice and Form processor.  
+This applicaition currenlty support OCR, Invoice and Form processors.  
 
 [![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
 
