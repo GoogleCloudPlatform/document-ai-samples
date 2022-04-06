@@ -1,11 +1,17 @@
 # Document AI Modular Application
 
-[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
-
 This Document AI application is an end to end application that shows how to integrate Document AI into full-stack application.
 This is the starting point and uses modular architecture so developers could easily demo Document AI and add modules that fit their needs to quickly create a tailored demo.
 
 This application uses a Flask backend server to handle Document AI API calls and a Angular Frontend.
+
+## Quickstart 
+
+To run this application in cloud shell click bellow, before clicking make sure Document AI API is enabled and your project has at least one processor created. 
+
+This applicaition currenlty support OCR, Invoice and Form processor.  
+
+[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
 
 ## Prerequisites
 
