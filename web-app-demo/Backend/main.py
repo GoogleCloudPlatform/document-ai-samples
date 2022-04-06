@@ -60,6 +60,9 @@ def get_document():
             'errorMessage': str(err),
         }, 400
 
+    print(processor_type)
+    print(processor_id_by_processor_type)
+
     process_document_request = {
         'project_id': project_id,
         'location': LOCATION,
