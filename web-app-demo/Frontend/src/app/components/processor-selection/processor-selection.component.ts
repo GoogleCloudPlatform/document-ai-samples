@@ -154,7 +154,8 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
    */
   processDocument() {
     this.data.changeProcessInProgress(true);
-    if (this.fileName == '') {
+    console.log(this.file)
+    if (this.fileName == '' || this.file == null) {
       this.data.changeProcessInProgress(false);
       this.data.changeShowError(true);
       this.data.changeErrorMessage('ERROR : PDF was not selected');
