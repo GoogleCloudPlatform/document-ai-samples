@@ -1,7 +1,7 @@
 # Document AI Modular Application
 
 This Document AI application is an end to end application that shows how to integrate Document AI into full-stack application.
-This is the starting point and uses modular architecture so developers could easily demo Document AI and add modules that fit their needs to quickly create a tailored demo.
+This is the starting point and uses modular architecture so developers could easily demo Document AI and add components that fit their needs to quickly create a tailored demo.
 
 This application uses a Flask backend server to handle Document AI API calls and a Angular Frontend.
 
@@ -122,7 +122,7 @@ Run ng build to build the project. The build artifacts will be stored in the dis
 
 The following is a list of existing components and their functionality
 
-* Base Layer - Base Layer holds all imported modules
+* Base Layer - Base Layer holds all imported components
 * Canvas - This component handles document display and annotation
 * Entity Tab - This component extracts text from the Document Proto and displays the text and highlights the bounding boxes depending on selection
 * Processor Selection - This component retrieves available processors and displays them, allows for processor selection, validates inputs of processors and the uploaded PDF, and sends the uploaded PDF for document processing
