@@ -28,6 +28,9 @@ def process_document(process_document_request,processor_id_by_processor_type):
     if processor_id_by_processor_type == []:
         populate_list_source(project_id,location,processor_id_by_processor_type)
     
+
+    print(processor_id_by_processor_type)
+
     processor_id = processor_id_by_processor_type[processor_type]
 
     # Instantiates a client
