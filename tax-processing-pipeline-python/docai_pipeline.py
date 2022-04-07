@@ -22,7 +22,6 @@ from google.api_core.exceptions import GoogleAPICallError
 from consts import (
     DOCAI_PROCESSOR_LOCATION,
     DOCAI_PROJECT_ID,
-    FIRESTORE_COLLECTION,
     FIRESTORE_PROJECT_ID,
 )
 from docai_utils import (
@@ -34,7 +33,9 @@ from docai_utils import (
 from firestore_utils import save_to_firestore
 
 
-def run_docai_pipeline(local_files: List[Tuple[str, str]]) -> List[str]:
+def run_docai_pipeline(
+    local_files: List[Tuple[str, str]], firestore_collection: str
+) -> List[str]:
     """
     Classify Document Types,
     Select Appropriate Parser Processor,
@@ -104,11 +105,13 @@ def run_docai_pipeline(local_files: List[Tuple[str, str]]) -> List[str]:
             document_id = document_entities["broad_classification"]
 
             # Save Document Entities to Firestore
-            progress_update(f"\tWriting Document ID: {document_id} to Firestore.\n")
+            progress_update(f"\tWriting to Firestore Collection {firestore_collection}")
+            progress_update(f"\tDocument ID: {document_id}")
             save_to_firestore(
                 project_id=FIRESTORE_PROJECT_ID,
-                collection=FIRESTORE_COLLECTION,
+                collection=firestore_collection,
                 document_id=document_id,
                 data=document_entities,
             )
+
     return status_messages

@@ -106,6 +106,6 @@ DOCAI_PROCESSOR_LOCATION = CONFIG["docai_processor_location"]
 DOCAI_ACTIVE_PROCESSORS = CONFIG["docai_active_processors"]
 
 FIRESTORE_PROJECT_ID = CONFIG["firestore"]["project_id"]
-FIRESTORE_COLLECTION = CONFIG["firestore"]["collection"]
+FIRESTORE_COLLECTION_PREFIX = CONFIG["firestore"]["collection"]
 
 DEFAULT_MIME_TYPE = "application/pdf"
