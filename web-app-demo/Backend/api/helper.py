@@ -30,8 +30,6 @@ def process_document(process_document_request,processor_id_by_processor_type):
     
     processor_id = processor_id_by_processor_type[processor_type]
 
-    print("id : " + processor_id)
-
     # Instantiates a client
     client = documentai.DocumentProcessorServiceClient()
 

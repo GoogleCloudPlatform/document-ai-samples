@@ -154,7 +154,6 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
    */
   processDocument() {
     this.data.changeProcessInProgress(true);
-    console.log(this.processorList)
     if (this.fileName == '' || this.file == null) {
       this.data.changeProcessInProgress(false);
       this.data.changeShowError(true);
