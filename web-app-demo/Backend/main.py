@@ -36,14 +36,16 @@ api = Api(app)
 @app.route('/api/init', methods=['GET'])
 def populate_list():
     """ Gets all available processors that are in the specified GCP project """    
-    response = jsonify(populate_list_source(project_id,LOCATION,processor_id_by_processor_type))
-    print(processor_id_by_processor_type)
-    return response
+    global processor_id_by_processor_type 
+    populate_list_source(project_id,LOCATION,processor_id_by_processor_type)
+    return jsonify({'resultStatus': 'SUCCESS',})
 
 
 @app.route('/api/docai', methods=['POST'])
 def get_document():
     """ Calls process_document and returns document proto """
+    global processor_id_by_processor_type 
+
     directory = 'api/test_docs'
     for file in os.listdir(directory):
         os.remove(os.path.join(directory, file))
@@ -79,6 +81,8 @@ def get_document():
 @app.route('/api/processor/list', methods=['GET'])
 def get_list():
     """ Returns list of available processors """
+
+    global processor_id_by_processor_type 
 
     processor_list = list(processor_id_by_processor_type.keys())
     response = jsonify({
