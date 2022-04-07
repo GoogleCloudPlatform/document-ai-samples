@@ -37,6 +37,7 @@ api = Api(app)
 def populate_list():
     """ Gets all available processors that are in the specified GCP project """    
     response = jsonify(populate_list_source(project_id,LOCATION,processor_id_by_processor_type))
+    print(processor_id_by_processor_type)
     return response
 
 
