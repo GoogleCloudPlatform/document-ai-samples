@@ -63,19 +63,15 @@ def get_document():
             'errorMessage': str(err),
         }, 400
 
-    print(processor_type)
-    print(processor_id_by_processor_type)
-
     process_document_request = {
         'project_id': project_id,
         'location': LOCATION,
-        'processor_id': processor_id_by_processor_type[processor_type],
         'file_path': _destination,
         'processor_type': processor_type,
         'file_type': file_type
     }
 
-    return process_document(process_document_request)
+    return process_document(process_document_request,processor_id_by_processor_type)
 
 
 @app.route('/api/processor/list', methods=['GET'])
