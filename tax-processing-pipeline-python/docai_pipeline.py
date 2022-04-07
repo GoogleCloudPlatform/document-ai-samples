@@ -33,7 +33,9 @@ from docai_utils import (
 from firestore_utils import save_to_firestore
 
 
-def run_docai_pipeline(local_files: List[Tuple[str, str]], firestore_collection: str) -> List[str]:
+def run_docai_pipeline(
+    local_files: List[Tuple[str, str]], firestore_collection: str
+) -> List[str]:
     """
     Classify Document Types,
     Select Appropriate Parser Processor,
