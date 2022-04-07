@@ -25,7 +25,7 @@ from werkzeug.exceptions import HTTPException
 
 from consts import FIRESTORE_PROJECT_ID, FIRESTORE_COLLECTION_PREFIX
 from docai_pipeline import run_docai_pipeline
-from firestore_utils import read_collection
+from firestore_utils import read_collection, delete_collection
 from tax_pipeline import calculate_tax_values
 
 SESSION_ID = str(uuid4())
@@ -101,6 +101,15 @@ def view_tax_bill() -> str:
     if not tax_data:
         return render_template("index.html", message_error="No data to display")
     return render_template("index.html", tax_data=tax_data)
+
+
+@app.route("/delete_data", methods=["GET"])
+def delete_data() -> str:
+    """
+    Remove Saved Data from Database
+    """
+    delete_collection(FIRESTORE_PROJECT_ID, FIRESTORE_COLLECTION)
+    return render_template("index.html", message_success="Successfully deleted data")
 
 
 def save_files_to_temp_directory(files, temp_dir) -> List[Tuple[str, str]]:

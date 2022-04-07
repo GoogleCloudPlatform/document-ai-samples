@@ -46,3 +46,16 @@ def read_collection(project_id: str, collection: str) -> dict:
         data[doc.id] = doc.to_dict()
 
     return data
+
+
+def delete_collection(project_id: str, collection: str):
+    """
+    Deletes all documents from a collection in Firestore.
+    """
+    firestore_client = firestore.Client(project_id)
+
+    collection_ref = firestore_client.collection(collection)
+    docs = collection_ref.stream()
+
+    for doc in docs:
+        doc.reference.delete()
