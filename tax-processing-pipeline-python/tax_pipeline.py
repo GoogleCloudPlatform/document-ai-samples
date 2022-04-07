@@ -18,9 +18,6 @@
 from decimal import Decimal
 from typing import List
 
-from consts import FIRESTORE_COLLECTION, FIRESTORE_PROJECT_ID
-from firestore_utils import get_all_data_from_firestore_collection
-
 _FORM_1099DIV = "FORM_1099DIV"
 _FORM_1099INT = "FORM_1099INT"
 _FORM_1099MISC = "FORM_1099MISC"
@@ -31,41 +28,10 @@ _FORM_W2 = "FORM_W2"
 _STANDARD_DEDUCTION = 12400
 
 
-def get_stored_data() -> dict:
-    """
-    Get Previously Extracted and stored Data from Firestore
-    Format:
-    {
-        document_type: {
-            field_name: field_value
-        }
-    }
-    """
-    document_data = get_all_data_from_firestore_collection(
-        project_id=FIRESTORE_PROJECT_ID, collection=FIRESTORE_COLLECTION
-    )
-
-    return document_data
-
-
-def run_tax_pipeline() -> List[List]:
-    """
-    Get Document Data from Firestore and calculate tax values
-    """
-
-    document_data = get_stored_data()
-
-    if not document_data:
-        return []
-
-    tax_values = calculate_tax_values(document_data)
-    return tax_values
-
-
 def calculate_tax_values(data: dict) -> List[List]:
     # pylint: disable=too-many-locals
     """
-    Calculate tax values
+    Calculate tax values based on extracted data from documents
     """
 
     form_1099div = data.get(_FORM_1099DIV)
