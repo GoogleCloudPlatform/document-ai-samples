@@ -16,14 +16,20 @@
 """Flask Web Server"""
 
 import os
+from uuid import uuid4
 
 from tempfile import TemporaryDirectory
 from typing import List, Tuple
 from flask import Flask, after_this_request, render_template, request
 from werkzeug.exceptions import HTTPException
 
+from consts import FIRESTORE_PROJECT_ID, FIRESTORE_COLLECTION_PREFIX
 from docai_pipeline import run_docai_pipeline
-from tax_pipeline import run_tax_pipeline, get_stored_data
+from firestore_utils import read_collection, delete_collection
+from tax_pipeline import calculate_tax_values
+
+SESSION_ID = str(uuid4())
+FIRESTORE_COLLECTION = f"{FIRESTORE_COLLECTION_PREFIX}-{SESSION_ID}"
 
 app = Flask(__name__)
 
@@ -64,7 +70,7 @@ def file_upload() -> str:
     if not uploaded_filenames:
         return render_template("index.html", message_error="No valid files provided")
 
-    status_messages = run_docai_pipeline(uploaded_filenames)
+    status_messages = run_docai_pipeline(uploaded_filenames, FIRESTORE_COLLECTION)
 
     return render_template(
         "index.html",
@@ -78,7 +84,7 @@ def view_extracted_data() -> str:
     """
     Display Raw extracted data from Documents
     """
-    extracted_data = get_stored_data()
+    extracted_data = read_collection(FIRESTORE_PROJECT_ID, FIRESTORE_COLLECTION)
     if not extracted_data:
         return render_template("index.html", message_error="No data to display")
     return render_template("index.html", extracted_data=extracted_data)
@@ -89,10 +95,21 @@ def view_tax_bill() -> str:
     """
     Calculate Tax Return with Document Information from Firestore
     """
-    tax_data = run_tax_pipeline()
+    extracted_data = read_collection(FIRESTORE_PROJECT_ID, FIRESTORE_COLLECTION)
+    tax_data = calculate_tax_values(extracted_data)
+
     if not tax_data:
         return render_template("index.html", message_error="No data to display")
     return render_template("index.html", tax_data=tax_data)
+
+
+@app.route("/delete_data", methods=["GET"])
+def delete_data() -> str:
+    """
+    Remove Saved Data from Database
+    """
+    delete_collection(FIRESTORE_PROJECT_ID, FIRESTORE_COLLECTION)
+    return render_template("index.html", message_success="Successfully deleted data")
 
 
 def save_files_to_temp_directory(files, temp_dir) -> List[Tuple[str, str]]:

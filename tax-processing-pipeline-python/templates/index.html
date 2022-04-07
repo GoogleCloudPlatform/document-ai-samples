@@ -43,6 +43,11 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <hr>
+
+        <a href="/delete_data" class="button">Delete Saved Data</a>
+
         <!-- Display Extracted Data -->
         {% elif extracted_data %}
         {% for document_id, document_data in extracted_data.items() %}
