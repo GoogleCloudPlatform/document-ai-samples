@@ -1,4 +1,4 @@
-FROM node:current-slim
+FROM node:12-slim
 
 COPY . ./
 
