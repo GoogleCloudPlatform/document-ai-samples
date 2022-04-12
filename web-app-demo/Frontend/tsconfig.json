@@ -17,7 +17,10 @@
     "importHelpers": true,
     "target": "es2017",
     "module": "es2020",
-    "lib": ["es2020", "dom"]
+    "lib": [
+      "es2020",
+      "dom"
+    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
@@ -25,12 +28,5 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true,
     "strictPropertyInitialization": false
-  },
-  "include": [ 
-    "src/**/*.spec.ts", 
-    "src/**/*.d.ts",
-    "src/**/**/*.ts",
-    "src/**/*.ts",
-    "src/*.ts",
-    "web-app-demo/Frontend/src/main.ts"]
+  }
 }
