@@ -98,8 +98,8 @@ be able to accept your pull requests.
 
 ## Code Reviews
 
-After meeting the above criteria, your code will need to be approved by a reviewer before it can be merged into main.
-If you do not hear from your repository owner reviewer within a day (and you know they are not OOO),
-send them a friendly ping so that you can better understand the review cadence for your PR.
-All the repository owners are juggling reviews alongside other work, and their velocities can vary,
+After meeting the above criteria, your code will need to be approved by a reviewer before it can be merged into main. 
+If you do not hear from your repository owner reviewer within a day (and you know they are not OOO), 
+send them a friendly ping so that you can better understand the review cadence for your PR. 
+All the repository owners are juggling reviews alongside other work, and their velocities can vary, 
 but they are happy to hear from you.
