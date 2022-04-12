@@ -32,5 +32,5 @@
     "src/**/**/*.ts",
     "src/**/*.ts",
     "src/*.ts",
-    "src/main.ts"]
+    "web-app-demo/Frontend/src/main.ts"]
 }
