@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable-msg=too-many-locals
 """ Helper file that holds DocAI API calls"""
 from google.cloud import documentai_v1beta3 as documentai
 
 
-def process_document(process_document_request,processor_id_by_processor_type):
-    """ Handles Document AI API call and returns the document proto as JSON """
+def process_document(process_document_request, processor_id_by_processor_type):
+    """Handles Document AI API call and returns the document proto as JSON"""
 
-    project_id = process_document_request['project_id']
-    location = process_document_request['location']
-    file_path = process_document_request['file_path']
-    file_type = process_document_request['file_type']
-    processor_type = process_document_request['processor_type']
+    project_id = process_document_request["project_id"]
+    location = process_document_request["location"]
+    file_path = process_document_request["file_path"]
+    file_type = process_document_request["file_type"]
+    processor_type = process_document_request["processor_type"]
 
     if processor_id_by_processor_type == []:
-        populate_list_source(project_id,location,processor_id_by_processor_type)
-    
+        populate_list_source(project_id, location, processor_id_by_processor_type)
 
     print(processor_id_by_processor_type)
 

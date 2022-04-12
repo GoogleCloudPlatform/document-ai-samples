@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-
 export interface BoundingPoly {
-  normalizedVertices: (NormalizedVerticesEntity)[];
+  normalizedVertices: NormalizedVerticesEntity[];
 }
 export interface NormalizedVerticesEntity {
   x: number;
   y: number;
 }
 
-interface BoundingPolyArray extends Array<NormalizedVerticesEntity>{}
+interface BoundingPolyArray extends Array<NormalizedVerticesEntity> {}
 
 /**
  * Class that handles bounding box drawing
@@ -40,31 +39,31 @@ export class DocumentAnnotation {
    * @return {void}
    */
   drawBoundingBoxes(
-      context: CanvasRenderingContext2D,
-      canvas: HTMLCanvasElement,
-      boundingPoly: BoundingPoly | null,
-      color: string,
-      fillOrStroke: string,
-      boundingPolyArray: BoundingPolyArray): void {
+    context: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement,
+    boundingPoly: BoundingPoly | null,
+    color: string,
+    fillOrStroke: string,
+    boundingPolyArray: BoundingPolyArray
+  ): void {
     let ocrVertices = [];
     context.strokeStyle = color;
 
     let width = 1;
     let height = 1;
 
-    if (fillOrStroke == 'fill') {
+    if (fillOrStroke == "fill") {
       height = canvas.height;
       width = canvas.width;
       ocrVertices = boundingPolyArray;
-      context.globalCompositeOperation = 'source-over';
+      context.globalCompositeOperation = "source-over";
       context.fillStyle = color;
     } else {
       for (let j = 0; j < boundingPoly!.normalizedVertices.length; j++) {
-        ocrVertices.push(
-            {
-              'x': boundingPoly!.normalizedVertices[j].x * canvas.width,
-              'y': boundingPoly!.normalizedVertices[j].y * canvas.height,
-            });
+        ocrVertices.push({
+          x: boundingPoly!.normalizedVertices[j].x * canvas.width,
+          y: boundingPoly!.normalizedVertices[j].y * canvas.height,
+        });
       }
       context.strokeStyle = color;
     }
@@ -76,7 +75,7 @@ export class DocumentAnnotation {
     context.lineTo(ocrVertices[3].x * width, ocrVertices[3].y * height);
     context.closePath();
 
-    if (fillOrStroke == 'fill') {
+    if (fillOrStroke == "fill") {
       context.fill();
     } else {
       context.stroke();

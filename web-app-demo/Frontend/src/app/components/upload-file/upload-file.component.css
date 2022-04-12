@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-.upload-container{
-    transform: scale(.85);
-    position: relative;
-    left: -80px;
+.upload-container {
+  transform: scale(0.85);
+  position: relative;
+  left: -80px;
 }
 
 .mat-button-base {
-margin: 8px 8px 8px 0;
+  margin: 8px 8px 8px 0;
 }
 
 .file-input {
-    display: none;
+  display: none;
 }
-.upload-btn{
-    background-color: #1A73E8;
+.upload-btn {
+  background-color: #1a73e8;
 }
 .upload-file-name {
-    box-sizing: border-box;
-    background-color:#E8F0FE;
+  box-sizing: border-box;
+  background-color: #e8f0fe;
 }

@@ -15,34 +15,34 @@
  */
 
 .content {
-    float: left;
-    position: relative;
-    display: flex;
-    margin: 82px auto 32px;
-    padding: 0 16px;
-    max-width: 960px;
-    flex-direction: column;
-    align-items: center;
-  }
+  float: left;
+  position: relative;
+  display: flex;
+  margin: 82px auto 32px;
+  padding: 0 16px;
+  max-width: 960px;
+  flex-direction: column;
+  align-items: center;
+}
 
 .pending {
-    position: relative;
-    left:-526px;
-    top: 183px;
-    width: 558px;
-    transform: scale(.4);
+  position: relative;
+  left: -526px;
+  top: 183px;
+  width: 558px;
+  transform: scale(0.4);
 }
 
 .error {
   position: relative;
-  background-color: rgba(217, 48, 37,0.8);
+  background-color: rgba(217, 48, 37, 0.8);
   color: #f1f3f4;
   text-align: end;
-  size:12px;
+  size: 12px;
   top: 146.5px;
   width: fit-content;
   left: 0px;
   height: 11px;
-  transform: scale(.86);
+  transform: scale(0.86);
   margin: auto;
 }

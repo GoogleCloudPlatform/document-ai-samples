@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {DocumentAnnotation} from './document-annotation';
+import { DocumentAnnotation } from "./document-annotation";
 
-describe('DocumentAnnotation', () => {
-  it('should create an instance', () => {
+describe("DocumentAnnotation", () => {
+  it("should create an instance", () => {
     expect(new DocumentAnnotation()).toBeTruthy();
   });
 });

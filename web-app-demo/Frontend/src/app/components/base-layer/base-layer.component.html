@@ -15,14 +15,18 @@
 -->
 
 <div class="content" role="main">
-    <div>
-        <app-upload-file></app-upload-file>
-    </div>
-    <div class="selector" >
-        <app-processor-selection></app-processor-selection>
-    </div>
-    <app-canvas></app-canvas>
-    <app-entity-tab></app-entity-tab>
+  <div>
+    <app-upload-file></app-upload-file>
+  </div>
+  <div class="selector">
+    <app-processor-selection></app-processor-selection>
+  </div>
+  <app-canvas></app-canvas>
+  <app-entity-tab></app-entity-tab>
 </div>
-<mat-card class="error" *ngIf="showError === true">{{errorMessage}}</mat-card>
-<mat-progress-bar class="pending" *ngIf="processInProgress === true"  mode="indeterminate"></mat-progress-bar>
+<mat-card class="error" *ngIf="showError === true">{{ errorMessage }}</mat-card>
+<mat-progress-bar
+  class="pending"
+  *ngIf="processInProgress === true"
+  mode="indeterminate"
+></mat-progress-bar>

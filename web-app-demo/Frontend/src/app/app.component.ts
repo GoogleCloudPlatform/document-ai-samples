@@ -16,24 +16,22 @@
 
 /* eslint new-cap: ["error", { "capIsNew": false }]*/
 
-import {Component} from '@angular/core';
-import {DataSharingServiceService} from './data-sharing-service.service';
-import { Router } from '@angular/router';
+import { Component } from "@angular/core";
+import { DataSharingServiceService } from "./data-sharing-service.service";
+import { Router } from "@angular/router";
 
 declare var backendURL: string;
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.css"],
 })
 /**
  * AppComponent sets title and backendURL
  */
 export class AppComponent {
-
-  title = 'Document AI Modular App';
+  title = "Document AI Modular App";
   sharingClient = new DataSharingServiceService();
   public static backendURL = "";
-  
 }
