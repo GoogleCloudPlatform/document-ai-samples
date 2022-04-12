@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {TestBed} from '@angular/core/testing';
+import { TestBed } from "@angular/core/testing";
 
-import {DataSharingServiceService} from './data-sharing-service.service';
+import { DataSharingServiceService } from "./data-sharing-service.service";
 
-describe('DataSharingServiceService', () => {
+describe("DataSharingServiceService", () => {
   let service: DataSharingServiceService;
 
   beforeEach(() => {
@@ -26,7 +26,7 @@ describe('DataSharingServiceService', () => {
     service = TestBed.inject(DataSharingServiceService);
   });
 
-  it('should be created', () => {
+  it("should be created", () => {
     expect(service).toBeTruthy();
   });
 });

@@ -16,25 +16,25 @@
 
 /* eslint new-cap: ["error", { "capIsNew": false }]*/
 
-import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import { Injectable } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 /**
  * Class that handles Data Sharing
  */
 export class DataSharingServiceService {
-  private fileNameSource = new BehaviorSubject('');
-  private fileSource = new BehaviorSubject('');
-  private documentProtoSource = new BehaviorSubject('');
+  private fileNameSource = new BehaviorSubject("");
+  private fileSource = new BehaviorSubject("");
+  private documentProtoSource = new BehaviorSubject("");
   private processingIsDoneSource = new BehaviorSubject(false);
-  private processorSource = new BehaviorSubject('');
+  private processorSource = new BehaviorSubject("");
   private processIsDoneSource = new BehaviorSubject(false);
   private showBoundingSource = new BehaviorSubject(false);
   private processingInProgressSource = new BehaviorSubject(false);
-  private errorMessageSource = new BehaviorSubject('');
+  private errorMessageSource = new BehaviorSubject("");
   private showErrorSource = new BehaviorSubject(false);
 
   fileName = this.fileNameSource.asObservable();

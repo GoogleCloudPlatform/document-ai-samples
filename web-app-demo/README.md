@@ -9,10 +9,9 @@ This application uses a Flask backend server to handle Document AI API calls and
 
 Before clicking make sure Document AI API is enabled and your project has at least one processor created.
 
-This application currently support OCR, Invoice and Form processors.  
+This application currently support OCR, Invoice and Form processors.
 
 [![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
-
 
 ## Prerequisites
 
@@ -51,6 +50,7 @@ Make sure you're in the Backend directory
 ```bash
 cd Backend
 ```
+
 When you're in the Backend server directory you'll need to install all the dependencies in a [virtualenv][virtualenv] using pip.
 
 [virtualenv][virtualenv] is a tool to create isolated Python environments.
@@ -59,8 +59,7 @@ With [virtualenv][virtualenv], it's possible to install this library without nee
 install permissions, and without clashing with the installed system
 dependencies.
 
-[virtualenv]: <https://virtualenv.pypa.io/en/latest/>
-
+[virtualenv]: https://virtualenv.pypa.io/en/latest/
 
 **Mac/Linux**
 
@@ -123,20 +122,21 @@ Navigate to [http://localhost:4200/](http://localhost:4200/) and now you should 
 ![Document AI Modular E2E App](images/application.png)
 
 #### Building the project
+
 Run ng build to build the project. The build artifacts will be stored in the dist/ directory.
 
 ## Components
 
 The following is a list of existing components and their functionality
 
-* Base Layer - Base Layer holds all imported components
-* Canvas - This component handles document display and annotation
-* Entity Tab - This component extracts text from the Document Proto and displays the text and highlights the bounding boxes depending on selection
-* Processor Selection - This component retrieves available processors and displays them, allows for processor selection, validates inputs of processors and the uploaded PDF, and sends the uploaded PDF for document processing
-* Upload File - This component handles document upload, updates the data service with the uploaded file, and validates that the uploaded file is a PDF and less them 20mb
-* Data Sharing Service - This service handles the sharing of data between different components
-* Document Annotation Class - This class handles the bounding box drawing and highlight
+- Base Layer - Base Layer holds all imported components
+- Canvas - This component handles document display and annotation
+- Entity Tab - This component extracts text from the Document Proto and displays the text and highlights the bounding boxes depending on selection
+- Processor Selection - This component retrieves available processors and displays them, allows for processor selection, validates inputs of processors and the uploaded PDF, and sends the uploaded PDF for document processing
+- Upload File - This component handles document upload, updates the data service with the uploaded file, and validates that the uploaded file is a PDF and less them 20mb
+- Data Sharing Service - This service handles the sharing of data between different components
+- Document Annotation Class - This class handles the bounding box drawing and highlight
 
 ## Contributing
 
-* See [CONTRIBUTING.md](CONTRIBUTING.md)
+- See [CONTRIBUTING.md](CONTRIBUTING.md)

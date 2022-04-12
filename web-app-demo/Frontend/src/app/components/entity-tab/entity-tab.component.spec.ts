@@ -14,31 +14,30 @@
  * limitations under the License.
  */
 
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import {EntityTabComponent} from './entity-tab.component';
-import {BrowserModule} from '@angular/platform-browser';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatSelectModule} from '@angular/material/select';
-import {MatTableModule} from '@angular/material/table';
-import {MatPaginatorModule} from '@angular/material/paginator';
-import {MatCardModule} from '@angular/material/card';
-import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
-import {CanvasComponent} from 'src/app/components/canvas/canvas.component';
-import {DataSharingServiceService} from 'src/app/data-sharing-service.service';
+import { EntityTabComponent } from "./entity-tab.component";
+import { BrowserModule } from "@angular/platform-browser";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { MatSelectModule } from "@angular/material/select";
+import { MatTableModule } from "@angular/material/table";
+import { MatPaginatorModule } from "@angular/material/paginator";
+import { MatCardModule } from "@angular/material/card";
+import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
+import { CanvasComponent } from "src/app/components/canvas/canvas.component";
+import { DataSharingServiceService } from "src/app/data-sharing-service.service";
 
-import ocrResponse from '../../../assets/ocrTestProto.json'
-import formResponse from '../../../assets/formTestProto.json'
-import invoiceResponse from '../../../assets/invoiceTestProto.json'
+import ocrResponse from "../../../assets/ocrTestProto.json";
+import formResponse from "../../../assets/formTestProto.json";
+import invoiceResponse from "../../../assets/invoiceTestProto.json";
 
+const testText = "Hello this is a test";
 
-const testText = 'Hello this is a test';
-
-describe('EntityTabComponent', () => {
+describe("EntityTabComponent", () => {
   let component: EntityTabComponent;
   let fixture: ComponentFixture<EntityTabComponent>;
   const dataSharing = new DataSharingServiceService();
@@ -57,10 +56,10 @@ describe('EntityTabComponent', () => {
         ReactiveFormsModule,
         MatTableModule,
         MatPaginatorModule,
-        MatCardModule],
+        MatCardModule,
+      ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    })
-        .compileComponents();
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -70,51 +69,52 @@ describe('EntityTabComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 
-  it('should populate data source for OCR', () => {
+  it("should populate data source for OCR", () => {
     dataSharing.changeDocumentProto(ocrResponse);
-        
+
     component.ngDoCheck();
     expect(component.dataSource).not.toBeNull();
   });
 
-  it('should populate data source for Invoice', () => {
+  it("should populate data source for Invoice", () => {
     dataSharing.changeDocumentProto(invoiceResponse);
 
     component.ngDoCheck();
     expect(component.dataSource).not.toBeNull();
   });
 
-  it('should populate data source for Form', () => {
+  it("should populate data source for Form", () => {
     dataSharing.changeDocumentProto(formResponse);
 
     component.ngDoCheck();
     expect(component.dataSource).not.toBeNull();
   });
 
-  it('should get text', () => {
-    const textAnchor = {textSegments: [{startIndex: 0, endIndex: 20}]};
+  it("should get text", () => {
+    const textAnchor = { textSegments: [{ startIndex: 0, endIndex: 20 }] };
     expect(component.getText(textAnchor, testText)).toEqual(testText);
   });
 
-  it('should highlight Bounding Boxes for OCR', () => {
-    spyOn(component, 'highlightBoundingBoxes').and.callThrough();
+  it("should highlight Bounding Boxes for OCR", () => {
+    spyOn(component, "highlightBoundingBoxes").and.callThrough();
 
     const fixture2 = TestBed.createComponent(CanvasComponent);
     const component2 = fixture2.componentInstance;
     component2.ngOnInit();
 
-    dataSharing.changeProcessor('OCR');
+    dataSharing.changeProcessor("OCR");
 
     const data = {
       bounding: [
-        {'x': 0, 'y': 0},
-        {'x': 0, 'y': 0},
-        {'x': 0, 'y': 0},
-        {'x': 0, 'y': 0}],
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ],
     };
 
     component.highlightBoundingBoxes(data);
@@ -122,21 +122,22 @@ describe('EntityTabComponent', () => {
     expect(component.highlightBoundingBoxes).toHaveBeenCalled();
   });
 
-  it('should highlight Bounding Boxes for Invoice', () => {
-    spyOn(component, 'highlightBoundingBoxes').and.callThrough();
+  it("should highlight Bounding Boxes for Invoice", () => {
+    spyOn(component, "highlightBoundingBoxes").and.callThrough();
 
     const fixture2 = TestBed.createComponent(CanvasComponent);
     const component2 = fixture2.componentInstance;
     component2.ngOnInit();
 
-    dataSharing.changeProcessor('Invoice');
+    dataSharing.changeProcessor("Invoice");
 
     const data = {
       bounding: [
-        {'x': 0, 'y': 0},
-        {'x': 0, 'y': 0},
-        {'x': 0, 'y': 0},
-        {'x': 0, 'y': 0}],
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+      ],
     };
 
     component.highlightBoundingBoxes(data);
@@ -144,29 +145,32 @@ describe('EntityTabComponent', () => {
     expect(component.highlightBoundingBoxes).toHaveBeenCalled();
   });
 
-  it('should highlight Bounding Boxes for Form', () => {
-    spyOn(component, 'highlightBoundingBoxes').and.callThrough();
+  it("should highlight Bounding Boxes for Form", () => {
+    spyOn(component, "highlightBoundingBoxes").and.callThrough();
 
     const fixture2 = TestBed.createComponent(CanvasComponent);
     const component2 = fixture2.componentInstance;
     component2.ngOnInit();
 
-    dataSharing.changeProcessor('Form');
+    dataSharing.changeProcessor("Form");
 
     const data = {
-      bounding:
-        [{
-          'value': [
-            {'x': 0, 'y': 0},
-            {'x': 0, 'y': 0},
-            {'x': 0, 'y': 0},
-            {'x': 0, 'y': 0}],
-          'name': [
-            {'x': 0, 'y': 0},
-            {'x': 0, 'y': 0},
-            {'x': 0, 'y': 0},
-            {'x': 0, 'y': 0}],
-        }],
+      bounding: [
+        {
+          value: [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+          ],
+          name: [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+          ],
+        },
+      ],
     };
 
     component.highlightBoundingBoxes(data);
@@ -174,8 +178,8 @@ describe('EntityTabComponent', () => {
     expect(component.highlightBoundingBoxes).toHaveBeenCalled();
   });
 
-  it('should clear bounding box canvas', () => {
-    spyOn(component, 'clearBoundingBoxes').and.callThrough();
+  it("should clear bounding box canvas", () => {
+    spyOn(component, "clearBoundingBoxes").and.callThrough();
 
     const fixture2 = TestBed.createComponent(CanvasComponent);
     const component2 = fixture2.componentInstance;

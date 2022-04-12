@@ -14,51 +14,51 @@
  * limitations under the License.
  */
 
-.main-body{
-    overflow: hidden;
-  }
+.main-body {
+  overflow: hidden;
+}
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    margin: 8px 0;
-  }
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 8px 0;
+}
 
-  p {
-    margin: 0;
-  }
+p {
+  margin: 0;
+}
 
-  .spacer {
-    flex: 1;
-  }
+.spacer {
+  flex: 1;
+}
 
-  .toolbar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    background-color: #4285F4;
-    color: white;
-    font-weight: 600;
-  }
+.toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  background-color: #4285f4;
+  color: white;
+  font-weight: 600;
+}
 
-  .toolbar-title {
-    margin-left: 25px;
-    position:relative;
-  }
-  .content {
-    float: left;
-    position:relative;
-    display: flex;
-    margin: 82px auto 32px;
-    padding: 0 16px;
-    max-width: 960px;
-    flex-direction: column;
-    align-items: center;
-  }
+.toolbar-title {
+  margin-left: 25px;
+  position: relative;
+}
+.content {
+  float: left;
+  position: relative;
+  display: flex;
+  margin: 82px auto 32px;
+  padding: 0 16px;
+  max-width: 960px;
+  flex-direction: column;
+  align-items: center;
+}

@@ -16,14 +16,14 @@
 
 /* eslint new-cap: ["error", { "capIsNew": false }]*/
 
-import {Component, OnInit} from '@angular/core';
-import {Subscription} from 'rxjs';
-import {DataSharingServiceService} from 'src/app/data-sharing-service.service';
+import { Component, OnInit } from "@angular/core";
+import { Subscription } from "rxjs";
+import { DataSharingServiceService } from "src/app/data-sharing-service.service";
 
 @Component({
-  selector: 'app-canvas',
-  templateUrl: './canvas.component.html',
-  styleUrls: ['./canvas.component.css'],
+  selector: "app-canvas",
+  templateUrl: "./canvas.component.html",
+  styleUrls: ["./canvas.component.css"],
 })
 /**
  * CanvasComponent - the canvas to draw on
@@ -36,13 +36,13 @@ export class CanvasComponent implements OnInit {
    * @constructor
    * @param {DataSharingServiceService} data - data sharing service
    */
-  constructor(public data: DataSharingServiceService) { }
+  constructor(public data: DataSharingServiceService) {}
 
   /**
    * initializes component
    * @return {void}
    */
   ngOnInit(): void {
-    console.log('canvas init');
+    console.log("canvas init");
   }
 }

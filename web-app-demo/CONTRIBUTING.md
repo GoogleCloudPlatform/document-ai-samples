@@ -39,7 +39,7 @@ ng generate component <name> [options]
 This will create a folder with all the files you need for the component. To add this component to the main application all you need to do is copy the component selector and add it to the base-layer component.
 
 ```html
- <app-component-selector></app-component-selector>
+<app-component-selector></app-component-selector>
 ```
 
 After adding the component make sure to run lint on the new component:
@@ -53,10 +53,8 @@ ng lint --fix
 To run lint on the Backend make sure you're in the demo directory and run
 
 ```bash
-pylint Backend 
+pylint Backend
 ```
-
-
 
 ## Running Tests
 
@@ -69,6 +67,7 @@ python helper_test.py
 ```
 
 ### Frontend Test
+
 To run all frontend tests
 
 ```bash
@@ -88,10 +87,10 @@ Before we can take contributions, we have to jump a couple of legal hurdles.
 Please fill out either the individual or corporate Contributor License
 Agreement (CLA).
 
-* If you are an individual writing original source code and you're sure you
-own the intellectual property, then you'll need to sign an [individual CLA](https://developers.google.com/open-source/cla/individual).
-* If you work for a company that wants to allow you to contribute your work,
-then you'll need to sign a [corporate CLA](https://developers.google.com/open-source/cla/corporate).
+- If you are an individual writing original source code and you're sure you
+  own the intellectual property, then you'll need to sign an [individual CLA](https://developers.google.com/open-source/cla/individual).
+- If you work for a company that wants to allow you to contribute your work,
+  then you'll need to sign a [corporate CLA](https://developers.google.com/open-source/cla/corporate).
 
 Follow either of the two links above to access the appropriate CLA and
 instructions for how to sign and return it. Once we receive it, we'll

@@ -15,17 +15,25 @@
 -->
 
 <div class="upload-container">
-    <div>
-        <input type="file" class="file-input"
-        [accept]="requiredFileType" (change)="handleFileInput($event)" #fileUpload/>
-        <div class="uploaded-file">
-            <button mat-mini-fab color="primary" class="upload-btn"
-            (click)="fileUpload.click()">
-                <mat-icon class="upload-icon">attach_file</mat-icon>
-            </button>
+  <div>
+    <input
+      type="file"
+      class="file-input"
+      [accept]="requiredFileType"
+      (change)="handleFileInput($event)"
+      #fileUpload
+    />
+    <div class="uploaded-file">
+      <button
+        mat-mini-fab
+        color="primary"
+        class="upload-btn"
+        (click)="fileUpload.click()"
+      >
+        <mat-icon class="upload-icon">attach_file</mat-icon>
+      </button>
 
-            {{fileName || "Click here to upload your file."}}
-        </div>
+      {{ fileName || "Click here to upload your file." }}
     </div>
+  </div>
 </div>
-
