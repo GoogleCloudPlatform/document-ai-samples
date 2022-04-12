@@ -25,5 +25,12 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true,
     "strictPropertyInitialization": false
-  }
+  },
+  "include": [ 
+    "src/**/*.spec.ts", 
+    "src/**/*.d.ts",
+    "src/**/**/*.ts",
+    "src/**/*.ts",
+    "src/*.ts",
+    "src/main.ts"]
 }
