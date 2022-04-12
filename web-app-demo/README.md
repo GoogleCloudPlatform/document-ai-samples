@@ -13,6 +13,7 @@ This application currently support OCR, Invoice and Form processors.
 
 [![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
 
+
 ## Prerequisites
 
 Before you can run the application you first need to make sure you have the [Google CLI](https://cloud.google.com/sdk/docs/install) installed.
