@@ -1,7 +1,9 @@
 {
     "compilerOptions": { "strict": true },
     "include": [
-      "**/src/**/**/*.ts",
+      "**/Frontend/src/**/**/*.ts",
+      "**/Frontend/src/**/*.ts",
+      "**/Frontend/src/*.ts",
       // etc
     ]
   }
