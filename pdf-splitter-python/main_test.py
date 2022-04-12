@@ -25,15 +25,15 @@ from google.cloud import documentai_v1beta3 as docai
 
 from main import main
 
-PROCESSOR_TYPE = 'processor-type'
+PROCESSOR_TYPE = "processor-type"
 
-PROJECT_ID = 'project-id'
-LOCATION = 'location'
-PROCESSOR_ID = 'processor-id'
-PROCESSOR_NAME = f'projects/{PROJECT_ID}/locations/{LOCATION}/processors/{PROCESSOR_ID}'
+PROJECT_ID = "project-id"
+LOCATION = "location"
+PROCESSOR_ID = "processor-id"
+PROCESSOR_NAME = f"projects/{PROJECT_ID}/locations/{LOCATION}/processors/{PROCESSOR_ID}"
 
-TEST_FILENAME = 'multi_document.pdf'
-EXPECTED_FILENAME = 'subdoc_1_of_1_multi_document.pdf'
+TEST_FILENAME = "multi_document.pdf"
+EXPECTED_FILENAME = "subdoc_1_of_1_multi_document.pdf"
 
 
 class TestMain(unittest.TestCase):
@@ -49,27 +49,29 @@ class TestMain(unittest.TestCase):
 
         # Mock list processor API call to get a fake processor to use
         mocked_client_instance.list_processors.return_value = docai.types.ListProcessorsResponse(
-            processors = [ docai.types.Processor(
-                type_ = PROCESSOR_TYPE,
-                name = 'projects/PROJECT_ID/locations/LOCATION/processors/PROCESSOR_ID',
-            )]
+            processors=[
+                docai.types.Processor(
+                    type_=PROCESSOR_TYPE,
+                    name="projects/PROJECT_ID/locations/LOCATION/processors/PROCESSOR_ID",
+                )
+            ]
         )
 
         # Mock process document API call to use a fake API response
-        mocked_client_instance.process_document.return_value = docai.types.ProcessResponse(
-            document = docai.types.Document(
-                entities = [ docai.types.Document.Entity(
-                    page_anchor = docai.types.Document.PageAnchor(
-                        page_refs = [
-                            docai.types.Document.PageAnchor.PageRef(
-                                page = 0
-                            ),
-                            docai.types.Document.PageAnchor.PageRef(
-                                page = 1
-                            ),
-                        ]
-                    )
-                )]
+        mocked_client_instance.process_document.return_value = (
+            docai.types.ProcessResponse(
+                document=docai.types.Document(
+                    entities=[
+                        docai.types.Document.Entity(
+                            page_anchor=docai.types.Document.PageAnchor(
+                                page_refs=[
+                                    docai.types.Document.PageAnchor.PageRef(page=0),
+                                    docai.types.Document.PageAnchor.PageRef(page=1),
+                                ]
+                            )
+                        )
+                    ]
+                )
             )
         )
 
@@ -84,12 +86,15 @@ class TestMain(unittest.TestCase):
         temp_out_dir = tempfile.mkdtemp()
 
         # Call main function with args
-        main(argparse.Namespace(
-            input=test_filepath,
-            output_dir=temp_out_dir,
-            project_id=PROJECT_ID,
-            multi_region_location=LOCATION,
-            split_processor_type=PROCESSOR_TYPE))
+        main(
+            argparse.Namespace(
+                input=test_filepath,
+                output_dir=temp_out_dir,
+                project_id=PROJECT_ID,
+                multi_region_location=LOCATION,
+                split_processor_type=PROCESSOR_TYPE,
+            )
+        )
 
         expected_filepath = os.path.join(temp_out_dir, EXPECTED_FILENAME)
 
@@ -103,5 +108,6 @@ class TestMain(unittest.TestCase):
         # Clean up test files
         shutil.rmtree(temp_out_dir)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

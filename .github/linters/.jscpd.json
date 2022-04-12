@@ -1,0 +1,11 @@
+{
+    "threshold": 0,
+    "reporters": [
+      "consoleFull"
+    ],
+    "ignore": [
+      "**/__snapshots__/**",
+      "**/*_test.py"
+    ],
+    "absolute": true
+  }
