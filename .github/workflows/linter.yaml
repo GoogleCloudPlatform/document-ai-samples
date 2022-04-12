@@ -60,3 +60,4 @@ jobs:
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_ISORT: false
           VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_TYPESCRIPT_STANDARD: false
