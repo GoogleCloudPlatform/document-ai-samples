@@ -4,6 +4,9 @@
       "**/Frontend/src/**/**/*.ts",
       "**/Frontend/src/**/*.ts",
       "**/Frontend/src/*.ts",
+      "web-app-demo/Frontend/src/test.ts",
+      "web-app-demo/Frontend/src/polyfills.ts",
+      "web-app-demo/Frontend/src/main.ts",
       // etc
     ]
   }
