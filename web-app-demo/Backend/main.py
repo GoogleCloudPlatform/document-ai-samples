@@ -14,6 +14,7 @@
 
 """ Backend API that handles DocAI API calls """
 import os
+from typing import Dict
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS  # comment this on deployment
@@ -26,7 +27,7 @@ from api.helper import populate_list_source, process_document, store_file
 _, project_id = google.auth.default()
 LOCATION = "us"  # Format is 'us' or 'eu'
 
-processor_id_by_processor_type = {}
+processor_id_by_processor_type: Dict[str,str] = {}
 
 app = Flask(__name__, static_url_path="", static_folder="")
 
