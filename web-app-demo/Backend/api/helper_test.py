@@ -16,37 +16,34 @@
 
 import os
 import unittest
-from typing import Dict
 from unittest.mock import patch
-
 import google.auth
 from google.cloud import documentai_v1beta3 as docai
 
-from helper import process_document  # pylint: disable=E0401
+from helper import process_document # pylint: disable=E0401
 
 _, project_id = google.auth.default()
-LOCATION = "my-location"  # Format is 'us' or 'eu'
+LOCATION = 'my-location'  # Format is 'us' or 'eu'
 
-processor_id_by_processor_type: Dict[str, str] = {}
+processor_id_by_processor_type = {}
 
 
 class TestHelper(unittest.TestCase):
-    """Testing helper functions"""
+    """ Testing helper functions"""
 
     @patch("helper.documentai.DocumentProcessorServiceClient.process_document")
     def test_process_document_normal(self, process_document_mock):
-        """Tests process document in a normal case"""
+        """ Tests process document in a normal case"""
 
-        __location__ = os.path.realpath(
-            os.path.join(os.getcwd(), os.path.dirname(__file__))
-        )
+        __location__ = os.path.realpath(os.path.join(
+            os.getcwd(), os.path.dirname(__file__)))
 
         process_document_request = {
-            "project_id": "my-project-id",
-            "location": LOCATION,
-            "processor_id": "test-OCR-ID",
-            "file_path": os.path.join(__location__, "test_docs/file"),
-            "file_type": "application/pdf",
+            'project_id': 'my-project-id',
+            'location': LOCATION,
+            'processor_id': 'test-OCR-ID',
+            'file_path': os.path.join(__location__, 'test_docs/file'),
+            'file_type': 'application/pdf'
         }
 
         processor_response = docai.types.ProcessResponse()
@@ -57,26 +54,25 @@ class TestHelper(unittest.TestCase):
 
     @patch("helper.documentai.DocumentProcessorServiceClient.process_document")
     def test_process_document_error(self, process_document_mock2):
-        """Tests process document in a normal case"""
+        """ Tests process document in a normal case"""
 
-        __location__ = os.path.realpath(
-            os.path.join(os.getcwd(), os.path.dirname(__file__))
-        )
+        __location__ = os.path.realpath(os.path.join(
+            os.getcwd(), os.path.dirname(__file__)))
 
         process_document_request = {
-            "project_id": "my-project-id",
-            "location": LOCATION,
-            "processor_id": "test-OCR-ID",
-            "file_path": os.path.join(__location__, "test_docs/file"),
-            "file_type": "application/pdf",
+            'project_id': 'my-project-id',
+            'location': LOCATION,
+            'processor_id': 'test-OCR-ID',
+            'file_path': os.path.join(__location__, 'test_docs/file'),
+            'file_type': 'application/pdf'
         }
 
         processor_response = docai.types.ProcessResponse()
         processor_response.document = docai.types.Document()
-        process_document_mock2.side_effect = Exception("Error")
+        process_document_mock2.side_effect = Exception('Error')
         resp = process_document(process_document_request)
         self.assertIn("ERROR", str(resp))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

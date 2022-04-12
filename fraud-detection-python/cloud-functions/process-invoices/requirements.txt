@@ -1,4 +1,0 @@
-google-cloud-documentai
-google-cloud-storage
-google-cloud-bigquery
-google-cloud-pubsub

@@ -1,7 +1,0 @@
-[
-  {
-    "mode": "NULLABLE",
-    "name": "input_file_name",
-    "type": "STRING"
-  }
-]

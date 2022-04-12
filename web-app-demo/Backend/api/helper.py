@@ -58,10 +58,10 @@ def process_document(process_document_request,processor_id_by_processor_type):
     # Use the Document AI client to process the sample form
     try:
         result = client.process_document(request=request)
-    except Exception as err:  # pylint: disable=W0703
+    except Exception as err: # pylint: disable=W0703
         return {
-            "resultStatus": "ERROR",
-            "errorMessage": str(err),
+            'resultStatus': 'ERROR',
+            'errorMessage': str(err),
         }
 
     document = result.document
@@ -70,23 +70,22 @@ def process_document(process_document_request,processor_id_by_processor_type):
 
     return json_result
 
-
 # TODO: Store the file that was sent in the request in GCS # pylint: disable=W0511
 
 
 def store_file(file):
-    """Stores the file to specified destination"""
-    destination = "/".join(["api/test_docs", file.name])
+    """ Stores the file to specified destination """
+    destination = "/".join(['api/test_docs', file.name])
     file.save(destination)
     return destination
 
 
 def populate_list_source(project_id, location, processor_id_by_processor_type):
-    """Gets all available processors from the specified GCP project"""
+    """ Gets all available processors from the specified GCP project """
     client = documentai.DocumentProcessorServiceClient()
 
     req = documentai.ListProcessorsRequest()
-    req.parent = f"projects/{project_id}/locations/{location}"
+    req.parent = f'projects/{project_id}/locations/{location}'
 
     try:
         processor_list = client.list_processors(req)
@@ -96,15 +95,15 @@ def populate_list_source(project_id, location, processor_id_by_processor_type):
             # format `projects/{project}/locations/{location}/processors/{processor}`
             parsed_path = client.parse_processor_path(processor.name)
             processor_id_by_processor_type[processor.type_] = parsed_path["processor"]
-    except Exception as err:  # pylint: disable=W0703
-        if location == "ENTER_YOUR_LOCATION_HERE":
+    except Exception as err: # pylint: disable=W0703
+        if location == 'ENTER_YOUR_LOCATION_HERE':
             str_error = "Location was not changed"
         else:
             str_error = str(err)
         return {
-            "resultStatus": "ERROR",
-            "errorMessage": str_error,
-        }, 400
+            'resultStatus': 'ERROR',
+            'errorMessage': str_error,
+        } , 400
     return {
-        "resultStatus": "SUCCESS",
+        'resultStatus': 'SUCCESS',
     }

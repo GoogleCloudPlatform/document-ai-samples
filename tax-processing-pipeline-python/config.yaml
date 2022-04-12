@@ -1,5 +1,0 @@
-docai_processor_location: us # Document AI Processor Location (us OR eu)
-docai_project_id: YOUR_PROJECT_ID # Project ID for Document AI Processors
-firestore:
-    collection: tax_demo_documents # Set with your preferred Firestore Collection Name
-    project_id: YOUR_PROJECT_ID # Project ID for Firestore Database
