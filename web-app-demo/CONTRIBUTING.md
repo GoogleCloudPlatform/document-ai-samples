@@ -42,7 +42,7 @@ This will create a folder with all the files you need for the component. To add 
  <app-component-selector></app-component-selector>
 ```
 
-After adding the component make sure to run lint on the new component: 
+After adding the component make sure to run lint on the new component:
 
 To run lint on the Frontend make sure you're in the Frontend directory and run
 
@@ -62,7 +62,7 @@ pylint Backend
 
 ### Backend Tests
 
-To run all backend tests make sure you're in the API directory and run 
+To run all backend tests make sure you're in the API directory and run
 
 ```bash
 python helper_test.py
@@ -88,10 +88,10 @@ Before we can take contributions, we have to jump a couple of legal hurdles.
 Please fill out either the individual or corporate Contributor License
 Agreement (CLA).
 
-  * If you are an individual writing original source code and you're sure you
-    own the intellectual property, then you'll need to sign an [individual CLA](https://developers.google.com/open-source/cla/individual).
-  * If you work for a company that wants to allow you to contribute your work,
-    then you'll need to sign a [corporate CLA](https://developers.google.com/open-source/cla/corporate).
+* If you are an individual writing original source code and you're sure you
+own the intellectual property, then you'll need to sign an [individual CLA](https://developers.google.com/open-source/cla/individual).
+* If you work for a company that wants to allow you to contribute your work,
+then you'll need to sign a [corporate CLA](https://developers.google.com/open-source/cla/corporate).
 
 Follow either of the two links above to access the appropriate CLA and
 instructions for how to sign and return it. Once we receive it, we'll
@@ -99,4 +99,8 @@ be able to accept your pull requests.
 
 ## Code Reviews
 
-After meeting the above criteria, your code will need to be approved by a reviewer before it can be merged into main. If you do not hear from your repository owner reviewer within a day (and you know they are not OOO), send them a friendly ping so that you can better understand the review cadence for your PR. All the repository owners are juggling reviews alongside other work, and their velocities can vary, but they are happy to hear from you.
+After meeting the above criteria, your code will need to be approved by a reviewer before it can be merged into main. 
+If you do not hear from your repository owner reviewer within a day (and you know they are not OOO), 
+send them a friendly ping so that you can better understand the review cadence for your PR. 
+All the repository owners are juggling reviews alongside other work, and their velocities can vary, 
+but they are happy to hear from you.

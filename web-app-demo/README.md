@@ -1,13 +1,13 @@
 # Document AI Modular Application
 
-This Document AI application is an end to end application that shows how to integrate Document AI into full-stack application.
+This Document AI application is an end-to-end application that shows how to integrate Document AI into full-stack application.
 This is the starting point and uses modular architecture so developers could easily demo Document AI and add components that fit their needs to quickly create a tailored demo.
 
 This application uses a Flask backend server to handle Document AI API calls and a Angular Frontend.
 
-## Quickstart 
+## Quickstart
 
-Before clicking make sure Document AI API is enabled and your project has at least one processor created. 
+Before clicking make sure Document AI API is enabled and your project has at least one processor created.
 
 This application currently support OCR, Invoice and Form processors.  
 
@@ -80,7 +80,7 @@ dependencies.
 
 Once the dependencies are installed you can then run the Backend server.
 
-Before running the server make sure the location variable is changed to the location of your project (us or eu) and you set the FLASK_APP environment variable 
+Before running the server make sure the location variable is changed to the location of your project (us or eu) and you set the FLASK_APP environment variable
 
 ```bash
 export FLASK_APP=main.py
@@ -134,7 +134,7 @@ The following is a list of existing components and their functionality
 * Entity Tab - This component extracts text from the Document Proto and displays the text and highlights the bounding boxes depending on selection
 * Processor Selection - This component retrieves available processors and displays them, allows for processor selection, validates inputs of processors and the uploaded PDF, and sends the uploaded PDF for document processing
 * Upload File - This component handles document upload, updates the data service with the uploaded file, and validates that the uploaded file is a PDF and less them 20mb
-* Data Sharing Service - This service handles the sharing of data between different components 
+* Data Sharing Service - This service handles the sharing of data between different components
 * Document Annotation Class - This class handles the bounding box drawing and highlight
 
 ## Contributing

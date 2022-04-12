@@ -4,7 +4,7 @@ var app = express();
 
 app.use(express.static('dist/frontend'));
 
-app.get('/', function (req, res,next) {
+app.get('/', function (req, res, next) {
     res.redirect('/');
 });
 
