@@ -14,21 +14,19 @@
 
 """ Backend API that handles DocAI API calls """
 import os
+
 from flask import Flask, jsonify, request
-from flask_restful import Api
 from flask_cors import CORS  # comment this on deployment
+from flask_restful import Api
 
 import google.auth
-from flask import Flask, request
-from flask_cors import CORS  # comment this on deployment
-from flask_restful import Api
 
 from api.helper import populate_list_source, process_document, store_file
 
 _, project_id = google.auth.default()
-LOCATION = 'us'  # Format is 'us' or 'eu'
+LOCATION = "us"  # Format is 'us' or 'eu'
 
-processor_id_by_processor_type: Dict[str, str] = {}
+processor_id_by_processor_type = {}
 
 app = Flask(__name__, static_url_path="", static_folder="")
 
@@ -38,18 +36,20 @@ api = Api(app)
 
 @app.route("/api/init", methods=["GET"])
 def populate_list():
-    """ Gets all available processors that are in the specified GCP project """    
-    global processor_id_by_processor_type 
-    populate_list_source(project_id,LOCATION,processor_id_by_processor_type)
-    return jsonify({'resultStatus': 'SUCCESS',})
+    """Gets all available processors that are in the specified GCP project"""
+    populate_list_source(project_id, LOCATION, processor_id_by_processor_type)
+    return jsonify(
+        {
+            "resultStatus": "SUCCESS",
+        }
+    )
 
 
 @app.route("/api/docai", methods=["POST"])
 def get_document():
-    """ Calls process_document and returns document proto """
-    global processor_id_by_processor_type 
+    """Calls process_document and returns document proto"""
 
-    directory = 'api/test_docs'
+    directory = "api/test_docs"
     for file in os.listdir(directory):
         os.remove(os.path.join(directory, file))
 
@@ -67,27 +67,22 @@ def get_document():
         }, 400
 
     process_document_request = {
-        'project_id': project_id,
-        'location': LOCATION,
-        'file_path': _destination,
-        'processor_type': processor_type,
-        'file_type': file_type
+        "project_id": project_id,
+        "location": LOCATION,
+        "file_path": _destination,
+        "processor_type": processor_type,
+        "file_type": file_type,
     }
 
-    return process_document(process_document_request,processor_id_by_processor_type)
+    return process_document(process_document_request, processor_id_by_processor_type)
 
 
 @app.route("/api/processor/list", methods=["GET"])
 def get_list():
     """Returns list of available processors"""
 
-    global processor_id_by_processor_type 
-
     processor_list = list(processor_id_by_processor_type.keys())
-    response = jsonify({
-        'resultStatus': 'SUCCESS',
-        'processor_list': processor_list
-    })
+    response = jsonify({"resultStatus": "SUCCESS", "processor_list": processor_list})
 
     return response
 
