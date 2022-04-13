@@ -71,7 +71,7 @@ pages = []
 for entity in document.entities:
     classification = entity.type_
     types.append(classification)
-    confidence.append(entity.confidence)
+    confidence.append(f"{entity.confidence:.0%}")
 
     # entity.page_ref contains the pages that match the classification
     pages_list = []
