@@ -71,14 +71,14 @@ for entity in document.entities:
     types.append(entity.type_)
     raw_values.append(entity.mention_text)
     normalized_values.append(entity.normalized_value.text)
-    confidence.append(round(entity.confidence, 4))
+    confidence.append(f"{entity.confidence:.0%}")
 
     # Get Properties (Sub-Entities) with confidence scores
     for prop in entity.properties:
         types.append(prop.type_)
         raw_values.append(prop.mention_text)
         normalized_values.append(prop.normalized_value.text)
-        confidence.append(round(prop.confidence, 4))
+        confidence.append(f"{prop.confidence:.0%}")
 
 # Create a Pandas Dataframe to print the values in tabular format.
 df = pd.DataFrame(
