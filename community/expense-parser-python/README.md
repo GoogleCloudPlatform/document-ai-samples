@@ -15,7 +15,7 @@ This repository constructs an end-to-end pipeline on GCP to process expenses (ie
 ## Steps to re-create this demo in your own GCP environment
 1. Create a Google Cloud Platform Project
 
-2. Enable the **Cloud Document AI API** and **Cloud Build API** in the project you created in step #1 
+2. Enable the **Cloud Document AI API**, **Cloud Functions API** and **Cloud Build API** in the project you created in step #1 
 
 3. If you do not have access to the parser, request access via [this link](https://docs.google.com/forms/d/e/1FAIpQLSc_6s8jsHLZWWE0aSX0bdmk24XDoPiE_oq5enDApLcp1VKJ-Q/viewform?gxids=7826). Here is a [link](https://cloud.google.com/document-ai/docs/processors-list#processor_expense-parser) to the official Expense Parser documentation.
 
@@ -40,10 +40,11 @@ This repository constructs an end-to-end pipeline on GCP to process expenses (ie
     * Name your processor and click **Create**
     * Take note of your processor's region (eg. us) and processor ID
 
-6. Activate your Command Shell and clone this GitHub repository in your Command shell using the command:
+6. Activate your Cloud Shell and clone this GitHub repository in your Command shell using the command:
 ```
 gh repo clone GoogleCloudPlatform/document-ai-samples
 ```
+Note: If you are using your local terminal, please follow this [link](https://cloud.google.com/sdk/docs/install) to install and initiate Google Cloud CLI before this step.
 
 7. Execute Bash shell scripts in your Cloud Shell terminal to create cloud resources (i.e Google Cloud Storage Buckets, Pub/Sub topics, Cloud Functions, BigQuery dataset and table)
 
