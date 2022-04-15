@@ -22,7 +22,6 @@ from google.cloud import storage
 project_id = os.environ.get("GCP_PROJECT")
 location = os.environ.get("PARSER_LOCATION")
 processor_id = os.environ.get("PROCESSOR_ID")
-timeout = int(os.environ.get("TIMEOUT"))
 dataset_name = os.environ.get("BQ_DATASET_NAME")
 table_name = os.environ.get("BQ_TABLE_NAME")
 
