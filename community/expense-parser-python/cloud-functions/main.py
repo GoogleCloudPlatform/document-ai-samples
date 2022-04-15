@@ -47,6 +47,7 @@ docai_client = documentai.DocumentProcessorServiceClient()
 storage_client = storage.Client()
 bq_client = bigquery.Client()
 
+
 # entry point for Cloud Functions
 def process_receipt(event, context):
     input_bucket_name = event["bucket"]
