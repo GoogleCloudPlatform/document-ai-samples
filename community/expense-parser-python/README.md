@@ -1,7 +1,7 @@
 # Expense Parser Demo (Python)
 
 ## Description
-This repository constructs an end-to-end pipeline on GCP to process expenses (ie. receipts) with the Document AI API. This repository serves as a sample code to build your own demo but is not tested for production. 
+This repository constructs an end-to-end pipeline on GCP to process expenses (ie. receipts) with the Document AI API. This repository serves as a sample code to build your own demo but is not tested for production.
 
 ## Visualizing the workflow
 ![GCP Workflow](https://user-images.githubusercontent.com/47513414/150703075-8f608859-436e-4c22-8dc9-f71121705f3a.png)
@@ -15,7 +15,7 @@ This repository constructs an end-to-end pipeline on GCP to process expenses (ie
 ## Steps to re-create this demo in your own GCP environment
 1. Create a Google Cloud Platform Project
 
-2. Enable the **Cloud Document AI API**, **Cloud Functions API** and **Cloud Build API** in the project you created in step #1 
+2. Enable the **Cloud Document AI API**, **Cloud Functions API** and **Cloud Build API** in the project you created in step #1.
 
 3. If you do not have access to the parser, request access via [this link](https://docs.google.com/forms/d/e/1FAIpQLSc_6s8jsHLZWWE0aSX0bdmk24XDoPiE_oq5enDApLcp1VKJ-Q/viewform?gxids=7826). Here is a [link](https://cloud.google.com/document-ai/docs/processors-list#processor_expense-parser) to the official Expense Parser documentation.
 
@@ -29,7 +29,7 @@ This repository constructs an end-to-end pipeline on GCP to process expenses (ie
         * Storage Admin
         * BigQuery Admin
         * Document AI API User
-    7. Click **Done** and you should see this service account in the IAM main page 
+    7. Click **Done** and you should see this service account in the IAM main page
        ![Service account on IAM main page](https://user-images.githubusercontent.com/47513414/150855283-cd78ba61-cada-4e2b-a35c-68accbde5eff.png)
 
 5. Create your Doc AI processor
@@ -41,7 +41,7 @@ This repository constructs an end-to-end pipeline on GCP to process expenses (ie
     * Take note of your processor's region (eg. us) and processor ID
 
 6. Activate your Cloud Shell and clone this GitHub repository in your Command shell using the command:
-```
+```shell
 gh repo clone GoogleCloudPlatform/document-ai-samples
 ```
 Note: If you are using your local terminal, please follow this [link](https://cloud.google.com/sdk/docs/install) to install and initiate Google Cloud CLI before this step.
@@ -50,7 +50,7 @@ Note: If you are using your local terminal, please follow this [link](https://cl
 
     1. Change directory to the scripts folder
 
-        ```
+        ```shell
         cd community/expense-parser-python
         ```
     3. Update the following values in .env.local:
@@ -60,29 +60,29 @@ Note: If you are using your local terminal, please follow this [link](https://cl
         * CLOUD_FUNCTION_LOCATION is where your code executes
         * CLOUD_FUNCTION_SERVICE_ACCOUNT should be the same name you created in Step 4
 
-        ```
+        ```shell
         vim .env.local
         ```
     5. Make your .sh files executable
 
-        ```
+        ```shell
         chmod +x set-up-pipeline.sh
         ```
     6. Change directory to the cloud functions folder
 
-        ```
+        ```shell
         cd cloud-functions
         ```
     7. Update the following values in .env.yaml (from your note in Step 5):
 
         * PARSER_LOCATION
         * PROCESSOR_ID
-        ```
+        ```shell
         vim .env.yaml
         ```
 
     9. Go back to the original folder and execute your .sh files to create cloud resources
-        ```
+        ```shell
         cd ..
         ./set-up-pipeline.sh
         ```
