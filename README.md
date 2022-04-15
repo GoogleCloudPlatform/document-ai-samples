@@ -17,6 +17,46 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 * [Tax Processing Pipeline](tax-processing-pipeline-python/): This project uses the Document AI API to classify, parse, and calculate a tax form using multiple document types.
 * [Fraud Detection](fraud-detection-python/): This project uses the Document AI Invoice Parser with EKG and Google Maps to store document Entities in BigQuery.
 
+### Test Document Files
+
+If you need Document Files to run the samples, you can access them from this publicly-accessible [Google Cloud Storage Bucket](https://cloud.google.com/storage/docs/downloading-objects).
+
+`gs://cloud-samples-data/documentai/`
+
+The directory is organized by solution and document type, you can see the folder structure listed here.
+
+```console
+documentai/
+├── ContractDocAI
+├── GeneralProcessors
+│   ├── FormParser
+│   ├── OCR
+│   └── Quality
+├── IdentityDocAI
+│   ├── Driver's License (USA)
+│   └── Passport (USA)
+├── LendingDocAI
+│   ├── 1040 Parser
+│   ├── 1099-DIV Parser
+│   ├── 1099-INT Parser
+│   ├── 1099-MISC Parser
+│   ├── 1099-NEC Parser
+│   ├── 1099-R Parser
+│   ├── Bank Statement Parser
+│   ├── Lending Document Splitter & Classifier
+│   └── Pay Slip Parser
+├── ProcurementDocAI
+│   ├── Expense Parser
+│   ├── Invoice Parser
+│   ├── Procurement Document Splitter & Classifier
+│   └── Utility Parser
+├── codelabs
+    ├── form-parser
+    ├── hitl
+    ├── ocr
+    └── specialized-processors
+```
+
 ## Codelabs
 <!-- markdownlint-disable MD033 -->
 <img src="https://www.gstatic.com/devrel-devsite/prod/vc705ce9bd51279e80f03a51aec7c6eb1f05e56e75c958618655fc719098c9888/codelabs/images/lockup.svg" alt="Codelabs Logo" width="200"/>
