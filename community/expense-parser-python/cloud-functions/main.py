@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import json
 from google.cloud import bigquery
 from google.cloud import documentai_v1 as documentai
 from google.cloud import storage
