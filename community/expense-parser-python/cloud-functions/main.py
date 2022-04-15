@@ -92,7 +92,7 @@ def write_to_bq(dataset_name, table_name, extracted_list, file_name):
     )
 
     job = bq_client.load_table_from_json(json_object, table_ref, job_config=job_config)
-    error = job.result()  # Waits for table load to complete.
+    job.result()  # Waits for table load to complete.
 
 
 def get_gcs_file(file_name, bucket_name):
