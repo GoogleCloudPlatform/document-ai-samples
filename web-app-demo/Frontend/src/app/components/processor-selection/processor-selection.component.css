@@ -14,30 +14,29 @@
  * limitations under the License.
  */
 
-.processor-selection{
-    position: relative;
-    transform: scale(.75);
-    width: 300px;
-    left: -5px;
+.processor-selection {
+  position: relative;
+  transform: scale(0.75);
+  width: 300px;
+  left: -5px;
 }
 
 button {
-    background-color: #1A73E8;
-    color: #E8F0FE;
-
-    left: 5px;
-    top: -4px;
+  background-color: #1a73e8;
+  color: #e8f0fe;
+  left: 5px;
+  top: -4px;
 }
 
 .example-pizza-party {
-    color: hotpink;
-  }
+  color: hotpink;
+}
 
 .error {
-    position: relative;
-    top: 650px;
-    left: 35px;
-    background-color: #ea4335;
-    color: white;
-    width: 150px;
+  position: relative;
+  top: 650px;
+  left: 35px;
+  background-color: #ea4335;
+  color: white;
+  width: 150px;
 }

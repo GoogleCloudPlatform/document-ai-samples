@@ -16,10 +16,10 @@
 
 /* eslint new-cap: ["error", { "capIsNew": false }]*/
 
-import {Component, DoCheck, OnInit} from '@angular/core';
-import {Subscription} from 'rxjs';
-import {DataSharingServiceService} from 'src/app/data-sharing-service.service';
-import {DocumentAnnotation} from 'src/app/document-annotation';
+import { Component, DoCheck, OnInit } from "@angular/core";
+import { Subscription } from "rxjs";
+import { DataSharingServiceService } from "src/app/data-sharing-service.service";
+import { DocumentAnnotation } from "src/app/document-annotation";
 
 export interface ExtractedText {
   fieldValue: string;
@@ -28,36 +28,33 @@ export interface ExtractedText {
   confidence: number;
 }
 
-let DATA: ExtractedText[] = [
+let DATA: ExtractedText[] = [];
 
-];
+const LAYER1 = "layer1";
+const LAYER2 = "layer2";
+const LAYER3 = "layer3";
 
-const LAYER1 = 'layer1';
-const LAYER2 = 'layer2';
-const LAYER3 = 'layer3';
-
-const RED = 'rgba(255, 0, 0, 0.25)';
-const BLUE = 'rgba(0, 0, 255, 0.25)';
-const ORANGE = 'rgba(255,165,0, 0.25)';
+const RED = "rgba(255, 0, 0, 0.25)";
+const BLUE = "rgba(0, 0, 255, 0.25)";
+const ORANGE = "rgba(255,165,0, 0.25)";
 
 export interface dataSource {
-  'fieldValue': string,
-  'fieldName': string,
-  'bounding': [{x:number,y:number}],
-  'confidence': number,
+  fieldValue: string;
+  fieldName: string;
+  bounding: [{ x: number; y: number }];
+  confidence: number;
 }
 
-interface dataSourceArray extends Array<dataSource>{}
+interface dataSourceArray extends Array<dataSource> {}
 
 @Component({
-  selector: 'app-entity-tab',
-  templateUrl: './entity-tab.component.html',
-  styleUrls: ['./entity-tab.component.css'],
+  selector: "app-entity-tab",
+  templateUrl: "./entity-tab.component.html",
+  styleUrls: ["./entity-tab.component.css"],
 })
 /**
  * EntityTabComponent - presents the extracted text
  */
-
 export class EntityTabComponent implements OnInit, DoCheck {
   dataSource: dataSourceArray | undefined;
   processIsDone!: boolean;
@@ -71,7 +68,7 @@ export class EntityTabComponent implements OnInit, DoCheck {
    * @constructor
    * @param {DataSharingServiceService} data - data sharing service
    */
-  constructor(public data: DataSharingServiceService) { }
+  constructor(public data: DataSharingServiceService) {}
 
   /**
    * subscribe to variables
@@ -79,11 +76,14 @@ export class EntityTabComponent implements OnInit, DoCheck {
    */
   ngOnInit() {
     this.subscription = this.data.processorIsDone.subscribe(
-        (message) => this.processIsDone = message);
+      (message) => (this.processIsDone = message)
+    );
     this.subscription = this.data.processor.subscribe(
-        (message) => this.processor = message);
+      (message) => (this.processor = message)
+    );
     this.subscription = this.data.documentProto.subscribe(
-        (message) => this.documentProto = message);
+      (message) => (this.documentProto = message)
+    );
   }
 
   /**
@@ -97,13 +97,13 @@ export class EntityTabComponent implements OnInit, DoCheck {
       DATA = [];
 
       switch (this.processor) {
-        case 'OCR':
+        case "OCR":
           this.extractOCRText(DATA);
           break;
-        case 'FORM':
+        case "FORM":
           this.extractFormText(DATA);
           break;
-        case 'INVOICE':
+        case "INVOICE":
           this.extractInvoiceText(DATA);
           break;
       }
@@ -121,7 +121,7 @@ export class EntityTabComponent implements OnInit, DoCheck {
    */
   getText(textAnchor: any, text: any) {
     if (!textAnchor.textSegments || textAnchor.textSegments.length === 0) {
-      throw new Error('ERROR: Could not find text for given text anchor');
+      throw new Error("ERROR: Could not find text for given text anchor");
     }
 
     // First shard in document doesn't have startIndex property
@@ -129,34 +129,39 @@ export class EntityTabComponent implements OnInit, DoCheck {
     const endIndex = textAnchor.textSegments[0].endIndex;
 
     return text.substring(startIndex, endIndex);
-  };
+  }
 
   /**
    * Get OCR text from document proto
    * @param {ExtractedText[]} data - used for frontend display
    * @return {void}
    */
-  extractOCRText(data: ExtractedText[] | {
-    fieldValue: any;
-    fieldName: string;
-    bounding: { x: any; y: any; }[];
-    confidence: any;
-  }[]) {
+  extractOCRText(
+    data:
+      | ExtractedText[]
+      | {
+          fieldValue: any;
+          fieldName: string;
+          bounding: { x: any; y: any }[];
+          confidence: any;
+        }[]
+  ) {
     for (const page of this.documentProto.document.pages) {
       for (const block of page.blocks) {
         const paragraphText = this.getText(
-            block.layout.textAnchor,
-            this.documentProto.document.text);
+          block.layout.textAnchor,
+          this.documentProto.document.text
+        );
         const ocrVertices = [];
         for (const vertex of block.layout.boundingPoly.normalizedVertices) {
-          ocrVertices.push({'x': vertex.x, 'y': vertex.y});
+          ocrVertices.push({ x: vertex.x, y: vertex.y });
         }
 
         data.push({
-          'fieldValue': paragraphText,
-          'fieldName': '',
-          'bounding': ocrVertices,
-          'confidence': block.layout.confidence,
+          fieldValue: paragraphText,
+          fieldName: "",
+          bounding: ocrVertices,
+          confidence: block.layout.confidence,
         });
       }
     }
@@ -167,43 +172,49 @@ export class EntityTabComponent implements OnInit, DoCheck {
    * @param {ExtractedText[]} data - used for frontend display
    * @return {void}
    */
-  extractFormText(data: ExtractedText[] | {
-    fieldValue: any;
-    fieldName: any;
-    bounding: {
-      value: { x: any; y: any; }[];
-      name: { x: any; y: any; }[];
-    }[];
-    confidence: any;
-  }[]) {
+  extractFormText(
+    data:
+      | ExtractedText[]
+      | {
+          fieldValue: any;
+          fieldName: any;
+          bounding: {
+            value: { x: any; y: any }[];
+            name: { x: any; y: any }[];
+          }[];
+          confidence: any;
+        }[]
+  ) {
     for (const page of this.documentProto.document.pages) {
       for (const field of page.formFields) {
         const fieldName = this.getText(
-            field.fieldName.textAnchor,
-            this.documentProto.document.text);
+          field.fieldName.textAnchor,
+          this.documentProto.document.text
+        );
         const fieldValue = this.getText(
-            field.fieldValue.textAnchor,
-            this.documentProto.document.text);
+          field.fieldValue.textAnchor,
+          this.documentProto.document.text
+        );
 
         const formVertices = [];
         const verticesFieldName = [];
         const verticesFieldValue = [];
         for (const vertex of field.fieldName.boundingPoly.normalizedVertices) {
-          verticesFieldName.push({'x': vertex.x, 'y': vertex.y});
+          verticesFieldName.push({ x: vertex.x, y: vertex.y });
         }
         for (const vertex of field.fieldValue.boundingPoly.normalizedVertices) {
-          verticesFieldValue.push({'x': vertex.x, 'y': vertex.y});
+          verticesFieldValue.push({ x: vertex.x, y: vertex.y });
         }
         formVertices.push({
-          'value': verticesFieldValue,
-          'name': verticesFieldName,
+          value: verticesFieldValue,
+          name: verticesFieldName,
         });
 
         data.push({
-          'fieldValue': fieldValue,
-          'fieldName': fieldName,
-          'bounding': formVertices,
-          'confidence': field.fieldName.confidence,
+          fieldValue: fieldValue,
+          fieldName: fieldName,
+          bounding: formVertices,
+          confidence: field.fieldName.confidence,
         });
       }
     }
@@ -214,24 +225,28 @@ export class EntityTabComponent implements OnInit, DoCheck {
    * @param {ExtractedText[]} data - used for frontend display
    * @return {void}
    */
-  extractInvoiceText(data: ExtractedText[] | {
-    fieldValue: any;
-    fieldName: any;
-    bounding: { x: any; y: any; }[];
-    confidence: any;
-  }[]) {
+  extractInvoiceText(
+    data:
+      | ExtractedText[]
+      | {
+          fieldValue: any;
+          fieldName: any;
+          bounding: { x: any; y: any }[];
+          confidence: any;
+        }[]
+  ) {
     for (const entity of this.documentProto.document.entities) {
       const ocrVertices = [];
       const normalizedVertices =
         entity.pageAnchor.pageRefs[0].boundingPoly.normalizedVertices;
       for (const vertex of normalizedVertices) {
-        ocrVertices.push({'x': vertex.x, 'y': vertex.y});
+        ocrVertices.push({ x: vertex.x, y: vertex.y });
       }
       data.push({
-        'fieldValue': entity.mentionText,
-        'fieldName': entity.type,
-        'bounding': ocrVertices,
-        'confidence': entity.confidence,
+        fieldValue: entity.mentionText,
+        fieldName: entity.type,
+        bounding: ocrVertices,
+        confidence: entity.confidence,
       });
     }
   }
@@ -245,20 +260,38 @@ export class EntityTabComponent implements OnInit, DoCheck {
     const canvas = <HTMLCanvasElement>document.getElementById(LAYER3)!;
 
     // Gets the canvas and sets teh editing mode to draw over everything
-    const context = canvas.getContext('2d')!;
+    const context = canvas.getContext("2d")!;
 
     const drawClient = new DocumentAnnotation();
 
-    context.globalCompositeOperation = 'source-over';
-    if (this.processor == 'OCR' || this.processor == 'INVOICE') {
-      const color = this.processor == 'OCR' ? ORANGE : BLUE;
-      drawClient.drawBoundingBoxes(context, canvas, null,
-          color, 'fill', data.bounding);
-    } else if (this.processor == 'FORM') {
-      drawClient.drawBoundingBoxes(context, canvas, null,
-          RED, 'fill', data.bounding[0].value);
-      drawClient.drawBoundingBoxes(context, canvas, null,
-          BLUE, 'fill', data.bounding[0].name);
+    context.globalCompositeOperation = "source-over";
+    if (this.processor == "OCR" || this.processor == "INVOICE") {
+      const color = this.processor == "OCR" ? ORANGE : BLUE;
+      drawClient.drawBoundingBoxes(
+        context,
+        canvas,
+        null,
+        color,
+        "fill",
+        data.bounding
+      );
+    } else if (this.processor == "FORM") {
+      drawClient.drawBoundingBoxes(
+        context,
+        canvas,
+        null,
+        RED,
+        "fill",
+        data.bounding[0].value
+      );
+      drawClient.drawBoundingBoxes(
+        context,
+        canvas,
+        null,
+        BLUE,
+        "fill",
+        data.bounding[0].name
+      );
     }
   }
 
@@ -268,7 +301,7 @@ export class EntityTabComponent implements OnInit, DoCheck {
    */
   clearBoundingBoxes() {
     const canvas = <HTMLCanvasElement>document.getElementById(LAYER3)!;
-    const context = canvas.getContext('2d')!;
+    const context = canvas.getContext("2d")!;
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
   /**
@@ -277,13 +310,13 @@ export class EntityTabComponent implements OnInit, DoCheck {
    */
   clearAll() {
     let canvas = <HTMLCanvasElement>document.getElementById(LAYER1)!;
-    let context = canvas.getContext('2d')!;
+    let context = canvas.getContext("2d")!;
     context.clearRect(0, 0, canvas.width, canvas.height);
     canvas = <HTMLCanvasElement>document.getElementById(LAYER2)!;
-    context = canvas.getContext('2d')!;
+    context = canvas.getContext("2d")!;
     context.clearRect(0, 0, canvas.width, canvas.height);
     canvas = <HTMLCanvasElement>document.getElementById(LAYER3)!;
-    context = canvas.getContext('2d')!;
+    context = canvas.getContext("2d")!;
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
 }

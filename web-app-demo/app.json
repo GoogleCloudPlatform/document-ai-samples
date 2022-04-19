@@ -1,10 +1,10 @@
 {
-    "name": "web-app-demo",
-    "hooks": {
-        "prebuild": {
-            "commands": [
-                "cloudshell_open --repo_url 'https://github.com/GoogleCloudPlatform/document-ai-samples.git' --dir 'web-app-demo/Backend' --page 'shell' --git_branch 'main' --force_new_clone"
-            ]
-        }
+  "name": "web-app-demo",
+  "hooks": {
+    "prebuild": {
+      "commands": [
+        "cloudshell_open --repo_url 'https://github.com/GoogleCloudPlatform/document-ai-samples.git' --dir 'web-app-demo/Backend' --page 'shell' --git_branch 'main' --force_new_clone"
+      ]
     }
+  }
 }

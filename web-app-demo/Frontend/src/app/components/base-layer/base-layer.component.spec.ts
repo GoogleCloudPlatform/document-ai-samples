@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import {BaseLayerComponent} from './base-layer.component';
-import {BrowserModule} from '@angular/platform-browser';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatSelectModule} from '@angular/material/select';
-import {MatTableModule} from '@angular/material/table';
-import {MatPaginatorModule} from '@angular/material/paginator';
-import {MatCardModule} from '@angular/material/card';
-import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
+import { BaseLayerComponent } from "./base-layer.component";
+import { BrowserModule } from "@angular/platform-browser";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { MatSelectModule } from "@angular/material/select";
+import { MatTableModule } from "@angular/material/table";
+import { MatPaginatorModule } from "@angular/material/paginator";
+import { MatCardModule } from "@angular/material/card";
+import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 
-describe('BaseLayerComponent', () => {
+describe("BaseLayerComponent", () => {
   let component: BaseLayerComponent;
   let fixture: ComponentFixture<BaseLayerComponent>;
 
@@ -47,10 +47,10 @@ describe('BaseLayerComponent', () => {
         ReactiveFormsModule,
         MatTableModule,
         MatPaginatorModule,
-        MatCardModule],
+        MatCardModule,
+      ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    })
-        .compileComponents();
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -59,11 +59,11 @@ describe('BaseLayerComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 
-  it('should check ngDoCheck Sets docapiIsDone', () => {
+  it("should check ngDoCheck Sets docapiIsDone", () => {
     component.ngDoCheck();
     expect(component.processingIsDone).not.toBeNull();
   });
