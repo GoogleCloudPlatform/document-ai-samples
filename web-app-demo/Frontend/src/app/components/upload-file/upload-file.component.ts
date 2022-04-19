@@ -16,25 +16,24 @@
 
 /* eslint new-cap: ["error", { "capIsNew": false }]*/
 
-import {Component, Input, OnInit} from '@angular/core';
-import {Subscription} from 'rxjs';
-import {DataSharingServiceService} from 'src/app/data-sharing-service.service';
-
+import { Component, Input, OnInit } from "@angular/core";
+import { Subscription } from "rxjs";
+import { DataSharingServiceService } from "src/app/data-sharing-service.service";
 
 @Component({
-  selector: 'app-upload-file',
-  templateUrl: './upload-file.component.html',
-  styleUrls: ['./upload-file.component.css'],
+  selector: "app-upload-file",
+  templateUrl: "./upload-file.component.html",
+  styleUrls: ["./upload-file.component.css"],
 })
 /**
  * UploadFileComponents - handles file uploads
  */
 export class UploadFileComponent implements OnInit {
   @Input()
-    requiredFileType: string | undefined;
+  requiredFileType: string | undefined;
 
-  fileName = '';
-  fileContent = '';
+  fileName = "";
+  fileContent = "";
 
   uploadProgress = null;
   uploadSub = null;
@@ -47,7 +46,7 @@ export class UploadFileComponent implements OnInit {
    * @constructor
    * @param {DataSharingServiceService} data - data sharing service
    */
-  constructor(public data: DataSharingServiceService) { }
+  constructor(public data: DataSharingServiceService) {}
 
   /**
    * subscribes to specific variables on init
@@ -55,9 +54,11 @@ export class UploadFileComponent implements OnInit {
    */
   ngOnInit(): void {
     this.subscription = this.data.fileName.subscribe(
-        (message) => this.fileName = message);
+      (message) => (this.fileName = message)
+    );
     this.subscription = this.data.file.subscribe(
-        (message) => this.fileContent = message);
+      (message) => (this.fileContent = message)
+    );
   }
 
   /**
@@ -68,15 +69,16 @@ export class UploadFileComponent implements OnInit {
   async handleFileInput(e: Event) {
     const files = (e.target as HTMLInputElement).files!;
     this.fileName = files[0].name;
-    if (files[0].type == 'application/pdf' && files[0].size < 20000001) {
+    if (files[0].type == "application/pdf" && files[0].size < 20000001) {
       this.data.changeShowError(false);
-      this.data.changeErrorMessage('');
+      this.data.changeErrorMessage("");
       this.data.changeFile(files[0]);
       this.data.changeFileName(files[0].name);
     } else {
       this.data.changeShowError(true);
       this.data.changeErrorMessage(
-          'ERROR : File type does not match accepted type (PDF)');
+        "ERROR : File type does not match accepted type (PDF)"
+      );
     }
   }
 }

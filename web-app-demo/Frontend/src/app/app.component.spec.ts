@@ -14,31 +14,28 @@
  * limitations under the License.
  */
 
-import {TestBed} from '@angular/core/testing';
-import {RouterTestingModule} from '@angular/router/testing';
-import {AppComponent} from './app.component';
-import {BrowserModule} from '@angular/platform-browser';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { TestBed } from "@angular/core/testing";
+import { RouterTestingModule } from "@angular/router/testing";
+import { AppComponent } from "./app.component";
+import { BrowserModule } from "@angular/platform-browser";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatSelectModule} from '@angular/material/select';
-import {MatTableModule} from '@angular/material/table';
-import {MatPaginatorModule} from '@angular/material/paginator';
-import {MatCardModule} from '@angular/material/card';
-import {BaseLayerComponent} from './components/base-layer/base-layer.component';
-import {EntityTabComponent} from './components/entity-tab/entity-tab.component';
-import {ProcessorSelectionComponent}
-  from './components/processor-selection/processor-selection.component';
-import {UploadFileComponent}
-  from './components/upload-file/upload-file.component';
-import {CanvasComponent} from './components/canvas/canvas.component';
-import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { MatSelectModule } from "@angular/material/select";
+import { MatTableModule } from "@angular/material/table";
+import { MatPaginatorModule } from "@angular/material/paginator";
+import { MatCardModule } from "@angular/material/card";
+import { BaseLayerComponent } from "./components/base-layer/base-layer.component";
+import { EntityTabComponent } from "./components/entity-tab/entity-tab.component";
+import { ProcessorSelectionComponent } from "./components/processor-selection/processor-selection.component";
+import { UploadFileComponent } from "./components/upload-file/upload-file.component";
+import { CanvasComponent } from "./components/canvas/canvas.component";
+import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 
-
-describe('AppComponent', () => {
+describe("AppComponent", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -67,7 +64,7 @@ describe('AppComponent', () => {
     }).compileComponents();
   });
 
-  it('should create the app', () => {
+  it("should create the app", () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
@@ -76,6 +73,6 @@ describe('AppComponent', () => {
   it(`should have as title 'Document AI Modular App'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('Document AI Modular App');
+    expect(app.title).toEqual("Document AI Modular App");
   });
 });

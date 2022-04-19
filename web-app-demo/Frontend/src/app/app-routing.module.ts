@@ -16,8 +16,8 @@
 
 /* eslint new-cap: ["error", { "capIsNew": false }]*/
 
-import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import { NgModule } from "@angular/core";
+import { RouterModule, Routes } from "@angular/router";
 
 const routes: Routes = [];
 
@@ -28,4 +28,4 @@ const routes: Routes = [];
 /**
  * AppRoutingModule
  */
-export class AppRoutingModule { }
+export class AppRoutingModule {}
