@@ -1,6 +1,6 @@
 # Document AI Modular Application
 
-This Document AI application is an end to end application that shows how to integrate Document AI into full-stack application.
+This Document AI application is an end-to-end application that shows how to integrate Document AI into full-stack application.
 This is the starting point and uses modular architecture so developers could easily demo Document AI and add components that fit their needs to quickly create a tailored demo.
 
 This application uses a Flask backend server to handle Document AI API calls and a Angular Frontend.

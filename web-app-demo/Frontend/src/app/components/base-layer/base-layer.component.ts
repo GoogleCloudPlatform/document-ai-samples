@@ -55,15 +55,7 @@ export class BaseLayerComponent implements OnInit, DoCheck {
    * @return {void}
    */
   async ngOnInit() {
-    this.subscription = this.data.file.subscribe(
-      (message) => (this.processingIsDone = message)
-    );
-    this.subscription = this.data.showError.subscribe(
-      (message) => (this.showError = message)
-    );
-    this.subscription = this.data.errorMessage.subscribe(
-      (message) => (this.errorMessage = message)
-    );
+    //Initialized 
   }
 
   /**

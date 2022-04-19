@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
  Copyright 2022 Google LLC
 
@@ -24,9 +25,9 @@
   <app-canvas></app-canvas>
   <app-entity-tab></app-entity-tab>
 </div>
-<mat-card class="error" *ngIf="showError === true">{{ errorMessage }}</mat-card>
+<mat-card class="error" *ngif="showError === true">{{ errorMessage }}</mat-card>
 <mat-progress-bar
   class="pending"
-  *ngIf="processInProgress === true"
+  *ngif="processInProgress === true"
   mode="indeterminate"
 ></mat-progress-bar>

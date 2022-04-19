@@ -27,9 +27,11 @@
 .file-input {
   display: none;
 }
+
 .upload-btn {
   background-color: #1a73e8;
 }
+
 .upload-file-name {
   box-sizing: border-box;
   background-color: #e8f0fe;

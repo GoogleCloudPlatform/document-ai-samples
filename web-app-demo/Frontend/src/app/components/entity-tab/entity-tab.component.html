@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
  Copyright 2022 Google LLC
 
@@ -19,10 +20,10 @@
     class="card card-padding"
     (mouseenter)="highlightBoundingBoxes(data)"
     (mouseleave)="clearBoundingBoxes()"
-    *ngFor="let data of dataSource"
+    *ngfor="let data of dataSource"
   >
     <mat-card-title-group>
-      <mat-card-subtitle *ngIf="data.fieldName !== ''">{{
+      <mat-card-subtitle *ngif="data.fieldName !== ''">{{
         data.fieldName
       }}</mat-card-subtitle>
     </mat-card-title-group>

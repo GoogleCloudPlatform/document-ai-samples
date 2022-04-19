@@ -59,3 +59,5 @@ jobs:
           VALIDATE_ENV: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_ISORT: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
+          VALIDATE_JAVASCRIPT_ES: false

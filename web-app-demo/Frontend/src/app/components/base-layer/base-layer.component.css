@@ -35,13 +35,13 @@
 
 .error {
   position: relative;
-  background-color: rgba(217, 48, 37, 0.8);
+  background-color: rgba(217 48 37 /80%);
   color: #f1f3f4;
   text-align: end;
   size: 12px;
   top: 146.5px;
   width: fit-content;
-  left: 0px;
+  left: 0;
   height: 11px;
   transform: scale(0.86);
   margin: auto;

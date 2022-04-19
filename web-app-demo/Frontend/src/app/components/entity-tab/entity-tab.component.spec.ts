@@ -37,6 +37,15 @@ import invoiceResponse from "../../../assets/invoiceTestProto.json";
 
 const testText = "Hello this is a test";
 
+const data = {
+  bounding: [
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+  ],
+};
+
 describe("EntityTabComponent", () => {
   let component: EntityTabComponent;
   let fixture: ComponentFixture<EntityTabComponent>;
@@ -108,15 +117,6 @@ describe("EntityTabComponent", () => {
 
     dataSharing.changeProcessor("OCR");
 
-    const data = {
-      bounding: [
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-      ],
-    };
-
     component.highlightBoundingBoxes(data);
 
     expect(component.highlightBoundingBoxes).toHaveBeenCalled();
@@ -130,15 +130,6 @@ describe("EntityTabComponent", () => {
     component2.ngOnInit();
 
     dataSharing.changeProcessor("Invoice");
-
-    const data = {
-      bounding: [
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-      ],
-    };
 
     component.highlightBoundingBoxes(data);
 

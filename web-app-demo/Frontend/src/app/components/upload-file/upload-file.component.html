@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
  Copyright 2022 Google LLC
 
@@ -21,14 +22,14 @@
       class="file-input"
       [accept]="requiredFileType"
       (change)="handleFileInput($event)"
-      #fileUpload
+      #file_upload
     />
     <div class="uploaded-file">
       <button
         mat-mini-fab
         color="primary"
         class="upload-btn"
-        (click)="fileUpload.click()"
+        (click)="file_upload.click()"
       >
         <mat-icon class="upload-icon">attach_file</mat-icon>
       </button>
