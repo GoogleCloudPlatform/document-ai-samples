@@ -6,7 +6,7 @@
     "ignore": [
       "**/__snapshots__/**",
       "**/*_test.py",
-      "**/*.scss"
+      "**/cusomte-theme.scss"
     ],
     "absolute": true
   }

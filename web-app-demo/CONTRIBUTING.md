@@ -60,7 +60,7 @@ pylint Backend
 
 ### Backend Tests
 
-To run all backend tests make sure you're in the api directory and run
+To run all backend tests make sure you're in the API directory and run
 
 ```bash
 python helper_test.py
