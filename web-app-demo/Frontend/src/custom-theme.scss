@@ -1,3 +1,4 @@
+// scss-lint:enable ImportantRule
 /**
  * Copyright 2022 Google LLC
  *
@@ -13,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @use "@angular/material" as mat;
@@ -48,3 +50,4 @@ $Frontend-theme: mat.define-light-theme(
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include mat.all-component-themes($Frontend-theme);
+// scss-lint:enable ImportantRule
