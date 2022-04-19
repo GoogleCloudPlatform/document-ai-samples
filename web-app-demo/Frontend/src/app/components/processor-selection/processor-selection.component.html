@@ -17,15 +17,15 @@
 
 <mat-form-field class="processor-selection" appearance="fill">
   <mat-label>Processor Type</mat-label>
-  <mat-select [(ngModel)]="selectedProcessor">
+  <mat-select [(ngmodel)]="selectedProcessor">
     <mat-option
-      *ngFor="let selectedProcessor of processorSelectionList"
+      *ngfor="let selectedProcessor of processorSelectionList"
       [value]="selectedProcessor"
     >
       {{ selectedProcessor }}
     </mat-option>
   </mat-select>
 </mat-form-field>
-<button mat-raised-button *ngIf="!showError" (click)="processDocument()">
+<button mat-raised-button *ngif="!showError" (click)="processDocument()">
   Submit
 </button>
