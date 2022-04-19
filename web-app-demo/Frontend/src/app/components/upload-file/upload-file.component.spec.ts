@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import {UploadFileComponent} from './upload-file.component';
-import {BrowserModule} from '@angular/platform-browser';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatSelectModule} from '@angular/material/select';
-import {MatTableModule} from '@angular/material/table';
-import {MatPaginatorModule} from '@angular/material/paginator';
-import {MatCardModule} from '@angular/material/card';
-import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
-import {DataSharingServiceService} from 'src/app/data-sharing-service.service';
+import { UploadFileComponent } from "./upload-file.component";
+import { BrowserModule } from "@angular/platform-browser";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { MatSelectModule } from "@angular/material/select";
+import { MatTableModule } from "@angular/material/table";
+import { MatPaginatorModule } from "@angular/material/paginator";
+import { MatCardModule } from "@angular/material/card";
+import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
+import { DataSharingServiceService } from "src/app/data-sharing-service.service";
 
-describe('UploadFileComponent', () => {
+describe("UploadFileComponent", () => {
   let component: UploadFileComponent;
   let fixture: ComponentFixture<UploadFileComponent>;
   const dataSharing = new DataSharingServiceService();
@@ -49,10 +49,10 @@ describe('UploadFileComponent', () => {
         ReactiveFormsModule,
         MatTableModule,
         MatPaginatorModule,
-        MatCardModule],
+        MatCardModule,
+      ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    })
-        .compileComponents();
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -62,8 +62,7 @@ describe('UploadFileComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
-
 });

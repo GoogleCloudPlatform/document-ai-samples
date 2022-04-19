@@ -39,10 +39,10 @@ ng generate component <name> [options]
 This will create a folder with all the files you need for the component. To add this component to the main application all you need to do is copy the component selector and add it to the base-layer component.
 
 ```html
- <app-component-selector></app-component-selector>
+<app-component-selector></app-component-selector>
 ```
 
-After adding the component make sure to run lint on the new component: 
+After adding the component make sure to run lint on the new component:
 
 To run lint on the Frontend make sure you're in the Frontend directory and run
 
@@ -53,22 +53,21 @@ ng lint --fix
 To run lint on the Backend make sure you're in the demo directory and run
 
 ```bash
-pylint Backend 
+pylint Backend
 ```
-
-
 
 ## Running Tests
 
 ### Backend Tests
 
-To run all backend tests make sure you're in the api directory and run 
+To run all backend tests make sure you're in the api directory and run
 
 ```bash
 python helper_test.py
 ```
 
 ### Frontend Test
+
 To run all frontend tests
 
 ```bash
@@ -88,10 +87,10 @@ Before we can take contributions, we have to jump a couple of legal hurdles.
 Please fill out either the individual or corporate Contributor License
 Agreement (CLA).
 
-  * If you are an individual writing original source code and you're sure you
-    own the intellectual property, then you'll need to sign an [individual CLA](https://developers.google.com/open-source/cla/individual).
-  * If you work for a company that wants to allow you to contribute your work,
-    then you'll need to sign a [corporate CLA](https://developers.google.com/open-source/cla/corporate).
+- If you are an individual writing original source code and you're sure you
+  own the intellectual property, then you'll need to sign an [individual CLA](https://developers.google.com/open-source/cla/individual).
+- If you work for a company that wants to allow you to contribute your work,
+  then you'll need to sign a [corporate CLA](https://developers.google.com/open-source/cla/corporate).
 
 Follow either of the two links above to access the appropriate CLA and
 instructions for how to sign and return it. Once we receive it, we'll

@@ -16,14 +16,14 @@
 
 /* eslint new-cap: ["error", { "capIsNew": false }]*/
 
-import {Component, DoCheck, OnInit} from '@angular/core';
-import {Subscription} from 'rxjs';
-import {DataSharingServiceService} from 'src/app/data-sharing-service.service';
+import { Component, DoCheck, OnInit } from "@angular/core";
+import { Subscription } from "rxjs";
+import { DataSharingServiceService } from "src/app/data-sharing-service.service";
 
 @Component({
-  selector: 'app-base-layer',
-  templateUrl: './base-layer.component.html',
-  styleUrls: ['./base-layer.component.css'],
+  selector: "app-base-layer",
+  templateUrl: "./base-layer.component.html",
+  styleUrls: ["./base-layer.component.css"],
 })
 /**
  * BaseLayerComponent - base layer for all components to generate
@@ -34,7 +34,7 @@ export class BaseLayerComponent implements OnInit, DoCheck {
    * @constructor
    * @param {DataSharingServiceService} data - data sharing service
    */
-  constructor(public data: DataSharingServiceService) { }
+  constructor(public data: DataSharingServiceService) {}
   public processingIsDone!: any;
 
   message!: string;
@@ -56,11 +56,14 @@ export class BaseLayerComponent implements OnInit, DoCheck {
    */
   async ngOnInit() {
     this.subscription = this.data.file.subscribe(
-        (message) => this.processingIsDone = message);
+      (message) => (this.processingIsDone = message)
+    );
     this.subscription = this.data.showError.subscribe(
-        (message) => this.showError = message);
+      (message) => (this.showError = message)
+    );
     this.subscription = this.data.errorMessage.subscribe(
-        (message) => this.errorMessage = message);
+      (message) => (this.errorMessage = message)
+    );
   }
 
   /**
@@ -69,22 +72,31 @@ export class BaseLayerComponent implements OnInit, DoCheck {
    */
   ngDoCheck() {
     this.subscription = this.data.processor.subscribe(
-        (message) => this.processor = message);
+      (message) => (this.processor = message)
+    );
     this.subscription = this.data.fileName.subscribe(
-        (message) => this.fileName = message);
+      (message) => (this.fileName = message)
+    );
     this.subscription = this.data.file.subscribe(
-        (message) => this.file = message);
+      (message) => (this.file = message)
+    );
     this.subscription = this.data.showBounding.subscribe(
-        (message) => this.showBounding = message);
+      (message) => (this.showBounding = message)
+    );
     this.subscription = this.data.documentProto.subscribe(
-        (message) => this.documentProto = message);
+      (message) => (this.documentProto = message)
+    );
     this.subscription = this.data.processingIsDone.subscribe(
-        (message) => this.processIsDone = message);
+      (message) => (this.processIsDone = message)
+    );
     this.subscription = this.data.processingInProgress.subscribe(
-        (message) => this.processInProgress = message);
+      (message) => (this.processInProgress = message)
+    );
     this.subscription = this.data.showError.subscribe(
-        (message) => this.showError = message);
+      (message) => (this.showError = message)
+    );
     this.subscription = this.data.errorMessage.subscribe(
-        (message) => this.errorMessage = message);
+      (message) => (this.errorMessage = message)
+    );
   }
 }
