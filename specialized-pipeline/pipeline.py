@@ -5,11 +5,14 @@ Saves Extracted Info to BigQuery
 
 """
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple, Sequence
 from collections import deque
 
 from google.api_core.client_options import ClientOptions
 from google.api_core.operation import Operation
+from google.api_core.exceptions import ResourceExhausted
+from google.protobuf.json_format import ParseError
+
 from google.cloud import bigquery
 from google.cloud import documentai_v1 as documentai
 from google.cloud import storage
@@ -29,6 +32,7 @@ gcs_input_bucket = f"{PROJECT_ID}-input-invoices"
 gcs_output_bucket = f"{PROJECT_ID}-output-invoices"
 gcs_archive_bucket_name = f"{PROJECT_ID}-archived-invoices"
 
+# pylint: disable=invalid-name
 gcs_output_prefix = "processed"
 destination_uri = f"gs://{gcs_output_bucket}/{gcs_output_prefix}/"
 
@@ -43,7 +47,9 @@ ACCEPTED_MIME_TYPES = set(
 )
 
 
-def write_to_bq(dataset_name: str, table_name: str, entities: List[Dict[str, Any]]):
+def write_to_bq(
+    dataset_name: str, table_name: str, entities: List[Dict[str, Any]]
+) -> Sequence[dict]:
     """
     Write Data to BigQuery
     """
@@ -54,7 +60,7 @@ def write_to_bq(dataset_name: str, table_name: str, entities: List[Dict[str, Any
         table, entities, skip_invalid_rows=True, ignore_unknown_values=True
     )
 
-    print(job)
+    return job
 
 
 def extract_document_entities(document: documentai.Document) -> dict:
@@ -118,12 +124,20 @@ def create_batches(
     return batches
 
 
+def wait_for_operation(operation: Operation) -> None:
+    """
+    Wait for an operation to complete
+    """
+    print(f"Waiting for operation {operation.operation.name}")
+    operation.result(timeout=TIMEOUT)
+
+
 def _batch_process_documents(
     gcs_output_uri: str,
     input_bucket: str,
     input_prefix: str,
     batch_size: int = BATCH_MAX_FILES,
-) -> Operation:
+) -> List[str]:
     """
     Constructs a request to process a document using the Document AI
     Batch Method.
@@ -146,8 +160,12 @@ def _batch_process_documents(
     operation_ids: List[str] = []
 
     for i, batch in enumerate(batches):
-        if i >= BATCH_MAX_REQUESTS:
-            operation_queue.popleft().result(timeout=TIMEOUT)
+        # If the operation queue is close to quota, wait for an operation to complete
+        if i >= BATCH_MAX_REQUESTS - 1:
+            print("Close to Quota")
+            wait_for_operation(operation_queue.popleft())
+
+        print(f"Processing Document Batch {i}: {len(batch)} documents")
 
         # Load GCS Input URI into a List of document files
         input_config = documentai.BatchDocumentsInputConfig(
@@ -158,19 +176,25 @@ def _batch_process_documents(
             input_documents=input_config,
             document_output_config=output_config,
         )
-
-        operation = docai_client.batch_process_documents(request)
-        operation_ids.append(operation.operation.name)
+        try:
+            operation = docai_client.batch_process_documents(request)
+        except ResourceExhausted:
+            print("Quota Exhausted")
+            wait_for_operation(operation_queue.popleft())
+            operation = docai_client.batch_process_documents(request)
+        finally:
+            operation_queue.append(operation)
+            operation_ids.append(operation.operation.name)
 
     for operation in operation_queue:
-        operation.result(timeout=TIMEOUT)
+        wait_for_operation(operation)
 
     return operation_ids
 
 
 def get_document_protos_from_gcs(
     output_bucket: str, output_directory: str
-) -> List[documentai.Document]:
+) -> Tuple[List[documentai.Document], List[str]]:
     """
     Download document proto output from GCS. (Directory)
     """
@@ -180,27 +204,36 @@ def get_document_protos_from_gcs(
     blob_list = storage_client.list_blobs(output_bucket, prefix=output_directory)
 
     document_protos = []
+    parsing_errors = []
 
     for blob in blob_list:
         # Document AI should only output JSON files to GCS
         if ".json" in blob.name:
+            try:
+                document_proto = documentai.types.Document.from_json(
+                    blob.download_as_bytes()
+                )
+            except ParseError:
+                print(f"Failed to parse {blob.name}")
+                parsing_errors.append(blob.name)
+                continue
+
             print("Fetching from " + blob.name)
-            document_proto = documentai.types.Document.from_json(
-                blob.download_as_bytes()
-            )
             document_protos.append(document_proto)
         else:
             print(f"Skipping non-supported file type {blob.name}")
 
-    return document_protos
+    return document_protos, parsing_errors
 
 
+# pylint: disable=too-many-arguments
 def cleanup_gcs(
     input_bucket: str,
     input_prefix: str,
     output_bucket: str,
     output_directory: str,
     archive_bucket: str,
+    parsing_errors: List[str],
 ):
     """
     Deleting the intermediate files created by the Doc AI Parser
@@ -210,9 +243,14 @@ def cleanup_gcs(
     delete_queue = []
 
     # Intermediate document.json files
-    delete_queue.append(
-        storage_client.list_blobs(output_bucket, prefix=output_directory)
+    intermediate_files = storage_client.list_blobs(
+        output_bucket, prefix=output_directory
     )
+
+    for blob in intermediate_files:
+        # For now, don't remove json files that couldn't be parsed.
+        if blob.name not in parsing_errors:
+            delete_queue.append(blob)
 
     # Copy input files to archive bucket
     source_bucket = storage_client.bucket(input_bucket)
@@ -221,11 +259,14 @@ def cleanup_gcs(
     source_blobs = storage_client.list_blobs(input_bucket, prefix=input_prefix)
 
     for source_blob in source_blobs:
-        source_bucket.copy_blob(source_blob, destination_bucket, input_prefix)
-
-    delete_queue.append(source_blobs)
+        print(
+            f"Moving {source_bucket}/{source_blob.name} to {archive_bucket}/{source_blob.name}"
+        )
+        source_bucket.copy_blob(source_blob, destination_bucket, source_blob.name)
+        delete_queue.append(source_blob)
 
     for blob in delete_queue:
+        print(f"Deleting {blob.name}")
         blob.delete()
 
 
@@ -233,7 +274,7 @@ def bulk_pipeline():
     """
     Bulk Processing of Invoice Documents
     """
-    gcs_input_prefix = "invoice_ingest"
+    gcs_input_prefix = ""
 
     operation_ids = _batch_process_documents(
         gcs_output_uri=destination_uri,
@@ -242,6 +283,7 @@ def bulk_pipeline():
     )
 
     all_document_entities = []
+    all_parsing_errors = []
 
     for operation_id in operation_ids:
         # Output files will be in a new subdirectory with Operation Number as the name
@@ -250,21 +292,32 @@ def bulk_pipeline():
         ).group(1)
 
         output_directory = f"{gcs_output_prefix}/{operation_number}"
-        output_document_protos = get_document_protos_from_gcs(
+
+        output_document_protos, parsing_errors = get_document_protos_from_gcs(
             gcs_output_bucket, output_directory
         )
+        all_parsing_errors.append(parsing_errors)
+
+        print(f"{len(output_document_protos)} documents parsed")
+        print(f"{len(parsing_errors)} documents failed to parse")
 
         for document_proto in output_document_protos:
             entities = extract_document_entities(document_proto)
             entities["input_filename"] = document_proto.uri
             all_document_entities.append(entities)
 
-    write_to_bq(DATSET_NAME, ENTITIES_TABLE_NAME, all_document_entities)
+    job = write_to_bq(DATSET_NAME, ENTITIES_TABLE_NAME, all_document_entities)
+    print(job)
 
-    # cleanup_gcs(
-    #     gcs_input_bucket,
-    #     gcs_input_prefix,
-    #     gcs_output_bucket,
-    #     gcs_output_prefix,
-    #     gcs_archive_bucket_name,
-    # )
+    print("Cleaning up Cloud Storage Buckets")
+    cleanup_gcs(
+        gcs_input_bucket,
+        gcs_input_prefix,
+        gcs_output_bucket,
+        gcs_output_prefix,
+        gcs_archive_bucket_name,
+        parsing_errors,
+    )
+
+
+bulk_pipeline()
