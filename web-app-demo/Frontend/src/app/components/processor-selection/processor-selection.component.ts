@@ -52,7 +52,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
    * @constructor
    * @param {DataSharingServiceService} data - data sharing service
    */
-  constructor(public data: DataSharingServiceService) {}
+  constructor(public data: DataSharingServiceService) { }
 
   processor!: string;
   fileName: string = "";
@@ -144,7 +144,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
         const retrievedProcessor = json["processor_list"];
 
         for (let i = 0; i < retrievedProcessor.length; i++) {
-          const key = retrievedProcessor[i].split("_")[0];
+          const key = retrievedProcessor[i];
           const value = retrievedProcessor[i];
 
           this.processorSelectionList.push(key);
