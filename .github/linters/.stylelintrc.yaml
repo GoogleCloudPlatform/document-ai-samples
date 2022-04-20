@@ -1,0 +1,6 @@
+overrides:
+- files:
+  - "*.scss"
+  - "**/*.scss"
+  - web-app-demo/Frontend/src/custom-theme.scss
+  customSyntax: postcss-scss
