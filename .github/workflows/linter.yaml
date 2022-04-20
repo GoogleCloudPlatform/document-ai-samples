@@ -61,3 +61,4 @@ jobs:
           VALIDATE_PYTHON_ISORT: false
           VALIDATE_TYPESCRIPT_STANDARD: false
           VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_CSS: false

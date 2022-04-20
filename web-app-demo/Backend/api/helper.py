@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# pylint: disable-msg=too-many-locals
 
 """ Helper file that holds DocAI API calls"""
 from google.cloud import documentai_v1beta3 as documentai

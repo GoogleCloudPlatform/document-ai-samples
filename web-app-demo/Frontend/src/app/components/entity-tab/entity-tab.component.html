@@ -20,10 +20,10 @@
     class="card card-padding"
     (mouseenter)="highlightBoundingBoxes(data)"
     (mouseleave)="clearBoundingBoxes()"
-    *ngfor="let data of dataSource"
+    *ngFor="let data of dataSource"
   >
     <mat-card-title-group>
-      <mat-card-subtitle *ngif="data.fieldName !== ''">{{
+      <mat-card-subtitle *ngIf="data.fieldName !== ''">{{
         data.fieldName
       }}</mat-card-subtitle>
     </mat-card-title-group>
