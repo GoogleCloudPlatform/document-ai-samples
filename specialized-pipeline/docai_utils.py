@@ -1,9 +1,7 @@
-from typing import Dict, List, Tuple
-from collections import deque
+from typing import Dict, List
+import json
 
 from google.api_core.client_options import ClientOptions
-from google.api_core.operation import Operation
-from google.api_core.exceptions import ResourceExhausted
 from google.protobuf.json_format import ParseError
 
 from google.cloud import documentai_v1 as documentai
@@ -14,7 +12,6 @@ from consts import (
     LOCATION,
     PROCESSOR_ID,
     BATCH_MAX_FILES,
-    BATCH_MAX_REQUESTS,
     TIMEOUT,
     ACCEPTED_MIME_TYPES,
 )
@@ -83,14 +80,6 @@ def create_batches(
     return batches
 
 
-def wait_for_operation(operation: Operation) -> None:
-    """
-    Wait for an operation to complete
-    """
-    print(f"Waiting for operation {operation.operation.name}")
-    operation.result(timeout=TIMEOUT)
-
-
 def _batch_process_documents(
     gcs_output_uri: str,
     input_bucket: str,
@@ -115,14 +104,9 @@ def _batch_process_documents(
     )
 
     batches = create_batches(input_bucket, input_prefix, batch_size)
-    operation_queue: deque[Operation] = deque()
     operation_ids: List[str] = []
 
     for i, batch in enumerate(batches):
-        # If the operation queue is close to quota, wait for an operation to complete
-        if i >= BATCH_MAX_REQUESTS - 1:
-            print("Close to Quota")
-            wait_for_operation(operation_queue.popleft())
 
         print(f"Processing Document Batch {i}: {len(batch)} documents")
 
@@ -135,25 +119,19 @@ def _batch_process_documents(
             input_documents=input_config,
             document_output_config=output_config,
         )
-        try:
-            operation = docai_client.batch_process_documents(request)
-        except ResourceExhausted:
-            print("Quota Exhausted")
-            wait_for_operation(operation_queue.popleft())
-            operation = docai_client.batch_process_documents(request)
-        finally:
-            operation_queue.append(operation)
-            operation_ids.append(operation.operation.name)
 
-    for operation in operation_queue:
-        wait_for_operation(operation)
+        operation = docai_client.batch_process_documents(request)
+        operation_ids.append(operation.operation.name)
+
+        print(f"Waiting for operation {operation.operation.name}")
+        operation.result(timeout=TIMEOUT)
 
     return operation_ids
 
 
 def get_document_protos_from_gcs(
     output_bucket: str, output_directory: str
-) -> Tuple[List[documentai.Document], List[str]]:
+) -> List[documentai.Document]:
     """
     Download document proto output from GCS. (Directory)
     """
@@ -163,36 +141,41 @@ def get_document_protos_from_gcs(
     blob_list = storage_client.list_blobs(output_bucket, prefix=output_directory)
 
     document_protos = []
-    parsing_errors = []
 
     for blob in blob_list:
+        print("Fetching from " + blob.name)
+
         # Document AI should only output JSON files to GCS
         if ".json" in blob.name:
+            # TODO: remove this when Document.from_json is fixed
+            blob_data = blob.download_as_text()
+            document_dict = json.loads(blob_data)
+
+            # Remove large fields
             try:
-                document_proto = documentai.types.Document.from_json(
-                    blob.download_as_bytes()
-                )
+                del document_dict["pages"]
+                del document_dict["text"]
+            except KeyError:
+                pass
+            try:
+                document_proto = documentai.types.Document.from_json(blob_data)
             except ParseError:
                 print(f"Failed to parse {blob.name}")
-                parsing_errors.append(blob.name)
                 continue
 
-            print("Fetching from " + blob.name)
             document_protos.append(document_proto)
         else:
             print(f"Skipping non-supported file type {blob.name}")
 
-    return document_protos, parsing_errors
+    return document_protos
 
 
-# pylint: disable=too-many-arguments
 def cleanup_gcs(
     input_bucket: str,
     input_prefix: str,
     output_bucket: str,
     output_directory: str,
     archive_bucket: str,
-    parsing_errors: List[str],
 ):
     """
     Deleting the intermediate files created by the Doc AI Parser
@@ -207,9 +190,7 @@ def cleanup_gcs(
     )
 
     for blob in intermediate_files:
-        # For now, don't remove json files that couldn't be parsed.
-        if blob.name not in parsing_errors:
-            delete_queue.append(blob)
+        delete_queue.append(blob)
 
     # Copy input files to archive bucket
     source_bucket = storage_client.bucket(input_bucket)

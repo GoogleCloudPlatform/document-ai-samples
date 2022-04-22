@@ -1,0 +1,109 @@
+[
+  {
+    "mode": "NULLABLE",
+    "name": "input_filename",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "delivery_country",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "invoice_type",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "shipment_number",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "delivery_date",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "origin_country",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "receiver_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "currency",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "gross_weight",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "total_amount",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "supplier_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "unit_of_measure",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "forwarder_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "chargeable_weight",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "invoice_id",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "pieces_packages_number",
+    "type": "STRING"
+  },
+  {
+    "description": "%E4Y-%m-%d",
+    "mode": "NULLABLE",
+    "name": "invoice_date",
+    "type": "STRING"
+  },
+  {
+    "description": "%E4Y-%m-%d",
+    "mode": "NULLABLE",
+    "name": "shipment_date",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "master_bill",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "house_bill",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "container_number",
+    "type": "STRING"
+  }
+]

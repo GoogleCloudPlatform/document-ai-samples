@@ -2,17 +2,19 @@
 Global Constants
 """
 
-PROJECT_ID = "PROJECT_ID"
+PROJECT_ID = "pdai-sandbox"
 LOCATION = "us"
-PROCESSOR_ID = "PROCESSOR_ID"
+PROCESSOR_ID = "3a6970f87286a19c"
 
 BATCH_MAX_FILES = 50
 BATCH_MAX_REQUESTS = 5
 
-TIMEOUT = 400
+TIMEOUT = 500
 
 # GCS Variables
 gcs_input_bucket = f"{PROJECT_ID}-input-invoices"
+gcs_input_prefix = ""
+
 gcs_output_bucket = f"{PROJECT_ID}-output-invoices"
 gcs_archive_bucket_name = f"{PROJECT_ID}-archived-invoices"
 

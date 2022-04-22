@@ -5,9 +5,11 @@ Saves Extracted Info to BigQuery
 """
 
 import re
+from typing import List
 
 from consts import (
     gcs_input_bucket,
+    gcs_input_prefix,
     gcs_output_bucket,
     gcs_archive_bucket_name,
     gcs_output_prefix,
@@ -28,7 +30,6 @@ def bulk_pipeline():
     """
     Bulk Processing of Invoice Documents
     """
-    gcs_input_prefix = ""
 
     operation_ids = _batch_process_documents(
         gcs_output_uri=destination_uri,
@@ -36,8 +37,14 @@ def bulk_pipeline():
         input_prefix=gcs_input_prefix,
     )
 
+    return operation_ids
+
+
+def post_processing(operation_ids: List[str]):
+    """
+    Entity Extraction and output to BigQuery
+    """
     all_document_entities = []
-    all_parsing_errors = []
 
     for operation_id in operation_ids:
         # Output files will be in a new subdirectory with Operation Number as the name
@@ -47,13 +54,11 @@ def bulk_pipeline():
 
         output_directory = f"{gcs_output_prefix}/{operation_number}"
 
-        output_document_protos, parsing_errors = get_document_protos_from_gcs(
+        output_document_protos = get_document_protos_from_gcs(
             gcs_output_bucket, output_directory
         )
-        all_parsing_errors.append(parsing_errors)
 
         print(f"{len(output_document_protos)} documents parsed")
-        print(f"{len(parsing_errors)} documents failed to parse")
 
         for document_proto in output_document_protos:
             entities = extract_document_entities(document_proto)
@@ -70,8 +75,9 @@ def bulk_pipeline():
         gcs_output_bucket,
         gcs_output_prefix,
         gcs_archive_bucket_name,
-        parsing_errors,
     )
 
 
-bulk_pipeline()
+completed_operation_ids = bulk_pipeline()
+
+post_processing(completed_operation_ids)
