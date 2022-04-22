@@ -158,7 +158,9 @@ def get_document_protos_from_gcs(
             except KeyError:
                 pass
             try:
-                document_proto = documentai.types.Document.from_json(blob_data)
+                document_proto = documentai.types.Document.from_json(
+                    json.dumps(document_dict).encode("utf-8")
+                )
             except ParseError:
                 print(f"Failed to parse {blob.name}")
                 continue
