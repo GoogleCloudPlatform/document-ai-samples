@@ -1,8 +1,8 @@
 FROM node:12-slim
 
-WORKDIR /web-app-demo/Frontend/.
-
 COPY . ./
+
+WORKDIR /Frontend/.
 
 RUN npm install -g @angular/cli
 
