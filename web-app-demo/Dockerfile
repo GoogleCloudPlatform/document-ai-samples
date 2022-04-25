@@ -2,7 +2,7 @@ FROM node:12-slim
 
 COPY . ./
 
-WORKDIR /Frontend
+WORKDIR ./Frontend
 
 RUN npm install -g @angular/cli
 
