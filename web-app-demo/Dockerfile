@@ -1,6 +1,6 @@
 FROM node:12-slim
 
-WORKDIR ./Frontend/.
+WORKDIR ./web-app-demo/Frontend
 
 COPY . ./
 
