@@ -1,8 +1,10 @@
 FROM node:12-slim
 
-RUN cd ./Frontend
+WORKDIR ./
 
 COPY . ./
+
+RUN cd ./Frontend
 
 RUN npm install && npm run build
 
