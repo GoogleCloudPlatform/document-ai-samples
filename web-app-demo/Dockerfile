@@ -4,8 +4,6 @@ WORKDIR /web-app-demo/Frontend/.
 
 COPY . ./
 
-RUN npm install -g @angular/cli
-
 RUN npm install
 
 RUN npm run build
