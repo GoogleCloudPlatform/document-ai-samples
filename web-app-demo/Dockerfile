@@ -4,7 +4,7 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY . ./
 
-WORKDIR ./Frontend
+WORKDIR ./web-app-demo/Frontend/.
 
 RUN npm install && npm run build
 
