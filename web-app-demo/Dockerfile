@@ -1,7 +1,7 @@
 FROM node:12-slim
 
-WORKDIR ./
-
+ENV APP_HOME /app
+WORKDIR $APP_HOME
 COPY . ./
 
 RUN cd ./Frontend
