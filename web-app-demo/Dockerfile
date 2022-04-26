@@ -4,7 +4,7 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY . ./
 
-RUN cd ./Frontend
+WORKDIR ./Frontend
 
 RUN npm install && npm run build
 
