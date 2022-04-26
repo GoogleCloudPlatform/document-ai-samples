@@ -4,9 +4,7 @@ WORKDIR /web-app-demo/Frontend/.
 
 COPY . ./
 
-RUN npm install
-
-RUN npm run build
+RUN npm install && npm run build
 
 EXPOSE 8080
 
