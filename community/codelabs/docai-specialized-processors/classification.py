@@ -43,12 +43,12 @@ def online_process(
     return result.document
 
 
-PROJECT_ID = "YOUR_PROJECT_ID"
-LOCATION = "YOUR_PROJECT_LOCATION"  # Format is 'us' or 'eu'
-PROCESSOR_ID = "PROCUREMENT_SPLITTER_ID"  # Create processor in Cloud Console
+PROJECT_ID = "document-ai-test-337818"
+LOCATION = "us"  # Format is 'us' or 'eu'
+PROCESSOR_ID = "7118fd29f7d65f9"  # Create processor in Cloud Console
 
 # The local file in your current working directory
-FILE_PATH = "procurement_multi_document.pdf"
+FILE_PATH = "lending_multi_document2.pdf"
 # Refer to https://cloud.google.com/document-ai/docs/processors-list
 # for supported file types
 MIME_TYPE = "application/pdf"

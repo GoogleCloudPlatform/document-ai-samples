@@ -2,30 +2,61 @@
 Global Constants
 """
 
-PROJECT_ID = "pdai-sandbox"
-LOCATION = "us"
-PROCESSOR_ID = "3a6970f87286a19c"
+DEFAULT_PROJECT_ID = "pdai-sandbox"
+DEFAULT_LOCATION = "us"
 
+# Document AI
 BATCH_MAX_FILES = 50
 BATCH_MAX_REQUESTS = 5
 
 TIMEOUT = 500
 
-# GCS Variables
-gcs_input_bucket = f"{PROJECT_ID}-input-invoices"
-gcs_input_prefix = ""
+CUSTOM_SPLITTER_PROCESSOR = {
+    "project_id": DEFAULT_PROJECT_ID,
+    "location": DEFAULT_LOCATION,
+    "processor_id": "fc85f5f8ff0628d2",
+}
 
-gcs_output_bucket = f"{PROJECT_ID}-output-invoices"
-gcs_archive_bucket_name = f"{PROJECT_ID}-archived-invoices"
+INVOICE_PARSER_PROCESSOR = {
+    "project_id": DEFAULT_PROJECT_ID,
+    "location": DEFAULT_LOCATION,
+    "processor_id": "3a6970f87286a19c",
+}
 
-# pylint: disable=invalid-name
-gcs_output_prefix = "processed"
-destination_uri = f"gs://{gcs_output_bucket}/{gcs_output_prefix}/"
+BILL_OF_LADING_PROCESSOR = {
+    "project_id": DEFAULT_PROJECT_ID,
+    "location": DEFAULT_LOCATION,
+    "processor_id": "fc1a081baf610751",
+}
 
-# BigQuery Variables
-DATSET_NAME = "invoice_parser_results"
-ENTITIES_TABLE_NAME = "doc_ai_extracted_entities"
+# GCS
+GCS_PROJECT_ID = DEFAULT_PROJECT_ID
+
+GCS_INPUT_BUCKET = f"{GCS_PROJECT_ID}-input-invoices"
+GCS_INPUT_PREFIX = ""
+
+GCS_OUTPUT_BUCKET = f"{GCS_PROJECT_ID}-output-invoices"
+GCS_OUTPUT_PREFIX = "processed"
+DESTINATION_URI = f"gs://{GCS_OUTPUT_BUCKET}/{GCS_OUTPUT_PREFIX}/"
+
+GCS_ARCHIVE_BUCKET = f"{GCS_PROJECT_ID}-archived-invoices"
+
+
+# BigQuery
+BIGQUERY_PROJECT_ID = DEFAULT_PROJECT_ID
+BIGQUERY_TABLE_NAME = "doc_ai_extracted_entities"
+BIGQUERY_DATASET_NAME = "invoice_parser_results"
 
 ACCEPTED_MIME_TYPES = set(
-    ["application/pdf", "image/jpeg", "image/png", "image/tiff", "image/gif"]
+    [
+        "application/pdf",
+        "image/bmp",
+        "image/gif",
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/tif",
+        "image/tiff",
+        "image/webp",
+    ]
 )

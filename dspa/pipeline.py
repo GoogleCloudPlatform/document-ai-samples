@@ -5,24 +5,18 @@ Saves Extracted Info to BigQuery
 """
 
 import re
-from typing import List
+from typing import List, Dict
 
 from consts import (
-    gcs_input_bucket,
-    gcs_input_prefix,
-    gcs_output_bucket,
-    gcs_archive_bucket_name,
-    gcs_output_prefix,
-    destination_uri,
+    GCS_OUTPUT_BUCKET,
+    GCS_OUTPUT_PREFIX,
+    DESTINATION_URI,
+    INVOICE_PARSER_PROCESSOR,
+    CUSTOM_SPLITTER_PROCESSOR,
 )
 
-from docai_utils import (
-    _batch_process_documents,
-    get_document_protos_from_gcs,
-    extract_document_entities,
-    cleanup_gcs,
-)
-
+from docai_utils import batch_process_documents, extract_document_entities
+from gcs_utils import create_batches, get_document_protos_from_gcs, cleanup_gcs
 from bq_utils import write_to_bq
 
 
@@ -30,19 +24,43 @@ def bulk_pipeline():
     """
     Bulk Processing of Invoice Documents
     """
-
-    operation_ids = _batch_process_documents(
-        gcs_output_uri=destination_uri,
-        input_bucket=gcs_input_bucket,
-        input_prefix=gcs_input_prefix,
+    # TODO: Add Classification and mapping step
+    batches = create_batches()  # Default INPUT BUCKET, prefix
+    operation_ids = batch_process_documents(
+        processor=CUSTOM_SPLITTER_PROCESSOR,
+        batches=batches,
+        gcs_output_uri=DESTINATION_URI,
     )
 
-    return operation_ids
+    # Splitting
+
+    # Parsing and Entity Extraction
+    batches = create_batches()
+    operation_ids = batch_process_documents(
+        processor=INVOICE_PARSER_PROCESSOR,
+        batches=batches,
+        gcs_output_uri=DESTINATION_URI,
+    )
+
+    extracted_entities = post_processing(operation_ids)
+
+    job = write_to_bq(extracted_entities)
+    print(job)
+
+    print("Cleaning up Cloud Storage Buckets")
+    cleanup_gcs()
 
 
-def post_processing(operation_ids: List[str]):
+def pre_processing():
     """
-    Entity Extraction and output to BigQuery
+    Loads documents from GCS and creates batches
+    """
+    pass
+
+
+def post_processing(operation_ids: List[str]) -> List[Dict]:
+    """
+    Download from GCS and Entity Extraction
     """
     all_document_entities = []
 
@@ -52,10 +70,10 @@ def post_processing(operation_ids: List[str]):
             r"operations\/(\d+)", operation_id, re.IGNORECASE
         ).group(1)
 
-        output_directory = f"{gcs_output_prefix}/{operation_number}"
+        output_directory = f"{GCS_OUTPUT_PREFIX}/{operation_number}"
 
         output_document_protos = get_document_protos_from_gcs(
-            gcs_output_bucket, output_directory
+            GCS_OUTPUT_BUCKET, output_directory
         )
 
         print(f"{len(output_document_protos)} documents parsed")
@@ -65,19 +83,7 @@ def post_processing(operation_ids: List[str]):
             entities["input_filename"] = document_proto.uri
             all_document_entities.append(entities)
 
-    job = write_to_bq(all_document_entities)
-    print(job)
-
-    print("Cleaning up Cloud Storage Buckets")
-    cleanup_gcs(
-        gcs_input_bucket,
-        gcs_input_prefix,
-        gcs_output_bucket,
-        gcs_output_prefix,
-        gcs_archive_bucket_name,
-    )
+    return all_document_entities
 
 
-completed_operation_ids = bulk_pipeline()
-
-post_processing(completed_operation_ids)
+bulk_pipeline()
