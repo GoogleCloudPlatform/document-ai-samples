@@ -1,4 +1,3 @@
-# type: ignore[1]
 """
 Sends Documents to Document AI Specialized Processor
 Saves Extracted Info to BigQuery
@@ -16,7 +15,11 @@ from consts import (
 )
 
 from docai_utils import batch_process_documents, extract_document_entities
-from gcs_utils import create_batches, get_document_protos_from_gcs, cleanup_gcs
+from gcs_utils import (
+    create_batches,
+    get_document_protos_from_gcs,
+    cleanup_gcs,
+)
 from bq_utils import write_to_bq
 
 
@@ -55,7 +58,6 @@ def pre_processing():
     """
     Loads documents from GCS and creates batches
     """
-    pass
 
 
 def post_processing(operation_ids: List[str]) -> List[Dict]:
@@ -65,20 +67,14 @@ def post_processing(operation_ids: List[str]) -> List[Dict]:
     all_document_entities = []
 
     for operation_id in operation_ids:
-        # Output files will be in a new subdirectory with Operation Number as the name
-        operation_number = re.search(
-            r"operations\/(\d+)", operation_id, re.IGNORECASE
-        ).group(1)
 
-        output_directory = f"{GCS_OUTPUT_PREFIX}/{operation_number}"
-
-        output_document_protos = get_document_protos_from_gcs(
-            GCS_OUTPUT_BUCKET, output_directory
+        output_documents = get_document_protos_from_gcs(
+            operation_id, GCS_OUTPUT_BUCKET, GCS_OUTPUT_PREFIX
         )
 
-        print(f"{len(output_document_protos)} documents parsed")
+        print(f"{len(output_documents)} documents parsed")
 
-        for document_proto in output_document_protos:
+        for document_proto in output_documents:
             entities = extract_document_entities(document_proto)
             entities["input_filename"] = document_proto.uri
             all_document_entities.append(entities)

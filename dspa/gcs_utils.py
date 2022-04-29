@@ -4,7 +4,6 @@ Cloud Storage Utility Functions
 import re
 
 from typing import List, Tuple
-import json
 
 from google.protobuf.json_format import ParseError
 
@@ -42,6 +41,7 @@ def get_file_from_gcs(gcs_uri: str) -> bytes:
     """
     bucket_name, object_name = split_gcs_uri(gcs_uri)
 
+    print(f"Fetching {object_name} from {bucket_name}")
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(object_name)
 
@@ -102,46 +102,47 @@ def create_batches(
 
 
 def get_document_protos_from_gcs(
-    gcs_bucket: str = GCS_OUTPUT_BUCKET, gcs_directory: str = GCS_OUTPUT_PREFIX
+    operation_id: str,
+    gcs_bucket: str = GCS_OUTPUT_BUCKET,
+    gcs_prefix: str = GCS_OUTPUT_PREFIX,
 ) -> List[documentai.Document]:
     """
     Download document proto output from GCS.
     """
 
-    # List of all of the files in the directory
-    # `gs://gcs_output_uri/operation_id`
-    blob_list = storage_client.list_blobs(gcs_bucket, prefix=gcs_directory)
+    # Output files will be in a new subdirectory with Operation ID as the name
 
-    document_protos = []
+    op_re = re.search(r"operations\/(\d+)", operation_id, re.IGNORECASE)
+
+    if op_re is None or op_re.group(1) is None:
+        raise ValueError(f"Invalid Operation ID: {operation_id}")
+
+    operation_number = op_re.group(1)
+    output_directory = f"{gcs_prefix}/{operation_number}"
+
+    # List of all of the files in the directory
+    # `gs://gcs_bucket/gcs_prefix/operation_id`
+    blob_list = storage_client.list_blobs(gcs_bucket, prefix=output_directory)
+
+    output_documents = []
 
     for blob in blob_list:
         print("Fetching from " + blob.name)
 
         # Document AI should only output JSON files to GCS
         if ".json" in blob.name:
-            # TODO: remove this when Document.from_json is fixed
-            blob_data = blob.download_as_text()
-            document_dict = json.loads(blob_data)
-
-            # Remove large fields
             try:
-                del document_dict["pages"]
-                del document_dict["text"]
-            except KeyError:
-                pass
-            try:
-                document_proto = documentai.types.Document.from_json(
-                    json.dumps(document_dict).encode("utf-8")
+                output_document = documentai.types.Document.from_json(
+                    blob.download_as_bytes(), ignore_unknown_fields=True
                 )
+                output_documents.append(output_document)
             except ParseError:
                 print(f"Failed to parse {blob.name}")
                 continue
-
-            document_protos.append(document_proto)
         else:
             print(f"Skipping non-supported file type {blob.name}")
 
-    return document_protos
+    return output_documents
 
 
 def cleanup_gcs(

@@ -92,6 +92,7 @@ def batch_process_documents(
     Constructs requests to process documents using the Document AI
     Batch Method.
     Returns List of Operation IDs
+        Format: projects/PROJECT_NUMBER/locations/LOCATION/operations/OPERATION_NUMBER
     """
     docai_client = documentai.DocumentProcessorServiceClient(
         client_options=ClientOptions(
