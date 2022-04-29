@@ -1,9 +1,10 @@
+# type: ignore[1]
 """
 Cloud Storage Utility Functions
 """
 import re
 
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 from google.protobuf.json_format import ParseError
 
@@ -27,37 +28,24 @@ def split_gcs_uri(gcs_uri: str) -> Tuple[str, str]:
     """
     Split GCS URI into bucket and file path
     """
-    matches = re.match("gs://(.*?)/(.*)", gcs_uri)
 
-    if matches:
-        bucket_name, object_name = matches.groups()
-
-    return bucket_name, object_name
+    return re.match("gs://(.*?)/(.*)", gcs_uri).groups()
 
 
-def get_file_from_gcs(gcs_uri: str) -> bytes:
+def get_blob_from_gcs(bucket_name: str, object_name: str) -> storage.Blob:
     """
     Get File from GCS as bytes
     """
-    bucket_name, object_name = split_gcs_uri(gcs_uri)
 
-    print(f"Fetching {object_name} from {bucket_name}")
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(object_name)
-
-    return blob.download_as_bytes()
+    return storage_client.bucket(bucket_name).blob(object_name)
 
 
-def upload_file_to_gcs(file_obj: bytes, gcs_uri: str) -> None:
+def upload_file_to_gcs(file_obj: Any, bucket_name: str, object_name: str) -> None:
     """
     Upload file to GCS
     """
-    bucket_name, object_name = split_gcs_uri(gcs_uri)
 
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(object_name)
-
-    blob.upload_from_file(file_obj)
+    storage_client.bucket(bucket_name).blob(object_name).upload_from_file(file_obj)
 
 
 def create_batches(

@@ -2,18 +2,11 @@
 Document AI Utility Functions
 """
 from typing import Dict, List
-import pikepdf as pike
 
 from google.api_core.client_options import ClientOptions
-
 from google.cloud import documentai_v1 as documentai
 
-from consts import (
-    DESTINATION_URI,
-    TIMEOUT,
-)
-
-from gcs_utils import get_file_from_gcs
+from consts import DESTINATION_URI, TIMEOUT
 
 
 def extract_document_entities(document: documentai.Document) -> dict:
@@ -36,51 +29,6 @@ def extract_document_entities(document: documentai.Document) -> dict:
         document_entities.update({entity_key: entity_value})
 
     return document_entities
-
-
-def extract_splitter_classifier_entities(
-    document: documentai.Document,
-) -> Dict[str, List[int]]:
-    """
-    Extract Classification Values and Page Split Points
-    Format: document_classification: [page numbers]
-    """
-    document_entities: Dict[str, List[int]] = {}
-
-    for entity in document.entities:
-        entity_key = entity.type_
-
-        pages_list = []
-        for page_ref in entity.page_anchor.page_refs:
-            pages_list.append(int(page_ref.page))
-
-        document_entities.update({entity_key: pages_list})
-
-    return document_entities
-
-
-def split_pdf(gcs_input_file_uri: str, page_mapping: Dict[str, List[int]]) -> None:
-    """
-    Split PDF based on DocAI Splitter Output
-    Save Each Subdocument in GCS Folder by Classification
-    """
-    input_file_bytes = get_file_from_gcs(gcs_input_file_uri)
-
-    with pike.Pdf.open(input_file_bytes) as original_pdf:
-
-        subdocs = []
-
-        for classification, page_nums in page_mapping.items():
-            subdoc = pike.Pdf.new()
-            for page_num in page_nums:
-                subdoc.pages.append(original_pdf.pages[page_num])
-            subdoc.save(
-                min_version=original_pdf.pdf_version,
-            )
-            # Upload to GCS in directory gs://<bucket>/<classification>/filename-pg123.pdf
-            # return list of split files
-            subdocs.append(subdoc)
-    pass
 
 
 def batch_process_documents(

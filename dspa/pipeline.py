@@ -3,24 +3,31 @@ Sends Documents to Document AI Specialized Processor
 Saves Extracted Info to BigQuery
 """
 
-import re
 from typing import List, Dict
 
 from consts import (
     GCS_OUTPUT_BUCKET,
     GCS_OUTPUT_PREFIX,
     DESTINATION_URI,
+    GCS_SPLIT_PREFIX,
     INVOICE_PARSER_PROCESSOR,
     CUSTOM_SPLITTER_PROCESSOR,
 )
 
-from docai_utils import batch_process_documents, extract_document_entities
+from docai_utils import (
+    batch_process_documents,
+    extract_document_entities,
+)
+
 from gcs_utils import (
     create_batches,
     get_document_protos_from_gcs,
     cleanup_gcs,
 )
+
 from bq_utils import write_to_bq
+
+from split_pdf import split_pdf_gcs
 
 
 def bulk_pipeline():
@@ -36,16 +43,17 @@ def bulk_pipeline():
     )
 
     # Splitting
+    post_processing_splitting(operation_ids)
 
     # Parsing and Entity Extraction
-    batches = create_batches()
+    batches = create_batches(GCS_OUTPUT_BUCKET, GCS_SPLIT_PREFIX)
     operation_ids = batch_process_documents(
         processor=INVOICE_PARSER_PROCESSOR,
         batches=batches,
         gcs_output_uri=DESTINATION_URI,
     )
 
-    extracted_entities = post_processing(operation_ids)
+    extracted_entities = post_processing_extraction(operation_ids)
 
     job = write_to_bq(extracted_entities)
     print(job)
@@ -60,7 +68,21 @@ def pre_processing():
     """
 
 
-def post_processing(operation_ids: List[str]) -> List[Dict]:
+def post_processing_splitting(operation_ids: List[str]) -> None:
+    """
+    Download from GCS and Split PDFs
+    """
+    for operation_id in operation_ids:
+
+        output_documents = get_document_protos_from_gcs(
+            operation_id, GCS_OUTPUT_BUCKET, GCS_OUTPUT_PREFIX
+        )
+        # TODO: Update once uri field is populated
+        for document_proto in output_documents:
+            split_pdf_gcs(document_proto, "")
+
+
+def post_processing_extraction(operation_ids: List[str]) -> List[Dict]:
     """
     Download from GCS and Entity Extraction
     """
@@ -80,6 +102,3 @@ def post_processing(operation_ids: List[str]) -> List[Dict]:
             all_document_entities.append(entities)
 
     return all_document_entities
-
-
-bulk_pipeline()
