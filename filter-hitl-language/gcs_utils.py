@@ -46,4 +46,4 @@ def move_file(
     destination_bucket = storage_client.bucket(destination_bucket_name)
 
     source_bucket.copy_blob(source_blob, destination_bucket)
-    source_bucket.delete_blob(input_filename)
+    # source_bucket.delete_blob(input_filename)
