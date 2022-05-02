@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700|" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/awsm.css/dist/awsm.min.css">
+    <link rel="icon" type="image/png"
+        href="https://fonts.gstatic.com/s/i/gcpiconsgreys/document_ai/v1/web-18dp/greys_document_ai_color_1x_web_18dp.png">
+    <title>{{ title }}</title>
+</head>
+
+<body>
+    <header>
+        <a href="/">
+            <img src="https://fonts.gstatic.com/s/i/gcpiconscolors/document_ai/v1/web-32dp/colors_document_ai_color_2x_web_32dp.png"
+                alt="">
+            <h1>{{ title }}</h1>
+        </a>
+    </header>
+    <main id="active-area">
+        {% if message_error %}
+        <p>{{ message_error }}</p>
+
+        <!-- Successful Processing Confirmation-->
+        {% elif message_success %}
+        <p>{{ message_success }}</p>
+        {% else %}
+        <!-- Introductory Page -->
+        <div id="upload-prompt">
+            <p><b>Instructions:</b> Upload PDF(s) of Invoices</p>
+
+            <hr>
+
+            <form id="upload-documents" action="/file_upload" method="post" enctype="multipart/form-data">
+                <label for="file">Upload your file(s)</label>
+                <input type="file" name="files" multiple>
+                <input type="submit" value="Upload">
+            </form>
+            <hr>
+        </div>
+        {% endif %}
+    </main>
+    <footer>
+        <p>Made by <a href="https://github.com/holtskinner">holtskinner@</a> - Source on <a
+                href="https://github.com/GoogleCloudPlatform/document-ai-samples/">GitHub</a>
+        </p>
+    </footer>
+</body>
+<style>
+    html {
+        font-family: 'Google Sans', 'Roboto', 'Helvetica', sans-serif !important;
+        text-align: center;
+    }
+
+    body main {
+        max-width: 60rem;
+    }
+
+    table>caption {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+
+    div.supported-forms ul {
+        list-style-type: none;
+        text-decoration: none;
+    }
+
+    pre.status-messages {
+        text-align: left;
+    }
+
+    /* unvisited link */
+    a:link {
+        color: #4285F4;
+    }
+
+    /* visited link */
+    a:visited {
+        color: #A142F4;
+    }
+
+    /* mouse over link */
+    a:hover {
+        color: #EA4335;
+    }
+
+    header a {
+        color: black !important;
+        text-decoration: none;
+    }
+
+    table.tax-return {
+        background-color: #DCFFFB;
+    }
+
+    @keyframes rotate {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+
+    @-webkit-keyframes rotate {
+        from {
+            -webkit-transform: rotate(0deg);
+        }
+
+        to {
+            -webkit-transform: rotate(360deg);
+        }
+    }
+
+    .loading-circle {
+        width: 100px;
+        height: 100px;
+        margin: 110px auto 0;
+        border: solid 10px #1A73E8;
+        border-radius: 50%;
+        border-right-color: transparent;
+        border-bottom-color: transparent;
+        -webkit-transition: all 0.5s ease-in;
+        -webkit-animation-name: rotate;
+        -webkit-animation-duration: 1.0s;
+        -webkit-animation-iteration-count: infinite;
+        -webkit-animation-timing-function: linear;
+
+        transition: all 0.5s ease-in;
+        animation-name: rotate;
+        animation-duration: 1.0s;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+    }
+
+</style>
+
+<script>
+    const fileUploadForm = document.getElementById("upload-documents");
+    const uploadPrompt = document.getElementById("upload-prompt");
+    const activeArea = document.getElementById("active-area");
+
+    // Update UI when Files are submitted
+    fileUploadForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        uploadPrompt.style.display = "none";
+
+        const loadingCircle = document.createElement("div");
+        loadingCircle.className = "loading-circle";
+        activeArea.appendChild(loadingCircle);
+
+        fileUploadForm.submit();
+    });
+
+</script>
+
+</html>
