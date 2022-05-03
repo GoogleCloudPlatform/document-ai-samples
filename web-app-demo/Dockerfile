@@ -1,12 +1,15 @@
 FROM node:12-slim
 
-ENV APP_HOME /app
-WORKDIR $APP_HOME
 COPY . ./
 
-WORKDIR ./web-app-demo/Frontend/.
+# hadolint ignore=DL3000
+WORKDIR ./Frontend
 
-RUN npm install && npm run build
+RUN npm install -g @angular/cli
+
+RUN npm install
+
+RUN npm run build
 
 EXPOSE 8080
 
