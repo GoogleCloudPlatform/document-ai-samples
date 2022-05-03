@@ -6,10 +6,10 @@ DEFAULT_PROJECT_ID = "pdai-sandbox"
 DEFAULT_LOCATION = "us"
 
 # Document AI
-BATCH_MAX_FILES = 50
+BATCH_MAX_FILES = 5
 BATCH_MAX_REQUESTS = 5
 
-TIMEOUT = 500
+TIMEOUT = 200
 
 CUSTOM_SPLITTER_PROCESSOR = {
     "project_id": DEFAULT_PROJECT_ID,
@@ -32,9 +32,13 @@ BILL_OF_LADING_PROCESSOR = {
 # GCS
 GCS_PROJECT_ID = DEFAULT_PROJECT_ID
 
-GCS_INPUT_BUCKET = f"{GCS_PROJECT_ID}-input-invoices"
-GCS_INPUT_PREFIX = "upload"
+# GCS_INPUT_BUCKET = f"{GCS_PROJECT_ID}-input-invoices"
+# GCS_INPUT_PREFIX = "upload"
 
+GCS_INPUT_BUCKET = "pdai-dspa-invoices"
+GCS_INPUT_PREFIX = "invoice_ingest"
+
+GCS_SPLIT_BUCKET = f"{GCS_PROJECT_ID}-split-invoices"
 GCS_SPLIT_PREFIX = "split"
 
 GCS_OUTPUT_BUCKET = f"{GCS_PROJECT_ID}-output-invoices"
@@ -46,19 +50,22 @@ GCS_ARCHIVE_BUCKET = f"{GCS_PROJECT_ID}-archived-invoices"
 
 # BigQuery
 BIGQUERY_PROJECT_ID = DEFAULT_PROJECT_ID
-BIGQUERY_TABLE_NAME = "doc_ai_extracted_entities"
-BIGQUERY_DATASET_NAME = "invoice_parser_results"
+BIGQUERY_DATASET_NAME = "dspa_invoices_uptrained"
+BIGQUERY_TABLE_NAME = "dspa_extracted_entities"
 
-ACCEPTED_MIME_TYPES = set(
-    [
-        "application/pdf",
-        "image/bmp",
-        "image/gif",
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/tif",
-        "image/tiff",
-        "image/webp",
-    ]
-)
+PDF_MIME_TYPE = "application/pdf"
+ACCEPTED_MIME_TYPES = set({PDF_MIME_TYPE})
+
+# ACCEPTED_MIME_TYPES = set(
+#     [
+#         "application/pdf",
+#         "image/bmp",
+#         "image/gif",
+#         "image/jpeg",
+#         "image/jpg",
+#         "image/png",
+#         "image/tif",
+#         "image/tiff",
+#         "image/webp",
+#     ]
+# )
