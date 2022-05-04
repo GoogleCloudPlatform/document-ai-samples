@@ -1,8 +1,11 @@
 # type: ignore[1]
+# pylint: skip-file
 """
 Makes a Online Processing Request to Document AI
 """
+from google.api_core.client_options import ClientOptions
 from google.cloud import documentai_v1 as documentai
+
 
 PROJECT_ID = "YOUR_PROJECT_ID"
 LOCATION = "YOUR_PROJECT_LOCATION"  # Format is 'us' or 'eu'
@@ -14,10 +17,10 @@ FILE_PATH = "form.pdf"
 # for supported file types
 MIME_TYPE = "application/pdf"
 
-opts = {"api_endpoint": f"{LOCATION}-documentai.googleapis.com"}
-
 # Instantiates a client
-docai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
+docai_client = documentai.DocumentProcessorServiceClient(
+    client_options=ClientOptions(api_endpoint=f"{LOCATION}-documentai.googleapis.com")
+)
 
 # The full resource name of the processor, e.g.:
 # projects/project-id/locations/location/processor/processor-id
