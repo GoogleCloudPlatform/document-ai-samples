@@ -2,7 +2,7 @@
 # pylint: skip-file
 """
 Makes a Batch Processing Request to Document AI
-Creates request with specific documents
+Creates request with full directory in Cloud Storage
 """
 import re
 from typing import List
@@ -16,9 +16,8 @@ PROJECT_ID = "YOUR_PROJECT_ID"
 LOCATION = "YOUR_PROJECT_LOCATION"  # Format is 'us' or 'eu'
 PROCESSOR_ID = "YOUR_PROCESSOR_ID"  # Create processor in Cloud Console
 
-# Format 'gs://input_bucket/directory/file.pdf'
-GCS_INPUT_URI = "gs://cloud-samples-data/documentai/codelabs/ocr/Winnie_the_Pooh.pdf"
-INPUT_MIME_TYPE = "application/pdf"
+# Format 'gs://input_bucket/directory'
+GCS_INPUT_PREFIX = "gs://cloud-samples-data/documentai/codelabs/ocr/multi-document"
 
 # Format 'gs://output_bucket/directory'
 GCS_OUTPUT_URI = "YOUR_OUTPUT_BUCKET_URI"
@@ -33,15 +32,11 @@ docai_client = documentai.DocumentProcessorServiceClient(
 # You must create new processors in the Cloud Console first
 RESOURCE_NAME = docai_client.processor_path(PROJECT_ID, LOCATION, PROCESSOR_ID)
 
-# Cloud Storage URI for the Input Document
-input_document = documentai.GcsDocument(
-    gcs_uri=GCS_INPUT_URI, mime_type=INPUT_MIME_TYPE
-)
+# Cloud Storage URI for the Input Directory
+gcs_prefix = documentai.GcsPrefix(gcs_uri_prefix=GCS_INPUT_PREFIX)
 
-# Load GCS Input URI into a List of document files
-input_config = documentai.BatchDocumentsInputConfig(
-    gcs_documents=documentai.GcsDocuments(documents=[input_document])
-)
+# Load GCS Input URI into Batch Input Config
+input_config = documentai.BatchDocumentsInputConfig(gcs_prefix=gcs_prefix)
 
 # Cloud Storage URI for Output directory
 gcs_output_config = documentai.DocumentOutputConfig.GcsOutputConfig(
