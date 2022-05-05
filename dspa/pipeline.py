@@ -13,9 +13,8 @@ from consts import (
     GCS_SPLIT_BUCKET,
     GCS_SPLIT_PREFIX,
     CUSTOM_SPLITTER_PROCESSOR,
+    DOCUMENT_PROCESSOR_MAP,
 )
-
-from processor_map import DOCUMENT_PROCESSOR_MAP
 
 from docai_utils import (
     batch_process_documents,

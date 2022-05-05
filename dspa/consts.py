@@ -6,7 +6,7 @@ DEFAULT_PROJECT_ID = "pdai-sandbox"
 DEFAULT_LOCATION = "us"
 
 # Document AI
-BATCH_MAX_FILES = 5
+BATCH_MAX_FILES = 50
 BATCH_MAX_REQUESTS = 5
 
 TIMEOUT = 200
@@ -27,6 +27,21 @@ BILL_OF_LADING_PROCESSOR = {
     "project_id": DEFAULT_PROJECT_ID,
     "location": DEFAULT_LOCATION,
     "processor_id": "fc1a081baf610751",
+}
+
+# Map of Document Classification to Processor
+DOCUMENT_PROCESSOR_MAP = {
+    "airway_bill": INVOICE_PARSER_PROCESSOR,
+    "commercial_invoice": INVOICE_PARSER_PROCESSOR,
+    "importer_security_filing": INVOICE_PARSER_PROCESSOR,
+    "invoice_logistics": INVOICE_PARSER_PROCESSOR,
+    "invoice_statement": INVOICE_PARSER_PROCESSOR,
+    "packing_list": INVOICE_PARSER_PROCESSOR,
+    "seaway_bill": INVOICE_PARSER_PROCESSOR,
+    "tax_invoice": INVOICE_PARSER_PROCESSOR,
+    "other": INVOICE_PARSER_PROCESSOR,
+    "bill_of_lading": BILL_OF_LADING_PROCESSOR,
+    "bill_of_lading_supplement": BILL_OF_LADING_PROCESSOR,
 }
 
 # GCS
