@@ -16,9 +16,8 @@
 """Flask Web Server"""
 
 import os
-import datetime as dt
+from typing import List, Any
 
-from google import auth
 from google.cloud import storage
 
 from flask import Flask, render_template, request
@@ -28,10 +27,27 @@ app = Flask(__name__)
 
 CLOUD_STORAGE_BUCKET = os.environ["CLOUD_STORAGE_BUCKET"]
 CLOUD_STORAGE_PREFIX = os.environ["CLOUD_STORAGE_PREFIX"]
+PROJECT_ID = os.environ["PROJECT_ID"]
+
+PDF_MIME_TYPE = "application/pdf"
+ACCEPTED_MIME_TYPES = set({PDF_MIME_TYPE})
 
 APP_DETAILS = {
     "title": "Document AI: DSPA Invoices",
 }
+
+storage_client = storage.Client(project=PROJECT_ID)
+
+
+def upload_file_to_gcs(
+    file_obj: Any, bucket_name: str, object_name: str, mime_type: str
+) -> None:
+    """
+    Upload file to GCS
+    """
+    storage_client.bucket(bucket_name).blob(object_name).upload_from_file(
+        file_obj, content_type=mime_type
+    )
 
 
 @app.context_processor
@@ -47,11 +63,7 @@ def index() -> str:
     """
     Web Server, Homepage
     """
-    blob_name = f""
-    signed_url = generate_upload_signed_url_v4(
-        CLOUD_STORAGE_BUCKET, CLOUD_STORAGE_PREFIX
-    )
-    return render_template("index.html", signed_url=signed_url)
+    return render_template("index.html")
 
 
 @app.route("/file_upload", methods=["POST"])
@@ -66,12 +78,21 @@ def file_upload() -> str:
 
     files = request.files.getlist("files")
 
-    uploaded_filenames = save_files_to_temp_directory(files, temp_dir)
+    status_messages: List[str] = []
 
-    if not uploaded_filenames:
-        return render_template("index.html", message_error="No valid files provided")
+    for file in files:
+        if file.content_type not in ACCEPTED_MIME_TYPES:
+            status_messages.append(
+                f"Unable to process file: {file.filename} - Invalid Mime Type: {file.content_type}"
+            )
+            continue
 
-    status_messages = run_docai_pipeline(uploaded_filenames, FIRESTORE_COLLECTION)
+        upload_file_to_gcs(
+            file.stream,
+            bucket_name=CLOUD_STORAGE_BUCKET,
+            object_name=f"{CLOUD_STORAGE_PREFIX}/{file.filename}",
+            mime_type=file.content_type,
+        )
 
     return render_template(
         "index.html",
@@ -94,34 +115,6 @@ def handle_exception(ex):
         "index.html",
         message_error=str(ex),
     )
-
-
-def generate_upload_signed_url_v4(bucket_name, blob_name) -> str:
-    """Generates a v4 signed URL for uploading a blob using HTTP PUT.
-
-    Note that this method requires a service account key file. You can not use
-    this if you are using Application Default Credentials from Google Compute
-    Engine or from the Google Cloud SDK.
-    """
-
-    credentials, project = auth.default()
-    credentials.refresh(auth.transport.requests.Request())
-
-    expiration_timedelta = dt.timedelta(days=1)
-
-    storage_client = storage.Client(credentials=credentials)
-    bucket = storage_client.get_bucket(bucket_name)
-    blob = bucket.get_blob(blob_name)
-
-    signed_url = blob.generate_signed_url(
-        version="v4",
-        expiration=expiration_timedelta,
-        service_account_email=credentials.service_account_email,
-        access_token=credentials.token,
-        method="POST",
-    )
-
-    return signed_url
 
 
 if __name__ == "__main__":

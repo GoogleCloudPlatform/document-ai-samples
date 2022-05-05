@@ -26,8 +26,15 @@
 
         <!-- Successful Processing Confirmation-->
         {% elif message_success %}
-        <p>{{ message_success }}</p>
-        {% else %}
+        <p>{{message_success}}</p>
+        <!-- Display Status Updates -->
+        {% if status_messages %}
+        <pre class="status-messages">
+            {% for message in status_messages %}
+            {{message}}
+            {% endfor %}
+        </pre>
+        {% endif %}
         <!-- Introductory Page -->
         <div id="upload-prompt">
             <p><b>Instructions:</b> Upload PDF(s) of Invoices</p>
