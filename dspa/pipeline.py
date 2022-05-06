@@ -74,12 +74,12 @@ def bulk_pipeline():
         job = write_to_bq(all_document_entities)
         print(job)
 
-    print("Cleaning up Cloud Storage Buckets")
-    cleanup_gcs(
-        input_bucket=GCS_INPUT_BUCKET,
-        input_prefix=GCS_INPUT_PREFIX,
-        archive_bucket=GCS_ARCHIVE_BUCKET,
-    )
+    # print("Cleaning up Cloud Storage Buckets")
+    # cleanup_gcs(
+    #     input_bucket=GCS_INPUT_BUCKET,
+    #     input_prefix=GCS_INPUT_PREFIX,
+    #     archive_bucket=GCS_ARCHIVE_BUCKET,
+    # )
 
 
 def batch_process_bulk(
@@ -99,6 +99,10 @@ def batch_process_bulk(
         if len(batch) <= 0:
             continue
 
+        # TODO: Remove when testing is complete
+        if i > 1:
+            break
+
         print(f"Processing Document Batch {i}: {len(batch)} documents")
 
         batch_process_metadata = batch_process_documents(
@@ -106,6 +110,8 @@ def batch_process_bulk(
             document_batch=batch,
             gcs_output_uri=gcs_output_uri,
         )
+
+        print(batch_process_metadata.state_message)
 
         batch_process_results.append(batch_process_metadata)
 
@@ -125,9 +131,8 @@ def post_processing_splitting(
     classifications: Set[str] = set()
     for result in batch_process_results:
         output_documents = get_batch_process_output(result)
-
         for document in output_documents:
-            classifications.union(
+            classifications = classifications.union(
                 split_pdf_gcs(document, gcs_split_bucket, gcs_split_prefix)
             )
     return classifications

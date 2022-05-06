@@ -22,7 +22,7 @@ def split_pdf_gcs(
     # Download original PDF from GCS
     input_bucket_name, object_name = split_gcs_uri(document.uri)
 
-    if ".pdf" not in object_name:
+    if ".pdf" not in object_name.lower():
         print(f"Input file {object_name} is not a PDF")
         return set()
 
@@ -32,6 +32,8 @@ def split_pdf_gcs(
 
     classifications: Set[str] = set()
 
+    print(f"Creating subdocuments of {object_name}")
+
     with Pdf.open(BytesIO(input_file_blob.download_as_bytes())) as original_pdf:
         # Extract SubDocuments for each entity
         for entity in document.entities:
@@ -40,8 +42,12 @@ def split_pdf_gcs(
 
             # Get Page Range for SubDocument
             for page_ref in entity.page_anchor.page_refs:
-                subdoc.pages.append(original_pdf.pages[int(page_ref.page)])
-                suffix = f"{suffix}-{page_ref.page}"
+                try:
+                    subdoc.pages.append(original_pdf.pages[int(page_ref.page)])
+                    suffix = f"{suffix}-{page_ref.page}"
+                except IndexError:
+                    print(f"Page {page_ref.page} does not exist in {object_name}")
+                    continue
 
             # Split Output Sub-Document File Name
             subdoc_name = (
@@ -49,7 +55,7 @@ def split_pdf_gcs(
             )
             classifications.add(entity.type_)
 
-            print(f"Creating subdocument - {subdoc_name}.")
+            print(f"gs://{gcs_output_bucket}/{subdoc_name}")
 
             # Save Sub-PDF to Memory
             subdoc_bytes = BytesIO()

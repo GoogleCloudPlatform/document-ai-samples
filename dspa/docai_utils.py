@@ -95,7 +95,8 @@ def get_batch_process_output(
     # Should be one process for each source file
     for process in metadata.individual_process_statuses:
         # URI: gs://BUCKET/PREFIX/OPERATION_NUMBER/0
-        blobs = get_blobs_from_gcs_uri(process.output_gcs_destination)
+        # Trailing / added to prevent "/1/" "/10/" ambiguity
+        blobs = get_blobs_from_gcs_uri(f"{process.output_gcs_destination}/")
 
         # DocAI may output multiple JSON files per source file
         for blob in blobs:

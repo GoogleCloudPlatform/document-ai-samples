@@ -79,7 +79,6 @@ def create_batches(
         if len(batch) == batch_size:
             batches.append(batch)
             batch = []
-            break
 
         batch.append(
             documentai.GcsDocument(
@@ -88,8 +87,7 @@ def create_batches(
             )
         )
 
-    # batches.append(batch)
-
+    batches.append(batch)
     return batches
 
 

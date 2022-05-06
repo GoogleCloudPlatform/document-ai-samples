@@ -50,8 +50,8 @@ GCS_PROJECT_ID = DEFAULT_PROJECT_ID
 # GCS_INPUT_BUCKET = f"{GCS_PROJECT_ID}-input-invoices"
 # GCS_INPUT_PREFIX = "upload"
 
-GCS_INPUT_BUCKET = "pdai-dspa-invoices"
-GCS_INPUT_PREFIX = "invoice_ingest"
+GCS_INPUT_BUCKET = "pdai-sandbox-input-invoices"
+GCS_INPUT_PREFIX = ""
 
 GCS_SPLIT_BUCKET = f"{GCS_PROJECT_ID}-split-invoices"
 GCS_SPLIT_PREFIX = "split"
