@@ -41,6 +41,10 @@ def bulk_pipeline():
     Sends Split PDFs to mapped Document AI Specialized Processor
     """
 
+    print(
+        f"Processing gs://{GCS_INPUT_BUCKET}/{GCS_INPUT_PREFIX} with {CUSTOM_SPLITTER_PROCESSOR}"
+    )
+
     # Splitter/Classifier Batch Processing
     batch_process_results = batch_process_bulk(
         gcs_input_bucket=GCS_INPUT_BUCKET,
@@ -153,6 +157,3 @@ def post_processing_extraction(
             all_document_entities.append(entities)
 
     return all_document_entities
-
-
-bulk_pipeline()
