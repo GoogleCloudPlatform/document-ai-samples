@@ -1,0 +1,4 @@
+cron:
+- description: "daily document processing"
+  url: /process_documents
+  schedule: every 24 hours

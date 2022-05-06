@@ -1,8 +1,0 @@
-typing
-
-google-api-core
-google-cloud-storage
-
-Flask
-gunicorn
-werkzeug

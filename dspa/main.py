@@ -23,6 +23,8 @@ from google.cloud import storage
 from flask import Flask, render_template, request
 from werkzeug.exceptions import HTTPException
 
+from pipeline import bulk_pipeline
+
 app = Flask(__name__)
 
 CLOUD_STORAGE_BUCKET = os.environ["CLOUD_STORAGE_BUCKET"]
@@ -96,9 +98,19 @@ def file_upload() -> str:
 
     return render_template(
         "index.html",
-        message_success="Successfully uploaded & processed files",
+        message_success="Successfully uploaded files",
         status_messages=status_messages,
     )
+
+
+@app.route("/process_documents")
+def process_documents() -> str:
+    """
+    Run Document processing Pipeline
+    Intended to be called by cron job
+    """
+    bulk_pipeline()
+    return "Successfully Processed Files"
 
 
 @app.errorhandler(Exception)
