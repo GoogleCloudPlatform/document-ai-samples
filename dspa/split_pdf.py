@@ -1,3 +1,5 @@
+# type: ignore[1]
+# pylint: skip-file
 """
 Split PDF File into SubDocuments based on DocAI Splitter-Classifier Output
 """

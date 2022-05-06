@@ -1,3 +1,4 @@
+# type: ignore[1]
 """
 Document AI Utility Functions
 """
@@ -6,8 +7,6 @@ from typing import Dict, List
 from google.protobuf.json_format import ParseError
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai_v1 as documentai
-
-from consts import TIMEOUT
 
 from gcs_utils import get_blobs_from_gcs_uri
 

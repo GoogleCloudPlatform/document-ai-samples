@@ -1,3 +1,4 @@
+# type: ignore[1]
 """
 Sends Documents to Document AI Specialized Processor
 Saves Extracted Info to BigQuery
@@ -74,12 +75,12 @@ def bulk_pipeline():
         job = write_to_bq(all_document_entities)
         print(job)
 
-    # print("Cleaning up Cloud Storage Buckets")
-    # cleanup_gcs(
-    #     input_bucket=GCS_INPUT_BUCKET,
-    #     input_prefix=GCS_INPUT_PREFIX,
-    #     archive_bucket=GCS_ARCHIVE_BUCKET,
-    # )
+    print("Cleaning up Cloud Storage Buckets")
+    cleanup_gcs(
+        input_bucket=GCS_INPUT_BUCKET,
+        input_prefix=GCS_INPUT_PREFIX,
+        archive_bucket=GCS_ARCHIVE_BUCKET,
+    )
 
 
 def batch_process_bulk(
@@ -98,10 +99,6 @@ def batch_process_bulk(
 
         if len(batch) <= 0:
             continue
-
-        # TODO: Remove when testing is complete
-        if i > 1:
-            break
 
         print(f"Processing Document Batch {i}: {len(batch)} documents")
 
