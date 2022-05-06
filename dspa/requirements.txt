@@ -3,6 +3,8 @@ typing
 google-api-core
 google-cloud-documentai>=1.4.0
 google-cloud-storage
+google-cloud-bigquery
+
 protobuf
 
 pikepdf
