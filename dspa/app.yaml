@@ -1,6 +1,1 @@
-# TODO: Automate adding project ID/bucket name
 runtime: python310 # or another supported version
-env_variables:
-    PROJECT_ID: pdai-sandbox
-    CLOUD_STORAGE_BUCKET: pdai-sandbox-input-invoices
-    CLOUD_STORAGE_PREFIX: upload

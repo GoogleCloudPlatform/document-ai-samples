@@ -23,17 +23,13 @@
     <main id="active-area">
         {% if message_error %}
         <p>{{ message_error }}</p>
-
-        <!-- Successful Processing Confirmation-->
-        {% elif message_success %}
-        <p>{{message_success}}</p>
         <!-- Display Status Updates -->
-        {% if status_messages %}
+        {% elif status_messages %}
         <pre class="status-messages">
-            {% for message in status_messages %}
-            {{message}}
-            {% endfor %}
-        </pre>
+                {% for message in status_messages %}
+                {{message}}
+                {% endfor %}
+            </pre>
         {% else %}
         <!-- Introductory Page -->
         <div id="upload-prompt">

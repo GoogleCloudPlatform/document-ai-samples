@@ -16,40 +16,20 @@
 """Flask Web Server"""
 
 import os
-from typing import List, Any
-
-from google.cloud import storage
+from typing import List
 
 from flask import Flask, render_template, request
 from werkzeug.exceptions import HTTPException
 
+from consts import GCS_INPUT_BUCKET, GCS_INPUT_PREFIX, ACCEPTED_MIME_TYPES
 from pipeline import bulk_pipeline
+from gcs_utils import upload_file_to_gcs
 
 app = Flask(__name__)
-
-CLOUD_STORAGE_BUCKET = os.environ["CLOUD_STORAGE_BUCKET"]
-CLOUD_STORAGE_PREFIX = os.environ["CLOUD_STORAGE_PREFIX"]
-PROJECT_ID = os.environ["PROJECT_ID"]
-
-PDF_MIME_TYPE = "application/pdf"
-ACCEPTED_MIME_TYPES = set({PDF_MIME_TYPE})
 
 APP_DETAILS = {
     "title": "Document AI: DSPA Invoices",
 }
-
-storage_client = storage.Client(project=PROJECT_ID)
-
-
-def upload_file_to_gcs(
-    file_obj: Any, bucket_name: str, object_name: str, mime_type: str
-) -> None:
-    """
-    Upload file to GCS
-    """
-    storage_client.bucket(bucket_name).blob(object_name).upload_from_file(
-        file_obj, content_type=mime_type
-    )
 
 
 @app.context_processor
@@ -91,14 +71,14 @@ def file_upload() -> str:
 
         upload_file_to_gcs(
             file.stream,
-            bucket_name=CLOUD_STORAGE_BUCKET,
-            object_name=f"{CLOUD_STORAGE_PREFIX}/{file.filename}",
+            bucket_name=GCS_INPUT_BUCKET,
+            object_name=f"{GCS_INPUT_PREFIX}/{file.filename}",
             mime_type=file.content_type,
         )
+        status_messages.append(f"Uploaded file: {file.filename}")
 
     return render_template(
         "index.html",
-        message_success="Successfully uploaded files",
         status_messages=status_messages,
     )
 
