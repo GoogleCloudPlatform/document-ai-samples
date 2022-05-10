@@ -26,3 +26,12 @@ gsutil mb -p ${PROJECT_ID} -c standard -l ${BUCKET_LOCATION} -b on ${SPLIT_BUCKE
 gsutil mb -p ${PROJECT_ID} -c standard -l ${BUCKET_LOCATION} -b on ${OUTPUT_BUCKET}
 
 gsutil mb -p ${PROJECT_ID} -c standard -l ${BUCKET_LOCATION} -b on ${ARCHIVE_BUCKET}
+
+# Deploy App Engine App
+export APP_ENGINE_PROJECT_ID=google.com:dspa-invoice
+
+gcloud app deploy app.yaml --project=${APP_ENGINE_PROJECT_ID}
+
+gcloud app deploy cron.yaml --project=${APP_ENGINE_PROJECT_ID}
+
+# Grant App Engine Service Account Access to DocAI, Buckets & BigQuery

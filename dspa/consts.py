@@ -47,11 +47,8 @@ DOCUMENT_PROCESSOR_MAP = {
 # GCS
 GCS_PROJECT_ID = DEFAULT_PROJECT_ID
 
-# GCS_INPUT_BUCKET = f"{GCS_PROJECT_ID}-input-invoices"
-# GCS_INPUT_PREFIX = "upload"
-
 # Bucket/Directory for original PDFs
-GCS_INPUT_BUCKET = "pdai-sandbox-input-invoices"
+GCS_INPUT_BUCKET = f"{GCS_PROJECT_ID}-input-invoices"
 GCS_INPUT_PREFIX = "upload"
 
 # Bucket/Directory for PDFs after splitting

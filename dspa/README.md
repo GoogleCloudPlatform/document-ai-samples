@@ -1,4 +1,4 @@
-# Document AI Specialized Pipeline
+# Document AI DSPA Invoice Parser Demo
 
 This example illustrates how to create an automated pipeline using a Specialized Splitter-Classifier and multiple Specialized Parsers
 
@@ -6,7 +6,7 @@ This example illustrates how to create an automated pipeline using a Specialized
 
 1. Clone Repo
 
-    `git clone <https://github.com/GoogleCloudPlatform/document-ai-samples.git>`
+    `git clone https://github.com/GoogleCloudPlatform/document-ai-samples.git`
 
 1. Switch to Branch
 
@@ -14,22 +14,25 @@ This example illustrates how to create an automated pipeline using a Specialized
 
 1. Enter Directory
 
-    `cd document-ai-samples/specialized-pipeline`
+    `cd document-ai-samples/dspa`
 
-1. Install Dependencies
+1. Add Project Configuration Information to [`consts.py`](consts.py) and [`setup/setup.sh`](setup/setup.sh)
 
-    `pip3 install -r requirements.txt`
+    - Project ID(s)
+    - Document AI Processors
+    - Cloud Storage Buckets
+    - BigQuery Datasets/Tables
 
-1. Add Project Information in [`consts.py`](consts.py)
+1. Create Resources & Deploy Application
 
-    ```py
-    PROJECT_ID = "PROJECT_ID"
-    LOCATION = "us"
-    PROCESSOR_ID = "PROCESSOR_ID"
-    ```
+    `bash setup/setup.sh`
 
-1. Add Document PDFs to the Cloud Storage bucket named `{PROJECT_ID}-input-invoices`
+1. Grant App Engine Service Account IAM Permissions
 
-1. Run the Code
+    - Document AI Viewer
+    - BigQuery Data Editor
+    - Storage Admin (Project and Bucket Level)
 
-    `python3 pipeline.py`
+1. For manual running of the pipeline, Add Document PDFs to the Cloud Storage Bucket and directory (`GCS_INPUT_BUCKET` `GCS_INPUT_PREFIX`) specified in `consts.py` and run the function `bulk_pipeline()` in [`pipeline.py`](pipeline.py)
+
+1. In the deployed Web Application, upload files on the homepage and the processing pipeline will be initiated by a cron job at endpoint `/process_documents`
