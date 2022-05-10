@@ -2,6 +2,7 @@
 """
 Document AI Utility Functions
 """
+import logging
 from typing import Dict, List
 
 from google.protobuf.json_format import ParseError
@@ -39,6 +40,7 @@ def batch_process_documents(
     processor: Dict,
     document_batch: List[documentai.GcsDocument],
     gcs_output_uri: str,
+    skip_human_review: bool = True,
 ) -> documentai.BatchProcessMetadata:
     """
     Constructs requests to process documents using the Document AI
@@ -68,12 +70,14 @@ def batch_process_documents(
         name=resource_name,
         input_documents=input_config,
         document_output_config=output_config,
+        skip_human_review=skip_human_review,
     )
 
     operation = docai_client.batch_process_documents(request)
 
     # The API supports limited concurrent requests.
-    print(f"Waiting for operation {operation.operation.name}")
+    logging.info("Waiting for operation %s to complete...", operation.operation.name)
+    # No Timeout Set
     operation.result()
 
     return documentai.BatchProcessMetadata(operation.metadata)
@@ -87,7 +91,8 @@ def get_batch_process_output(
     """
 
     if metadata.state != documentai.BatchProcessMetadata.State.SUCCEEDED:
-        raise ValueError(f"Batch Process Failed: {metadata.state_message}")
+        logging.error("Batch Process failed: %s", metadata.state_message)
+        return []
 
     documents: List[documentai.Document] = []
 
@@ -101,7 +106,7 @@ def get_batch_process_output(
         for blob in blobs:
             # Document AI should only output JSON files to GCS
             if ".json" not in blob.name:
-                print(f"Skipping non-supported file type {blob.name}")
+                logging.error("Skipping non-json file: %s", blob.name)
                 continue
             try:
                 print("Fetching from " + blob.name)
@@ -113,7 +118,7 @@ def get_batch_process_output(
                 output_document.uri = process.input_gcs_source
                 documents.append(output_document)
             except ParseError:
-                print(f"Failed to parse {blob.name}")
+                logging.error("Failed to parse: %s", blob.name)
                 continue
 
     return documents

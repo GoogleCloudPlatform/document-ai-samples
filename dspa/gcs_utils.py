@@ -3,6 +3,7 @@
 Cloud Storage Utility Functions
 """
 import re
+import logging
 
 from typing import List, Tuple, Any
 
@@ -21,8 +22,13 @@ storage_client = storage.Client()
 def split_gcs_uri(gcs_uri: str) -> Tuple[str, str]:
     """
     Split GCS URI into bucket and file path
+    GCS API requires the bucket name and URI prefix separately
     """
-    return re.match("gs://(.*?)/(.*)", gcs_uri).groups()
+    matches = re.match(r"gs://([^/]+)/(.+)", gcs_uri)
+    if matches:
+        return matches.groups()
+    logging.error("Invalid GCS URI: %s", gcs_uri)
+    return ("", "")
 
 
 def get_blob_from_gcs(bucket_name: str, object_name: str) -> storage.Blob:
@@ -37,6 +43,8 @@ def get_blobs_from_gcs_uri(gcs_uri: str) -> List[storage.Blob]:
     Get Blobs from GCS by URI
     """
     bucket_name, prefix = split_gcs_uri(gcs_uri)
+    if not bucket_name or not prefix:
+        return []
     return storage_client.list_blobs(bucket_name, prefix=prefix)
 
 
@@ -73,7 +81,9 @@ def create_batches(
     for blob in blob_list:
 
         if blob.content_type not in ACCEPTED_MIME_TYPES:
-            print(f"Invalid Mime Type {blob.content_type} - Skipping file {blob.name}")
+            logging.error(
+                "Invalid Mime Type %s - Skipping file %s", blob.content_type, blob.name
+            )
             continue
 
         if len(batch) == batch_size:
@@ -105,9 +115,7 @@ def cleanup_gcs(
     source_blobs = storage_client.list_blobs(input_bucket, prefix=input_prefix)
 
     for source_blob in source_blobs:
-        print(
-            f"Moving {input_bucket}/{source_blob.name} to {archive_bucket}/{source_blob.name}"
-        )
+        logging.info("Moving %s to %s", source_blob.name, archive_bucket)
         # Copy input files to archive bucket
         source_bucket.copy_blob(source_blob, destination_bucket, source_blob.name)
         # Delete Original Input Files

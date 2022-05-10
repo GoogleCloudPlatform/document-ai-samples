@@ -50,16 +50,26 @@ GCS_PROJECT_ID = DEFAULT_PROJECT_ID
 # GCS_INPUT_BUCKET = f"{GCS_PROJECT_ID}-input-invoices"
 # GCS_INPUT_PREFIX = "upload"
 
+# Bucket/Directory for original PDFs
 GCS_INPUT_BUCKET = "pdai-sandbox-input-invoices"
 GCS_INPUT_PREFIX = "upload"
 
+# Bucket/Directory for PDFs after splitting
 GCS_SPLIT_BUCKET = f"{GCS_PROJECT_ID}-split-invoices"
 GCS_SPLIT_PREFIX = "split"
 
+# Storage Bucket for Output document.json files
 GCS_OUTPUT_BUCKET = f"{GCS_PROJECT_ID}-output-invoices"
-GCS_OUTPUT_PREFIX = "processed"
-DESTINATION_URI = f"gs://{GCS_OUTPUT_BUCKET}/{GCS_OUTPUT_PREFIX}/"
 
+# Directory for Splitter/Classifier document.json files
+GCS_CLASSIFIER_OUTPUT_PREFIX = "classifier-output"
+CLASSIFIER_DESTINATION_URI = f"gs://{GCS_OUTPUT_BUCKET}/{GCS_CLASSIFIER_OUTPUT_PREFIX}/"
+
+# Directory for Specialized Parser document.json files
+GCS_PARSER_OUTPUT_PREFIX = "parser-output"
+PARSER_DESTINATION_URI = f"gs://{GCS_OUTPUT_BUCKET}/{GCS_PARSER_OUTPUT_PREFIX}/"
+
+# Bucket for Original PDF files after processing
 GCS_ARCHIVE_BUCKET = f"{GCS_PROJECT_ID}-archived-invoices"
 
 
@@ -70,17 +80,3 @@ BIGQUERY_TABLE_NAME = "dspa_extracted_entities"
 
 PDF_MIME_TYPE = "application/pdf"
 ACCEPTED_MIME_TYPES = set({PDF_MIME_TYPE})
-
-# ACCEPTED_MIME_TYPES = set(
-#     [
-#         "application/pdf",
-#         "image/bmp",
-#         "image/gif",
-#         "image/jpeg",
-#         "image/jpg",
-#         "image/png",
-#         "image/tif",
-#         "image/tiff",
-#         "image/webp",
-#     ]
-# )
