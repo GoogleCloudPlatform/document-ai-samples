@@ -13,6 +13,7 @@ on:
       - main
     paths:
       - "web-app-demo/**"
+permissions: {}
 jobs:
   frontend-unit:
     runs-on: ubuntu-latest
