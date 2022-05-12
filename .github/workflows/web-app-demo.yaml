@@ -56,7 +56,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          - name: 'Set up Cloud SDK'
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
       # Now you can run gcloud commands authenticated as the impersonated service account.
