@@ -52,7 +52,9 @@ class TestHelper(unittest.TestCase):
         processor_response = docai.types.ProcessResponse()
         processor_response.document = docai.types.Document()
         process_document_mock.return_value = processor_response
-        resp = process_document(process_document_request, processor_id_by_processor_type)
+        resp = process_document(
+            process_document_request, processor_id_by_processor_type
+        )
         self.assertIn("document", str(resp))
 
     @patch("helper.documentai.DocumentProcessorServiceClient.process_document")
@@ -74,7 +76,9 @@ class TestHelper(unittest.TestCase):
         processor_response = docai.types.ProcessResponse()
         processor_response.document = docai.types.Document()
         process_document_mock2.side_effect = Exception("Error")
-        resp = process_document(process_document_request, processor_id_by_processor_type)
+        resp = process_document(
+            process_document_request, processor_id_by_processor_type
+        )
         self.assertIn("ERROR", str(resp))
 
 
