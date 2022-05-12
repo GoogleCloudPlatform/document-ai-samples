@@ -45,7 +45,6 @@ jobs:
         with:
           workload_identity_provider: 'projects/983914101186/locations/global/workloadIdentityPools/document-ai-samples-repo/providers/docai-samples-repo-provider'
           service_account: 'document-ai-samples-repo@document-ai-samples-repo.iam.gserviceaccount.com'
-          create_credentials_file: 'true'
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
