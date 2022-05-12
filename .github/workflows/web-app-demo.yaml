@@ -57,7 +57,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v0'
+      
+      - uses: 'google-github-actions/setup-gcloud@v0'
       - id: 'gcloud'
       name: 'gcloud'
       run: |-
