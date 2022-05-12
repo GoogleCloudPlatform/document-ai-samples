@@ -1,7 +1,4 @@
 name: Web App Demo
-env:
-  WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-  OIDC_SERVICE_ACCOUNT: ${{ secrets.OIDC_SERVICE_ACCOUNT }}
 on:
   push:
     branches:
@@ -42,8 +39,8 @@ jobs:
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v0.4.0'
         with:
-            workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-            service_account: ${{ env.OIDC_SERVICE_ACCOUNT }}
+            workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+            service_account: ${{ secrets.OIDC_SERVICE_ACCOUNT }}
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup Python
