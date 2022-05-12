@@ -27,7 +27,7 @@ from helper import process_document  # pylint: disable=E0401
 _, project_id = google.auth.default()
 LOCATION = "us"  # Format is 'us' or 'eu'
 
-processor_id_by_processor_type: Dict[str, str] = {"OCR":"6d7af7fc640a7219"}
+processor_id_by_processor_type: Dict[str, str] = {"OCR": "6d7af7fc640a7219"}
 
 
 class TestHelper(unittest.TestCase):
