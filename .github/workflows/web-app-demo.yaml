@@ -1,7 +1,4 @@
 name: Web App Demo
-env:
-  WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-  OIDC_SERVICE_ACCOUNT: ${{ secrets.OIDC_SERVICE_ACCOUNT }}
 on:
   push:
     branches:
@@ -46,8 +43,8 @@ jobs:
         id: 'auth'
         uses: 'google-github-actions/auth@v0.4.0'
         with:
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ env.OIDC_SERVICE_ACCOUNT }}
+          workload_identity_provider: 'projects/983914101186/locations/global/workloadIdentityPools/document-ai-samples-repo/providers/docai-samples-repo-provider'
+          service_account: 'document-ai-samples-repo@document-ai-samples-repo.iam.gserviceaccount.com'
           create_credentials_file: 'true'
       - name: Setup Python
         uses: actions/setup-python@v3
