@@ -21,9 +21,9 @@ jobs:
         working-directory: ./web-app-demo/Frontend
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '14'
       - name: Install dependencies
@@ -39,7 +39,7 @@ jobs:
         working-directory: ./web-app-demo/Backend
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
