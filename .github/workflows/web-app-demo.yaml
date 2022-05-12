@@ -42,8 +42,8 @@ jobs:
       id-token: 'write'
     steps:
       - uses: actions/checkout@v3
-      - id: 'auth'
-        name: 'Authenticate to GCP'
+      - name: 'Authenticate to GCP'
+        id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
           workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
