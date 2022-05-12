@@ -25,7 +25,7 @@ from google.cloud import documentai_v1beta3 as docai
 from helper import process_document  # pylint: disable=E0401
 
 _, project_id = google.auth.default()
-LOCATION = "my-location"  # Format is 'us' or 'eu'
+LOCATION = "us"  # Format is 'us' or 'eu'
 
 processor_id_by_processor_type: Dict[str, str] = {}
 
@@ -42,9 +42,9 @@ class TestHelper(unittest.TestCase):
         )
 
         process_document_request = {
-            "project_id": "my-project-id",
+            "project_id": project_id,
             "location": LOCATION,
-            "processor_id": "test-OCR-ID",
+            "processor_id": "6d7af7fc640a7219",
             "file_path": os.path.join(__location__, "test_docs/file"),
             "file_type": "application/pdf",
         }
@@ -64,9 +64,9 @@ class TestHelper(unittest.TestCase):
         )
 
         process_document_request = {
-            "project_id": "my-project-id",
+            "project_id": project_id,
             "location": LOCATION,
-            "processor_id": "test-OCR-ID",
+            "processor_id": "6d7af7fc640a7219",
             "file_path": os.path.join(__location__, "test_docs/file"),
             "file_type": "application/pdf",
         }
