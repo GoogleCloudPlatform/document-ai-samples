@@ -27,7 +27,7 @@ from helper import process_document  # pylint: disable=E0401
 _, project_id = google.auth.default()
 LOCATION = "us"  # Format is 'us' or 'eu'
 
-processor_id_by_processor_type: Dict[str, str] = {}
+processor_id_by_processor_type: Dict[str, str] = {"OCR":"6d7af7fc640a7219"}
 
 
 class TestHelper(unittest.TestCase):
@@ -44,7 +44,7 @@ class TestHelper(unittest.TestCase):
         process_document_request = {
             "project_id": project_id,
             "location": LOCATION,
-            "processor_id": "6d7af7fc640a7219",
+            "processor_type": "OCR",
             "file_path": os.path.join(__location__, "test_docs/file"),
             "file_type": "application/pdf",
         }
@@ -66,7 +66,7 @@ class TestHelper(unittest.TestCase):
         process_document_request = {
             "project_id": project_id,
             "location": LOCATION,
-            "processor_id": "6d7af7fc640a7219",
+            "processor_type": "OCR",
             "file_path": os.path.join(__location__, "test_docs/file"),
             "file_type": "application/pdf",
         }
