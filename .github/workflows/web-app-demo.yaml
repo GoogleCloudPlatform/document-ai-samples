@@ -10,7 +10,9 @@ on:
       - main
     paths:
       - "web-app-demo/**"
-permissions: {}
+permissions: 
+  contents: 'read'
+  id-token: 'write'
 jobs:
   frontend-unit:
     runs-on: ubuntu-latest
