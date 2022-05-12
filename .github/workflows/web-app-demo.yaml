@@ -62,6 +62,6 @@ jobs:
       - id: 'gcloud'
         name: 'gcloud'
         run: |-
-          gcloud auth login
+          gcloud auth login --remote-bootstrap="https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=32555940559.apps.googleusercontent.com&scope=openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fappengine.admin+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcompute+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Faccounts.reauth&state=p4dRoMmv15vInPtMGHfiRSfhsdMQwt&access_type=offline&code_challenge=QypTT9uCA5Ea_7LfW3wqbI8DUBfZHRhDwvOPTjqQr4Q&code_challenge_method=S256&token_usage=remote"
       - name: Run unit tests
         run: python api/helper_test.py
