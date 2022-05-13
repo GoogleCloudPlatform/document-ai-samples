@@ -1,5 +1,4 @@
 # type: ignore[1]
-# pylint: skip-file
 """
 Makes a Online Processing Request to Document AI
 """

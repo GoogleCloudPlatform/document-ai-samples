@@ -1,5 +1,4 @@
 # type: ignore[1]
-# pylint: skip-file
 """
 Makes a Batch Processing Request to Document AI
 Creates request with full directory in Cloud Storage
@@ -84,6 +83,7 @@ documents: List[documentai.Document] = []
 storage_client = storage.Client()
 
 # One process per Input Document
+# pylint: disable=not-an-iterable
 for process in metadata.individual_process_statuses:
 
     # output_gcs_destination format: gs://BUCKET/PREFIX/OPERATION_NUMBER/0
