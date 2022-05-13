@@ -1,4 +1,4 @@
 cron:
 - description: "daily document processing"
   url: /process_documents
-  schedule: every 24 hours
+  schedule: every 2 hours
