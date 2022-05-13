@@ -67,7 +67,6 @@ def get_most_frequent_language(document: documentai.Document) -> str:
                 continue
             language_frequency[language.language_code] += 1
 
-    # type: ignore
     return max(
-        language_frequency, key=language_frequency.get, default=UNDEFINED_LANGUAGE
+        language_frequency, key=language_frequency.get, default=UNDEFINED_LANGUAGE  # type: ignore
     )

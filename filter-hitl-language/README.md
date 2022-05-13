@@ -1,23 +1,9 @@
-# Filtering Documents post-HITL by language
+# Sorting post-HITL Documents by language
 
-This project uses the languages detected by Document AI (post-HITL) to sort the `Document.json` files into separate Cloud Storage buckets
+This project uses the languages detected by Document AI (post-HITL) to sort the `Document.json` files into separate Cloud Storage buckets.
+The document files are sorted by the most frequent language in the document, if there are multiple detected.
 
-## Setup
-
-
-<!-- ### Setup Google Cloud
-
-1. Install the Cloud SDK: <https://cloud.google.com/sdk/docs/install>
-2. Run `gcloud init`, to
-    [create a new project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project),
-    and
-    [link a billing to your project](https://cloud.google.com/sdk/gcloud/reference/billing)
-3. Enable the Document AI API:
-    `gcloud services enable documentai.googleapis.com`
-4. Setup application default authentication, run:
-    `gcloud auth application-default login` -->
-
-### Running the sample
+## Running the sample
 
 1. Install the prerequisites: `pip install -r requirements.txt`
 

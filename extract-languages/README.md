@@ -1,23 +1,8 @@
-# Document AI PDF Splitter Sample
+# Document AI Language Extraction Sample
 
-This project uses the Document AI API to split PDF documents.
+This sample uses the Document AI API to detect the languages in a multi-page document.
 
-## Setup
-
-
-<!-- ### Setup Google Cloud
-
-1. Install the Cloud SDK: <https://cloud.google.com/sdk/docs/install>
-2. Run `gcloud init`, to
-    [create a new project](https://cloud.google.com/resource-manager/docs/creating-managing-projects#creating_a_project),
-    and
-    [link a billing to your project](https://cloud.google.com/sdk/gcloud/reference/billing)
-3. Enable the Document AI API:
-    `gcloud services enable documentai.googleapis.com`
-4. Setup application default authentication, run:
-    `gcloud auth application-default login` -->
-
-### Running the sample
+## Running the sample
 
 1. Install the prerequisites: `pip install -r requirements.txt`
 
