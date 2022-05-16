@@ -42,7 +42,7 @@ class TestHelper(unittest.TestCase):
 
         mocked_client_instance = MagicMock()
 
-                # Mock process document API call to use a fake API response
+        # Mock process document API call to use a fake API response
         mocked_client_instance.process_document.return_value = (
             docai.types.ProcessResponse(
                 document=docai.types.Document(
