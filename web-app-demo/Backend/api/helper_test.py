@@ -17,25 +17,48 @@
 import os
 import unittest
 from typing import Dict
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-import google.auth
 from google.cloud import documentai_v1beta3 as docai
 
 from helper import process_document  # pylint: disable=E0401
 
-_, project_id = google.auth.default()
-LOCATION = "us"  # Format is 'us' or 'eu'
-
 processor_id_by_processor_type: Dict[str, str] = {"OCR": "6d7af7fc640a7219"}
+
+PROCESSOR_TYPE = "processor-type"
+
+PROJECT_ID = "project-id"
+LOCATION = "location"
+PROCESSOR_ID = "processor-id"
+PROCESSOR_NAME = f"projects/{PROJECT_ID}/locations/{LOCATION}/processors/{PROCESSOR_ID}"
 
 
 class TestHelper(unittest.TestCase):
     """Testing helper functions"""
 
-    @patch("helper.documentai.DocumentProcessorServiceClient.process_document")
+    @patch("helper.documentai.DocumentProcessorServiceClient")
     def test_process_document_normal(self, process_document_mock):
         """Tests process document in a normal case"""
+
+        mocked_client_instance = MagicMock()
+
+                # Mock process document API call to use a fake API response
+        mocked_client_instance.process_document.return_value = (
+            docai.types.ProcessResponse(
+                document=docai.types.Document(
+                    entities=[
+                        docai.types.Document.Entity(
+                            page_anchor=docai.types.Document.PageAnchor(
+                                page_refs=[
+                                    docai.types.Document.PageAnchor.PageRef(page=0),
+                                    docai.types.Document.PageAnchor.PageRef(page=1),
+                                ]
+                            )
+                        )
+                    ]
+                )
+            )
+        )
 
         __location__ = os.path.realpath(
             os.path.join(os.getcwd(), os.path.dirname(__file__))
@@ -51,7 +74,7 @@ class TestHelper(unittest.TestCase):
 
         processor_response = docai.types.ProcessResponse()
         processor_response.document = docai.types.Document()
-        process_document_mock.return_value = processor_response
+        process_document_mock.return_value = mocked_client_instance
         resp = process_document(
             process_document_request, processor_id_by_processor_type
         )
