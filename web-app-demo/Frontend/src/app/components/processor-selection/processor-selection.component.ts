@@ -71,26 +71,6 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
    * @return {void}
    */
   async ngOnInit(): Promise<void> {
-    this.url = location.href.split("-");
-    this.url.splice(0, 3);
-
-    this.backend = "https://backend-" + this.url.join("-");
-    await fetch(this.backend + "api/init", {
-      method: "GET",
-      mode: "cors",
-    })
-      .then(async (response) => {
-        const json = await response.json();
-        if (json["resultStatus"] == "ERROR") {
-          throw new Error(json.errorMessage);
-        }
-      })
-      .catch((error) => {
-        this.data.changeShowError(true);
-        this.data.changeErrorMessage(error);
-      });
-    this.getAvailableProcessors();
-
     this.subscription = this.data.processor.subscribe(
       (message) => (this.processor = message)
     );
@@ -125,36 +105,6 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
     ) {
       this.data.changeProcessor(this.selectedProcessor);
     }
-  }
-
-  /**
-   * gets the available processors
-   * @return {void}
-   */
-  getAvailableProcessors() {
-    fetch(this.backend + "api/processor/list", {
-      method: "GET",
-      mode: "cors",
-    })
-      .then(async (response) => {
-        const json = await response.json();
-        if (json["resultStatus"] == "ERROR") {
-          throw new Error(json["errorMessage"]);
-        }
-        const retrievedProcessor = json["processor_list"];
-
-        for (let i = 0; i < retrievedProcessor.length; i++) {
-          const key = retrievedProcessor[i].split("_")[0];
-          const value = retrievedProcessor[i];
-
-          this.processorSelectionList.push(key);
-          this.processorList[key] = value;
-        }
-      })
-      .catch((error) => {
-        this.data.changeShowError(true);
-        this.data.changeErrorMessage(error);
-      });
   }
 
   /**
