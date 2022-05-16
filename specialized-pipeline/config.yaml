@@ -1,0 +1,18 @@
+project_id: YOUR_PROJECT_ID # Default Project ID
+location: LOCATION # Default Location (us or eu)
+document_ai:
+    # Populated with processor info by setup.py
+cloud_storage:
+    region: us-central1
+    # Bucket containing original files before processing
+    input_bucket: INPUT_BUCKET_NAME # Format: bucket-name
+    input_prefix: INPUT_PREFIX # Format directory/subdirectory
+    # Bucket for output Document.json files
+    output_bucket: OUTPUT_BUCKET_NAME
+    output_prefix: OUTPUT_PREFIX
+    # Bucket for files split by classification
+    split_bucket: SPLIT_BUCKET_NAME
+    split_prefix: SPLIT_PREFIX
+    # Bucket for original files after processing
+    archive_bucket: ARCHIVE_BUCKET
+    archive_prefix: ARCHIVE_PREFIX

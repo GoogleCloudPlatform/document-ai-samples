@@ -1,6 +1,8 @@
 # Document AI Specialized Pipeline
 
-This example illustrates how to create an automated pipeline using a Specialized Splitter-Classifier and multiple Specialized Parsers
+This example illustrates how to create an automated pipeline using a Specialized Splitter-Classifier and multiple Specialized Parsers.
+
+Includes examples for Online Processing with a small amount of documents, and Batch Processing for large quantities of documents.
 
 ## Setup steps
 

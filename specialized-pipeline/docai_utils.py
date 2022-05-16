@@ -1,22 +1,42 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Document AI Utility Functions"""
+import logging
 from typing import Dict, List
-import json
 
 from google.api_core.client_options import ClientOptions
 from google.protobuf.json_format import ParseError
 
 from google.cloud import documentai_v1 as documentai
-from google.cloud import storage
 
 from consts import (
-    PROJECT_ID,
-    LOCATION,
-    PROCESSOR_ID,
+    DEFAULT_PROJECT_ID,
+    DEFAULT_LOCATION,
     BATCH_MAX_FILES,
     TIMEOUT,
     ACCEPTED_MIME_TYPES,
+    SKIP_HUMAN_REVIEW,
 )
 
-storage_client = storage.Client()
+from gcs_utils import get_blobs_from_gcs_uri
+
+docai_client = documentai.DocumentProcessorServiceClient(
+    client_options=ClientOptions(
+        api_endpoint=f"{DEFAULT_LOCATION}-documentai.googleapis.com"
+    )
+)
 
 
 def extract_document_entities(document: documentai.Document) -> dict:
@@ -38,64 +58,63 @@ def extract_document_entities(document: documentai.Document) -> dict:
 
         document_entities.update({entity_key: entity_value})
 
+    document_entities.update({"input_filename": document.uri})
+
     return document_entities
 
 
-def create_batches(
-    input_bucket: str, input_prefix: str, batch_size: int = BATCH_MAX_FILES
-) -> List[List[documentai.GcsDocument]]:
+def online_process(
+    processor_name: str,
+    file_path: str = None,
+    mime_type: str = None,
+    inline_document: documentai.Document = None,
+    skip_human_review: bool = SKIP_HUMAN_REVIEW,
+) -> documentai.Document:
     """
-    Create batches of documents to process
+    Use Online processing on single document
     """
-    if batch_size > BATCH_MAX_FILES:
-        raise ValueError(
-            f"Batch size must be less than {BATCH_MAX_FILES}. "
-            f"You provided {batch_size}"
-        )
+    # Process Raw File
+    if file_path and mime_type:
+        if mime_type not in ACCEPTED_MIME_TYPES:
+            logging.error("File %s is unsupported MIME Type: %s", file_path, mime_type)
+            return documentai.Document()
 
-    blob_list = storage_client.list_blobs(input_bucket, prefix=input_prefix)
-
-    batches: List[List[documentai.GcsDocument]] = []
-    batch: List[documentai.GcsDocument] = []
-
-    for blob in blob_list:
-
-        if blob.content_type not in ACCEPTED_MIME_TYPES:
-            print(f"Invalid Mime Type {blob.content_type} - Skipping file {blob.name}")
-            continue
-
-        if len(batch) == batch_size:
-            batches.append(batch)
-            batch = []
-
-        batch.append(
-            documentai.GcsDocument(
-                gcs_uri=f"gs://{input_bucket}/{blob.name}",
-                mime_type=blob.content_type,
+        with open(file_path, "rb") as image:
+            request = documentai.ProcessRequest(
+                name=processor_name,
+                raw_document=documentai.RawDocument(
+                    content=image.read(),
+                    mime_type=mime_type,
+                ),
+                skip_human_review=skip_human_review,
             )
+    # Process Document Object
+    elif inline_document:
+        request = documentai.ProcessRequest(
+            name=processor_name,
+            inline_document=inline_document,
+            skip_human_review=skip_human_review,
         )
+    else:
+        logging.error("No file or document object provided")
+        return documentai.Document()
 
-    batches.append(batch)
+    result = docai_client.process_document(request=request)
 
-    return batches
+    return result.document
 
 
-def _batch_process_documents(
+def batch_process_documents(
+    processor_name: str,
+    document_batch: List[documentai.GcsDocument],
     gcs_output_uri: str,
-    input_bucket: str,
-    input_prefix: str,
-    batch_size: int = BATCH_MAX_FILES,
-) -> List[str]:
+    skip_human_review: bool = SKIP_HUMAN_REVIEW,
+) -> documentai.BatchProcessMetadata:
     """
-    Constructs a request to process a document using the Document AI
+    Constructs requests to process documents using the Document AI
     Batch Method.
+    Returns Batch Process Metadata
     """
-    docai_client = documentai.DocumentProcessorServiceClient(
-        client_options=ClientOptions(
-            api_endpoint=f"{LOCATION}-documentai.googleapis.com"
-        )
-    )
-    resource_name = docai_client.processor_path(PROJECT_ID, LOCATION, PROCESSOR_ID)
 
     output_config = documentai.DocumentOutputConfig(
         gcs_output_config=documentai.DocumentOutputConfig.GcsOutputConfig(
@@ -103,110 +122,63 @@ def _batch_process_documents(
         )
     )
 
-    batches = create_batches(input_bucket, input_prefix, batch_size)
-    operation_ids: List[str] = []
-
-    for i, batch in enumerate(batches):
-
-        print(f"Processing Document Batch {i}: {len(batch)} documents")
-
-        # Load GCS Input URI into a List of document files
-        input_config = documentai.BatchDocumentsInputConfig(
-            gcs_documents=documentai.GcsDocuments(documents=batch)
-        )
-        request = documentai.BatchProcessRequest(
-            name=resource_name,
-            input_documents=input_config,
-            document_output_config=output_config,
-        )
-
-        operation = docai_client.batch_process_documents(request)
-        operation_ids.append(operation.operation.name)
-
-        print(f"Waiting for operation {operation.operation.name}")
-        operation.result(timeout=TIMEOUT)
-
-    return operation_ids
-
-
-def get_document_protos_from_gcs(
-    output_bucket: str, output_directory: str
-) -> List[documentai.Document]:
-    """
-    Download document proto output from GCS. (Directory)
-    """
-
-    # List of all of the files in the directory
-    # `gs://gcs_output_uri/operation_id`
-    blob_list = storage_client.list_blobs(output_bucket, prefix=output_directory)
-
-    document_protos = []
-
-    for blob in blob_list:
-        print("Fetching from " + blob.name)
-
-        # Document AI should only output JSON files to GCS
-        if ".json" in blob.name:
-            # TODO: remove this when Document.from_json is fixed
-            blob_data = blob.download_as_text()
-            document_dict = json.loads(blob_data)
-
-            # Remove large fields
-            try:
-                del document_dict["pages"]
-                del document_dict["text"]
-            except KeyError:
-                pass
-            try:
-                document_proto = documentai.types.Document.from_json(
-                    json.dumps(document_dict).encode("utf-8")
-                )
-            except ParseError:
-                print(f"Failed to parse {blob.name}")
-                continue
-
-            document_protos.append(document_proto)
-        else:
-            print(f"Skipping non-supported file type {blob.name}")
-
-    return document_protos
-
-
-def cleanup_gcs(
-    input_bucket: str,
-    input_prefix: str,
-    output_bucket: str,
-    output_directory: str,
-    archive_bucket: str,
-):
-    """
-    Deleting the intermediate files created by the Doc AI Parser
-    Moving Input Files to Archive
-    """
-
-    delete_queue = []
-
-    # Intermediate document.json files
-    intermediate_files = storage_client.list_blobs(
-        output_bucket, prefix=output_directory
+    # Load GCS Input URI into a List of document files
+    input_config = documentai.BatchDocumentsInputConfig(
+        gcs_documents=documentai.GcsDocuments(documents=document_batch)
+    )
+    request = documentai.BatchProcessRequest(
+        name=processor_name,
+        input_documents=input_config,
+        document_output_config=output_config,
+        skip_human_review=skip_human_review,
     )
 
-    for blob in intermediate_files:
-        delete_queue.append(blob)
+    operation = docai_client.batch_process_documents(request)
 
-    # Copy input files to archive bucket
-    source_bucket = storage_client.bucket(input_bucket)
-    destination_bucket = storage_client.bucket(archive_bucket)
+    # The API supports limited concurrent requests.
+    logging.info("Waiting for operation %s to complete...", operation.operation.name)
+    # No Timeout Set
+    operation.result()
 
-    source_blobs = storage_client.list_blobs(input_bucket, prefix=input_prefix)
+    return documentai.BatchProcessMetadata(operation.metadata)
 
-    for source_blob in source_blobs:
-        print(
-            f"Moving {source_bucket}/{source_blob.name} to {archive_bucket}/{source_blob.name}"
-        )
-        source_bucket.copy_blob(source_blob, destination_bucket, source_blob.name)
-        delete_queue.append(source_blob)
 
-    for blob in delete_queue:
-        print(f"Deleting {blob.name}")
-        blob.delete()
+def get_batch_process_output(
+    metadata: documentai.BatchProcessMetadata,
+) -> List[documentai.Document]:
+    """
+    Retrieve Document Objects from GCS after Batch Processing
+    """
+
+    if metadata.state != documentai.BatchProcessMetadata.State.SUCCEEDED:
+        logging.error("Batch Process failed: %s", metadata.state_message)
+        return []
+
+    documents: List[documentai.Document] = []
+
+    # Should be one process for each source file
+    for process in metadata.individual_process_statuses:
+        # URI: gs://BUCKET/PREFIX/OPERATION_NUMBER/0
+        # Trailing / added to prevent "/1/" "/10/" ambiguity
+        blobs = get_blobs_from_gcs_uri(f"{process.output_gcs_destination}/")
+
+        # DocAI may output multiple JSON files per source file
+        for blob in blobs:
+            # Document AI should only output JSON files to GCS
+            if ".json" not in blob.name:
+                logging.error("Skipping non-json file: %s", blob.name)
+                continue
+            try:
+                print("Fetching from " + blob.name)
+                output_document = documentai.types.Document.from_json(
+                    blob.download_as_bytes(), ignore_unknown_fields=True
+                )
+
+                # Save Source File URI to Document Object
+                output_document.uri = process.input_gcs_source
+                documents.append(output_document)
+            except ParseError:
+                logging.error("Failed to parse: %s", blob.name)
+                continue
+
+    return documents
