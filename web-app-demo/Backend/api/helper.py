@@ -16,8 +16,8 @@
 """ Helper file that holds DocAI API calls"""
 from google.cloud.documentai_v1beta3 import (
     DocumentProcessorServiceClient,
-    Processor,
     Document,
+    ListProcessorsRequest,
     ProcessRequest,
     ProcessResponse,
 )
