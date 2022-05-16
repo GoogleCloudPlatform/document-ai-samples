@@ -81,5 +81,6 @@ class TestHelper(unittest.TestCase):
         )
         self.assertIn("document", str(resp))
 
+
 if __name__ == "__main__":
     unittest.main()
