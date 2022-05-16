@@ -23,25 +23,31 @@ INVOICE_PARSER_PROCESSOR = {
     "processor_id": "3a6970f87286a19c",
 }
 
-BILL_OF_LADING_PROCESSOR = {
+SHIPMENT_PROCESSOR = {
     "project_id": DEFAULT_PROJECT_ID,
     "location": DEFAULT_LOCATION,
-    "processor_id": "fc1a081baf610751",
+    "processor_id": "686616c9b347bf8",
+}
+
+PACKING_LIST_PROCESSOR = {
+    "project_id": DEFAULT_PROJECT_ID,
+    "location": DEFAULT_LOCATION,
+    "processor_id": "bdc9e21080d4505",
 }
 
 # Map of Document Classification to Processor
 DOCUMENT_PROCESSOR_MAP = {
-    "airway_bill": INVOICE_PARSER_PROCESSOR,
+    "airway_bill": SHIPMENT_PROCESSOR,
     "commercial_invoice": INVOICE_PARSER_PROCESSOR,
     "importer_security_filing": INVOICE_PARSER_PROCESSOR,
     "invoice_logistics": INVOICE_PARSER_PROCESSOR,
     "invoice_statement": INVOICE_PARSER_PROCESSOR,
-    "packing_list": INVOICE_PARSER_PROCESSOR,
-    "seaway_bill": INVOICE_PARSER_PROCESSOR,
+    "packing_list": PACKING_LIST_PROCESSOR,
+    "seaway_bill": SHIPMENT_PROCESSOR,
     "tax_invoice": INVOICE_PARSER_PROCESSOR,
     "other": INVOICE_PARSER_PROCESSOR,
-    "bill_of_lading": BILL_OF_LADING_PROCESSOR,
-    "bill_of_lading_supplement": BILL_OF_LADING_PROCESSOR,
+    "bill_of_lading": SHIPMENT_PROCESSOR,
+    "bill_of_lading_supplement": SHIPMENT_PROCESSOR,
 }
 
 # GCS
