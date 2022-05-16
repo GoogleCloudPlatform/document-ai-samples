@@ -34,6 +34,7 @@ PROCESSOR_ID = "processor-id"
 
 class TestHelper(unittest.TestCase):
     """Testing helper functions"""
+
     @patch("helper.DocumentProcessorServiceClient")
     # pylint: disable=no-self-use
     def test_process_document_normal(self, process_document_mock):
