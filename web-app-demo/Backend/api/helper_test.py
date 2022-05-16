@@ -30,7 +30,6 @@ PROCESSOR_TYPE = "processor-type"
 PROJECT_ID = "project-id"
 LOCATION = "location"
 PROCESSOR_ID = "processor-id"
-PROCESSOR_NAME = f"projects/{PROJECT_ID}/locations/{LOCATION}/processors/{PROCESSOR_ID}"
 
 
 class TestHelper(unittest.TestCase):
@@ -65,7 +64,7 @@ class TestHelper(unittest.TestCase):
         )
 
         process_document_request = {
-            "project_id": project_id,
+            "project_id": PROJECT_ID,
             "location": LOCATION,
             "processor_type": "OCR",
             "file_path": os.path.join(__location__, "test_docs/file"),
@@ -89,7 +88,7 @@ class TestHelper(unittest.TestCase):
         )
 
         process_document_request = {
-            "project_id": project_id,
+            "project_id": PROJECT_ID,
             "location": LOCATION,
             "processor_type": "OCR",
             "file_path": os.path.join(__location__, "test_docs/file"),
