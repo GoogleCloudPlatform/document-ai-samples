@@ -35,7 +35,19 @@ export class AppComponent {
   title = "Document AI Modular App";
   sharingClient = new DataSharingServiceService();
   public static backendURL = "";
+
+  processor!: string;
+  fileName: string = "";
+  file!: any;
+  showBounding!: boolean;
+  showError!: boolean;
+  documentProto!: any;
+  processIsDone!: boolean;
   subscription!: Subscription;
+  url!: string[];
+  backend!: string;
+  processorList: any = {};
+  processorSelectionList: string[] = [];
   
 
 
