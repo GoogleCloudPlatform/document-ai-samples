@@ -14,7 +14,7 @@
 
 # type: ignore[1]
 """Flask Web Server"""
-
+import logging
 import os
 from typing import List
 
@@ -89,6 +89,7 @@ def process_documents() -> str:
     Run Document processing Pipeline
     Intended to be called by cron job
     """
+    logging.info("Running Document Processing Pipeline")
     bulk_pipeline()
     return "Successfully Processed Files"
 
