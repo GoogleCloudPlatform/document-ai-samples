@@ -82,12 +82,20 @@ def bulk_pipeline():
         all_document_entities = post_processing_extraction(batch_process_results)
 
         # Write to BigQuery
+        logging.info("Writing %s entities to BQ", len(all_document_entities))
         write_to_bq(all_document_entities)
 
     logging.info("Cleaning up Cloud Storage Buckets")
+    # Move Input Files to Archive
     cleanup_gcs(
         input_bucket=GCS_INPUT_BUCKET,
         input_prefix=GCS_INPUT_PREFIX,
+        archive_bucket=GCS_ARCHIVE_BUCKET,
+    )
+    # Move Split Files to Archive
+    cleanup_gcs(
+        input_bucket=GCS_SPLIT_BUCKET,
+        input_prefix=GCS_SPLIT_PREFIX,
         archive_bucket=GCS_ARCHIVE_BUCKET,
     )
 
