@@ -12,3 +12,6 @@
 
 # @jiya-zhang is the default owner for the Expense Parser sample changes
 /expense-parser-python/ @jiya-zhang
+
+# @PicardParis is the default owner for the Identity Form Autofiller sample changes
+/identity-form-autofiller-python/ @PicardParis
