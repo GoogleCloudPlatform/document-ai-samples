@@ -1,11 +1,12 @@
 {
-    "threshold": 0,
-    "reporters": [
-      "consoleFull"
-    ],
-    "ignore": [
-      "**/__snapshots__/**",
-      "**/*_test.py"
-    ],
-    "absolute": true
-  }
+  "threshold": 0,
+  "reporters": [
+    "consoleFull"
+  ],
+  "ignore": [
+    "**/__snapshots__/**",
+    "**/*_test.py",
+    "**/*.md"
+  ],
+  "absolute": true
+}
