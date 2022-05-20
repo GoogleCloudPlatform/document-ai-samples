@@ -1,0 +1,123 @@
+:root {
+    --text-color: #3C4043;
+    --card-border-color: #BDC1C6;
+    --form-bg-color: #E8EAED;
+    --drop-zone-active: #C4E2CC;
+    --sl-tooltip-background-color: #80868B;
+    --caption-font-family: "Google Sans", "Roboto", Arial, Helvetica, sans-serif;
+    --text-font-family: "Roboto", Arial, Helvetica, sans-serif;
+    --mono-font-family: "Roboto Mono", "Cascadia Code", monospace;
+}
+
+html {
+    overflow-y: scroll;
+}
+
+body,
+sl-menu-item::part(base) {
+    font-family: var(--text-font-family);
+    color: var(--text-color);
+}
+
+h1 {
+    font-family: var(--caption-font-family);
+    font-size: 1.4em;
+    text-align: center;
+}
+
+.drop-zone-active {
+    background-color: var(--drop-zone-active);
+}
+
+sl-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    --border-color: var(--card-border-color);
+    --padding: var(--sl-spacing-small);
+}
+
+sl-card::part(base) {
+    background-color: var(--form-bg-color);
+    min-width: 80vw;
+}
+
+sl-card,
+sl-input::part(form-control-label),
+sl-select::part(form-control-label),
+.label {
+    margin-top: 0.5rem;
+}
+
+sl-input::part(form-control-input) {
+    margin-top: 2px;
+}
+
+sl-select::part(display-label),
+sl-select>sl-menu-item::part(base),
+sl-input::part(input) {
+    font-family: var(--mono-font-family);
+    font-size: var(--sl-font-size-small);
+}
+
+.label-on-left::part(form-control),
+span.label-on-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.label-on-left::part(form-control-label),
+span.label-on-left>span {
+    flex: 0 0 auto;
+    width: 12ch;
+    text-align: right;
+}
+
+.label-on-left::part(form-control-input),
+span.label-on-left>sl-avatar {
+    flex: 1 1 auto;
+}
+
+sl-dialog {
+    --width: 100%;
+}
+
+sl-avatar {
+    --size: 6rem;
+}
+
+sl-avatar.doc-avatar {
+    --size: 3rem;
+}
+
+sl-button::part(base) {
+    height: 3rem;
+}
+
+#form-card [slot='header'] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+sl-tooltip {
+    --max-width: 60vw;
+    --show-delay: 0ms;
+    --hide-delay: 0ms;
+}
+
+sl-tooltip>img {
+    max-width: 100%;
+    max-height: 100%;
+    margin-top: 4px;
+}
+
+sl-dialog {
+    --body-spacing: 0;
+    --width: 100%;
+}
+
+video {
+    max-width: 100%;
+}
