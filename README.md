@@ -63,7 +63,8 @@ documentai/
 
 * [Optical Character Recognition (OCR) with Document AI (Python)](https://codelabs.developers.google.com/codelabs/docai-ocr-python)
 * [Form Parsing with Document AI (Python)](https://codelabs.developers.google.com/codelabs/docai-form-parser-v1-python)
-* [Specialized Processors with Document AI (Python)](https://codelabs.developers.google.com/docai-specialized-processors)
+* [Specialized Processors with Document AI (Python)](https://codelabs.developers.google.com/codelabs/docai-specialized-processors)
+* [Managing Document AI processors (Python)](https://codelabs.developers.google.com/codelabs/cloud-documentai-manage-processors-python)
 
 ## Community Samples
 
