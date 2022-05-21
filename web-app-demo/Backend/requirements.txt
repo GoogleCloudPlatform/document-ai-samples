@@ -1,5 +1,5 @@
 Flask==2.0.3
-Flask-Cors==3.0.9
+Flask-Cors==3.0.10
 Flask-RESTful>0.3.8
 google-cloud-documentai==1.2.0
 google-auth==2.6.0
