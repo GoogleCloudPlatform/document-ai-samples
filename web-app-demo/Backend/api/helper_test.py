@@ -17,65 +17,69 @@
 import os
 import unittest
 from typing import Dict
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-import google.auth
 from google.cloud import documentai_v1beta3 as docai
 
 from helper import process_document  # pylint: disable=E0401
 
-_, project_id = google.auth.default()
-LOCATION = "my-location"  # Format is 'us' or 'eu'
+processor_id_by_processor_type: Dict[str, str] = {"OCR": "6d7af7fc640a7219"}
 
-processor_id_by_processor_type: Dict[str, str] = {}
+PROCESSOR_TYPE = "processor-type"
+
+PROJECT_ID = "project-id"
+LOCATION = "location"
+PROCESSOR_ID = "processor-id"
 
 
 class TestHelper(unittest.TestCase):
     """Testing helper functions"""
 
-    @patch("helper.documentai.DocumentProcessorServiceClient.process_document")
+    @patch("helper.DocumentProcessorServiceClient")
+    # pylint: disable=no-self-use
     def test_process_document_normal(self, process_document_mock):
         """Tests process document in a normal case"""
 
+        mocked_client_instance = MagicMock()
+
+        # Mock process document API call to use a fake API response
+        mocked_client_instance.process_document.return_value = (
+            docai.types.ProcessResponse(
+                document=docai.types.Document(
+                    entities=[
+                        docai.types.Document.Entity(
+                            page_anchor=docai.types.Document.PageAnchor(
+                                page_refs=[
+                                    docai.types.Document.PageAnchor.PageRef(page=0),
+                                    docai.types.Document.PageAnchor.PageRef(page=1),
+                                ]
+                            )
+                        )
+                    ]
+                )
+            )
+        )
+
+        process_document_mock.return_value = mocked_client_instance
+
         __location__ = os.path.realpath(
             os.path.join(os.getcwd(), os.path.dirname(__file__))
         )
 
         process_document_request = {
-            "project_id": "my-project-id",
+            "project_id": PROJECT_ID,
             "location": LOCATION,
-            "processor_id": "test-OCR-ID",
+            "processor_type": "OCR",
             "file_path": os.path.join(__location__, "test_docs/file"),
             "file_type": "application/pdf",
         }
 
         processor_response = docai.types.ProcessResponse()
         processor_response.document = docai.types.Document()
-        process_document_mock.return_value = processor_response
-        resp = process_document(process_document_request)
+        resp = process_document(
+            process_document_request, processor_id_by_processor_type
+        )
         self.assertIn("document", str(resp))
-
-    @patch("helper.documentai.DocumentProcessorServiceClient.process_document")
-    def test_process_document_error(self, process_document_mock2):
-        """Tests process document in a normal case"""
-
-        __location__ = os.path.realpath(
-            os.path.join(os.getcwd(), os.path.dirname(__file__))
-        )
-
-        process_document_request = {
-            "project_id": "my-project-id",
-            "location": LOCATION,
-            "processor_id": "test-OCR-ID",
-            "file_path": os.path.join(__location__, "test_docs/file"),
-            "file_type": "application/pdf",
-        }
-
-        processor_response = docai.types.ProcessResponse()
-        processor_response.document = docai.types.Document()
-        process_document_mock2.side_effect = Exception("Error")
-        resp = process_document(process_document_request)
-        self.assertIn("ERROR", str(resp))
 
 
 if __name__ == "__main__":
