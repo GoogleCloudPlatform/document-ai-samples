@@ -1,0 +1,2 @@
+google-cloud-documentai>=1.4.1
+google-cloud-storage
