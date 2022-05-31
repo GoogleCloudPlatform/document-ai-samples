@@ -37,7 +37,7 @@ def process_document(process_document_request, processor_id_by_processor_type):
 
     print(processor_id_by_processor_type)
 
-    processor_id = processor_id_by_processor_type[processor_type]
+    processor_id = processor_id_by_processor_type.get(processor_type)
 
     # Instantiates a client
     client = DocumentProcessorServiceClient()
