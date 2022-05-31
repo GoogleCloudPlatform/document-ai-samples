@@ -18,7 +18,7 @@ from typing import Dict
 from flask import Flask, jsonify, request
 from flask_restful import Api
 from flask_cors import CORS  # comment this on deployment
-processor_id_by_processor_typeprocessor_id_by_processor_type
+
 import google.auth
 
 from api.helper import populate_list_source, process_document, store_file
@@ -33,17 +33,16 @@ app = Flask(__name__, static_url_path="", static_folder="")
 CORS(app)
 api = Api(app)
 
+# @app.route("/api/init", methods=["GET"])
+# def populate_list():
+#     """Gets all available processors that are in the specified GCP project"""
 
-@app.route("/api/init", methods=["GET"])
-def populate_list():
-    """Gets all available processors that are in the specified GCP project"""
-
-    populate_list_source(project_id, LOCATION, processor_id_by_processor_type)
-    return jsonify(
-        {
-            "resultStatus": "SUCCESS",
-        }
-    )
+#     populate_list_source(project_id, LOCATION, processor_id_by_processor_type)
+#     return jsonify(
+#         {
+#             "resultStatus": "SUCCESS",
+#         }
+#     )
 
 
 @app.route("/api/docai", methods=["POST"])
@@ -56,12 +55,10 @@ def get_document():
 
     processor_type = request.form["fileProcessorType"]
 
-    if processor_id_by_processor_type == {}:
-        populate_list_source(project_id, LOCATION, processor_id_by_processor_type)
+    populate_list_source(project_id, LOCATION, processor_id_by_processor_type)
 
     processor_id = processor_id_by_processor_type.get(processor_type)
-
-    print(processor_id_by_processor_type, processor_id)
+    print(processor_id)
 
     file = request.files["file"]
     file_type = file.content_type
