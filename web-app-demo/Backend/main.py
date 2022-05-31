@@ -33,16 +33,16 @@ app = Flask(__name__, static_url_path="", static_folder="")
 CORS(app)
 api = Api(app)
 
-# @app.route("/api/init", methods=["GET"])
-# def populate_list():
-#     """Gets all available processors that are in the specified GCP project"""
+@app.route("/api/init", methods=["GET"])
+def populate_list():
+    """Gets all available processors that are in the specified GCP project"""
 
-#     populate_list_source(project_id, LOCATION, processor_id_by_processor_type)
-#     return jsonify(
-#         {
-#             "resultStatus": "SUCCESS",
-#         }
-#     )
+    populate_list_source(project_id, LOCATION, processor_id_by_processor_type)
+    return jsonify(
+        {
+            "resultStatus": "SUCCESS",
+        }
+    )
 
 
 @app.route("/api/docai", methods=["POST"])
