@@ -26,12 +26,13 @@ from api.helper import populate_list_source, process_document, store_file
 _, project_id = google.auth.default()
 LOCATION = "us"  # Format is 'us' or 'eu'
 
-processor_id_by_processor_type = Dict[str:str]
+processor_id_by_processor_type = Dict[str,str]
 
 app = Flask(__name__, static_url_path="", static_folder="")
 
 CORS(app)
 api = Api(app)
+
 
 @app.route("/api/init", methods=["GET"])
 def populate_list():
