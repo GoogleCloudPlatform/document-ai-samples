@@ -26,7 +26,7 @@ from api.helper import populate_list_source, process_document, store_file
 _, project_id = google.auth.default()
 LOCATION = "us"  # Format is 'us' or 'eu'
 
-processor_id_by_processor_type = {}
+processor_id_by_processor_type = Dict[str:str]
 
 app = Flask(__name__, static_url_path="", static_folder="")
 
@@ -75,7 +75,6 @@ def get_document():
         "project_id": project_id,
         "location": LOCATION,
         "file_path": _destination,
-        "processor_type": processor_type,
         "file_type": file_type,
         "processor_id": processor_id
     }

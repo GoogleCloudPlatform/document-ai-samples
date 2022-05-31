@@ -30,7 +30,6 @@ def process_document(process_document_request):
     location = process_document_request["location"]
     file_path = process_document_request["file_path"]
     file_type = process_document_request["file_type"]
-    processor_type = process_document_request["processor_type"]
     processor_id = process_document_request["processor_id"]
 
     # Instantiates a client
