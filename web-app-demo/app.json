@@ -3,7 +3,7 @@
   "hooks": {
     "prebuild": {
       "commands": [
-        "cloudshell_open --repo_url 'https://github.com/galz10/document-ai-samples/tree/fix-error/web-app-demo' --dir 'web-app-demo/Backend' --page 'shell' --git_branch 'fix-error' --force_new_clone"
+        "cloudshell_open --repo_url 'https://github.com/galz10/document-ai-samples.git' --dir 'web-app-demo/Backend' --page 'shell' --git_branch 'fix-error' --force_new_clone"
       ]
     }
   }
