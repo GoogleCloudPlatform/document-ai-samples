@@ -23,7 +23,7 @@ from google.cloud.documentai_v1beta3 import (
 )
 
 
-def process_document(process_document_request, processor_id_by_processor_type):
+def process_document(process_document_request):
     """Handles Document AI API call and returns the document proto as JSON"""
 
     project_id = process_document_request["project_id"]
@@ -31,13 +31,7 @@ def process_document(process_document_request, processor_id_by_processor_type):
     file_path = process_document_request["file_path"]
     file_type = process_document_request["file_type"]
     processor_type = process_document_request["processor_type"]
-
-    if processor_id_by_processor_type == []:
-        populate_list_source(project_id, location, processor_id_by_processor_type)
-
-    print(processor_id_by_processor_type)
-
-    processor_id = processor_id_by_processor_type.get(processor_type)
+    processor_id = process_document_request["processor_id"]
 
     # Instantiates a client
     client = DocumentProcessorServiceClient()

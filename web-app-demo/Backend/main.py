@@ -26,7 +26,7 @@ from api.helper import populate_list_source, process_document, store_file
 _, project_id = google.auth.default()
 LOCATION = "us"  # Format is 'us' or 'eu'
 
-processor_id_by_processor_type: Dict[str, str] = {}
+processor_id_by_processor_type = {}
 
 app = Flask(__name__, static_url_path="", static_folder="")
 
@@ -56,6 +56,11 @@ def get_document():
 
     processor_type = request.form["fileProcessorType"]
 
+    if processor_id_by_processor_type == []:
+        populate_list_source(project_id, LOCATION, processor_id_by_processor_type)
+
+    processor_id = processor_id_by_processor_type.get(processor_type)
+
     file = request.files["file"]
     file_type = file.content_type
 
@@ -73,9 +78,10 @@ def get_document():
         "file_path": _destination,
         "processor_type": processor_type,
         "file_type": file_type,
+        "processor_id": processor_id
     }
 
-    return process_document(process_document_request, processor_id_by_processor_type)
+    return process_document(process_document_request)
 
 
 @app.route("/api/processor/list", methods=["GET"])
