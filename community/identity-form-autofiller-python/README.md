@@ -1,229 +1,359 @@
-# Document AI - Identity Form Autofiller
+# How to automate identity document processing with Document AI
 
-After creating a new Google Cloud project, you can deploy the app:
+![ID document next to empty identity forms](pics/A_docai-identity-hero.png)
 
-- to Cloud Run or App Engine,
-- directly from your browser with [Cloud Shell](https://console.cloud.google.com/?cloudshell=true),
-- using one command-line tool: `gcloud`.
+How many times have you filled out forms requesting personal information? It's probably too many times to count. When online and signed in, you can save a lot of time thanks to your browser’s autofill feature. In other cases, you often have to provide the same data manually, again and again. The first Document AI identity processors are now generally available and can help you solve this problem.
 
-## 🔧 Project setup
+In this post, you’ll see how to…
 
-### Identity processors
+- Process identity documents with Document AI
+- Create your own identity form autofiller
 
-This demo has an admin endpoint (`/admin/processors/check`) to automatically create processors:
+## Use cases
 
-1. Generally available identity processors will be created automatically.
-2. Processors in Preview or Experimental are not allowed by default. To request access to these processors, please fill out the [Access Request Form](https://docs.google.com/forms/d/e/1FAIpQLSc_6s8jsHLZWWE0aSX0bdmk24XDoPiE_oq5enDApLcp1VKJ-Q/viewform).
+Here are a few situations that you've probably encountered:
 
-### Document AI API
+- **Financial accounts**: Companies need to validate the identity of individuals. When creating a customer account, you need to present a government-issued ID for manual validation.
+- **Transportation networks**: To handle subscriptions, operators often manage fleets of custom identity-like cards. These cards are used for in-person validation, and they require an ID photo.
+- **Identity gates**: When crossing a border (or even when flying domestically), you need to pass an identity check. The main gates have streamlined processes and are generally well equipped to scale with the traffic. On the contrary, smaller gates along borders can have manual processes – sometimes on the way in and the way out – which can lead to long lines and delays.
+- **Hotels**: When traveling abroad and checking in, you often need to show your passport for a scan. Sometimes, you also need to fill out a longer paper form and write down the same data.
+- **Customer benefits**: For benefit certificates or loyalty cards, you generally have to provide personal info, which can include a portrait photo.
 
-```bash
-# Enable Document AI
-gcloud services enable documentai.googleapis.com
-```
+In these examples, the requested info – including the portrait photo – is already on your identity document. Moreover, an official authority has already validated it. Checking or retrieving the data directly from this source of truth would not only make processes faster and more effective, but also remove a lot of friction for end users.
 
-### Environment variables
+## Identity processors
 
-```bash
-# Your project
-PROJECT_ID=$(gcloud config list --format "value(core.project)")
+### Processor types
 
-# Source on GitHub
-GIT_USER="GoogleCloudPlatform"
-GIT_REPO="document-ai-samples"
-GITHUB_SOURCE="https://github.com/$GIT_USER/$GIT_REPO.git"
+Each Document AI identity processor is a machine learning model trained to extract information from a standard ID document such as:
 
-# Local source
-PROJECT_SOURCE=~/$GIT_REPO/community/identity-form-autofiller-python/src
+- Driver license
+- National ID
+- Passport
 
-# Choose your preferred deployment region
-# See https://cloud.google.com/about/locations#region
-APP_ENGINE_REGION="europe-west6"
-CLOUD_RUN_REGION="europe-west6"
-```
+![examples of ID documents](pics/B_docai-identity-docs.png)
 
-### Source code
+Note: an ID can have information on both sides, so identity processors support up to two pages per document.
 
-```bash
-# Get the source code
-cd ~
-git clone $GITHUB_SOURCE
+### Availability
 
-# Make sure you point to the right location
-ls $PROJECT_SOURCE
+**Generally available** as of June 2022, you can use two US identity processors in production:
 
-# You should get the following:
-# app.yaml  docai_procs.py  docai.py  main.py  Procfile  requirements.txt  samples  static
-```
+| Processor                | API `type`                    |
+| ------------------------ | ----------------------------- |
+| US Driver License Parser | `US_DRIVER_LICENSE_PROCESSOR` |
+| US Passport Parser       | `US_PASSPORT_PROCESSOR`       |
 
-## 🚀 Deploying to Cloud Run
+Currently available in **Preview**:
 
-Enable the APIs:
+- The Identity Doc Fraud Detector, to check whether an ID document has been tampered with
+- Three French identity processors
 
-- Artifact Registry stores your build artifacts.
-- Cloud Build builds your app.
-- Cloud Run deploys and serves your app.
-
-```bash
-gcloud services enable \
-  artifactregistry.googleapis.com \
-  cloudbuild.googleapis.com \
-  run.googleapis.com
-```
-
-Deploy your app:
-
-```bash
-SERVICE="identity-form-autofiller"
-
-gcloud run deploy $SERVICE \
-  --source $PROJECT_SOURCE \
-  --region $CLOUD_RUN_REGION \
-  --platform managed \
-  --allow-unauthenticated \
-  --quiet
-```
+| Processor                    | API `type`                     |
+| ---------------------------- | ------------------------------ |
+| Identity Doc Fraud Detector  | `ID_FRAUD_DETECTION_PROCESSOR` |
+| France Driver License Parser | `FR_DRIVER_LICENSE_PROCESSOR`  |
+| France National ID Parser    | `FR_NATIONAL_ID_PROCESSOR`     |
+| France Passport Parser       | `FR_PASSPORT_PROCESSOR`        |
 
 Notes:
-- For more details, see the `gcloud run deploy` [options](https://cloud.google.com/sdk/gcloud/reference/run/deploy).
-- Deploying from source requires an Artifact Registry repository to store the build artifacts. By using the `--quiet` flag, you skip prompt confirmations and a default repository named `cloud-run-source-deploy` will automatically be created.
 
-This gives an output like the following:
+- More identity processors are in the pipe.
+- To request access to processors in Preview, please fill out the [Access Request Form](https://docs.google.com/forms/d/e/1FAIpQLSc_6s8jsHLZWWE0aSX0bdmk24XDoPiE_oq5enDApLcp1VKJ-Q/viewform).
 
-```text
-…
-Building using Buildpacks and deploying container to Cloud Run service [SERVICE] in project [PROJECT_ID] region [CLOUD_RUN_REGION]
-OK Building and deploying new service... Done.
-  OK Creating Container Repository...
-  OK Uploading sources...
-  OK Building Container... Logs are available at […].
-  OK Creating Revision...
-  OK Routing traffic...   
-  OK Setting IAM Policy...
-Done.
-Service [SERVICE] revision [SERVICE-REVISION] has been deployed and is serving 100 percent of traffic.
-Service URL: https://SERVICE-PROJECTHASH-REGIONID.a.run.app
+### Processor creation
+
+You can create a processor:
+
+- **Manually** from Cloud Console (web admin UI)
+- **Programmatically** with the API
+
+Processors are location-based. This helps guarantee where processing will occur for each processor.
+
+Here are the current multi-region locations:
+
+| Location       | API `location` |
+| -------------- | -------------- |
+| United States  | `us`           |
+| European Union | `eu`           |
+
+Once you've created a processor, you reference it with its ID (`PROCESSOR_ID` hereafter).
+
+![processor creation screencast](pics/C_docai-identity-processor-creation.gif)
+
+Note: To manage processors programmatically, see the codelab [Managing Document AI processors with Python](https://codelabs.developers.google.com/codelabs/cloud-documentai-manage-processors-python).
+
+## Document processing
+
+You can process documents in two ways:
+
+- Synchronously with an **online request**, to analyze a single document and directly use the results
+- Asynchronously with a **batch request**, to launch a batch processing operation on multiple or larger documents
+
+### Online requests
+
+Example of a REST online request:
+
+- The method is named `process`.
+- The input document here is a PNG image (base64 encoded).
+- This request is processed in the European Union.
+- The response is returned synchronously.
+
+```txt
+POST https://eu-documentai.googleapis.com
+     /v1/projects/PROJECT_ID/locations/eu/processors/PROCESSOR_ID
+     :process
 ```
 
-Before using the app for the first time, you need to create Document AI identity processors.
-
-Retrieve the app URL:
-
-```bash
-APP_URL=$( \
-  gcloud run services describe $SERVICE \
-    --region $CLOUD_RUN_REGION \
-    --platform managed \
-    --format "value(status.url)" \
-)
+```json
+{
+  "rawDocument": {
+    "content": "iVBORw0KGg…",
+    "mimeType": "image/png"
+  },
+  "skipHumanReview": true
+}
 ```
 
-Call this admin endpoint:
+### Batch requests
 
-```bash
-curl $APP_URL/admin/processors/check
+Example of a REST batch request:
+
+- The method is named `batchProcess`.
+- The `batchProcess` method launches the batch processing of multiple documents.
+- This request is processed in the United States.
+- The response is returned asynchronously; output files will be stored under `my-storage-bucket/output/`.
+
+```txt
+POST https://us-documentai.googleapis.com
+     /v1/projects/PROJECT_ID/locations/us/processors/PROCESSOR_ID
+     :batchProcess
 ```
 
-Check out the logs:
-
-```bash
-gcloud logging read \
-  "resource.type=cloud_run_revision resource.labels.service_name=$SERVICE" \
-  --project=$PROJECT_ID \
-  --format="value(textPayload)" \
-  --freshness=5m
+```json
+{
+  "inputDocuments": {
+    "gcsDocuments": {
+      "documents": [
+        {
+          "gcsUri": "gs://my-storage-bucket/input/id-doc-1.pdf",
+          "mimeType": "application/pdf"
+        },
+        {
+          "gcsUri": "gs://my-storage-bucket/input/id-doc-2.tiff",
+          "mimeType": "image/tiff"
+        },
+        {
+          "gcsUri": "gs://my-storage-bucket/input/id-doc-3.png",
+          "mimeType": "image/png"
+        },
+        {
+          "gcsUri": "gs://my-storage-bucket/input/id-doc-4.gif",
+          "mimeType": "image/gif"
+        }
+      ]
+    }
+  },
+  "documentOutputConfig": {
+    "gcsOutputConfig": {
+      "gcsUri": "gs://my-storage-bucket/output/"
+    }
+  },
+  "skipHumanReview": true
+}
 ```
 
-You should get logs like the following:
+### Interfaces
 
-```text
-.. Creating: us / US_DRIVER_LICENSE_PROCESSOR
-.. Creating: us / US_PASSPORT_PROCESSOR
-…
-.. Creating: eu / US_DRIVER_LICENSE_PROCESSOR
-.. Creating: eu / US_PASSPORT_PROCESSOR
-…
+Document AI is available through the usual Google Cloud interfaces:
+
+- The RPC API (low-latency gRPC)
+- The REST API (JSON requests and responses)
+- Client libraries (gRPC wrappers, currently available for Python, Node.js, and Java)
+- Cloud Console (web admin UI)
+
+Note: With the client libraries, you can develop in your preferred programming language. You'll see an example later in this post.
+
+## Identity fields
+
+A typical REST response looks like the following:
+
+- The `text` and `pages` fields include the OCR data detected by the underlying ML models. This part is common to all Document AI processors.
+- The `entities` list contains the fields specifically detected by the identity processor.
+
+```jsonc
+{
+  "text": "…",
+  "pages": […],
+  "entities": [
+    {
+      "textAnchor": {…},
+      "type": "Family Name",
+      "mentionText": "PICHAI",
+      "confidence": 0.999945,
+      "pageAnchor": {…},
+      "id": "4"
+    },
+    {
+      "textAnchor": {…},
+      "type": "Given Names",
+      "mentionText": "Sundar",
+      "confidence": 0.9999612,
+      "pageAnchor": {…},
+      "id": "5"
+    }
+    ,…
+  ]
+}
 ```
 
-Note: You can ignore 40X errors with reason "PROCESSOR_NOT_ALLOWED" or "PROCESSOR_TYPE_NOT_FOUND". They will occur for processors not enabled for your project (see the Access Request Form earlier).
+Here are the detectable identity fields:
 
-## 🚀 Deploying to App Engine
+| Entity type       | Comment                         |
+| ----------------- | ------------------------------- |
+| `Portrait`        | Bounding box (portrait photo)   |
+| `Family Name`     | String                          |
+| `Given Names`     | String                          |
+| `Document Id`     | String                          |
+| `Expiration Date` | Date (+ normalization)          |
+| `Date Of Birth`   | Date (+ normalization)          |
+| `Issue Date`      | Date (+ normalization)          |
+| `Address`         | String                          |
+| `MRZ Code`        | String  (Machine Readable Zone) |
 
-Alternatively, you can deploy the demo to App Engine.
+Please note that `Address` and `MRZ Code` are optional fields. For example, a US passport contains an MRZ but no address.
 
-Enable the Cloud Build API:
+## Fraud detection
 
-```bash
-gcloud services enable cloudbuild.googleapis.com
+Available in preview, the **Identity Doc Fraud Detector** helps detect tampering attempts. Typically, when an identity document does not "pass" the fraud detector, your automated process can block the attempt or trigger a human validation.
+
+Here is an example of signals returned:
+
+| Entity type                          | Example                       |
+| ------------------------------------ | ----------------------------- |
+| `fraud-signals/is-identity-document` | "NOT_AN_ID"                   |
+| `fraud-signals/suspicious-words`     | "PASS"                        |
+| `fraud-signals/image-manipulation`   | "POSSIBLE_IMAGE_MANIPULATION" |
+
+## Sample demo
+
+You can process a document live with just a few lines of code.
+
+Here is a Python example:
+
+```py
+import google.cloud.documentai_v1 as docai
+
+
+def process_document(
+    file: typing.BinaryIO,
+    mime_type: str,
+    project_id: str,
+    location: str,
+    processor_id: str,
+) -> docai.Document:
+    api_endpoint = {"api_endpoint": f"{location}-documentai.googleapis.com"}
+    client = docai.DocumentProcessorServiceClient(client_options=api_endpoint)
+
+    raw_document = docai.RawDocument(content=file.read(), mime_type=mime_type)
+    name = client.processor_path(project_id, location, processor_id)
+
+    request = docai.ProcessRequest(
+        raw_document=raw_document,
+        name=name,
+        skip_human_review=True,
+    )
+    response = client.process_document(request)
+
+    return docai.Document(response.document)
 ```
 
-Create the app:
+This function uses the Python client library:
 
-```bash
-gcloud app create --region $APP_ENGINE_REGION
+- The input is a `file` (any format supported by the processor).
+- `client` is an API wrapper (configured for processing to take place in the desired location).
+- `process_document` calls the API `process` method, which returns results in seconds.
+- The output is a structured `Document`.
+
+You can collect the detected fields by parsing the document `entities`:
+
+```py
+def id_data_from_document(document: docai.Document) -> dict:
+    id_data = defaultdict(dict)
+
+    for entity in document.entities:
+        key = entity.type_
+        page_index = 0
+        value = entity.mention_text
+        confidence, normalized = None, None
+
+        if entity.page_anchor:
+            page_index = entity.page_anchor.page_refs[0].page
+        if not value:  # Send the detected portrait image instead
+            image = crop_entity(document, entity)
+            value = data_url_from_image(image)
+        if entity.confidence != 0.0:
+            confidence = int(entity.confidence * 100 + 0.5)
+        if entity.normalized_value:
+            normalized = entity.normalized_value.text
+
+        id_data[key][page_index] = dict(
+            value=value,
+            confidence=confidence,
+            normalized=normalized,
+        )
+
+    return id_data
 ```
 
-This gives the following output:
+Note: This function builds a mapping ready to be sent to a frontend. A similar function can be used for other specialized processors.
 
-```text
-Creating App Engine application in project [PROJECT_ID] and region [APP_ENGINE_REGION]....done.
-Success! The app is now created. Please use `gcloud app deploy` to deploy your first app.
-```
+Finalize your app:
 
-Deploy your app:
+- Define your user experience and architecture
+- Implement your backend and its API
+- Implement your frontend with a mix of HTML + CSS + JS
+- Add a couple of features: file uploads, document samples, or webcam captures
+- That's it; you've built an identity form autofiller
 
-```bash
-gcloud app deploy $PROJECT_SOURCE/app.yaml --quiet
-```
+Here is a sample web app in action:
 
-This gives an output like the following:
+![demo animation](pics/D_docai-identity-processor-demo-1.gif)
 
-```text
-…
-File upload done.
-Updating service [default]...done.     
-Setting traffic split for service [default]...done.   
-Deployed service [default] to [https://PROJECT_ID.REGIONID.r.appspot.com]
-```
+Here is the processing of a French national ID, dropping images from the client:
 
-Before using the app for the first time, you need to create Document AI identity processors.
+![demo animation](pics/E_docai-identity-processor-demo-2.gif)
 
-Retrieve the app URL:
+Note: For documents with multiple pages, you can use a PDF or TIFF container. In this example, the two uploaded PNG images are merged by the backend and processed as a TIFF file.
 
-```bash
-APP_URL=$(gcloud app describe --format "value(defaultHostname)")
-```
+And this is the processing of a US driver license, captured with a laptop 720p webcam:
 
-Call this admin endpoint:
+![demo animation](pics/F_docai-identity-processor-demo-3.gif)
 
-```bash
-curl $APP_URL/admin/processors/check
-```
+Notes:
 
-Check out the logs:
+- Did you notice that the webcam capture is skewed and the detected portrait image straight? That's because Document AI automatically deskews the input at the page level. Documents can even be upside down.
+- Some fields (such as the dates) are returned with their normalized values. This can make storing and processing these values a lot easier – and less error-prone – for developers.
 
-```bash
-gcloud app logs read --limit=25
-```
+## Do it yourself
 
-You should get logs like the following:
+- Source code for the demo
+  - [src/](src/)
+- Deployment instructions
+  - [DEPLOY.md](DEPLOY.md)
 
-```text
-.. Creating: us / US_DRIVER_LICENSE_PROCESSOR
-.. Creating: us / US_PASSPORT_PROCESSOR
-…
-.. Creating: eu / US_DRIVER_LICENSE_PROCESSOR
-.. Creating: eu / US_PASSPORT_PROCESSOR
-…
-```
+## More
 
-Note: You can ignore 40X errors with reason "PROCESSOR_NOT_ALLOWED" or "PROCESSOR_TYPE_NOT_FOUND". They will occur for processors not enabled for your project (see the Access Request Form earlier).
+- [Try Document AI in your browser](https://cloud.google.com/document-ai/docs/drag-and-drop)
+- [Document AI documentation](https://cloud.google.com/document-ai/docs)
+- [Document AI how-to guides](https://cloud.google.com/document-ai/docs/how-to)
+- [Sending a processing request](https://cloud.google.com/document-ai/docs/send-request)
+- [Full processor and detail list](https://cloud.google.com/document-ai/docs/processors-list)
+- [Release notes](https://cloud.google.com/document-ai/docs/release-notes)
+- [Codelab – Specialized processors with Document AI](https://codelabs.developers.google.com/codelabs/docai-specialized-processors-python)
+- [Code – Document AI samples](https://github.com/GoogleCloudPlatform/document-ai-samples)
 
-## 🎉 It's alive
-
-Open the web app; your identity form autofiller is live!
-
-![demo animation](pics/G_docai-identity-processor-demo-3.gif)
+Stay tuned; the family of Document AI processors keeps growing and growing.
 
 ## Disclaimer
 
