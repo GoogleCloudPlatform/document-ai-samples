@@ -14,7 +14,6 @@
 */
 //import { useState, useEffect, useRef } from 'react';
 import { Paper, Typography } from '@mui/material';
-import PropTypes from 'prop-types';
 
 /**
  * props
@@ -36,8 +35,5 @@ function NoData(props) {
     </Paper>
   )
 } // NoData
-
-NoData.propTypes = {
-}
 
 export default NoData

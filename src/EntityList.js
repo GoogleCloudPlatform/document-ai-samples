@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 */
-import { useState } from 'react';
-import { Tabs, Tab } from '@mui/material';
+import { useEffect } from 'react';
+import { Box } from '@mui/material';
 import Entity from './Entity';
 import PropTypes from 'prop-types';
 
@@ -26,32 +26,41 @@ import PropTypes from 'prop-types';
  */
 
 function EntityList(props) {
-  const [value, setValue] = useState(0);  // Currently selected tab (page/image)
+  useEffect(() => {
+    console.log("EntityList hilight changed")
+  }, [props.hilight])
+
   return (
-    <Tabs value={value} TabIndicatorProps={{
-      sx: {
-        left: 0
-      }
-    }} sx={{ backgroundColor: "lightgray" }} orientation="vertical" onChange={(event, newValue) => { setValue(newValue) }}>
+    <Box sx={{ height: "100%", width: "300px", overflowY: "auto" }}>
       {
-        props.data.document.entities.map(entity => {
-          let x = (
+        // We get the entities and then copy them into a new array.
+        // We next sort the array.  Since the sorting is in place and
+        // we don't want to update the original document, that is why 
+        // we take a copy of the array in the first place.
+        props.data.document.entities.slice().sort((a, b) => {
+          if (a.type > b.type) return 1;
+          if (a.type < b.type) return -1;
+          return 0;
+        }).map(entity => {
+          return (
             <Entity
+              key={entity.id}
               entity={entity}
               hilight={props.hilight}
               onInfoClick={props.onInfoClick}
               onClick={props.entityOnClick} />
           )
-          return <Tab label={x} />
         })
       }
-    </Tabs>
+    </Box>
   )
 } // EntityList
 
+
+
 EntityList.propTypes = {
   'onInfoClick': PropTypes.func.isRequired,
-  'onClick': PropTypes.func.isRequired,
+  'entityOnClick': PropTypes.func.isRequired,
   'hilight': PropTypes.object,
   'data': PropTypes.object.isRequired
 }

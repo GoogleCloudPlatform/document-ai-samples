@@ -13,7 +13,7 @@
 # limitations under the License.
 */
 import InfoIcon from '@mui/icons-material/Info';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CardHeader, Card, CardContent, IconButton, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 
@@ -26,6 +26,8 @@ import PropTypes from 'prop-types';
  * * onInfoClick - A callback invoked when the Info icon is clicked.
  */
 function Entity(props) {
+
+  const cardRef = React.createRef(); // Create a ref for the containing card so that we can scroll it into view
 
   function onClick() {
     if (props.onClick) {
@@ -57,8 +59,16 @@ function Entity(props) {
     }
   }
 
+  // When the entity has rendered, if this entity is hilighted, then scroll it into
+  // view within the containing list.
+  useEffect(() => {
+    if (hilight) {
+      cardRef.current.scrollIntoView();
+    }
+  })
+
   return (
-    <Card variant="outlined" style={{ backgroundColor: hilight ? "lightgray" : "white", margin: "4px" }} onClick={onClick}>
+    <Card ref={cardRef} variant="outlined" style={{ backgroundColor: hilight ? "lightgray" : "white", margin: "4px" }} onClick={onClick}>
       <CardHeader
         title={props.entity.type}
         action={props.onInfoClick &&
