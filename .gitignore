@@ -37,6 +37,9 @@ bower_components
 build
 package-lock.json
 
+# Sample file generated
+docai_request.json
+
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 

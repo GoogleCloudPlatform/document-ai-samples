@@ -12,14 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 */
+//import { useState, useEffect, useRef } from 'react';
+import { Paper, Typography } from '@mui/material';
+import PropTypes from 'prop-types';
 
-import DocAITopLevel from "./DocAITopLevel";
-function App() {
+/**
+ * props
+ * * data - The Document object from the JSON
+ */
+
+function NoData(props) {
+
+
   return (
-    <div style={{width: "100%", height: "100%", "backgroundColor": "white"}}>
-      <DocAITopLevel/>
-    </div>
+    <Paper sx={{flexGrow: 1, padding: "20px"}}>
+      <Typography variant="h4">
+      No data. 
+      </Typography>
+
+      <Typography variant="body1" component="p">
+      Load a JSON document from the local file system that is the saved result of a Document AI parse output.
+      </Typography>
+    </Paper>
   )
+} // NoData
+
+NoData.propTypes = {
 }
 
-export default App;
+export default NoData

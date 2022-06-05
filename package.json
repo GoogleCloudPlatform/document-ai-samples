@@ -1,8 +1,22 @@
 {
   "name": "viewer",
   "version": "0.1.0",
+  "description": "A Document AI JSON developers tools",
   "private": true,
   "homepage": "https://kolban-google.github.io/docai-dev",
+  "bugs": {
+    "url": "https://github.com/kolban-google/docai-dev/issues",
+    "email": "kolban@google.com"
+  },
+  "author": {
+    "name": "Neil Kolban",
+    "email": "kolban@google.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kolban-google/docai-dev"
+  },
+  "license": "Apache 2.0",
   "dependencies": {
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
