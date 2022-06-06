@@ -49,7 +49,12 @@ function DocAITopLevel(props) {
     fileReader.onload = () => {
       //console.dir()
       try {
-        setData(JSON.parse(fileReader.result));
+        const newData = JSON.parse(fileReader.result);
+        if (newData.hasOwnProperty("document")) {
+          setData(newData.document);
+        } else {
+          setData(newData);
+        }        
       }
       catch (e) {
         console.log(`ERROR: ${e}`)

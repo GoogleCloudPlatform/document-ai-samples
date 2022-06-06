@@ -44,12 +44,12 @@ function DocAIView(props) {
     return (<NoData></NoData>)
   }
   //console.dir(props.data);
-  const imageData = props.data.document.pages[0].image.content;
-  const imageSize = { width: props.data.document.pages[0].image.width, height: props.data.document.pages[0].image.height }
+  const imageData = props.data.pages[0].image.content;
+  const imageSize = { width: props.data.pages[0].image.width, height: props.data.pages[0].image.height }
   const drawDocument = <DrawDocument
     imageData={imageData}
     imageSize={imageSize}
-    entities={props.data.document.entities}
+    entities={props.data.entities}
     hilight={hilight}
     entityOnClick={entityOnClick} />;
 

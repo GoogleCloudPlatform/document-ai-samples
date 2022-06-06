@@ -45,7 +45,7 @@ function PageSelector(props) {
       }
     }} sx={{ backgroundColor: "lightgray" }} orientation="vertical" onChange={(event, newValue) => { pageChange(newValue) }}>
       {
-        props.data.document.pages.map((page, index) => {
+        props.data.pages.map((page, index) => {
           let imageData = `data:image/png;base64,${page.image.content}`
           let labelNode = <Box>
             <img src={imageData} style={{ width: `${desiredImageWidth}px` }} alt="page" />

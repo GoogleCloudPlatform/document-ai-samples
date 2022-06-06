@@ -37,7 +37,7 @@ function EntityList(props) {
         // We next sort the array.  Since the sorting is in place and
         // we don't want to update the original document, that is why 
         // we take a copy of the array in the first place.
-        props.data.document.entities.slice().sort((a, b) => {
+        props.data.entities.slice().sort((a, b) => {
           if (a.type > b.type) return 1;
           if (a.type < b.type) return -1;
           return 0;
