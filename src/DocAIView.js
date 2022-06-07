@@ -30,6 +30,7 @@ function DocAIView(props) {
   const [hilight, setHilight] = useState(null);
   const [entityInfoDialogOpen, setEntityInfoDialogOpen] = useState(false);
   const [entityInfoDialogEntity, setEntityInfoDialogEntity] = useState(null);
+  const [imageSize, setImageSize] = useState({width: 0, height: 0});
 
   function entityOnClick(entity) {
     setHilight(entity)
@@ -41,11 +42,23 @@ function DocAIView(props) {
   }
 
   if (!props.data) {
-    return (<NoData></NoData>)
+    return (<NoData />)
   }
+
+
   //console.dir(props.data);
   const imageData = props.data.pages[0].image.content;
-  const imageSize = { width: props.data.pages[0].image.width, height: props.data.pages[0].image.height }
+  if (imageSize.width === 0 && imageSize.height === 0) {
+    // We don't know the image size.  Lets find out.
+    const img = document.createElement("img");
+    img.onload = function (event)
+    {
+        setImageSize({width: img.naturalWidth, height: img.naturalHeight })
+    }
+    img.src=`data:image/png;base64,${imageData}`
+    return <NoData/>
+  }
+  //const imageSize = { width: props.data.pages[0].image.width, height: props.data.pages[0].image.height }
   const drawDocument = <DrawDocument
     imageData={imageData}
     imageSize={imageSize}
@@ -54,7 +67,6 @@ function DocAIView(props) {
     entityOnClick={entityOnClick} />;
 
   return (
-
     <Box sx={{ display: "flex", width: "100%", height: "100%" }}>
       <EntityList data={props.data} onInfoClick={onInfoClick} entityOnClick={entityOnClick} hilight={hilight} />
       <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "row" }}>
