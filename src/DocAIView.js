@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DrawDocument from "./DrawDocument"
 import EntityInfoDialog from './EntityInfoDialog';
 import PageSelector from './PageSelector';
@@ -41,10 +41,13 @@ function DocAIView(props) {
     setEntityInfoDialogEntity(entity);
   }
 
+  useEffect(() => {
+    setImageSize({width: 0, height: 0})
+  }, [props.data])
+
   if (!props.data) {
     return (<NoData />)
   }
-
 
   //console.dir(props.data);
   const imageData = props.data.pages[0].image.content;
@@ -53,7 +56,10 @@ function DocAIView(props) {
     const img = document.createElement("img");
     img.onload = function (event)
     {
-        setImageSize({width: img.naturalWidth, height: img.naturalHeight })
+      console.log("natural:", img.naturalWidth, img.naturalHeight);
+      console.log("width,height:", img.width, img.height);
+      console.log("offsetW,offsetH:", img.offsetWidth, img.offsetHeight);
+        setImageSize({width: img.width, height: img.height })
     }
     img.src=`data:image/png;base64,${imageData}`
     return <NoData/>

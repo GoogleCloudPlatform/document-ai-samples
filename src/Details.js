@@ -31,7 +31,7 @@ function Details(props) {
   if (props.data === null) {
     return <NoData />
   }
-  const doc = props.data.document;
+  const doc = props.data;
   return (
     <Box sx={{ overflowY: "auto" }}>
       <Paper sx={{ margin: "4px" }}>
@@ -43,7 +43,7 @@ function Details(props) {
                 <li>Uri: {doc.uri ? doc.uri : "<none>"}</li>
                 <li>MimeType: {doc.mimeType}</li>
                 <li>Page Count: {doc.pages.length}</li>
-                <li>Human review status: {props.data.humanReviewStatus.state}</li>
+                <li>Human review status: {props.data.humanReviewStatus?props.data.humanReviewStatus.state:"undefined"}</li>
               </Typography>
             </CardContent>
           </Card>
@@ -73,16 +73,16 @@ function Details(props) {
                         <TableCell>
                           {page.pageNumber}
                         </TableCell>
-                        <TableCell >{page.dimension.width}</TableCell>
-                        <TableCell >{page.dimension.height}</TableCell>
-                        <TableCell >{page.dimension.unit}</TableCell>
-                        <TableCell>{page.detectedLanguages.map((detectedLanguage) => (`${detectedLanguage.languageCode} `))}</TableCell>
-                        <TableCell >{page.blocks.length}</TableCell>
-                        <TableCell >{page.paragraphs.length}</TableCell>
-                        <TableCell >{page.lines.length}</TableCell>
-                        <TableCell >{page.tokens.length}</TableCell>
-                        <TableCell >{page.tables.length}</TableCell>
-                        <TableCell >{page.formFields.length}</TableCell>
+                        <TableCell>{page.dimension?page.dimension.width:"undefined"}</TableCell>
+                        <TableCell>{page.dimension?page.dimension.height:"undefined"}</TableCell>
+                        <TableCell>{page.dimension?page.dimension.unit:"undefined"}</TableCell>
+                        <TableCell>{page.detectedLanguages?page.detectedLanguages.map((detectedLanguage) => (`${detectedLanguage.languageCode} `)):"undefined"}</TableCell>
+                        <TableCell>{page.blocks?page.blocks.length:"undefined"}</TableCell>
+                        <TableCell>{page.paragraphs?page.paragraphs.length:"undefined"}</TableCell>
+                        <TableCell>{page.lines?page.lines.length:"undefined"}</TableCell>
+                        <TableCell>{page.tokens?page.tokens.length:"undefined"}</TableCell>
+                        <TableCell>{page.tables?page.tables.length:"undefined"}</TableCell>
+                        <TableCell>{page.formFields?page.formFields.length:"undefined"}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
