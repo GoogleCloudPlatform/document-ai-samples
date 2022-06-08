@@ -14,13 +14,17 @@
 # pylint: disable-msg=too-many-locals
 
 """ Helper file that holds DocAI API calls"""
-from google.cloud.documentai_v1beta3 import (
+from google.cloud.documentai_v1 import (
     DocumentProcessorServiceClient,
     Document,
-    ListProcessorsRequest,
     ProcessRequest,
     ProcessResponse,
 )
+
+# v1 API doesn't support processor Management Functions
+import google.cloud.documentai_v1beta3 as docai_beta3
+
+from google.api_core.client_options import ClientOptions
 
 
 def process_document(process_document_request, processor_id_by_processor_type):
@@ -40,31 +44,30 @@ def process_document(process_document_request, processor_id_by_processor_type):
     processor_id = processor_id_by_processor_type[processor_type]
 
     # Instantiates a client
-    client = DocumentProcessorServiceClient()
+    client = DocumentProcessorServiceClient(
+        client_options=ClientOptions(
+            api_endpoint=f"{location}-documentai.googleapis.com"
+        )
+    )
 
     # The full resource name of the processor, e.g.:
     # projects/project-id/locations/location/processor/processor-id
     # You must create new processors in the Cloud Console first
-    name = f"projects/{project_id}/locations/{location}/processors/{processor_id}"
+    name = client.processor_path(project_id, location, processor_id)
 
-    # TODO : change file handling if the file that was sent in the request is stored in GCS # pylint: disable=W0511
+    # TODO : change file handling if the file that was sent in the request is stored in GCS # pylint: disable=fixme
     with open(file_path, "rb") as pdf:
         pdf_content = pdf.read()
 
     # Read the file into memory
-    document = Document()
-    document.content = pdf_content
-    document.mime_type = file_type
+    document = Document(content=pdf_content, mime_type=file_type)
 
     # Configure the process request
-    request = ProcessRequest()
-    request.name = name
-    request.document = document
+    request = ProcessRequest(name=name, inline_document=document)
 
-    # Use the Document AI client to process the sample form
     try:
         result = client.process_document(request=request)
-    except Exception as err:  # pylint: disable=W0703
+    except Exception as err:  # pylint: disable=broad-except
         return {
             "resultStatus": "ERROR",
             "errorMessage": str(err),
@@ -89,10 +92,14 @@ def store_file(file):
 
 def populate_list_source(project_id, location, processor_id_by_processor_type):
     """Gets all available processors from the specified GCP project"""
-    client = DocumentProcessorServiceClient()
+    client = docai_beta3.DocumentProcessorServiceClient(
+        client_options=ClientOptions(
+            api_endpoint=f"{location}-documentai.googleapis.com"
+        )
+    )
 
-    req = ListProcessorsRequest()
-    req.parent = f"projects/{project_id}/locations/{location}"
+    parent = client.common_location_path(project_id, location)
+    req = docai_beta3.ListProcessorsRequest(parent=parent)
 
     try:
         processor_list = client.list_processors(req)
@@ -102,7 +109,7 @@ def populate_list_source(project_id, location, processor_id_by_processor_type):
             # format `projects/{project}/locations/{location}/processors/{processor}`
             parsed_path = client.parse_processor_path(processor.name)
             processor_id_by_processor_type[processor.type_] = parsed_path["processor"]
-    except Exception as err:  # pylint: disable=W0703
+    except Exception as err:  # pylint: disable=broad-except
         if location == "ENTER_YOUR_LOCATION_HERE":
             str_error = "Location was not changed"
         else:

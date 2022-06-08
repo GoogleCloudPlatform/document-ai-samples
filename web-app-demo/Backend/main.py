@@ -61,7 +61,7 @@ def get_document():
 
     try:
         _destination = store_file(file)
-    except Exception as err:  # pylint: disable=W0703
+    except Exception as err:  # pylint: disable=broad-except
         return {
             "resultStatus": "ERROR",
             "errorMessage": str(err),

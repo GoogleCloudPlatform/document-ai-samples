@@ -19,9 +19,9 @@ import unittest
 from typing import Dict
 from unittest.mock import MagicMock, patch
 
-from google.cloud import documentai_v1beta3 as docai
+from google.cloud import documentai_v1 as docai
 
-from helper import process_document  # pylint: disable=E0401
+from helper import process_document  # pylint: disable=import-error
 
 processor_id_by_processor_type: Dict[str, str] = {"OCR": "6d7af7fc640a7219"}
 
@@ -43,20 +43,18 @@ class TestHelper(unittest.TestCase):
         mocked_client_instance = MagicMock()
 
         # Mock process document API call to use a fake API response
-        mocked_client_instance.process_document.return_value = (
-            docai.types.ProcessResponse(
-                document=docai.types.Document(
-                    entities=[
-                        docai.types.Document.Entity(
-                            page_anchor=docai.types.Document.PageAnchor(
-                                page_refs=[
-                                    docai.types.Document.PageAnchor.PageRef(page=0),
-                                    docai.types.Document.PageAnchor.PageRef(page=1),
-                                ]
-                            )
+        mocked_client_instance.process_document.return_value = docai.ProcessResponse(
+            document=docai.Document(
+                entities=[
+                    docai.Document.Entity(
+                        page_anchor=docai.Document.PageAnchor(
+                            page_refs=[
+                                docai.Document.PageAnchor.PageRef(page=0),
+                                docai.Document.PageAnchor.PageRef(page=1),
+                            ]
                         )
-                    ]
-                )
+                    )
+                ]
             )
         )
 
@@ -74,8 +72,6 @@ class TestHelper(unittest.TestCase):
             "file_type": "application/pdf",
         }
 
-        processor_response = docai.types.ProcessResponse()
-        processor_response.document = docai.types.Document()
         resp = process_document(
             process_document_request, processor_id_by_processor_type
         )
