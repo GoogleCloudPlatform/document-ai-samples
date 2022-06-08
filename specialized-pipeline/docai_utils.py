@@ -104,7 +104,7 @@ def online_process(
     return result.document
 
 
-def batch_process_documents(
+def batch_process(
     processor_name: str,
     document_batch: List[documentai.GcsDocument],
     gcs_output_uri: str,
@@ -159,7 +159,7 @@ def get_batch_process_output(
     # Should be one process for each source file
     for process in metadata.individual_process_statuses:
         # URI: gs://BUCKET/PREFIX/OPERATION_NUMBER/0
-        # Trailing / added to prevent "/1/" "/10/" ambiguity
+        # Trailing "/" added to prevent "/1/" "/10/" ambiguity
         blobs = get_blobs_from_gcs_uri(f"{process.output_gcs_destination}/")
 
         # DocAI may output multiple JSON files per source file
