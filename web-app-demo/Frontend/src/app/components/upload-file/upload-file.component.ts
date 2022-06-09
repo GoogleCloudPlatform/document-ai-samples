@@ -20,6 +20,9 @@ import { Component, Input, OnInit } from "@angular/core";
 import { Subscription } from "rxjs";
 import { DataSharingServiceService } from "src/app/data-sharing-service.service";
 
+const ONLINE_PROCESSING_MAX_SIZE = 20000000; // 20 MB
+const ACCEPTED_FILE_TYPES = new Set(["application/pdf", "image/gif", "image/jpeg", "image/png", "image/tiff", "image/bmp", "image/webp"]);
+
 @Component({
   selector: "app-upload-file",
   templateUrl: "./upload-file.component.html",
@@ -46,7 +49,7 @@ export class UploadFileComponent implements OnInit {
    * @constructor
    * @param {DataSharingServiceService} data - data sharing service
    */
-  constructor(public data: DataSharingServiceService) {}
+  constructor(public data: DataSharingServiceService) { }
 
   /**
    * subscribes to specific variables on init
@@ -69,16 +72,24 @@ export class UploadFileComponent implements OnInit {
   async handleFileInput(e: Event) {
     const files = (e.target as HTMLInputElement).files!;
     this.fileName = files[0].name;
-    if (files[0].type == "application/pdf" && files[0].size < 20000001) {
-      this.data.changeShowError(false);
-      this.data.changeErrorMessage("");
-      this.data.changeFile(files[0]);
-      this.data.changeFileName(files[0].name);
-    } else {
+
+    if (files[0].size > ONLINE_PROCESSING_MAX_SIZE) {
+      this.data.changeShowError(true);
+      this.data.changeErrorMessage(
+        "ERROR : File is too large. Please upload a file smaller than 20 MB."
+      );
+      return;
+    }
+    if (!ACCEPTED_FILE_TYPES.has(files[0].type)) {
       this.data.changeShowError(true);
       this.data.changeErrorMessage(
         "ERROR : File type does not match accepted type (PDF)"
       );
+      return;
     }
+    this.data.changeShowError(false);
+    this.data.changeErrorMessage("");
+    this.data.changeFile(files[0]);
+    this.data.changeFileName(files[0].name);
   }
 }

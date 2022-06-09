@@ -14,19 +14,17 @@
 
 """ Backend API that handles DocAI API calls """
 import os
-from typing import Dict
 from flask import Flask, jsonify, request
 from flask_restful import Api
 from flask_cors import CORS  # comment this on deployment
 
 import google.auth
 
-from api.helper import populate_list_source, process_document, store_file
+from api.helper import get_processors, process_document, store_file
 
 _, project_id = google.auth.default()
 LOCATION = "us"  # Format is 'us' or 'eu'
-
-processor_id_by_processor_type: Dict[str, str] = {}
+DIRECTORY = "api/test_docs"
 
 app = Flask(__name__, static_url_path="", static_folder="")
 
@@ -34,33 +32,20 @@ CORS(app)
 api = Api(app)
 
 
-@app.route("/api/init", methods=["GET"])
-def populate_list():
-    """Gets all available processors that are in the specified GCP project"""
-
-    populate_list_source(project_id, LOCATION, processor_id_by_processor_type)
-    return jsonify(
-        {
-            "resultStatus": "SUCCESS",
-        }
-    )
-
-
 @app.route("/api/docai", methods=["POST"])
 def get_document():
     """Calls process_document and returns document proto"""
 
-    directory = "api/test_docs"
-    for file in os.listdir(directory):
-        os.remove(os.path.join(directory, file))
+    for file in os.listdir(DIRECTORY):
+        os.remove(os.path.join(DIRECTORY, file))
 
-    processor_type = request.form["fileProcessorType"]
+    processor_name = request.form["processorName"]
 
     file = request.files["file"]
     file_type = file.content_type
 
     try:
-        _destination = store_file(file)
+        _destination = store_file(DIRECTORY, file)
     except Exception as err:  # pylint: disable=broad-except
         return {
             "resultStatus": "ERROR",
@@ -68,21 +53,19 @@ def get_document():
         }, 400
 
     process_document_request = {
-        "project_id": project_id,
         "location": LOCATION,
         "file_path": _destination,
-        "processor_type": processor_type,
+        "processor_name": processor_name,
         "file_type": file_type,
     }
 
-    return process_document(process_document_request, processor_id_by_processor_type)
+    return process_document(process_document_request)
 
 
 @app.route("/api/processor/list", methods=["GET"])
 def get_list():
     """Returns list of available processors"""
-
-    processor_list = list(processor_id_by_processor_type.keys())
+    processor_list = get_processors(project_id, LOCATION)
     response = jsonify({"resultStatus": "SUCCESS", "processor_list": processor_list})
 
     return response

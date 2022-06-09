@@ -34,6 +34,12 @@ export interface File {
   size: number;
 }
 
+interface IProcessor {
+  name: string;
+  type: string;
+  displayName: string;
+}
+
 @Component({
   selector: "app-processor-selection",
   templateUrl: "./processor-selection.component.html",
@@ -43,18 +49,17 @@ export interface File {
  * ProcessSelectionComponent - handles file processing
  */
 export class ProcessorSelectionComponent implements OnInit, DoCheck {
-  selectedProcessor = "";
-  processorList: any = {};
-  processorSelectionList: string[] = [];
+
+  processorList: IProcessor[] = [];
 
   /**
    * constructor for ProcessorSelectionComponent
    * @constructor
    * @param {DataSharingServiceService} data - data sharing service
    */
-  constructor(public data: DataSharingServiceService) {}
+  constructor(public data: DataSharingServiceService) { }
 
-  processor!: string;
+  processor!: IProcessor;
   fileName: string = "";
   file!: any;
   showBounding!: boolean;
@@ -118,14 +123,14 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
    * checks if selected processor has changed
    * @return {void}
    */
-  ngDoCheck() {
-    if (
-      this.selectedProcessor != "" &&
-      this.processor != this.selectedProcessor
-    ) {
-      this.data.changeProcessor(this.selectedProcessor);
-    }
-  }
+  // ngDoCheck() {
+  //   if (
+  //     this.selectedProcessor != "" &&
+  //     this.processor.displayName != this.selectedProcessor
+  //   ) {
+  //     this.data.changeProcessor(this.selectedProcessor);
+  //   }
+  // }
 
   /**
    * gets the available processors
@@ -141,15 +146,16 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
         if (json["resultStatus"] == "ERROR") {
           throw new Error(json["errorMessage"]);
         }
-        const retrievedProcessor = json["processor_list"];
 
-        for (let i = 0; i < retrievedProcessor.length; i++) {
-          const key = retrievedProcessor[i].split("_")[0];
-          const value = retrievedProcessor[i];
-
-          this.processorSelectionList.push(key);
-          this.processorList[key] = value;
-        }
+        this.processorList = json["processor_list"];
+        // Add Processors to Display List
+        // const retrievedProcessors: IProcessor[] = json["processor_list"];
+        // for (const processor of retrievedProcessors) {
+        //   // const processorDisplayType = processor.type.replace("_PROCESSOR", "");
+        //   // this.processorSelectionList.push(`${processor.displayName} - ${processorDisplayType}`)
+        //   this.processorSelectionList.push(processor.displayName);
+        //   this.processorList[processor.displayName] = processor;
+        // }
       })
       .catch((error) => {
         this.data.changeShowError(true);
@@ -179,7 +185,7 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
     const data = new FormData();
     data.append("file", this.file);
     data.append("filename", this.fileName);
-    data.append("fileProcessorType", this.processorList[this.processor]);
+    data.append("processorName", this.processor.name);
     data.append("showBounding", String(this.showBounding));
 
     fetch(this.backend + "api/docai", {
@@ -243,51 +249,52 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
 
     const drawClient = new DocumentAnnotation();
 
-    switch (this.processor) {
-      case "FORM":
-        for (let i = 0; i < data.document.pages[0].formFields.length; i++) {
-          drawClient.drawBoundingBoxes(
-            context,
-            canvas,
-            data.document.pages[0].formFields[i].fieldName.boundingPoly,
-            BLUE,
-            "stroke",
-            []
-          );
-          drawClient.drawBoundingBoxes(
-            context,
-            canvas,
-            data.document.pages[0].formFields[i].fieldValue.boundingPoly,
-            RED,
-            "stroke",
-            []
-          );
-        }
-        break;
-      case "OCR":
-        for (let i = 0; i < data.document.pages[0].blocks.length; i++) {
-          drawClient.drawBoundingBoxes(
-            context,
-            canvas,
-            data.document.pages[0].blocks[i].layout.boundingPoly,
-            ORANGE,
-            "stroke",
-            []
-          );
-        }
-        break;
-      case "INVOICE":
-        for (let i = 0; i < data.document.entities.length; i++) {
-          drawClient.drawBoundingBoxes(
-            context,
-            canvas,
-            data.document.entities[i].pageAnchor.pageRefs[0].boundingPoly,
-            BLUE,
-            "stroke",
-            []
-          );
-        }
-        break;
+    // Specialized Processor
+    if (data.document.entities) {
+      for (const entity of data.document.entities) {
+        drawClient.drawBoundingBoxes(
+          context,
+          canvas,
+          entity.pageAnchor.pageRefs[0].boundingPoly,
+          BLUE,
+          "stroke",
+          []
+        );
+      }
+    } else if (data.document.pages[0].formFields) {
+      // Form Parser
+      for (const formField of data.document.pages[0].formFields) {
+        drawClient.drawBoundingBoxes(
+          context,
+          canvas,
+          formField.fieldName.boundingPoly,
+          BLUE,
+          "stroke",
+          []
+        );
+        drawClient.drawBoundingBoxes(
+          context,
+          canvas,
+          formField.fieldValue.boundingPoly,
+          RED,
+          "stroke",
+          []
+        );
+      }
+    } else if (data.document.pages[0].blocks) {
+      // OCR Processor
+      for (const block of data.document.pages[0].blocks) {
+        drawClient.drawBoundingBoxes(
+          context,
+          canvas,
+          block.layout.boundingPoly,
+          ORANGE,
+          "stroke",
+          []
+        );
+      }
     }
+
+    return;
   }
 }

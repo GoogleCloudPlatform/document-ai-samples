@@ -45,7 +45,13 @@ export interface dataSource {
   confidence: number;
 }
 
-interface dataSourceArray extends Array<dataSource> {}
+interface IProcessor {
+  name: string;
+  type: string;
+  displayName: string;
+}
+
+interface dataSourceArray extends Array<dataSource> { }
 
 @Component({
   selector: "app-entity-tab",
@@ -58,7 +64,7 @@ interface dataSourceArray extends Array<dataSource> {}
 export class EntityTabComponent implements OnInit, DoCheck {
   dataSource: dataSourceArray | undefined;
   processIsDone!: boolean;
-  processor!: string;
+  processor!: IProcessor;
   documentProto: any;
 
   subscription!: Subscription;
@@ -68,7 +74,7 @@ export class EntityTabComponent implements OnInit, DoCheck {
    * @constructor
    * @param {DataSharingServiceService} data - data sharing service
    */
-  constructor(public data: DataSharingServiceService) {}
+  constructor(public data: DataSharingServiceService) { }
 
   /**
    * subscribe to variables
@@ -96,15 +102,16 @@ export class EntityTabComponent implements OnInit, DoCheck {
       this.clearAll();
       DATA = [];
 
-      switch (this.processor) {
-        case "OCR":
+      switch (this.processor.type) {
+        case "OCR_PROCESSOR":
           this.extractOCRText(DATA);
           break;
-        case "FORM":
+        case "FORM_PARSER_PROCESSOR":
           this.extractFormText(DATA);
           break;
-        case "INVOICE":
-          this.extractInvoiceText(DATA);
+        // All other Processors (Specialized)
+        default:
+          this.extractEntitiesText(DATA);
           break;
       }
 
@@ -140,11 +147,11 @@ export class EntityTabComponent implements OnInit, DoCheck {
     data:
       | ExtractedText[]
       | {
-          fieldValue: any;
-          fieldName: string;
-          bounding: { x: any; y: any }[];
-          confidence: any;
-        }[]
+        fieldValue: any;
+        fieldName: string;
+        bounding: { x: any; y: any }[];
+        confidence: any;
+      }[]
   ) {
     for (const page of this.documentProto.document.pages) {
       for (const block of page.blocks) {
@@ -176,14 +183,14 @@ export class EntityTabComponent implements OnInit, DoCheck {
     data:
       | ExtractedText[]
       | {
-          fieldValue: any;
-          fieldName: any;
-          bounding: {
-            value: { x: any; y: any }[];
-            name: { x: any; y: any }[];
-          }[];
-          confidence: any;
-        }[]
+        fieldValue: any;
+        fieldName: any;
+        bounding: {
+          value: { x: any; y: any }[];
+          name: { x: any; y: any }[];
+        }[];
+        confidence: any;
+      }[]
   ) {
     for (const page of this.documentProto.document.pages) {
       for (const field of page.formFields) {
@@ -221,19 +228,19 @@ export class EntityTabComponent implements OnInit, DoCheck {
   }
 
   /**
-   * Get invoice text from document proto
+   * Get entity text from document proto
    * @param {ExtractedText[]} data - used for frontend display
    * @return {void}
    */
-  extractInvoiceText(
+  extractEntitiesText(
     data:
       | ExtractedText[]
       | {
-          fieldValue: any;
-          fieldName: any;
-          bounding: { x: any; y: any }[];
-          confidence: any;
-        }[]
+        fieldValue: any;
+        fieldName: any;
+        bounding: { x: any; y: any }[];
+        confidence: any;
+      }[]
   ) {
     for (const entity of this.documentProto.document.entities) {
       const ocrVertices = [];

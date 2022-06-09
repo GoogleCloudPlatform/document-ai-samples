@@ -16,27 +16,24 @@
 
 import os
 import unittest
-from typing import Dict
 from unittest.mock import MagicMock, patch
 
 from google.cloud import documentai_v1 as docai
 
 from helper import process_document  # pylint: disable=import-error
 
-processor_id_by_processor_type: Dict[str, str] = {"OCR": "6d7af7fc640a7219"}
-
 PROCESSOR_TYPE = "processor-type"
 
 PROJECT_ID = "project-id"
 LOCATION = "location"
-PROCESSOR_ID = "processor-id"
+PROCESSOR_ID = "6d7af7fc640a7219"
+PROCESSOR_NAME = f"projects/{PROJECT_ID}/locations/{LOCATION}/processors/{PROCESSOR_ID}"
 
 
 class TestHelper(unittest.TestCase):
     """Testing helper functions"""
 
     @patch("helper.DocumentProcessorServiceClient")
-    # pylint: disable=no-self-use
     def test_process_document_normal(self, process_document_mock):
         """Tests process document in a normal case"""
 
@@ -65,16 +62,13 @@ class TestHelper(unittest.TestCase):
         )
 
         process_document_request = {
-            "project_id": PROJECT_ID,
             "location": LOCATION,
-            "processor_type": "OCR",
+            "processor_name": PROCESSOR_NAME,
             "file_path": os.path.join(__location__, "test_docs/file"),
             "file_type": "application/pdf",
         }
 
-        resp = process_document(
-            process_document_request, processor_id_by_processor_type
-        )
+        resp = process_document(process_document_request)
         self.assertIn("document", str(resp))
 
 

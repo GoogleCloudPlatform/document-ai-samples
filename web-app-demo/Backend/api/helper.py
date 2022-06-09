@@ -11,9 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# pylint: disable-msg=too-many-locals
 
 """ Helper file that holds DocAI API calls"""
+from typing import List, Dict
+
+from google.api_core.client_options import ClientOptions
 from google.cloud.documentai_v1 import (
     DocumentProcessorServiceClient,
     Document,
@@ -24,24 +26,14 @@ from google.cloud.documentai_v1 import (
 # v1 API doesn't support processor Management Functions
 import google.cloud.documentai_v1beta3 as docai_beta3
 
-from google.api_core.client_options import ClientOptions
 
-
-def process_document(process_document_request, processor_id_by_processor_type):
+def process_document(process_document_request: Dict) -> Dict | str:
     """Handles Document AI API call and returns the document proto as JSON"""
 
-    project_id = process_document_request["project_id"]
     location = process_document_request["location"]
     file_path = process_document_request["file_path"]
     file_type = process_document_request["file_type"]
-    processor_type = process_document_request["processor_type"]
-
-    if processor_id_by_processor_type == []:
-        populate_list_source(project_id, location, processor_id_by_processor_type)
-
-    print(processor_id_by_processor_type)
-
-    processor_id = processor_id_by_processor_type[processor_type]
+    processor_name = process_document_request["processor_name"]
 
     # Instantiates a client
     client = DocumentProcessorServiceClient(
@@ -49,11 +41,6 @@ def process_document(process_document_request, processor_id_by_processor_type):
             api_endpoint=f"{location}-documentai.googleapis.com"
         )
     )
-
-    # The full resource name of the processor, e.g.:
-    # projects/project-id/locations/location/processor/processor-id
-    # You must create new processors in the Cloud Console first
-    name = client.processor_path(project_id, location, processor_id)
 
     # TODO : change file handling if the file that was sent in the request is stored in GCS # pylint: disable=fixme
     with open(file_path, "rb") as pdf:
@@ -63,7 +50,7 @@ def process_document(process_document_request, processor_id_by_processor_type):
     document = Document(content=pdf_content, mime_type=file_type)
 
     # Configure the process request
-    request = ProcessRequest(name=name, inline_document=document)
+    request = ProcessRequest(name=processor_name, inline_document=document)
 
     try:
         result = client.process_document(request=request)
@@ -80,18 +67,23 @@ def process_document(process_document_request, processor_id_by_processor_type):
     return json_result
 
 
-# TODO: Store the file that was sent in the request in GCS # pylint: disable=W0511
+# TODO: Store the file that was sent in the request in GCS # pylint: disable=fixme
 
 
-def store_file(file):
+def store_file(directory, file) -> str:
     """Stores the file to specified destination"""
-    destination = "/".join(["api/test_docs", file.name])
+    destination = f"{directory}/{file.name}"
     file.save(destination)
     return destination
 
 
-def populate_list_source(project_id, location, processor_id_by_processor_type):
+def get_processors(project_id, location) -> List:
     """Gets all available processors from the specified GCP project"""
+
+    if location == "ENTER_YOUR_LOCATION_HERE":
+        print("Location was not changed")
+        return []
+
     client = docai_beta3.DocumentProcessorServiceClient(
         client_options=ClientOptions(
             api_endpoint=f"{location}-documentai.googleapis.com"
@@ -101,23 +93,13 @@ def populate_list_source(project_id, location, processor_id_by_processor_type):
     parent = client.common_location_path(project_id, location)
     req = docai_beta3.ListProcessorsRequest(parent=parent)
 
+    # Transforming Pager into List
+    processor_list = []
     try:
-        processor_list = client.list_processors(req)
-
-        for processor in processor_list:
-            # The resource name of the processor follows the following
-            # format `projects/{project}/locations/{location}/processors/{processor}`
-            parsed_path = client.parse_processor_path(processor.name)
-            processor_id_by_processor_type[processor.type_] = parsed_path["processor"]
+        list_processors_pager = client.list_processors(req)
+        for processor in list_processors_pager:
+            processor_list.append(processor)
+        return processor_list
     except Exception as err:  # pylint: disable=broad-except
-        if location == "ENTER_YOUR_LOCATION_HERE":
-            str_error = "Location was not changed"
-        else:
-            str_error = str(err)
-        return {
-            "resultStatus": "ERROR",
-            "errorMessage": str_error,
-        }, 400
-    return {
-        "resultStatus": "SUCCESS",
-    }
+        print(f"Error: {err}")
+        return []

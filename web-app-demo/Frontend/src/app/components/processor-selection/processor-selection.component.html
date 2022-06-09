@@ -17,12 +17,9 @@
 
 <mat-form-field class="processor-selection" appearance="fill">
   <mat-label>Processor Type</mat-label>
-  <mat-select [(ngModel)]="selectedProcessor">
-    <mat-option
-      *ngFor="let selectedProcessor of processorSelectionList"
-      [value]="selectedProcessor"
-    >
-      {{ selectedProcessor }}
+  <mat-select [(ngModel)]="processorList">
+    <mat-option *ngFor="let processor of processorList" [value]="processor.displayName">
+      {{ processor.displayName }}
     </mat-option>
   </mat-select>
 </mat-form-field>
