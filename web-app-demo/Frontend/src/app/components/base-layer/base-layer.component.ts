@@ -34,13 +34,13 @@ export class BaseLayerComponent implements OnInit, DoCheck {
    * @constructor
    * @param {DataSharingServiceService} data - data sharing service
    */
-  constructor(public data: DataSharingServiceService) {}
+  constructor(public data: DataSharingServiceService) { }
   public processingIsDone!: any;
 
   message!: string;
   subscription!: Subscription;
 
-  processor!: string;
+  activeProcessor!: IProcessor;
   fileName!: string;
   file!: any;
   showBounding!: boolean;
@@ -63,8 +63,8 @@ export class BaseLayerComponent implements OnInit, DoCheck {
    * @return {void}
    */
   ngDoCheck() {
-    this.subscription = this.data.processor.subscribe(
-      (message) => (this.processor = message)
+    this.subscription = this.data.activeProcessor.subscribe(
+      (message) => (this.activeProcessor = message)
     );
     this.subscription = this.data.fileName.subscribe(
       (message) => (this.fileName = message)

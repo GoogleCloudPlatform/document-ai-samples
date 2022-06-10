@@ -16,22 +16,16 @@
 -->
 
 <div class="cards">
-  <mat-card
-    class="card card-padding"
-    (mouseenter)="highlightBoundingBoxes(data)"
-    (mouseleave)="clearBoundingBoxes()"
-    *ngFor="let data of dataSource"
-  >
+  <mat-card class="card card-padding" (mouseenter)="highlightBoundingBoxes(data)" (mouseleave)="clearBoundingBoxes()"
+    *ngFor="let data of dataSource">
     <mat-card-title-group>
-      <mat-card-subtitle *ngIf="data.fieldName !== ''">{{
-        data.fieldName
-      }}</mat-card-subtitle>
+      <mat-card-subtitle *ngIf="data.fieldName !== ''">
+        <code>{{data.fieldName}}</code>
+      </mat-card-subtitle>
     </mat-card-title-group>
     <mat-card-content>
       <p class="mat-small">{{ data.fieldValue }}</p>
     </mat-card-content>
-    <mat-card-subtitle
-      >Text Confidence : {{ data.confidence * 100 }}%</mat-card-subtitle
-    >
+    <mat-card-subtitle>Confidence : {{ (data.confidence * 100).toFixed(2) }}%</mat-card-subtitle>
   </mat-card>
 </div>

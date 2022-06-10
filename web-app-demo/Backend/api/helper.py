@@ -27,7 +27,7 @@ from google.cloud.documentai_v1 import (
 import google.cloud.documentai_v1beta3 as docai_beta3
 
 
-def process_document(process_document_request: Dict) -> Dict | str:
+def process_document(process_document_request: Dict) -> str:
     """Handles Document AI API call and returns the document proto as JSON"""
 
     location = process_document_request["location"]
@@ -55,14 +55,11 @@ def process_document(process_document_request: Dict) -> Dict | str:
     try:
         result = client.process_document(request=request)
     except Exception as err:  # pylint: disable=broad-except
-        return {
-            "resultStatus": "ERROR",
-            "errorMessage": str(err),
-        }
+        return str(err)
 
     document = result.document
 
-    json_result = ProcessResponse.to_json(result)
+    json_result = ProcessResponse.to_json(result, including_default_value_fields=False)
 
     return json_result
 
@@ -77,7 +74,7 @@ def store_file(directory, file) -> str:
     return destination
 
 
-def get_processors(project_id, location) -> List:
+def get_processors(project_id, location) -> List[Dict]:
     """Gets all available processors from the specified GCP project"""
 
     if location == "ENTER_YOUR_LOCATION_HERE":
@@ -94,11 +91,15 @@ def get_processors(project_id, location) -> List:
     req = docai_beta3.ListProcessorsRequest(parent=parent)
 
     # Transforming Pager into List
-    processor_list = []
+    processor_list: List[Dict] = []
     try:
         list_processors_pager = client.list_processors(req)
         for processor in list_processors_pager:
-            processor_list.append(processor)
+            processor_list.append(
+                docai_beta3.Processor.to_dict(
+                    processor, preserving_proto_field_name=False
+                )
+            )
         return processor_list
     except Exception as err:  # pylint: disable=broad-except
         print(f"Error: {err}")

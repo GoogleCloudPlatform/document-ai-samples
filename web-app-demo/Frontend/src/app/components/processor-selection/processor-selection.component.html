@@ -16,10 +16,10 @@
 -->
 
 <mat-form-field class="processor-selection" appearance="fill">
-  <mat-label>Processor Type</mat-label>
-  <mat-select [(ngModel)]="processorList">
-    <mat-option *ngFor="let processor of processorList" [value]="processor.displayName">
-      {{ processor.displayName }}
+  <mat-label>Processor Name</mat-label>
+  <mat-select [(ngModel)]="activeProcessor">
+    <mat-option *ngFor="let processor of processorList" [value]="processor">
+      {{ processor.displayName }} - {{ processor.type }}
     </mat-option>
   </mat-select>
 </mat-form-field>

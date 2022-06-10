@@ -36,7 +36,7 @@ export class AppComponent {
   sharingClient = new DataSharingServiceService();
   public static backendURL = "";
 
-  processor!: string;
+  activeProcessor!: IProcessor;
   fileName: string = "";
   file!: any;
   showBounding!: boolean;
@@ -46,41 +46,17 @@ export class AppComponent {
   subscription!: Subscription;
   url!: string[];
   backend!: string;
-  processorList: any = {};
-  processorSelectionList: string[] = [];
-  
-
 
   /**
    * constructor for ProcessorSelectionComponent
    * @constructor
    * @param {DataSharingServiceService} data - data sharing service
    */
-   constructor(public data: DataSharingServiceService) {}
+  constructor(public data: DataSharingServiceService) { }
 
   async ngOnInit(): Promise<void> {
-    this.url = location.href.split("-");
-    this.url.splice(0, 3);
-
-    this.backend = "https://backend-" + this.url.join("-");
-    await fetch(this.backend + "api/init", {
-      method: "GET",
-      mode: "cors",
-    })
-      .then(async (response) => {
-        const json = await response.json();
-        if (json["resultStatus"] == "ERROR") {
-          throw new Error(json.errorMessage);
-        }
-      })
-      .catch((error) => {
-        this.data.changeShowError(true);
-        this.data.changeErrorMessage(error);
-      });
-    this.getAvailableProcessors();
-
-    this.subscription = this.data.processor.subscribe(
-      (message) => (this.processor = message)
+    this.subscription = this.data.activeProcessor.subscribe(
+      (message) => (this.activeProcessor = message)
     );
     this.subscription = this.data.fileName.subscribe(
       (message) => (this.fileName = message)
@@ -101,37 +77,5 @@ export class AppComponent {
       (message) => (this.showError = message)
     );
   }
-
-
-  /**
-   * gets the available processors
-   * @return {void}
-   */
-   getAvailableProcessors() {
-    fetch(this.backend + "api/processor/list", {
-      method: "GET",
-      mode: "cors",
-    })
-      .then(async (response) => {
-        const json = await response.json();
-        if (json["resultStatus"] == "ERROR") {
-          throw new Error(json["errorMessage"]);
-        }
-        const retrievedProcessor = json["processor_list"];
-
-        for (let i = 0; i < retrievedProcessor.length; i++) {
-          const key = retrievedProcessor[i].split("_")[0];
-          const value = retrievedProcessor[i];
-
-          this.processorSelectionList.push(key);
-          this.processorList[key] = value;
-        }
-      })
-      .catch((error) => {
-        this.data.changeShowError(true);
-        this.data.changeErrorMessage(error);
-      });
-  }
-
 
 }

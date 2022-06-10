@@ -9,7 +9,7 @@ This application uses a Flask backend server to handle Document AI API calls and
 
 Before clicking make sure Document AI API is enabled and your project has at least one processor created.
 
-This application currently support OCR, Invoice and Form processors.
+This application supports all [Document AI processors](https://cloud.google.com/document-ai/docs/processors-list).
 
 [![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
 
@@ -23,7 +23,7 @@ once you have the CLI installed run
  gcloud init
 ```
 
-This will create a empty project with billing not setup. To use the APIs this application needs you will need to [setup your billing information](https://cloud.google.com/billing/docs/how-to/manage-billing-account?hl=en_GB)
+This will create a empty project with billing not setup. To use the APIs this application needs you will need to [setup your billing information](https://cloud.google.com/billing/docs/how-to/manage-billing-account)
 
 Once billing is enabled and setup you can then enable the Document AI API by running
 
@@ -115,6 +115,19 @@ To start a local development server run
 ng serve
 ```
 
+NOTE: If you get an error like the following:
+
+```console
+$ ng serve
+bash: ng: command not found
+```
+
+Try running:
+
+```bash
+npm link @angular/cli
+```
+
 The app will automatically reload if you change any of the source files in the Frontend directory.
 
 Navigate to [http://localhost:4200/](http://localhost:4200/) and now you should now be able to see the application.
@@ -123,7 +136,7 @@ Navigate to [http://localhost:4200/](http://localhost:4200/) and now you should 
 
 #### Building the project
 
-Run ng build to build the project. The build artifacts will be stored in the dist/ directory.
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
 ## Components
 

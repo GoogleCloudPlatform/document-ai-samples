@@ -22,22 +22,13 @@ import { DataSharingServiceService } from "src/app/data-sharing-service.service"
 import { DocumentAnnotation } from "../../document-annotation";
 import { AppComponent } from "../../app.component";
 
-const LAYER2 = "layer2";
-const RED = "#FF0000";
-const BLUE = "#0000FF";
-const ORANGE = "#FFA500";
+import { OCR_PROCESSOR, FORM_PARSER, BLUE, RED, ORANGE, LAYER2 } from "../../consts";
 
 export interface File {
   content: string;
   name: string;
   type: string;
   size: number;
-}
-
-interface IProcessor {
-  name: string;
-  type: string;
-  displayName: string;
 }
 
 @Component({
@@ -50,8 +41,6 @@ interface IProcessor {
  */
 export class ProcessorSelectionComponent implements OnInit, DoCheck {
 
-  processorList: IProcessor[] = [];
-
   /**
    * constructor for ProcessorSelectionComponent
    * @constructor
@@ -59,7 +48,8 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
    */
   constructor(public data: DataSharingServiceService) { }
 
-  processor!: IProcessor;
+  activeProcessor!: IProcessor;
+  processorList: IProcessor[] = [];
   fileName: string = "";
   file!: any;
   showBounding!: boolean;
@@ -76,28 +66,38 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
    * @return {void}
    */
   async ngOnInit(): Promise<void> {
-    this.url = location.href.split("-");
-    this.url.splice(0, 3);
 
-    this.backend = "https://backend-" + this.url.join("-");
-    await fetch(this.backend + "api/init", {
+    // Special case for Cloud Run Button
+    if (location.href.includes("-")) {
+      this.url = location.href.split("-");
+      this.url.splice(0, 3);
+      this.backend = "https://backend-" + this.url.join("-");
+    } else if (location.href.includes("localhost")) {
+      this.backend = "http://localhost:5000/";
+    } else {
+      this.url = [location.href];
+      this.backend = location.href;
+    }
+
+    await fetch(this.backend + "api/processor/list", {
       method: "GET",
       mode: "cors",
     })
       .then(async (response) => {
         const json = await response.json();
         if (json["resultStatus"] == "ERROR") {
-          throw new Error(json.errorMessage);
+          throw new Error(json["errorMessage"]);
         }
+
+        this.processorList = json["processorList"];
       })
       .catch((error) => {
         this.data.changeShowError(true);
         this.data.changeErrorMessage(error);
       });
-    this.getAvailableProcessors();
 
-    this.subscription = this.data.processor.subscribe(
-      (message) => (this.processor = message)
+    this.subscription = this.data.activeProcessor.subscribe(
+      (message) => (this.activeProcessor = message)
     );
     this.subscription = this.data.fileName.subscribe(
       (message) => (this.fileName = message)
@@ -123,44 +123,10 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
    * checks if selected processor has changed
    * @return {void}
    */
-  // ngDoCheck() {
-  //   if (
-  //     this.selectedProcessor != "" &&
-  //     this.processor.displayName != this.selectedProcessor
-  //   ) {
-  //     this.data.changeProcessor(this.selectedProcessor);
-  //   }
-  // }
-
-  /**
-   * gets the available processors
-   * @return {void}
-   */
-  getAvailableProcessors() {
-    fetch(this.backend + "api/processor/list", {
-      method: "GET",
-      mode: "cors",
-    })
-      .then(async (response) => {
-        const json = await response.json();
-        if (json["resultStatus"] == "ERROR") {
-          throw new Error(json["errorMessage"]);
-        }
-
-        this.processorList = json["processor_list"];
-        // Add Processors to Display List
-        // const retrievedProcessors: IProcessor[] = json["processor_list"];
-        // for (const processor of retrievedProcessors) {
-        //   // const processorDisplayType = processor.type.replace("_PROCESSOR", "");
-        //   // this.processorSelectionList.push(`${processor.displayName} - ${processorDisplayType}`)
-        //   this.processorSelectionList.push(processor.displayName);
-        //   this.processorList[processor.displayName] = processor;
-        // }
-      })
-      .catch((error) => {
-        this.data.changeShowError(true);
-        this.data.changeErrorMessage(error);
-      });
+  ngDoCheck() {
+    if (this.activeProcessor) {
+      this.data.changeActiveProcessor(this.activeProcessor);
+    }
   }
 
   /**
@@ -172,20 +138,14 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
     if (this.fileName == "" || this.file == null) {
       this.data.changeProcessInProgress(false);
       this.data.changeShowError(true);
-      this.data.changeErrorMessage("ERROR : PDF was not selected");
-      return;
-    } else if (this.file.type != "application/pdf") {
-      this.data.changeShowError(true);
-      this.data.changeErrorMessage(
-        "ERROR : File type does not match accepted type (PDF)"
-      );
+      this.data.changeErrorMessage("ERROR : File was not selected");
       return;
     }
 
     const data = new FormData();
     data.append("file", this.file);
     data.append("filename", this.fileName);
-    data.append("processorName", this.processor.name);
+    data.append("processorName", this.activeProcessor.name);
     data.append("showBounding", String(this.showBounding));
 
     fetch(this.backend + "api/docai", {
@@ -249,52 +209,54 @@ export class ProcessorSelectionComponent implements OnInit, DoCheck {
 
     const drawClient = new DocumentAnnotation();
 
-    // Specialized Processor
-    if (data.document.entities) {
-      for (const entity of data.document.entities) {
-        drawClient.drawBoundingBoxes(
-          context,
-          canvas,
-          entity.pageAnchor.pageRefs[0].boundingPoly,
-          BLUE,
-          "stroke",
-          []
-        );
-      }
-    } else if (data.document.pages[0].formFields) {
-      // Form Parser
-      for (const formField of data.document.pages[0].formFields) {
-        drawClient.drawBoundingBoxes(
-          context,
-          canvas,
-          formField.fieldName.boundingPoly,
-          BLUE,
-          "stroke",
-          []
-        );
-        drawClient.drawBoundingBoxes(
-          context,
-          canvas,
-          formField.fieldValue.boundingPoly,
-          RED,
-          "stroke",
-          []
-        );
-      }
-    } else if (data.document.pages[0].blocks) {
-      // OCR Processor
-      for (const block of data.document.pages[0].blocks) {
-        drawClient.drawBoundingBoxes(
-          context,
-          canvas,
-          block.layout.boundingPoly,
-          ORANGE,
-          "stroke",
-          []
-        );
-      }
+    switch (this.activeProcessor.type) {
+      case OCR_PROCESSOR:
+        for (const block of data.document.pages[0].blocks) {
+          drawClient.drawBoundingBoxes(
+            context,
+            canvas,
+            block.layout.boundingPoly,
+            ORANGE,
+            "stroke",
+            []
+          );
+        }
+        break;
+      case FORM_PARSER:
+        for (const formField of data.document.pages[0].formFields) {
+          drawClient.drawBoundingBoxes(
+            context,
+            canvas,
+            formField.fieldName.boundingPoly,
+            BLUE,
+            "stroke",
+            []
+          );
+          drawClient.drawBoundingBoxes(
+            context,
+            canvas,
+            formField.fieldValue.boundingPoly,
+            RED,
+            "stroke",
+            []
+          );
+        }
+        break;
+      default:
+        // Specialized Processor
+        for (const entity of data.document.entities) {
+          if (entity?.pageAnchor?.pageRefs[0]?.boundingPoly) {
+            drawClient.drawBoundingBoxes(
+              context,
+              canvas,
+              entity.pageAnchor.pageRefs[0].boundingPoly,
+              BLUE,
+              "stroke",
+              []
+            );
+          }
+        }
     }
-
     return;
   }
 }

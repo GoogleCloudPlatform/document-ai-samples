@@ -22,7 +22,7 @@ export interface NormalizedVerticesEntity {
   y: number;
 }
 
-interface BoundingPolyArray extends Array<NormalizedVerticesEntity> {}
+interface BoundingPolyArray extends Array<NormalizedVerticesEntity> { }
 
 /**
  * Class that handles bounding box drawing
@@ -46,6 +46,13 @@ export class DocumentAnnotation {
     fillOrStroke: string,
     boundingPolyArray: BoundingPolyArray
   ): void {
+
+    if (
+      (!boundingPoly || boundingPoly.normalizedVertices.length === 0) &&
+      (!boundingPolyArray || boundingPolyArray.length === 0)) {
+      return;
+    }
+
     let ocrVertices = [];
     context.strokeStyle = color;
 

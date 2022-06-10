@@ -30,7 +30,7 @@ export class DataSharingServiceService {
   private fileSource = new BehaviorSubject("");
   private documentProtoSource = new BehaviorSubject("");
   private processingIsDoneSource = new BehaviorSubject(false);
-  private processorSource = new BehaviorSubject("");
+  private activeProcessorSource = new BehaviorSubject<IProcessor>({ "name": "", "type": "", "displayName": "" });
   private processIsDoneSource = new BehaviorSubject(false);
   private showBoundingSource = new BehaviorSubject(false);
   private processingInProgressSource = new BehaviorSubject(false);
@@ -41,7 +41,7 @@ export class DataSharingServiceService {
   file = this.fileSource.asObservable();
   documentProto = this.documentProtoSource.asObservable();
   processingIsDone = this.processIsDoneSource.asObservable();
-  processor = this.processorSource.asObservable();
+  activeProcessor = this.activeProcessorSource.asObservable();
   processorIsDone = this.processIsDoneSource.asObservable();
   showBounding = this.showBoundingSource.asObservable();
   processingInProgress = this.processingInProgressSource.asObservable();
@@ -84,12 +84,12 @@ export class DataSharingServiceService {
   }
 
   /**
-   * changes the processor variable
+   * changes the activeProcessor variable
    * @param {any} message we want to set.
    * @return {void}
    */
-  changeProcessor(message: string) {
-    this.processorSource.next(message);
+  changeActiveProcessor(message: IProcessor) {
+    this.activeProcessorSource.next(message);
   }
 
   /**

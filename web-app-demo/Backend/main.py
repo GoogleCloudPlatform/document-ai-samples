@@ -66,7 +66,7 @@ def get_document():
 def get_list():
     """Returns list of available processors"""
     processor_list = get_processors(project_id, LOCATION)
-    response = jsonify({"resultStatus": "SUCCESS", "processor_list": processor_list})
+    response = jsonify({"resultStatus": "SUCCESS", "processorList": processor_list})
 
     return response
 

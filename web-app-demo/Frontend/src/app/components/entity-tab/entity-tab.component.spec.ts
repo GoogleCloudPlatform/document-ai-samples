@@ -115,7 +115,7 @@ describe("EntityTabComponent", () => {
     const component2 = fixture2.componentInstance;
     component2.ngOnInit();
 
-    dataSharing.changeProcessor("OCR");
+    dataSharing.changeActiveProcessor("OCR");
 
     component.highlightBoundingBoxes(data);
 
@@ -129,7 +129,7 @@ describe("EntityTabComponent", () => {
     const component2 = fixture2.componentInstance;
     component2.ngOnInit();
 
-    dataSharing.changeProcessor("Invoice");
+    dataSharing.changeActiveProcessor("Invoice");
 
     component.highlightBoundingBoxes(data);
 
@@ -143,7 +143,7 @@ describe("EntityTabComponent", () => {
     const component2 = fixture2.componentInstance;
     component2.ngOnInit();
 
-    dataSharing.changeProcessor("Form");
+    dataSharing.changeActiveProcessor("Form");
 
     const data = {
       bounding: [

@@ -21,34 +21,24 @@ import { Subscription } from "rxjs";
 import { DataSharingServiceService } from "src/app/data-sharing-service.service";
 import { DocumentAnnotation } from "src/app/document-annotation";
 
+import { OCR_PROCESSOR, FORM_PARSER, LAYER1, LAYER2, LAYER3, RED_HIGHLIGHT, BLUE_HIGHLIGHT, ORANGE_HIGHLIGHT } from "../../consts";
+
 export interface ExtractedText {
   fieldValue: string;
   fieldName: string;
   bounding: any;
   confidence: number;
+  normalizedValue?: string;
 }
 
 let DATA: ExtractedText[] = [];
 
-const LAYER1 = "layer1";
-const LAYER2 = "layer2";
-const LAYER3 = "layer3";
-
-const RED = "rgba(255, 0, 0, 0.25)";
-const BLUE = "rgba(0, 0, 255, 0.25)";
-const ORANGE = "rgba(255,165,0, 0.25)";
 
 export interface dataSource {
   fieldValue: string;
   fieldName: string;
   bounding: [{ x: number; y: number }];
   confidence: number;
-}
-
-interface IProcessor {
-  name: string;
-  type: string;
-  displayName: string;
 }
 
 interface dataSourceArray extends Array<dataSource> { }
@@ -64,7 +54,7 @@ interface dataSourceArray extends Array<dataSource> { }
 export class EntityTabComponent implements OnInit, DoCheck {
   dataSource: dataSourceArray | undefined;
   processIsDone!: boolean;
-  processor!: IProcessor;
+  activeProcessor!: IProcessor;
   documentProto: any;
 
   subscription!: Subscription;
@@ -84,8 +74,8 @@ export class EntityTabComponent implements OnInit, DoCheck {
     this.subscription = this.data.processorIsDone.subscribe(
       (message) => (this.processIsDone = message)
     );
-    this.subscription = this.data.processor.subscribe(
-      (message) => (this.processor = message)
+    this.subscription = this.data.activeProcessor.subscribe(
+      (message) => (this.activeProcessor = message)
     );
     this.subscription = this.data.documentProto.subscribe(
       (message) => (this.documentProto = message)
@@ -102,11 +92,11 @@ export class EntityTabComponent implements OnInit, DoCheck {
       this.clearAll();
       DATA = [];
 
-      switch (this.processor.type) {
-        case "OCR_PROCESSOR":
+      switch (this.activeProcessor.type) {
+        case OCR_PROCESSOR:
           this.extractOCRText(DATA);
           break;
-        case "FORM_PARSER_PROCESSOR":
+        case FORM_PARSER:
           this.extractFormText(DATA);
           break;
         // All other Processors (Specialized)
@@ -243,19 +233,45 @@ export class EntityTabComponent implements OnInit, DoCheck {
       }[]
   ) {
     for (const entity of this.documentProto.document.entities) {
-      const ocrVertices = [];
+      this.extractEntity(data, entity);
+      if (entity.properties) {
+        for (const property of entity.properties) {
+          this.extractEntity(data, property);
+        }
+      }
+    }
+  }
+
+  /**
+    * Get single entity
+    * @param {ExtractedText[]} data - used for frontend display
+    * @return {void}
+    */
+  extractEntity(data:
+    | ExtractedText[]
+    | {
+      fieldValue: any;
+      fieldName: any;
+      bounding: { x: any; y: any }[];
+      confidence: any;
+    }[], entity: any) {
+
+    const ocrVertices = [];
+
+    if (entity.pageAnchor?.pageRefs[0]?.boundingPoly) {
       const normalizedVertices =
         entity.pageAnchor.pageRefs[0].boundingPoly.normalizedVertices;
       for (const vertex of normalizedVertices) {
         ocrVertices.push({ x: vertex.x, y: vertex.y });
       }
-      data.push({
-        fieldValue: entity.mentionText,
-        fieldName: entity.type,
-        bounding: ocrVertices,
-        confidence: entity.confidence,
-      });
     }
+
+    data.push({
+      fieldValue: entity?.mentionText || "",
+      fieldName: entity.type,
+      bounding: ocrVertices,
+      confidence: entity.confidence
+    });
   }
 
   /**
@@ -266,39 +282,53 @@ export class EntityTabComponent implements OnInit, DoCheck {
   highlightBoundingBoxes(data: any) {
     const canvas = <HTMLCanvasElement>document.getElementById(LAYER3)!;
 
-    // Gets the canvas and sets teh editing mode to draw over everything
+    // Gets the canvas and sets the editing mode to draw over everything
     const context = canvas.getContext("2d")!;
 
     const drawClient = new DocumentAnnotation();
 
     context.globalCompositeOperation = "source-over";
-    if (this.processor == "OCR" || this.processor == "INVOICE") {
-      const color = this.processor == "OCR" ? ORANGE : BLUE;
-      drawClient.drawBoundingBoxes(
-        context,
-        canvas,
-        null,
-        color,
-        "fill",
-        data.bounding
-      );
-    } else if (this.processor == "FORM") {
-      drawClient.drawBoundingBoxes(
-        context,
-        canvas,
-        null,
-        RED,
-        "fill",
-        data.bounding[0].value
-      );
-      drawClient.drawBoundingBoxes(
-        context,
-        canvas,
-        null,
-        BLUE,
-        "fill",
-        data.bounding[0].name
-      );
+
+    switch (this.activeProcessor.type) {
+      case OCR_PROCESSOR:
+        drawClient.drawBoundingBoxes(
+          context,
+          canvas,
+          null,
+          ORANGE_HIGHLIGHT,
+          "fill",
+          data.bounding
+        );
+        break;
+      case FORM_PARSER:
+        drawClient.drawBoundingBoxes(
+          context,
+          canvas,
+          null,
+          RED_HIGHLIGHT,
+          "fill",
+          data.bounding[0].value
+        );
+        drawClient.drawBoundingBoxes(
+          context,
+          canvas,
+          null,
+          BLUE_HIGHLIGHT,
+          "fill",
+          data.bounding[0].name
+        );
+        break;
+      // Specialized
+      default:
+        drawClient.drawBoundingBoxes(
+          context,
+          canvas,
+          null,
+          BLUE_HIGHLIGHT,
+          "fill",
+          data.bounding
+        );
+        break;
     }
   }
 
