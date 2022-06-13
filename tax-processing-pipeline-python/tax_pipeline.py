@@ -44,10 +44,22 @@ def calculate_tax_values(data: dict) -> List[List]:
     if not any([form_1099div, form_1099int, form_1099misc, form_1099nec, form_w2]):
         return []
 
-    # The W2 Parser wasn't giving the full name
-    full_name = form_1099div.get("RecipientName", "")
-    ssn = form_w2.get("SSN", "")
-    address = form_w2.get("EmployeeAddress", "")
+    if form_w2:
+        full_name = form_w2.get("EmployeeName", "")
+        ssn = form_w2.get("SSN", "")
+        address = form_w2.get("EmployeeAddress", "")
+
+    for form in [form_1099div, form_1099int, form_1099misc, form_1099nec]:
+        if not form:
+            continue
+        if not full_name:
+            full_name = form.get("RecipientName", "")
+        if not ssn:
+            ssn = form.get("RecipientTIN", "")
+        if not address:
+            address = get_address(form)
+        if full_name and ssn and address:
+            break
 
     # Wages, salaries, tips, etc
     line_1 = get_numerical_form_value(form_w2, "WagesTipsOtherCompensation")
@@ -186,11 +198,24 @@ def calculate_tax_values(data: dict) -> List[List]:
     return output_1040
 
 
+def get_address(form: dict) -> str:
+    """
+    Get address from the form.
+    """
+    return (
+        form.get("RecipientAddress", "")
+        or f'{form.get("RecipientAddressLine1", "")} {form.get("RecipientAddressLine2", "")}'
+        or f'{form.get("RecipientStreetAddress", "")} {form.get("RecipientCityStateCountry", "")}'
+    )
+
+
 def get_numerical_form_value(form: dict, form_key: str) -> Decimal:
     """
     Get the value of a form field as a Decimal.
     Remove $ and , from numbers
     """
+    if not form:
+        return Decimal()
     raw_value = form.get(form_key, "0")
     clean_value = raw_value.replace("$", "").replace(",", "") or "0"
     return Decimal(clean_value)
