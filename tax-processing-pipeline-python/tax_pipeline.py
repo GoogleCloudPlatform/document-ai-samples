@@ -44,6 +44,10 @@ def calculate_tax_values(data: dict) -> List[List]:
     if not any([form_1099div, form_1099int, form_1099misc, form_1099nec, form_w2]):
         return []
 
+    full_name = ""
+    ssn = ""
+    address = ""
+
     if form_w2:
         full_name = form_w2.get("EmployeeName", "")
         ssn = form_w2.get("SSN", "")
@@ -121,9 +125,9 @@ def calculate_tax_values(data: dict) -> List[List]:
     output_1040 = [
         # Headers
         # ["Line Number", "Comment", "Data", "Source"],
-        ["", "Full Name", full_name, _FORM_1099DIV],
-        ["", "social security number", ssn, _FORM_W2],
-        ["", "Home address", address, _FORM_W2],
+        ["", "Full Name", full_name, ""],
+        ["", "Social Security Number", ssn, ""],
+        ["", "Home address", address, ""],
         ["1", "Wages, salaries, tips, etc.", line_1, _FORM_W2],
         ["2b", "Taxable interest", line_2b, _FORM_1099INT],
         ["3a", "Qualified dividends", line_3a, _FORM_1099DIV],
