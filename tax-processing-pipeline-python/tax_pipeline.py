@@ -16,7 +16,7 @@
 """Tax Processing Functions"""
 
 from decimal import Decimal
-from typing import List
+from typing import List, Dict, Tuple
 
 _FORM_1099DIV = "FORM_1099DIV"
 _FORM_1099INT = "FORM_1099INT"
@@ -40,30 +40,13 @@ def calculate_tax_values(data: dict) -> List[List]:
     form_1099nec = data.get(_FORM_1099NEC)
     form_w2 = data.get(_FORM_W2)
 
+    all_forms = [form_1099div, form_1099int, form_1099misc, form_1099nec, form_w2]
+
     # Don't continue if no data provided
-    if not any([form_1099div, form_1099int, form_1099misc, form_1099nec, form_w2]):
+    if not any(all_forms):
         return []
-
-    full_name = ""
-    ssn = ""
-    address = ""
-
-    if form_w2:
-        full_name = form_w2.get("EmployeeName", "")
-        ssn = form_w2.get("SSN", "")
-        address = form_w2.get("EmployeeAddress", "")
-
-    for form in [form_1099div, form_1099int, form_1099misc, form_1099nec]:
-        if not form:
-            continue
-        if not full_name:
-            full_name = form.get("RecipientName", "")
-        if not ssn:
-            ssn = form.get("RecipientTIN", "")
-        if not address:
-            address = get_address(form)
-        if full_name and ssn and address:
-            break
+    # Personal Information
+    full_name, ssn, address = get_personal_info(all_forms)
 
     # Wages, salaries, tips, etc
     line_1 = get_numerical_form_value(form_w2, "WagesTipsOtherCompensation")
@@ -202,15 +185,36 @@ def calculate_tax_values(data: dict) -> List[List]:
     return output_1040
 
 
-def get_address(form: dict) -> str:
+def get_personal_info(forms: List[Dict]) -> Tuple[str, str, str]:
     """
-    Get address from the form.
+    Extract Name, SSN, and address from forms.
+    Checks each form to see if it has the information.
     """
-    return (
-        form.get("RecipientAddress", "")
-        or f'{form.get("RecipientAddressLine1", "")} {form.get("RecipientAddressLine2", "")}'
-        or f'{form.get("RecipientStreetAddress", "")} {form.get("RecipientCityStateCountry", "")}'
-    )
+    # pylint: disable=line-too-long
+
+    full_name = ""
+    ssn = ""
+    address = ""
+
+    for form in forms:
+        if full_name and ssn and address:
+            break
+        if not form:
+            continue
+        if not full_name:
+            full_name = form.get("EmployeeName", "") or form.get("RecipientName", "")
+        if not ssn:
+            ssn = form.get("SSN", "") or form.get("RecipientTIN", "")
+        if not address:
+            # Get Address as a single string
+            address = (
+                form.get("EmployeeAddress", "")
+                or form.get("RecipientAddress", "")
+                or f'{form.get("RecipientAddressLine1", "")} {form.get("RecipientAddressLine2", "")}'
+                or f'{form.get("RecipientStreetAddress", "")} {form.get("RecipientCityStateCountry", "")}'
+            )
+
+    return full_name, ssn, address
 
 
 def get_numerical_form_value(form: dict, form_key: str) -> Decimal:
