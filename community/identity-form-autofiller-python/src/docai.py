@@ -18,7 +18,7 @@ import enum
 import io
 import re
 from collections import defaultdict
-from typing import BinaryIO, NamedTuple, Optional
+from typing import BinaryIO, NamedTuple
 
 import google.cloud.documentai_v1 as documentai
 from google.api_core import client_options as client_options_lib
@@ -31,6 +31,7 @@ class ID_PROCESSOR(enum.Enum):
     US_PASSPORT_PROCESSOR = "US_PASSPORT_PROCESSOR"
     FR_DRIVER_LICENSE_PROCESSOR = "FR_DRIVER_LICENSE_PROCESSOR"
     FR_NATIONAL_ID_PROCESSOR = "FR_NATIONAL_ID_PROCESSOR"
+    FR_PASSPORT_PROCESSOR = "FR_PASSPORT_PROCESSOR"
     ID_FRAUD_DETECTION_PROCESSOR = "ID_FRAUD_DETECTION_PROCESSOR"
 
 
@@ -46,10 +47,12 @@ class FIELD(enum.Enum):
     # See https://cloud.google.com/document-ai/docs/fields#other_processors
     PORTRAIT = "Portrait"
     FAMILY_NAME = "Family Name"
+    GIVEN_NAME = "Given Name"
     GIVEN_NAMES = "Given Names"
     DOC_ID = "Document Id"
     EXPIRATION_DATE = "Expiration Date"
     DATE_OF_BIRTH = "Date Of Birth"
+    PLACE_OF_BIRTH = "Place Of Birth"
     ISSUE_DATE = "Issue Date"
     ADDRESS = "Address"
     MRZ_CODE = "MRZ Code"
@@ -73,16 +76,26 @@ COMMON_FIELDS = [
 ]
 
 PROCESSOR_FIELDS = {
-    ID_PROCESSOR.FR_DRIVER_LICENSE_PROCESSOR: COMMON_FIELDS,
-    ID_PROCESSOR.FR_NATIONAL_ID_PROCESSOR: COMMON_FIELDS + [FIELD.ADDRESS],
     ID_PROCESSOR.US_DRIVER_LICENSE_PROCESSOR: COMMON_FIELDS + [FIELD.ADDRESS],
     ID_PROCESSOR.US_PASSPORT_PROCESSOR: COMMON_FIELDS + [FIELD.MRZ_CODE],
+    ID_PROCESSOR.FR_DRIVER_LICENSE_PROCESSOR: COMMON_FIELDS,
+    ID_PROCESSOR.FR_NATIONAL_ID_PROCESSOR: COMMON_FIELDS + [FIELD.ADDRESS],
+    ID_PROCESSOR.FR_PASSPORT_PROCESSOR: COMMON_FIELDS
+    + [FIELD.ADDRESS, FIELD.PLACE_OF_BIRTH],
     ID_PROCESSOR.ID_FRAUD_DETECTION_PROCESSOR: [
         FIELD.IS_IDENTITY_DOCUMENT,
         FIELD.SUSPICIOUS_WORDS,
         FIELD.IMAGE_MANIPULATION,
     ],
 }
+
+# Mapping for field name convention changes
+PROCESSOR_FIELD_REPLACEMENTS = {
+    ID_PROCESSOR.FR_PASSPORT_PROCESSOR: {FIELD.GIVEN_NAMES: FIELD.GIVEN_NAME},
+}
+
+# Snake case convention is being adopted for identity processor field names
+SNAKE_CASE_PROCESSORS = [ID_PROCESSOR.FR_PASSPORT_PROCESSOR]
 
 
 def process_document(
@@ -92,6 +105,7 @@ def process_document(
     location: str,
     processor_id: str,
 ) -> documentai.Document:
+    """Analyze the input file with Document AI and return a structured document."""
     client_options = client_options_lib.ClientOptions(
         api_endpoint=f"{location}-documentai.googleapis.com"
     )
@@ -113,10 +127,12 @@ def process_document(
 def process_document_with_proc(
     file: BinaryIO, mime_type: str, proc: Processor
 ) -> documentai.Document:
+    """Analyze the input file with Document AI and return a structured document."""
     return process_document(file, mime_type, proc.project, proc.location, proc.id)
 
 
 def process_files(files: list[tuple[io.BytesIO, str]], processor: Processor):
+    """Analyze input files with Document AI and return a structured document."""
     if not files:
         raise ValueError("At least one file is expected")
 
@@ -130,8 +146,9 @@ def process_files(files: list[tuple[io.BytesIO, str]], processor: Processor):
 
 
 def group_images_for_processing(images: list[PilImage]) -> tuple[io.BytesIO, str]:
-    if len(images) <= 1:
-        raise ValueError("At least two image are expected")
+    """Group input images into single container to be processed by Document AI."""
+    if len(images) < 2:
+        raise ValueError("At least two images are expected")
 
     format, mime_type = "tiff", "image/tiff"
     params = dict(save_all=True, append_images=images[1:], compression=None)
@@ -147,11 +164,13 @@ def processors_locations() -> list[str]:
 
 
 def frontend_proc_info(processor_type: str, processor_process_endpoint: str) -> str:
+    """Return processor info (opaque string) for exchanges with frontend."""
     proc_info = f"{processor_type}|{processor_process_endpoint}"
     return base64.b64encode(proc_info.encode()).decode()
 
 
-def processor_from_frontend_proc_info(proc_info: str) -> Optional[Processor]:
+def processor_from_frontend_proc_info(proc_info: str) -> Processor | None:
+    """Return processor from opaque string (see frontend_proc_info)."""
     proc_info = base64.b64decode(proc_info.encode()).decode()
     PATTERN = (
         r"(?P<type>[A-Z0-9_]+)\|"
@@ -172,6 +191,9 @@ def processor_from_frontend_proc_info(proc_info: str) -> Optional[Processor]:
 
 
 def frontend_id_processors(project_id: str, api_location: str) -> dict[str, str]:
+    """Return mapping of identity processors to be displayed by frontend.
+    Keys are processor display names, values are opaque strings.
+    """
     import docai_procs  # TODO: merge when processor management is updated to v1
 
     id_processors = dict()
@@ -186,30 +208,45 @@ def frontend_id_processors(project_id: str, api_location: str) -> dict[str, str]
 
 
 def check_processors(project_id: str):
+    """Check/create demo processors."""
     import docai_procs  # TODO: merge when processor management is updated to v1
 
     docai_procs.check_processors(project_id, LOCATIONS, ID_PROCESSORS)
 
 
 def get_document(local_sample: str) -> documentai.Document:
+    """Return document from JSON serialization."""
     with open(local_sample) as json_file:
         json = json_file.read()
     return documentai.Document(documentai.Document.from_json(json))
 
 
 def get_processor_fields(processor: Processor) -> dict:
+    """Return processor field mapping for frontend."""
     all = list()
     images = list()
 
-    for field in PROCESSOR_FIELDS[processor.type]:
-        all.append(field.value)
+    proc_type = processor.type
+    replacements = PROCESSOR_FIELD_REPLACEMENTS.get(proc_type, {})
+    snake_case = proc_type in SNAKE_CASE_PROCESSORS
+
+    for field in PROCESSOR_FIELDS[proc_type]:
+        field = replacements.get(field, field)
+        value = to_snake_case(field.value) if snake_case else field.value
+        all.append(value)
         if field == FIELD.PORTRAIT:
-            images.append(field.value)
+            images.append(value)
 
     return dict(all=all, images=images)
 
 
+def to_snake_case(field: str) -> str:
+    """Return string converted to snake case (e.g. "Given Name" -> "given_name")."""
+    return "".join("_" if c == " " else c.lower() for c in field)
+
+
 def id_data_from_document(document: documentai.Document) -> dict:
+    """Return ID data mapping for frontend."""
     id_data: dict = defaultdict(dict)
 
     for entity in document.entities:
@@ -240,6 +277,7 @@ def id_data_from_document(document: documentai.Document) -> dict:
 def crop_entity(
     doc: documentai.Document, entity: documentai.Document.Entity
 ) -> PilImage:
+    """Return image cropped from page image for detected entity."""
     page_ref = entity.page_anchor.page_refs[0]
     image_page = page_ref.page
     image_content = doc.pages[image_page].image.content
@@ -248,17 +286,21 @@ def crop_entity(
     w, h = doc_image.size
     vertices = vertices_from_bounding_poly(page_ref.bounding_poly, w, h)
     (top, left), (bottom, right) = vertices[0], vertices[2]
-    croped_image = doc_image.crop((top, left, bottom, right))
+    cropped_image = doc_image.crop((top, left, bottom, right))
 
-    return croped_image
+    return cropped_image
 
 
 def vertices_from_bounding_poly(bounding_poly, w, h):
+    """Return bounding polygon (normalized) vertices as image coordinates.
+    Note: Coordinates are not converted to integers as Pillow supports floats.
+    """
     vertices = bounding_poly.normalized_vertices
     return tuple((v.x * w, v.y * h) for v in vertices)
 
 
 def data_url_from_image(image: PilImage) -> str:
+    """Convert image into frontend data URL."""
     image_io = io.BytesIO()
     image.save(image_io, "png")
     base64_string = base64.b64encode(image_io.getvalue()).decode()
