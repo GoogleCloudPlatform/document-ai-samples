@@ -14,27 +14,26 @@
 # pylint: disable-msg=too-many-locals
 
 """ Helper file that holds DocAI API calls"""
-from google.cloud import documentai_v1beta3 as documentai
+from google.cloud.documentai_v1beta3 import (
+    DocumentProcessorServiceClient,
+    Document,
+    ListProcessorsRequest,
+    ProcessRequest,
+    ProcessResponse,
+)
 
 
-def process_document(process_document_request, processor_id_by_processor_type):
+def process_document(process_document_request):
     """Handles Document AI API call and returns the document proto as JSON"""
 
     project_id = process_document_request["project_id"]
     location = process_document_request["location"]
     file_path = process_document_request["file_path"]
     file_type = process_document_request["file_type"]
-    processor_type = process_document_request["processor_type"]
-
-    if processor_id_by_processor_type == []:
-        populate_list_source(project_id, location, processor_id_by_processor_type)
-
-    print(processor_id_by_processor_type)
-
-    processor_id = processor_id_by_processor_type[processor_type]
+    processor_id = process_document_request["processor_id"]
 
     # Instantiates a client
-    client = documentai.DocumentProcessorServiceClient()
+    client = DocumentProcessorServiceClient()
 
     # The full resource name of the processor, e.g.:
     # projects/project-id/locations/location/processor/processor-id
@@ -46,12 +45,12 @@ def process_document(process_document_request, processor_id_by_processor_type):
         pdf_content = pdf.read()
 
     # Read the file into memory
-    document = documentai.Document()
+    document = Document()
     document.content = pdf_content
     document.mime_type = file_type
 
     # Configure the process request
-    request = documentai.ProcessRequest()
+    request = ProcessRequest()
     request.name = name
     request.document = document
 
@@ -66,7 +65,7 @@ def process_document(process_document_request, processor_id_by_processor_type):
 
     document = result.document
 
-    json_result = documentai.ProcessResponse.to_json(result)
+    json_result = ProcessResponse.to_json(result)
 
     return json_result
 
@@ -83,9 +82,9 @@ def store_file(file):
 
 def populate_list_source(project_id, location, processor_id_by_processor_type):
     """Gets all available processors from the specified GCP project"""
-    client = documentai.DocumentProcessorServiceClient()
+    client = DocumentProcessorServiceClient()
 
-    req = documentai.ListProcessorsRequest()
+    req = ListProcessorsRequest()
     req.parent = f"projects/{project_id}/locations/{location}"
 
     try:

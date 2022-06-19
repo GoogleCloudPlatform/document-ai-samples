@@ -40,7 +40,6 @@ class TestMain(unittest.TestCase):
     """Test class for Document AI PDF splitter sample"""
 
     @patch("main.DocumentProcessorServiceClient")
-    # pylint: disable=no-self-use
     def test_split_document(self, mocked_client):
         """Test for Document AI PDF splitter sample"""
 

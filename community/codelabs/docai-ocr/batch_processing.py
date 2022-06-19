@@ -1,52 +1,14 @@
 # type: ignore[1]
 """
 Makes a Batch Processing Request to Document AI
+Creates request with specific documents
 """
 import re
 from typing import List
 
+from google.api_core.client_options import ClientOptions
 from google.cloud import documentai_v1 as documentai
 from google.cloud import storage
-
-
-def get_documents_from_gcs(
-    gcs_output_uri: str, operation_name: str
-) -> List[documentai.Document]:
-    """
-    Download the document output from GCS.
-    """
-
-    # The GCS API requires the bucket name and URI prefix separately
-    match = re.match(r"gs://([^/]+)/(.+)", gcs_output_uri)
-    output_bucket = match.group(1)
-    prefix = match.group(2)
-
-    # Output files will be in a new subdirectory with Operation ID as the name
-    operation_id = re.search(r"operations\/(\d+)", operation_name, re.IGNORECASE).group(
-        1
-    )
-
-    output_directory = f"{prefix}/{operation_id}"
-
-    storage_client = storage.Client()
-
-    # List of all of the files in the directory
-    # `gs://gcs_output_uri/operation_id`
-    blob_list = list(storage_client.list_blobs(output_bucket, prefix=output_directory))
-
-    output_documents = []
-
-    for blob in blob_list:
-        # Document AI should only output JSON files to GCS
-        if ".json" in blob.name:
-            output_document = documentai.types.Document.from_json(
-                blob.download_as_bytes()
-            )
-            output_documents.append(output_document)
-        else:
-            print(f"Skipping non-supported file type {blob.name}")
-
-    return output_documents
 
 
 PROJECT_ID = "YOUR_PROJECT_ID"
@@ -54,16 +16,16 @@ LOCATION = "YOUR_PROJECT_LOCATION"  # Format is 'us' or 'eu'
 PROCESSOR_ID = "YOUR_PROCESSOR_ID"  # Create processor in Cloud Console
 
 # Format 'gs://input_bucket/directory/file.pdf'
-GCS_INPUT_URI = "INPUT_BUCKET_URI"
+GCS_INPUT_URI = "gs://cloud-samples-data/documentai/codelabs/ocr/Winnie_the_Pooh.pdf"
 INPUT_MIME_TYPE = "application/pdf"
 
 # Format 'gs://output_bucket/directory'
 GCS_OUTPUT_URI = "YOUR_OUTPUT_BUCKET_URI"
 
-opts = {"api_endpoint": f"{LOCATION}-documentai.googleapis.com"}
-
 # Instantiates a client
-docai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
+docai_client = documentai.DocumentProcessorServiceClient(
+    client_options=ClientOptions(api_endpoint=f"{LOCATION}-documentai.googleapis.com")
+)
 
 # The full resource name of the processor, e.g.:
 # projects/project-id/locations/location/processor/processor-id
@@ -102,7 +64,7 @@ operation = docai_client.batch_process_documents(request)
 # This could take some time for larger files
 # Format: projects/PROJECT_NUMBER/locations/LOCATION/operations/OPERATION_ID
 print(f"Waiting for operation {operation.operation.name} to complete...")
-result = operation.result(timeout=300)
+operation.result()
 
 # NOTE: Can also use callbacks for asynchronous processing
 #
@@ -113,10 +75,48 @@ result = operation.result(timeout=300)
 
 print("Document processing complete.")
 
-# Get the Document Objects from the Output Bucket
-document_list = get_documents_from_gcs(
-    gcs_output_uri=GCS_OUTPUT_URI, operation_name=operation.operation.name
-)
+# Once the operation is complete,
+# get output document information from operation metadata
+metadata = documentai.BatchProcessMetadata(operation.metadata)
 
-for document in document_list:
-    print(document.text)
+if metadata.state != documentai.BatchProcessMetadata.State.SUCCEEDED:
+    raise ValueError(f"Batch Process Failed: {metadata.state_message}")
+
+documents: List[documentai.Document] = []
+
+# Storage Client to retrieve the output files from GCS
+storage_client = storage.Client()
+
+# One process per Input Document
+# pylint: disable=not-an-iterable
+for process in metadata.individual_process_statuses:
+
+    # output_gcs_destination format: gs://BUCKET/PREFIX/OPERATION_NUMBER/0
+    # The GCS API requires the bucket name and URI prefix separately
+    output_bucket, output_prefix = re.match(
+        r"gs://(.*?)/(.*)", process.output_gcs_destination
+    ).groups()
+
+    # Get List of Document Objects from the Output Bucket
+    output_blobs = storage_client.list_blobs(output_bucket, prefix=output_prefix)
+
+    # DocAI may output multiple JSON files per source file
+    for blob in output_blobs:
+        # Document AI should only output JSON files to GCS
+        if ".json" not in blob.name:
+            print(f"Skipping non-supported file type {blob.name}")
+            continue
+
+        print(f"Fetching {blob.name}")
+
+        # Download JSON File and Convert to Document Object
+        document = documentai.Document.from_json(
+            blob.download_as_bytes(), ignore_unknown_fields=True
+        )
+
+        documents.append(document)
+
+# Print Text from all documents
+# Truncated at 100 characters for brevity
+for document in documents:
+    print(document.text[:100])

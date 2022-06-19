@@ -36,7 +36,7 @@ jobs:
           pip install pylint
       - name: Analyze code with pylint
         run: |
-          pylint $(git ls-files '*.py')
+          pylint "$(git ls-files '*.py')"
       - name: Run unit tests
         run: |
           python main_test.py

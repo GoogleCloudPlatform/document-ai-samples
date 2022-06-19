@@ -16,7 +16,7 @@
 """Tax Processing Functions"""
 
 from decimal import Decimal
-from typing import List
+from typing import List, Dict, Tuple
 
 _FORM_1099DIV = "FORM_1099DIV"
 _FORM_1099INT = "FORM_1099INT"
@@ -40,14 +40,13 @@ def calculate_tax_values(data: dict) -> List[List]:
     form_1099nec = data.get(_FORM_1099NEC)
     form_w2 = data.get(_FORM_W2)
 
-    # Don't continue if no data provided
-    if not any([form_1099div, form_1099int, form_1099misc, form_1099nec, form_w2]):
-        return []
+    all_forms = [form_1099div, form_1099int, form_1099misc, form_1099nec, form_w2]
 
-    # The W2 Parser wasn't giving the full name
-    full_name = form_1099div.get("RecipientName", "")
-    ssn = form_w2.get("SSN", "")
-    address = form_w2.get("EmployeeAddress", "")
+    # Don't continue if no data provided
+    if not any(all_forms):
+        return []
+    # Personal Information
+    full_name, ssn, address = get_personal_info(all_forms)
 
     # Wages, salaries, tips, etc
     line_1 = get_numerical_form_value(form_w2, "WagesTipsOtherCompensation")
@@ -109,9 +108,9 @@ def calculate_tax_values(data: dict) -> List[List]:
     output_1040 = [
         # Headers
         # ["Line Number", "Comment", "Data", "Source"],
-        ["", "Full Name", full_name, _FORM_1099DIV],
-        ["", "social security number", ssn, _FORM_W2],
-        ["", "Home address", address, _FORM_W2],
+        ["", "Full Name", full_name, ""],
+        ["", "Social Security Number", ssn, ""],
+        ["", "Home address", address, ""],
         ["1", "Wages, salaries, tips, etc.", line_1, _FORM_W2],
         ["2b", "Taxable interest", line_2b, _FORM_1099INT],
         ["3a", "Qualified dividends", line_3a, _FORM_1099DIV],
@@ -186,11 +185,45 @@ def calculate_tax_values(data: dict) -> List[List]:
     return output_1040
 
 
+def get_personal_info(forms: List[Dict]) -> Tuple[str, str, str]:
+    """
+    Extract Name, SSN, and address from forms.
+    Checks each form to see if it has the information.
+    """
+    # pylint: disable=line-too-long
+
+    full_name = ""
+    ssn = ""
+    address = ""
+
+    for form in forms:
+        if full_name and ssn and address:
+            break
+        if not form:
+            continue
+        if not full_name:
+            full_name = form.get("EmployeeName", "") or form.get("RecipientName", "")
+        if not ssn:
+            ssn = form.get("SSN", "") or form.get("RecipientTIN", "")
+        if not address:
+            # Get Address as a single string
+            address = (
+                form.get("EmployeeAddress", "")
+                or form.get("RecipientAddress", "")
+                or f'{form.get("RecipientAddressLine1", "")} {form.get("RecipientAddressLine2", "")}'
+                or f'{form.get("RecipientStreetAddress", "")} {form.get("RecipientCityStateCountry", "")}'
+            )
+
+    return full_name, ssn, address
+
+
 def get_numerical_form_value(form: dict, form_key: str) -> Decimal:
     """
     Get the value of a form field as a Decimal.
     Remove $ and , from numbers
     """
+    if not form:
+        return Decimal()
     raw_value = form.get(form_key, "0")
     clean_value = raw_value.replace("$", "").replace(",", "") or "0"
     return Decimal(clean_value)

@@ -28,23 +28,19 @@ def online_process(
     resource_name = documentai_client.processor_path(project_id, location, processor_id)
 
     # Read the file into memory
-    with open(file_path, "rb") as image:
-        image_content = image.read()
+    with open(file_path, "rb") as file:
+        file_content = file.read()
 
-        # Load Binary Data into Document AI RawDocument Object
-        raw_document = documentai.RawDocument(
-            content=image_content, mime_type=mime_type
-        )
+    # Load Binary Data into Document AI RawDocument Object
+    raw_document = documentai.RawDocument(content=file_content, mime_type=mime_type)
 
-        # Configure the process request
-        request = documentai.ProcessRequest(
-            name=resource_name, raw_document=raw_document
-        )
+    # Configure the process request
+    request = documentai.ProcessRequest(name=resource_name, raw_document=raw_document)
 
-        # Use the Document AI client to process the sample form
-        result = documentai_client.process_document(request=request)
+    # Use the Document AI client to process the sample form
+    result = documentai_client.process_document(request=request)
 
-        return result.document
+    return result.document
 
 
 PROJECT_ID = "YOUR_PROJECT_ID"
@@ -75,7 +71,7 @@ pages = []
 for entity in document.entities:
     classification = entity.type_
     types.append(classification)
-    confidence.append(entity.confidence)
+    confidence.append(f"{entity.confidence:.0%}")
 
     # entity.page_ref contains the pages that match the classification
     pages_list = []

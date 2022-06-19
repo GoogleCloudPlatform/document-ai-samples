@@ -1,5 +1,8 @@
 {
   "name": "web-app-demo",
+  "options": {
+    "allow-unauthenticated": true
+  },
   "hooks": {
     "prebuild": {
       "commands": [
