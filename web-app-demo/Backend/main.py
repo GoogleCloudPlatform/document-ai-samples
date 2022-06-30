@@ -77,7 +77,7 @@ def get_document():
         "location": LOCATION,
         "file_path": _destination,
         "file_type": file_type,
-        "processor_id": processor_id
+        "processor_id": processor_id,
     }
 
     return process_document(process_document_request)
