@@ -71,14 +71,12 @@ class TestHelper(unittest.TestCase):
             "location": LOCATION,
             "file_path": os.path.join(__location__, "test_docs/file"),
             "file_type": "application/pdf",
-            "processor_id": PROCESSOR_ID
+            "processor_id": PROCESSOR_ID,
         }
 
         processor_response = docai.types.ProcessResponse()
         processor_response.document = docai.types.Document()
-        resp = process_document(
-            process_document_request
-        )
+        resp = process_document(process_document_request)
         self.assertIn("document", str(resp))
 
 
