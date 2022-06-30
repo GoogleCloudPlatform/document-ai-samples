@@ -36,6 +36,7 @@ PROCESSOR_NAME = f"projects/{PROJECT_ID}/locations/{LOCATION}/processors/{PROCES
 
 TEST_FILENAME = "multi_document.pdf"
 
+
 class TestMain(unittest.TestCase):
     """Test class for Document AI PDF splitter sample"""
 
@@ -157,7 +158,7 @@ class TestMain(unittest.TestCase):
                                     docai.types.Document.PageAnchor.PageRef(page=9),
                                 ]
                             )
-                        )
+                        ),
                     ]
                 )
             )
@@ -184,7 +185,7 @@ class TestMain(unittest.TestCase):
             )
         )
 
-        expect_filenames_and_pages ={
+        expect_filenames_and_pages = {
             "subdoc_1_of_3_multi_document.pdf": 3,
             "subdoc_2_of_3_multi_document.pdf": 4,
             "subdoc_3_of_3_multi_document.pdf": 3,
@@ -198,7 +199,6 @@ class TestMain(unittest.TestCase):
 
         # Clean up test files
         shutil.rmtree(temp_out_dir)
-
 
 
 if __name__ == "__main__":
