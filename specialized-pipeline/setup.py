@@ -13,27 +13,29 @@
 # limitations under the License.
 
 """Initialize Document AI Processors and Config File"""
+from typing import Dict
 
 from google.api_core.exceptions import GoogleAPICallError
 
 from consts import (
     CONFIG,
+    PROCESSOR_CONFIG_FIELD,
+    PROCESSOR_NAME_PREFIX,
     DEFAULT_PROJECT_ID,
     DEFAULT_LOCATION,
     GCS_REGION,
     GCS_INPUT_BUCKET,
-    GCS_OUTPUT_BUCKET,
+    GCS_CLASSIFIER_OUTPUT_BUCKET,
+    GCS_PARSER_OUTPUT_BUCKET,
     GCS_ARCHIVE_BUCKET,
     GCS_SPLIT_BUCKET,
     write_yaml,
 )
 
-from docai_processors import create_processor, fetch_processor_types
+from docai_utils import create_processor, fetch_processor_types
 
 from gcs_utils import create_bucket
 
-PROCESSOR_NAME_PREFIX = "demo2022-"
-PROCESSOR_CONFIG_FIELD = "document_ai"
 
 DEMO_PROCESSORS = set(
     {
@@ -48,16 +50,16 @@ DEMO_PROCESSORS = set(
 )
 
 
-def create_docai_processors():
+def create_docai_processors(
+    project_id: str = DEFAULT_PROJECT_ID, location: str = DEFAULT_LOCATION
+) -> None:
     """
     Create Document AI Processors
     """
     # List Available Processor Types
-    available_processor_types = fetch_processor_types(
-        DEFAULT_PROJECT_ID, DEFAULT_LOCATION
-    )
+    available_processor_types = fetch_processor_types(project_id, location)
 
-    created_processors = {}
+    created_processors: Dict[str, str] = {}
 
     # Create Processors
     for processor_type in available_processor_types:
@@ -69,7 +71,7 @@ def create_docai_processors():
 
         if not processor_type.allow_creation:
             print(
-                f"Project {DEFAULT_PROJECT_ID} does not have \
+                f"Project {project_id} does not have \
                     permission to create {processor_type_name}."
             )
             continue
@@ -79,10 +81,10 @@ def create_docai_processors():
 
         try:
             processor = create_processor(
-                DEFAULT_PROJECT_ID,
-                DEFAULT_LOCATION,
-                display_name,
+                display_name=display_name,
                 processor_type=processor_type_name,
+                project_id=project_id,
+                location=location,
             )
         except GoogleAPICallError as exception:
             print("Could not create processor:", display_name)
@@ -103,7 +105,12 @@ def create_gcs_buckets():
     Create Cloud Storage Buckets (If they don't already exist)
     """
     create_bucket(GCS_INPUT_BUCKET, project_id=DEFAULT_PROJECT_ID, location=GCS_REGION)
-    create_bucket(GCS_OUTPUT_BUCKET, project_id=DEFAULT_PROJECT_ID, location=GCS_REGION)
+    create_bucket(
+        GCS_CLASSIFIER_OUTPUT_BUCKET, project_id=DEFAULT_PROJECT_ID, location=GCS_REGION
+    )
+    create_bucket(
+        GCS_PARSER_OUTPUT_BUCKET, project_id=DEFAULT_PROJECT_ID, location=GCS_REGION
+    )
     create_bucket(
         GCS_ARCHIVE_BUCKET, project_id=DEFAULT_PROJECT_ID, location=GCS_REGION
     )

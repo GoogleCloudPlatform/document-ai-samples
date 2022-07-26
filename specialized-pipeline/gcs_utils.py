@@ -18,8 +18,8 @@ import re
 import logging
 from typing import Set, List, Tuple, Any
 
-from google.cloud import storage
-from google.cloud import documentai_v1 as documentai
+from google.cloud.storage import Client, Blob
+from google.cloud.documentai_v1 import GcsDocument
 
 from consts import (
     BATCH_MAX_FILES,
@@ -28,19 +28,19 @@ from consts import (
 )
 
 
-storage_client = storage.Client()
+_storage_client = Client()
 
 
 def create_bucket(bucket_name: str, project_id: str, location: str) -> None:
     """
     Create bucket if it does not exist
     """
-    bucket = storage_client.bucket(bucket_name)
+    bucket = _storage_client.bucket(bucket_name)
     if bucket.exists():
         print(f"Bucket {bucket_name} already exists")
         return
 
-    storage_client.create_bucket(bucket, project=project_id, location=location)
+    _storage_client.create_bucket(bucket, project=project_id, location=location)
     print(f"Created bucket {bucket_name}")
 
 
@@ -63,21 +63,21 @@ def create_gcs_uri(bucket_name: str, object_name: str) -> str:
     return f"gs://{bucket_name}/{object_name}"
 
 
-def get_blob_from_gcs(bucket_name: str, object_name: str) -> storage.Blob:
+def get_blob_from_gcs(bucket_name: str, object_name: str) -> Blob:
     """
     Get Blob from GCS
     """
-    return storage_client.bucket(bucket_name).blob(object_name)
+    return _storage_client.bucket(bucket_name).blob(object_name)
 
 
-def get_blobs_from_gcs_uri(gcs_uri: str) -> List[storage.Blob]:
+def get_blobs_from_gcs_uri(gcs_uri: str) -> List[Blob]:
     """
     Get Blobs from GCS by URI
     """
     bucket_name, prefix = split_gcs_uri(gcs_uri)
     if not bucket_name or not prefix:
         return []
-    return storage_client.list_blobs(bucket_name, prefix=prefix)
+    return _storage_client.list_blobs(bucket_name, prefix=prefix)
 
 
 def upload_file_to_gcs(
@@ -86,7 +86,7 @@ def upload_file_to_gcs(
     """
     Upload file to GCS
     """
-    storage_client.bucket(bucket_name).blob(object_name).upload_from_file(
+    _storage_client.bucket(bucket_name).blob(object_name).upload_from_file(
         file_obj, content_type=mime_type
     )
 
@@ -95,7 +95,7 @@ def create_batches(
     input_bucket: str,
     input_prefix: str,
     batch_size: int = BATCH_MAX_FILES,
-) -> List[List[documentai.GcsDocument]]:
+) -> List[List[GcsDocument]]:
     """
     Create batches of documents to process
     """
@@ -105,10 +105,10 @@ def create_batches(
             f"You provided {batch_size}"
         )
 
-    blob_list = storage_client.list_blobs(input_bucket, prefix=input_prefix)
+    blob_list = _storage_client.list_blobs(input_bucket, prefix=input_prefix)
 
-    batches: List[List[documentai.GcsDocument]] = []
-    batch: List[documentai.GcsDocument] = []
+    batches: List[List[GcsDocument]] = []
+    batch: List[GcsDocument] = []
 
     for blob in blob_list:
 
@@ -123,7 +123,7 @@ def create_batches(
             batch = []
 
         batch.append(
-            documentai.GcsDocument(
+            GcsDocument(
                 gcs_uri=create_gcs_uri(input_bucket, blob.name),
                 mime_type=blob.content_type,
             )
@@ -142,9 +142,9 @@ def cleanup_gcs(
     Move Input Files to Archive Bucket
     """
 
-    source_bucket = storage_client.bucket(input_bucket)
-    destination_bucket = storage_client.bucket(archive_bucket)
-    source_blobs = storage_client.list_blobs(input_bucket, prefix=input_prefix)
+    source_bucket = _storage_client.bucket(input_bucket)
+    destination_bucket = _storage_client.bucket(archive_bucket)
+    source_blobs = _storage_client.list_blobs(input_bucket, prefix=input_prefix)
 
     for source_blob in source_blobs:
         logging.info("Moving %s to %s", source_blob.name, archive_bucket)

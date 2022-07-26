@@ -7,10 +7,13 @@ cloud_storage:
     # Bucket containing original files before processing
     input_bucket: INPUT_BUCKET_NAME # Format: bucket-name
     input_prefix: INPUT_PREFIX # Format directory/subdirectory
-    # Bucket for output Document.json files
-    output_bucket: OUTPUT_BUCKET_NAME
-    output_prefix: OUTPUT_PREFIX
-    # Bucket for files split by classification
+    # Bucket for Splitter/Classifier output Document.json files
+    classifier_output_bucket: CLASSIFIER_OUTPUT_BUCKET_NAME
+    classifier_output_prefix: CLASSIFIER_OUTPUT_PREFIX
+    # Bucket for Specialized Parser output Document.json files
+    parser_output_bucket: PARSER_OUTPUT_BUCKET_NAME
+    parser_output_prefix: PARSER_OUTPUT_PREFIX
+    # Bucket for pdf files split by classification
     split_bucket: SPLIT_BUCKET_NAME
     split_prefix: SPLIT_PREFIX
     # Bucket for original files after processing
