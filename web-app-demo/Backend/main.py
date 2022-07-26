@@ -56,6 +56,11 @@ def get_document():
 
     processor_type = request.form["fileProcessorType"]
 
+    populate_list_source(project_id, LOCATION, processor_id_by_processor_type)
+
+    processor_id = processor_id_by_processor_type.get(processor_type)
+    print(processor_id)
+
     file = request.files["file"]
     file_type = file.content_type
 
@@ -71,11 +76,11 @@ def get_document():
         "project_id": project_id,
         "location": LOCATION,
         "file_path": _destination,
-        "processor_type": processor_type,
         "file_type": file_type,
+        "processor_id": processor_id,
     }
 
-    return process_document(process_document_request, processor_id_by_processor_type)
+    return process_document(process_document_request)
 
 
 @app.route("/api/processor/list", methods=["GET"])

@@ -78,10 +78,7 @@ def main(args: argparse.Namespace) -> int:
             )
 
             start = int(entity.page_anchor.page_refs[0].page)
-            try:
-                end = int(entity.page_anchor.page_refs[1].page)
-            except IndexError:
-                end = start
+            end = int(entity.page_anchor.page_refs[-1].page)
 
             subdoc = Pdf.new()
             for page_num in range(start, end + 1):

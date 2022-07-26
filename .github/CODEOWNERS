@@ -9,4 +9,16 @@
 
 # @matthewayne is the default owner for PDF splitter sample changes
 /pdf-splitter-python/ @matthewayne
-/web-app-demo/ @galz10
+/web-app-demo/ @matthewayne
+/extract-languages @holtskinner
+/extract-tables @holtskinner
+/filter-hitl-language @holtskinner
+/fraud-detection-python @holtskinner
+/tax-processing-pipeline-python @holtskinner
+
+# Community owners
+/community/identity-form-autofiller-python @PicardParis
+/community/codelabs/docai-form-parser @holtskinner
+/community/codelabs/docai-ocr @holtskinner
+/community/codelabs/docai-specialized-processors @holtskinner
+/community/expense-parser-python @jiya-zhang

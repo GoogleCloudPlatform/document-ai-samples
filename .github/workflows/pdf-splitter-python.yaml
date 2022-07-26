@@ -21,9 +21,9 @@ jobs:
         python: ["3.7", "3.8", "3.9", "3.10"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
       - name: Install requirements.txt
@@ -36,7 +36,7 @@ jobs:
           pip install pylint
       - name: Analyze code with pylint
         run: |
-          pylint $(git ls-files '*.py')
+          pylint ./**.py
       - name: Run unit tests
         run: |
           python main_test.py
