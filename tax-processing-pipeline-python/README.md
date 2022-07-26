@@ -46,6 +46,8 @@ For an example use case, the application is equipped to process an individual US
    - `gcloud services enable documentai.googleapis.com`
 6. Setup application default authentication, run:
    - `gcloud auth application-default login`
+7. Create a Firestore Database in Native Mode
+   - `gcloud firestore databases create`
 
 ### Demo Deployment
 
@@ -57,6 +59,7 @@ For an example use case, the application is equipped to process an individual US
     firestore:
         collection: tax_documents # Set with your preferred Firestore Collection Name
         project_id: YOUR_PROJECT_ID # Project ID for Firestore Database
+    docai_active_processors:
    ```
 
 2. Run setup scripts to create the processors and Cloud Run app in your project.
