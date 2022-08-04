@@ -13,89 +13,48 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import base64
-import enum
-import io
-import re
+from base64 import b64decode, b64encode
 from collections import defaultdict
-from typing import BinaryIO, NamedTuple
+from io import BytesIO
+from re import match
+from typing import BinaryIO, Sequence, TypeAlias, cast
 
-import google.cloud.documentai_v1 as documentai
-from google.api_core import client_options as client_options_lib
+from google.api_core.client_options import ClientOptions
+from google.cloud.documentai_v1 import (
+    BoundingPoly,
+    Document,
+    DocumentProcessorServiceClient,
+    NormalizedVertex,
+    ProcessRequest,
+    RawDocument,
+)
 from PIL import Image
 from PIL.Image import Image as PilImage
 
+from docai_schemas import (
+    FIELD,
+    ID_PROCESSOR,
+    ID_PROCESSORS,
+    LEGACY_NON_SNAKE_CASE_PROCESSORS,
+    LOCATIONS,
+    PROCESSOR_FIELD_REPLACEMENTS,
+    PROCESSOR_FIELDS,
+    Processor,
+)
 
-class ID_PROCESSOR(enum.Enum):
-    US_DRIVER_LICENSE_PROCESSOR = "US_DRIVER_LICENSE_PROCESSOR"
-    US_PASSPORT_PROCESSOR = "US_PASSPORT_PROCESSOR"
-    FR_DRIVER_LICENSE_PROCESSOR = "FR_DRIVER_LICENSE_PROCESSOR"
-    FR_NATIONAL_ID_PROCESSOR = "FR_NATIONAL_ID_PROCESSOR"
-    FR_PASSPORT_PROCESSOR = "FR_PASSPORT_PROCESSOR"
-    ID_FRAUD_DETECTION_PROCESSOR = "ID_FRAUD_DETECTION_PROCESSOR"
-
-
-class Processor(NamedTuple):
-    type: ID_PROCESSOR
-    project: str
-    location: str
-    id: str
-
-
-class FIELD(enum.Enum):
-    # Entity fields
-    # See https://cloud.google.com/document-ai/docs/fields#other_processors
-    PORTRAIT = "Portrait"
-    FAMILY_NAME = "Family Name"
-    GIVEN_NAME = "Given Name"
-    GIVEN_NAMES = "Given Names"
-    DOC_ID = "Document Id"
-    EXPIRATION_DATE = "Expiration Date"
-    DATE_OF_BIRTH = "Date Of Birth"
-    PLACE_OF_BIRTH = "Place Of Birth"
-    ISSUE_DATE = "Issue Date"
-    ADDRESS = "Address"
-    MRZ_CODE = "MRZ Code"
-    IS_IDENTITY_DOCUMENT = "fraud-signals/is-identity-document"
-    SUSPICIOUS_WORDS = "fraud-signals/suspicious-words"
-    IMAGE_MANIPULATION = "fraud-signals/image-manipulation"
-
-
-LOCATIONS = ["us", "eu"]
-
-ID_PROCESSORS = list(map(lambda t: str(t.value), ID_PROCESSOR))
-
-COMMON_FIELDS = [
-    FIELD.PORTRAIT,
-    FIELD.FAMILY_NAME,
-    FIELD.GIVEN_NAMES,
-    FIELD.DOC_ID,
-    FIELD.EXPIRATION_DATE,
-    FIELD.DATE_OF_BIRTH,
-    FIELD.ISSUE_DATE,
-]
-
-PROCESSOR_FIELDS = {
-    ID_PROCESSOR.US_DRIVER_LICENSE_PROCESSOR: COMMON_FIELDS + [FIELD.ADDRESS],
-    ID_PROCESSOR.US_PASSPORT_PROCESSOR: COMMON_FIELDS + [FIELD.MRZ_CODE],
-    ID_PROCESSOR.FR_DRIVER_LICENSE_PROCESSOR: COMMON_FIELDS,
-    ID_PROCESSOR.FR_NATIONAL_ID_PROCESSOR: COMMON_FIELDS + [FIELD.ADDRESS],
-    ID_PROCESSOR.FR_PASSPORT_PROCESSOR: COMMON_FIELDS
-    + [FIELD.ADDRESS, FIELD.PLACE_OF_BIRTH],
-    ID_PROCESSOR.ID_FRAUD_DETECTION_PROCESSOR: [
-        FIELD.IS_IDENTITY_DOCUMENT,
-        FIELD.SUSPICIOUS_WORDS,
-        FIELD.IMAGE_MANIPULATION,
-    ],
-}
-
-# Mapping for field name convention changes
-PROCESSOR_FIELD_REPLACEMENTS = {
-    ID_PROCESSOR.FR_PASSPORT_PROCESSOR: {FIELD.GIVEN_NAMES: FIELD.GIVEN_NAME},
-}
-
-# Snake case convention is being adopted for identity processor field names
-SNAKE_CASE_PROCESSORS = [ID_PROCESSOR.FR_PASSPORT_PROCESSOR]
+PageAnchor: TypeAlias = Document.PageAnchor
+PageRef: TypeAlias = Document.PageAnchor.PageRef
+PageRefs: TypeAlias = Sequence[Document.PageAnchor.PageRef]
+Entity: TypeAlias = Document.Entity
+Entities: TypeAlias = Sequence[Document.Entity]
+NormalizedValue: TypeAlias = Document.Entity.NormalizedValue
+TextAnchor: TypeAlias = Document.TextAnchor
+TextSegment: TypeAlias = Document.TextAnchor.TextSegment
+TextSegments: TypeAlias = Sequence[Document.TextAnchor.TextSegment]
+Page: TypeAlias = Document.Page
+Pages: TypeAlias = Sequence[Document.Page]
+PageImage: TypeAlias = Document.Page.Image
+NormalizedVertices: TypeAlias = Sequence[NormalizedVertex]
 
 
 def process_document(
@@ -104,34 +63,37 @@ def process_document(
     project_id: str,
     location: str,
     processor_id: str,
-) -> documentai.Document:
+) -> Document:
     """Analyze the input file with Document AI and return a structured document."""
-    client_options = client_options_lib.ClientOptions(
-        api_endpoint=f"{location}-documentai.googleapis.com"
-    )
-    client = documentai.DocumentProcessorServiceClient(client_options=client_options)
+    client_options = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
+    client = DocumentProcessorServiceClient(client_options=client_options)
 
-    raw_document = documentai.RawDocument(content=file.read(), mime_type=mime_type)
+    raw_document = RawDocument(content=file.read(), mime_type=mime_type)
     name = client.processor_path(project_id, location, processor_id)
 
-    request = documentai.ProcessRequest(
+    request = ProcessRequest(
         raw_document=raw_document,
         name=name,
         skip_human_review=True,
     )
     response = client.process_document(request)
 
-    return documentai.Document(response.document)
+    return cast(Document, response.document)
 
 
 def process_document_with_proc(
-    file: BinaryIO, mime_type: str, proc: Processor
-) -> documentai.Document:
+    file: BinaryIO,
+    mime_type: str,
+    proc: Processor,
+) -> Document:
     """Analyze the input file with Document AI and return a structured document."""
     return process_document(file, mime_type, proc.project, proc.location, proc.id)
 
 
-def process_files(files: list[tuple[io.BytesIO, str]], processor: Processor):
+def process_files(
+    files: Sequence[tuple[BytesIO, str]],
+    processor: Processor,
+) -> Document:
     """Analyze input files with Document AI and return a structured document."""
     if not files:
         raise ValueError("At least one file is expected")
@@ -140,12 +102,12 @@ def process_files(files: list[tuple[io.BytesIO, str]], processor: Processor):
         image_io, mime_type = files[0]
     else:
         images = [Image.open(file) for (file, _) in files]
-        image_io, mime_type = group_images_for_processing(images)
+        image_io, mime_type = group_images_in_tiff_container(images)
 
     return process_document_with_proc(image_io, mime_type, processor)
 
 
-def group_images_for_processing(images: list[PilImage]) -> tuple[io.BytesIO, str]:
+def group_images_in_tiff_container(images: Sequence[PilImage]) -> tuple[BytesIO, str]:
     """Group input images into single container to be processed by Document AI."""
     if len(images) < 2:
         raise ValueError("At least two images are expected")
@@ -153,25 +115,27 @@ def group_images_for_processing(images: list[PilImage]) -> tuple[io.BytesIO, str
     format, mime_type = "tiff", "image/tiff"
     params = dict(save_all=True, append_images=images[1:], compression=None)
 
-    image_io = io.BytesIO()
+    image_io = BytesIO()
     images[0].save(image_io, format, **params)
     image_io.seek(0)
+
     return image_io, mime_type
 
 
-def processors_locations() -> list[str]:
+def processor_locations() -> Sequence[str]:
     return LOCATIONS
 
 
 def frontend_proc_info(processor_type: str, processor_process_endpoint: str) -> str:
     """Return processor info (opaque string) for exchanges with frontend."""
     proc_info = f"{processor_type}|{processor_process_endpoint}"
-    return base64.b64encode(proc_info.encode()).decode()
+
+    return b64encode(proc_info.encode()).decode()
 
 
 def processor_from_frontend_proc_info(proc_info: str) -> Processor | None:
     """Return processor from opaque string (see frontend_proc_info)."""
-    proc_info = base64.b64decode(proc_info.encode()).decode()
+    proc_info = b64decode(proc_info.encode()).decode()
     PATTERN = (
         r"(?P<type>[A-Z0-9_]+)\|"
         r"https://(?P<endpoint>[a-z0-9-]*documentai.googleapis.com)/v([0-9])+/"
@@ -179,11 +143,11 @@ def processor_from_frontend_proc_info(proc_info: str) -> Processor | None:
         r"locations/(?P<location>[a-z0-9-]+)/"
         r"processors/(?P<id>[a-z0-9]+):process"
     )
-    if (m := re.match(PATTERN, proc_info)) is None:
+    if (m := match(PATTERN, proc_info)) is None:
         return None
 
     return Processor(
-        ID_PROCESSOR(m.group("type")),
+        ID_PROCESSOR[m.group("type")],
         m.group("project"),
         m.group("location"),
         m.group("id"),
@@ -198,7 +162,8 @@ def frontend_id_processors(project_id: str, api_location: str) -> dict[str, str]
 
     id_processors = dict()
 
-    procs = docai_procs.get_processors_of_types(project_id, api_location, ID_PROCESSORS)
+    client, parent = docai_procs.get_client_and_parent(project_id, api_location)
+    procs = docai_procs.get_processors_of_types(client, parent, ID_PROCESSORS)
     for proc in procs:
         key = proc.display_name
         value = frontend_proc_info(str(proc.type_), str(proc.process_endpoint))
@@ -207,18 +172,19 @@ def frontend_id_processors(project_id: str, api_location: str) -> dict[str, str]
     return id_processors
 
 
-def check_processors(project_id: str):
+def check_create_processors(project_id: str):
     """Check/create demo processors."""
     import docai_procs  # TODO: merge when processor management is updated to v1
 
-    docai_procs.check_processors(project_id, LOCATIONS, ID_PROCESSORS)
+    docai_procs.check_create_processors(project_id, LOCATIONS, ID_PROCESSORS)
 
 
-def get_document(local_sample: str) -> documentai.Document:
+def get_document(local_sample: str) -> Document:
     """Return document from JSON serialization."""
     with open(local_sample) as json_file:
         json = json_file.read()
-    return documentai.Document(documentai.Document.from_json(json))
+
+    return cast(Document, Document.from_json(json))
 
 
 def get_processor_fields(processor: Processor) -> dict:
@@ -228,7 +194,7 @@ def get_processor_fields(processor: Processor) -> dict:
 
     proc_type = processor.type
     replacements = PROCESSOR_FIELD_REPLACEMENTS.get(proc_type, {})
-    snake_case = proc_type in SNAKE_CASE_PROCESSORS
+    snake_case = proc_type not in LEGACY_NON_SNAKE_CASE_PROCESSORS
 
     for field in PROCESSOR_FIELDS[proc_type]:
         field = replacements.get(field, field)
@@ -245,25 +211,31 @@ def to_snake_case(field: str) -> str:
     return "".join("_" if c == " " else c.lower() for c in field)
 
 
-def id_data_from_document(document: documentai.Document) -> dict:
+def id_data_from_document(document: Document) -> dict:
     """Return ID data mapping for frontend."""
-    id_data: dict = defaultdict(dict)
+    id_data = defaultdict(dict)
 
-    for entity in document.entities:
-        key = entity.type_
+    entities = cast(Entities, document.entities)
+    for entity in entities:
+        key = cast(str, entity.type_)
         page_index = 0
-        value = entity.mention_text
         confidence, normalized = None, None
+        page_anchor = cast(PageAnchor, entity.page_anchor)
+        page_refs = cast(PageRefs, page_anchor.page_refs)
+        page_index = cast(int, page_refs[0].page) if page_refs else 0
 
-        if entity.page_anchor:
-            page_index = entity.page_anchor.page_refs[0].page
-        if not value:  # Send the detected portrait image instead
+        if key.lower() == FIELD.PORTRAIT.value.lower():
             image = crop_entity(document, entity)
             value = data_url_from_image(image)
-        if entity.confidence != 0.0:
-            confidence = int(entity.confidence * 100 + 0.5)
+        else:
+            value = text_from_entity(document, entity)
+
+        confidence = cast(float, entity.confidence)
+        if confidence != 0.0:
+            confidence = int(confidence * 100 + 0.5)
         if entity.normalized_value:
-            normalized = entity.normalized_value.text
+            normalized_value = cast(NormalizedValue, entity.normalized_value)
+            normalized = normalized_value.text
 
         id_data[key][page_index] = dict(
             value=value,
@@ -274,34 +246,65 @@ def id_data_from_document(document: documentai.Document) -> dict:
     return id_data
 
 
-def crop_entity(
-    doc: documentai.Document, entity: documentai.Document.Entity
-) -> PilImage:
-    """Return image cropped from page image for detected entity."""
-    page_ref = entity.page_anchor.page_refs[0]
-    image_page = page_ref.page
-    image_content = doc.pages[image_page].image.content
+def text_from_entity(doc: Document, entity: Entity) -> str:
+    """Return a single string of line-break-separated text segments."""
+    text_anchor = cast(TextAnchor, entity.text_anchor)
+    text_segments = cast(TextSegments, text_anchor.text_segments)
 
-    doc_image = Image.open(io.BytesIO(image_content))
+    if not text_segments:
+        # Some processors can return entity text unrelated to the document text
+        # e.g. ID_FRAUD_DETECTION_PROCESSOR
+        return cast(str, entity.mention_text)
+
+    # For demo purposes, return line breaks so they can be made visible in the UI
+    full_text = cast(str, doc.text)
+    text = "\n".join(
+        full_text[cast(int, ts.start_index) : cast(int, ts.end_index)]
+        for ts in text_segments
+    )
+
+    return text
+
+
+def crop_entity(doc: Document, entity: Document.Entity) -> PilImage:
+    """Return image cropped from page image for detected entity."""
+    page_anchor = cast(PageAnchor, entity.page_anchor)
+    page_refs = cast(PageRefs, page_anchor.page_refs)
+    page_ref = page_refs[0]
+    image_page = cast(int, page_ref.page)
+    doc_page = cast(Pages, doc.pages)[image_page]
+    page_image = cast(PageImage, doc_page.image)
+    image_content = cast(bytes, page_image.content)
+
+    doc_image = Image.open(BytesIO(image_content))
     w, h = doc_image.size
-    vertices = vertices_from_bounding_poly(page_ref.bounding_poly, w, h)
+    bounding_poly = cast(BoundingPoly, page_ref.bounding_poly)
+    vertices = vertices_from_bounding_poly(bounding_poly, w, h)
     (top, left), (bottom, right) = vertices[0], vertices[2]
     cropped_image = doc_image.crop((top, left, bottom, right))
 
     return cropped_image
 
 
-def vertices_from_bounding_poly(bounding_poly, w, h):
-    """Return bounding polygon (normalized) vertices as image coordinates.
-    Note: Coordinates are not converted to integers as Pillow supports floats.
-    """
-    vertices = bounding_poly.normalized_vertices
-    return tuple((v.x * w, v.y * h) for v in vertices)
+def vertices_from_bounding_poly(
+    bounding_poly: BoundingPoly, w: int, h: int
+) -> Sequence[tuple[int, int]]:
+    """Return bounding polygon vertices as image coordinates."""
+    vertices = cast(NormalizedVertices, bounding_poly.normalized_vertices)
+
+    return [
+        (
+            int(cast(float, v.x) * w + 0.5),
+            int(cast(float, v.y) * h + 0.5),
+        )
+        for v in vertices
+    ]
 
 
 def data_url_from_image(image: PilImage) -> str:
     """Convert image into frontend data URL."""
-    image_io = io.BytesIO()
+    image_io = BytesIO()
     image.save(image_io, "png")
-    base64_string = base64.b64encode(image_io.getvalue()).decode()
+    base64_string = b64encode(image_io.getvalue()).decode()
+
     return f"data:image/png;base64,{base64_string}"
