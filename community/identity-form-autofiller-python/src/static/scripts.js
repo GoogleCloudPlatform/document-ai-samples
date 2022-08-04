@@ -183,7 +183,7 @@ async function updateForm() {
         } else {
             const value = values.join(' ➕ ')
             element.label = label
-            element.value = value.replace('\n', ' ↩️ ')
+            element.value = value.replaceAll('\n', ' ↩️ ')
         }
     }
 

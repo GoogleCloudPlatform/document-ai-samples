@@ -13,42 +13,45 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import io
-import os
-import pathlib
-import typing
+import logging
+from io import BytesIO
+from os import environ
+from pathlib import Path
+from typing import Iterator
 
-import flask
 import google.auth
+from flask import Flask, jsonify, request, send_from_directory
+from flask.wrappers import Response
+from google.api_core.exceptions import BadRequest
 
 import docai
 
-app = flask.Flask(__name__, static_url_path="")
-samples_path = pathlib.Path("samples")
+app = Flask(__name__, static_url_path="")
+samples_path = Path("samples")
 
 
-def get_project_id():
+def get_project_id() -> str:
     _, project_id = google.auth.default()
     return project_id
 
 
 @app.get("/")
 def index():
-    return flask.send_from_directory(str(app.static_folder), "index.html", etag=ETAG)
+    return send_from_directory(str(app.static_folder), "index.html", etag=ETAG)
 
 
-@app.get("/<filename>")
-def static_file(filename):
-    return flask.send_from_directory(str(app.static_folder), filename, etag=ETAG)
+@app.get("/<string:filename>")
+def static_file(filename: str):
+    return send_from_directory(str(app.static_folder), filename, etag=ETAG)
 
 
 @app.get("/api/samples")
 def samples():
     def get_samples(
-        parent_path: pathlib.Path = samples_path,
+        parent_path: Path = samples_path,
         rel_dir: str = "",
-    ) -> typing.Iterator[tuple[str, list[str]]]:
-        paged_samples = []
+    ) -> Iterator[tuple[str, list[str]]]:
+        paged_samples: list[str] = []
         for path in parent_path.glob("*"):
             if path.is_dir():
                 sub_dir = f"{rel_dir}/{path.name}" if rel_dir else path.name
@@ -66,36 +69,36 @@ def samples():
     samples = dict(get_samples())
 
     # Note: jsonify sorts dictionaries by key by default
-    return flask.jsonify(samples=samples)
+    return jsonify(samples=samples)
 
 
 @app.get("/api/samples/<path:file_path>")
 def sample_file(file_path: str):
-    return flask.send_from_directory(samples_path, file_path, etag=ETAG)
+    return send_from_directory(samples_path, file_path, etag=ETAG)
 
 
 @app.get("/api/project")
 def project():
     project_id = get_project_id()
 
-    return flask.jsonify(project=project_id)
+    return jsonify(project=project_id)
 
 
 @app.get("/api/processors/locations")
 def processors_locations():
-    locations = docai.processors_locations()
+    locations = docai.processor_locations()
 
-    return flask.jsonify(locations=locations)
+    return jsonify(locations=locations)
 
 
-@app.get("/api/processors/<project_id>/<api_location>")
+@app.get("/api/processors/<string:project_id>/<string:api_location>")
 def id_processors(project_id: str, api_location: str):
     processors = docai.frontend_id_processors(project_id, api_location)
 
-    return flask.jsonify(processors=processors)
+    return jsonify(processors=processors)
 
 
-@app.get("/api/processor/fields/<proc_info>")
+@app.get("/api/processor/fields/<string:proc_info>")
 def processor_fields(proc_info: str):
     processor = docai.processor_from_frontend_proc_info(proc_info)
     if processor is None:
@@ -103,29 +106,36 @@ def processor_fields(proc_info: str):
 
     fields = docai.get_processor_fields(processor)
 
-    return flask.jsonify(fields=fields)
+    return jsonify(fields=fields)
 
 
-@app.post("/api/processor/analysis/<proc_info>")
+@app.post("/api/processor/analysis/<string:proc_info>")
 def processor_analysis(proc_info: str):
     processor = docai.processor_from_frontend_proc_info(proc_info)
     if processor is None:
         return f"Incorrect processor info: {proc_info}", 400
-    photos = flask.request.files.getlist("photos[]")
+    photos = request.files.getlist("photos[]")
     if not photos:
         return 'Missing "photos[]" image(s)', 400
 
-    files = [(io.BytesIO(p.read()), p.mimetype) for p in photos]
-    document = docai.process_files(files, processor)
+    files = [(BytesIO(p.read()), p.mimetype) for p in photos]
+
+    try:
+        document = docai.process_files(files, processor)
+    except BadRequest as err:
+        error = str(err)
+        logging.error(error)
+        return error, 400
+
     analysis = docai.id_data_from_document(document)
 
-    return flask.jsonify(analysis=analysis)
+    return jsonify(analysis=analysis)
 
 
 @app.get("/admin/processors/check")
 def check_processors():
     project_id = get_project_id()
-    docai.check_processors(project_id)
+    docai.check_create_processors(project_id)
 
     return "check_processors: done (see logs)\n"
 
@@ -133,15 +143,14 @@ def check_processors():
 # Web apps deployed in a Buildpacks image have their source file timestamps zeroed
 BUILDPACKS_CONTAINER_TIMESTAMP = "Tue, 01 Jan 1980 00:00:01 GMT"
 # Enable ETag caching on static files deployed in Buildpacks images
-IMAGE_VERSION = os.environ.get("K_REVISION", "")  # Cloud Run
-if not IMAGE_VERSION:
-    IMAGE_VERSION = os.environ.get("GAE_VERSION", "")  # App Engine
+# Revision env. variable: "K_REVISION" for Cloud Run, "GAE_VERSION" for App Engine
+IMAGE_VERSION = environ.get("K_REVISION", "") or environ.get("GAE_VERSION", "")
 ETAG = IMAGE_VERSION if IMAGE_VERSION else True
 
 
 @app.before_request
 def before_request():
-    environ = flask.request.environ
+    environ = request.environ
     if environ.get("HTTP_IF_MODIFIED_SINCE", "") == BUILDPACKS_CONTAINER_TIMESTAMP:
         # Fix caching issue with incorrect 304 responses that occur if the browser
         # previously received a wrong "Last-Modified" response
@@ -149,7 +158,7 @@ def before_request():
 
 
 @app.after_request
-def after_request(response):
+def after_request(response: Response) -> Response:
     if response.headers.get("Last-Modified", "") == BUILDPACKS_CONTAINER_TIMESTAMP:
         # The modification time is actually unknown
         response.headers.remove("Last-Modified")
@@ -159,8 +168,5 @@ def after_request(response):
 
 if __name__ == "__main__":
     # Dev only: run "python main.py" (3.9+) and open http://localhost:8080
-    os.environ["FLASK_ENV"] = "development"
+    logging.getLogger().setLevel(logging.DEBUG)
     app.run(host="localhost", port=8080, debug=True)
-else:
-    # Prod only: cache static resources
-    app.send_file_max_age_default = 3600  # 1 hour
