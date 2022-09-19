@@ -61,7 +61,7 @@ class FIELD(Enum):
     IMAGE_MANIPULATION = "fraud-signals/image-manipulation"
 
 
-class Processor(NamedTuple):
+class ProcessorInfo(NamedTuple):
     type: ID_PROCESSOR
     project: str
     location: str
