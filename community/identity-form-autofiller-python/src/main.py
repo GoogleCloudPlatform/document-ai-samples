@@ -32,6 +32,7 @@ samples_path = Path("samples")
 
 def get_project_id() -> str:
     _, project_id = google.auth.default()
+    assert isinstance(project_id, str)
     return project_id
 
 
