@@ -17,68 +17,165 @@
 import argparse
 import os
 import sys
-from typing import Optional
+from typing import Sequence
 
 import google.auth
-from google.cloud.documentai_v1beta3 import DocumentProcessorServiceClient, Processor
+from google.api_core.client_options import ClientOptions
+
+from google.cloud.documentai import (
+    Document,
+    DocumentProcessorServiceClient,
+    Processor,
+    ProcessRequest,
+    RawDocument,
+)
 from pikepdf import Pdf
 
 DEFAULT_MULTI_REGION_LOCATION = "us"
-DEFAULT_PROCESSOR_TYPE = "DOCUMENT_SPLIT_PROCESSOR"
+DEFAULT_PROCESSOR_TYPE = "LENDING_DOCUMENT_SPLIT_PROCESSOR"
+
+PDF_MIME_TYPE = "application/pdf"
+PDF_EXTENSION = ".pdf"
 
 
 def main(args: argparse.Namespace) -> int:
-    """This functions splits a PDF document using the Document AI API"""
+    """This project splits a PDF document using the Document AI API to identify split points"""
     if not args.project_id:
         _, project_id = google.auth.default()
         args.project_id = project_id
-    parent = f"projects/{args.project_id}/locations/{args.multi_region_location}"
-    client = DocumentProcessorServiceClient()
 
-    processor_id = find_processor_id_of_type(client, parent, args.split_processor_type)
-    if processor_id is None:
-        print(
-            f"no split processor found. "
-            f'creating new processor of type "{args.split_processor_type}"',
-        )
-        processor_id = create_processor(client, parent, args.split_processor_type)
+    file_path = os.path.abspath(args.input)
 
-    if not os.path.isfile(os.path.abspath(args.input)):
-        print(f"could not find file at {os.path.abspath(args.input)}")
+    if not os.path.isfile(file_path):
+        print(f"Could not find file at {file_path}")
         return 1
+
+    if PDF_EXTENSION not in args.input:
+        print(f"Input file {args.input} is not a PDF")
+        return 1
+
     if not args.output_dir:
-        args.output_dir = os.path.dirname(os.path.abspath(args.input))
+        args.output_dir = os.path.dirname(file_path)
+
+    client = DocumentProcessorServiceClient(
+        client_options=ClientOptions(
+            api_endpoint=f"{args.multi_region_location}-documentai.googleapis.com"
+        )
+    )
+
+    processor_name = get_or_create_processor(
+        client, args.project_id, args.multi_region_location, args.split_processor_type
+    )
 
     print(
         "Using:\n"
         f'* Project ID: "{args.project_id}"\n'
         f'* Location: "{args.multi_region_location}"\n'
-        f'* Processor ID "{processor_id}"\n'
-        f'* Input PDF "{os.path.basename(os.path.abspath(args.input))}"\n'
+        f'* Processor Name "{processor_name}"\n'
+        f'* Input PDF "{os.path.basename(file_path)}"\n'
         f'* Output directory: "{args.output_dir}"\n'
     )
 
-    # Call the specified processors process document API with the contents of
+    document = online_process(client, processor_name, file_path)
+
+    document_json = write_document_json(document, file_path, output_dir=args.output_dir)
+    print(f"Document AI Output: {document_json}")
+
+    split_pdf(document.entities, file_path, output_dir=args.output_dir)
+
+    print("Done.")
+    return 0
+
+
+def get_or_create_processor(
+    client: DocumentProcessorServiceClient,
+    project_id: str,
+    location: str,
+    processor_type: str,
+) -> str:
+    """
+    Searches for a processor name for a given processor type.
+    Creates processor if one doesn't exist
+    """
+    parent = client.common_location_path(project_id, location)
+
+    for processor in client.list_processors(parent=parent):
+        if processor.type_ == processor_type:
+            # Processor names have the form:
+            # `projects/{project}/locations/{location}/processors/{processor_id}`
+            # See https://cloud.google.com/document-ai/docs/create-processor for more information.
+            return processor.name
+
+    print(
+        f"No split processor found. "
+        f'creating new processor of type "{processor_type}"',
+    )
+    processor = client.create_processor(
+        parent=parent,
+        processor=Processor(display_name=processor_type, type_=processor_type),
+    )
+    return processor.name
+
+
+def online_process(
+    client: DocumentProcessorServiceClient,
+    processor_name: str,
+    file_path: str,
+    mime_type: str = PDF_MIME_TYPE,
+) -> Document:
+    """
+    Call the specified processors process document API with the contents of
     # the input PDF file as input.
-    with open(args.input, "rb") as pdf_file:
-        document = client.process_document(
-            request={
-                "name": f"{parent}/processors/{processor_id}",
-                "raw_document": {
-                    "content": pdf_file.read(),
-                    "mime_type": "application/pdf",
-                },
-            }
-        ).document
-
-    with Pdf.open(os.path.abspath(args.input)) as original_pdf:
-        for index, entity in enumerate(document.entities):
-            print(
-                f"Creating subdocument {str(index + 1)} of {str(len(document.entities))}."
+    """
+    with open(file_path, "rb") as pdf_file:
+        result = client.process_document(
+            request=ProcessRequest(
+                name=processor_name,
+                raw_document=RawDocument(content=pdf_file.read(), mime_type=mime_type),
             )
+        )
+    return result.document
 
+
+def write_document_json(document: Document, file_path: str, output_dir: str) -> str:
+    """
+    Write Document object as JSON file
+    """
+
+    # File Path: output_dir/file_name.json
+    output_filepath = os.path.join(
+        output_dir, f"{os.path.splitext(os.path.basename(file_path))[0]}.json"
+    )
+
+    with open(output_filepath, "w", encoding="utf-8") as json_file:
+        json_file.write(
+            Document.to_json(document, including_default_value_fields=False)
+        )
+
+    return output_filepath
+
+
+def split_pdf(entities: Sequence[Document.Entity], file_path: str, output_dir: str):
+    """
+    Create subdocuments based on Splitter/Classifier output
+    """
+    with Pdf.open(file_path) as original_pdf:
+        # Create New PDF for each SubDocument
+        print(f"Total subdocuments: {len(entities)}")
+
+        for index, entity in enumerate(entities):
             start = int(entity.page_anchor.page_refs[0].page)
             end = int(entity.page_anchor.page_refs[-1].page)
+            subdoc_type = entity.type_ or "subdoc"
+
+            if start == end:
+                page_range = f"pg{start + 1}"
+            else:
+                page_range = f"pg{start + 1}-{end + 1}"
+
+            output_filename = f"{page_range}_{subdoc_type}"
+
+            print(f"Creating subdocument {index + 1}: {output_filename}")
 
             subdoc = Pdf.new()
             for page_num in range(start, end + 1):
@@ -86,41 +183,11 @@ def main(args: argparse.Namespace) -> int:
 
             subdoc.save(
                 os.path.join(
-                    args.output_dir,
-                    f"subdoc_{str(index + 1)}_of_{str(len(document.entities))}_"
-                    f"{os.path.basename(os.path.abspath(args.input))}",
+                    output_dir,
+                    f"{output_filename}_{os.path.basename(file_path)}",
                 ),
                 min_version=original_pdf.pdf_version,
             )
-    print("Done.")
-    return 0
-
-
-def create_processor(
-    client: DocumentProcessorServiceClient, parent: str, processor_type: str
-) -> str:
-    """Create a processor for a given processor type."""
-    processor = client.create_processor(
-        parent=parent,
-        processor=Processor(display_name=processor_type, type_=processor_type),
-    )
-    return processor.name.split("/")[-1]
-
-
-def find_processor_id_of_type(
-    client: DocumentProcessorServiceClient, parent: str, processor_type: str
-) -> Optional[str]:
-    """Searches for a processor ID for a given processor type."""
-    processors = client.list_processors(parent=parent).processors
-    for processor in processors:
-        if processor.type_ == processor_type:
-            # Processor names have the form:
-            # `projects/{project}/locations/{location}/processors/{processor_id}`
-            # See
-            # https://cloud.google.com/document-ai/docs/reference/rpc/google.cloud.documentai.v1beta3#google.cloud.documentai.v1beta3.Processor
-            # for more information.
-            return processor.name.split("/")[-1]
-    return None
 
 
 if __name__ == "__main__":

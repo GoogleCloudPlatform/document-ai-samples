@@ -21,7 +21,7 @@ import tempfile
 import shutil
 from unittest.mock import MagicMock, patch
 
-from google.cloud import documentai_v1beta3 as docai
+from google.cloud import documentai_v1 as docai
 
 from pikepdf import Pdf
 
@@ -32,6 +32,7 @@ PROCESSOR_TYPE = "processor-type"
 PROJECT_ID = "project-id"
 LOCATION = "location"
 PROCESSOR_ID = "processor-id"
+PARENT = f"projects/{PROJECT_ID}/locations/{LOCATION}"
 PROCESSOR_NAME = f"projects/{PROJECT_ID}/locations/{LOCATION}/processors/{PROCESSOR_ID}"
 
 TEST_FILENAME = "multi_document.pdf"
@@ -48,13 +49,17 @@ class TestMain(unittest.TestCase):
         mocked_client_instance = MagicMock()
 
         # Mock list processor API call to get a fake processor to use
-        mocked_client_instance.list_processors.return_value = docai.types.ListProcessorsResponse(
-            processors=[
-                docai.types.Processor(
-                    type_=PROCESSOR_TYPE,
-                    name="projects/PROJECT_ID/locations/LOCATION/processors/PROCESSOR_ID",
-                )
-            ]
+        mocked_client_instance.list_processors.return_value = docai.services.document_processor_service.pagers.ListProcessorsPager(
+            method=mocked_client_instance.list_processors,
+            request=docai.ListProcessorsRequest(parent=PARENT),
+            response=docai.ListProcessorsResponse(
+                processors=[
+                    docai.types.Processor(
+                        type_=PROCESSOR_TYPE,
+                        name="projects/PROJECT_ID/locations/LOCATION/processors/PROCESSOR_ID",
+                    )
+                ],
+            ),
         )
 
         # Mock process document API call to use a fake API response
@@ -96,7 +101,7 @@ class TestMain(unittest.TestCase):
             )
         )
 
-        expected_file_name = "subdoc_1_of_1_multi_document.pdf"
+        expected_file_name = "pg1-2_subdoc_multi_document.pdf"
         expected_filepath = os.path.join(temp_out_dir, expected_file_name)
 
         # Check to see that a split file was created
@@ -117,13 +122,17 @@ class TestMain(unittest.TestCase):
         mocked_client_instance = MagicMock()
 
         # Mock list processor API call to get a fake processor to use
-        mocked_client_instance.list_processors.return_value = docai.types.ListProcessorsResponse(
-            processors=[
-                docai.types.Processor(
-                    type_=PROCESSOR_TYPE,
-                    name="projects/PROJECT_ID/locations/LOCATION/processors/PROCESSOR_ID",
-                )
-            ]
+        mocked_client_instance.list_processors.return_value = docai.services.document_processor_service.pagers.ListProcessorsPager(
+            method=mocked_client_instance.list_processors,
+            request=docai.ListProcessorsRequest(parent=PARENT),
+            response=docai.ListProcessorsResponse(
+                processors=[
+                    docai.types.Processor(
+                        type_=PROCESSOR_TYPE,
+                        name="projects/PROJECT_ID/locations/LOCATION/processors/PROCESSOR_ID",
+                    )
+                ],
+            ),
         )
 
         # Mock process document API call to use a fake API response
@@ -186,9 +195,9 @@ class TestMain(unittest.TestCase):
         )
 
         expect_filenames_and_pages = {
-            "subdoc_1_of_3_multi_document.pdf": 3,
-            "subdoc_2_of_3_multi_document.pdf": 4,
-            "subdoc_3_of_3_multi_document.pdf": 3,
+            "pg1-3_subdoc_multi_document.pdf": 3,
+            "pg4-7_subdoc_multi_document.pdf": 4,
+            "pg8-10_subdoc_multi_document.pdf": 3,
         }
 
         for filename, expected_page_len in expect_filenames_and_pages.items():
