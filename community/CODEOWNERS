@@ -7,8 +7,7 @@
 # @GoogleCloudPlatform/ml-apis are the default owners for changes in this repo
 *     @GoogleCloudPlatform/ml-apis
 
-# @matthewayne is the default owner for PDF annotator sample changes
-/pdf-annotator-python/ @matthewayne
+# No default owner for PDF annotator sample changes
 
 # @jiya-zhang is the default owner for the Expense Parser sample changes
 /expense-parser-python/ @jiya-zhang
