@@ -2,5 +2,5 @@
 # package>=version
 google-cloud-documentai==2.0.3
 google-cloud-storage==2.5.0
-google-cloud-bigquery==3.3.5
+google-cloud-bigquery==3.3.6
 python-dateutil==2.8.2
