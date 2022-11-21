@@ -26,30 +26,29 @@ from google.api_core.exceptions import BadRequest
 
 import docai
 
-app = Flask(__name__, static_url_path="")
-samples_path = Path("samples")
+STATIC_FOLDER = "frontend"
+SAMPLES_PATH = Path("./samples")
 
+_, PROJECT_ID = google.auth.default()
+assert isinstance(PROJECT_ID, str)
 
-def get_project_id() -> str:
-    _, project_id = google.auth.default()
-    assert isinstance(project_id, str)
-    return project_id
+app = Flask(__name__, static_folder=STATIC_FOLDER, static_url_path="")
 
 
 @app.get("/")
 def index():
-    return send_from_directory(str(app.static_folder), "index.html", etag=ETAG)
+    return send_from_directory(STATIC_FOLDER, "index.html", etag=ETAG)
 
 
 @app.get("/<string:filename>")
 def static_file(filename: str):
-    return send_from_directory(str(app.static_folder), filename, etag=ETAG)
+    return send_from_directory(STATIC_FOLDER, filename, etag=ETAG)
 
 
 @app.get("/api/samples")
 def samples():
     def get_samples(
-        parent_path: Path = samples_path,
+        parent_path: Path,
         rel_dir: str = "",
     ) -> Iterator[tuple[str, list[str]]]:
         paged_samples: list[str] = []
@@ -67,7 +66,7 @@ def samples():
 
     # See https://cloud.google.com/document-ai/docs/file-types#other_processors
     SUFFIXES = {"pdf", "tiff", "tif", "gif", "jpeg", "jpg", "png", "bmp", "webp"}
-    samples = dict(get_samples())
+    samples = dict(get_samples(SAMPLES_PATH))
 
     # Note: jsonify sorts dictionaries by key by default
     return jsonify(samples=samples)
@@ -75,14 +74,12 @@ def samples():
 
 @app.get("/api/samples/<path:file_path>")
 def sample_file(file_path: str):
-    return send_from_directory(samples_path, file_path, etag=ETAG)
+    return send_from_directory(SAMPLES_PATH, file_path, etag=ETAG)
 
 
 @app.get("/api/project")
 def project():
-    project_id = get_project_id()
-
-    return jsonify(project=project_id)
+    return jsonify(project=PROJECT_ID)
 
 
 @app.get("/api/processors/locations")
@@ -123,10 +120,12 @@ def processor_analysis(proc_info: str):
 
     try:
         document = docai.process_files(files, processor)
-    except BadRequest as err:
-        error = str(err)
-        logging.error(error)
-        return error, 400
+    except BadRequest as e:
+        logging.error(message := str(e))
+        return message, 400
+    except Exception as e:
+        logging.exception(message := str(e))
+        return message, 500
 
     analysis = docai.id_data_from_document(document)
 
@@ -135,14 +134,13 @@ def processor_analysis(proc_info: str):
 
 @app.get("/admin/processors/check")
 def check_processors():
-    project_id = get_project_id()
-    docai.check_create_processors(project_id)
+    docai.check_create_processors(PROJECT_ID)
 
     return "check_processors: done (see logs)\n"
 
 
 # Web apps deployed in a Buildpacks image have their source file timestamps zeroed
-BUILDPACKS_CONTAINER_TIMESTAMP = "Tue, 01 Jan 1980 00:00:01 GMT"
+BUILDPACKS_IMAGE_TIMESTAMP = "Tue, 01 Jan 1980 00:00:01 GMT"
 # Enable ETag caching on static files deployed in Buildpacks images
 # Revision env. variable: "K_REVISION" for Cloud Run, "GAE_VERSION" for App Engine
 IMAGE_VERSION = environ.get("K_REVISION", "") or environ.get("GAE_VERSION", "")
@@ -151,16 +149,15 @@ ETAG = IMAGE_VERSION if IMAGE_VERSION else True
 
 @app.before_request
 def before_request():
-    environ = request.environ
-    if environ.get("HTTP_IF_MODIFIED_SINCE", "") == BUILDPACKS_CONTAINER_TIMESTAMP:
+    if request.environ.get("HTTP_IF_MODIFIED_SINCE") == BUILDPACKS_IMAGE_TIMESTAMP:
         # Fix caching issue with incorrect 304 responses that occur if the browser
         # previously received a wrong "Last-Modified" response
-        del environ["HTTP_IF_MODIFIED_SINCE"]
+        del request.environ["HTTP_IF_MODIFIED_SINCE"]
 
 
 @app.after_request
 def after_request(response: Response) -> Response:
-    if response.headers.get("Last-Modified", "") == BUILDPACKS_CONTAINER_TIMESTAMP:
+    if response.headers.get("Last-Modified") == BUILDPACKS_IMAGE_TIMESTAMP:
         # The modification time is actually unknown
         response.headers.remove("Last-Modified")
 
@@ -168,6 +165,6 @@ def after_request(response: Response) -> Response:
 
 
 if __name__ == "__main__":
-    # Dev only: run "python main.py" (3.9+) and open http://localhost:8080
+    # Dev only: run "python main.py" (3.10+) and open http://localhost:8080
     logging.getLogger().setLevel(logging.DEBUG)
     app.run(host="localhost", port=8080, debug=True)
