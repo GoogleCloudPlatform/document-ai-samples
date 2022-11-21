@@ -37,24 +37,22 @@ Note: an ID can have information on both sides, so identity processors support u
 
 ### Availability
 
-**Generally available** as of June 2022, you can use two US identity processors in production:
-
-| Processor                | API `type`                    |
-| ------------------------ | ----------------------------- |
-| US Driver License Parser | `US_DRIVER_LICENSE_PROCESSOR` |
-| US Passport Parser       | `US_PASSPORT_PROCESSOR`       |
-
-Currently available in **Preview**:
-
-- The Identity Doc Fraud Detector, to check whether an ID document has been tampered with
-- Three French identity processors
-
-| Processor                    | API `type`                     |
-| ---------------------------- | ------------------------------ |
-| Identity Doc Fraud Detector  | `ID_FRAUD_DETECTION_PROCESSOR` |
-| France Driver License Parser | `FR_DRIVER_LICENSE_PROCESSOR`  |
-| France National ID Parser    | `FR_NATIONAL_ID_PROCESSOR`     |
-| France Passport Parser       | `FR_PASSPORT_PROCESSOR`        |
+| Processor                         | API `type`                    | Availability        |
+| --------------------------------- | ----------------------------- | ------------------- |
+| US Driver License Parser          | `US_DRIVER_LICENSE_PROCESSOR` | Generally Available |
+| US Passport Parser                | `US_PASSPORT_PROCESSOR`       | Generally Available |
+| Identity Document Proofing Parser | `ID_PROOFING_PROCESSOR`       | Public Preview      |
+| France Driver License Parser      | `FR_DRIVER_LICENSE_PROCESSOR` | Limited Preview     |
+| France National ID Parser         | `FR_NATIONAL_ID_PROCESSOR`    | Limited Preview     |
+| France Passport Parser            | `FR_PASSPORT_PROCESSOR`       | Limited Preview     |
+| AU Driver License Parser          | `AU_DRIVER_LICENSE_PROCESSOR` | Early Access        |
+| Germany Driver License Parser     | `DE_DRIVER_LICENSE_PROCESSOR` | Early Access        |
+| Germany Passport Parser           | `DE_PASSPORT_PROCESSOR`       | Early Access        |
+| India Driver License Parser       | `IN_DRIVER_LICENSE_PROCESSOR` | Early Access        |
+| India Passport Parser             | `IN_PASSPORT_PROCESSOR`       | Early Access        |
+| India Pan Card Parser             | `IN_TAX_CARD_PROCESSOR`       | Early Access        |
+| India Voter ID Parser             | `IN_VOTER_ID_PROCESSOR`       | Early Access        |
+| India Aadhar Card Parser          | `IN_AADHAR_CARD_PROCESSOR`    | Early Access        |
 
 Notes:
 
@@ -207,33 +205,51 @@ A typical REST response looks like the following:
 }
 ```
 
-Here are the detectable identity fields:
+Here are the main identity fields:
 
-| Entity type       | Comment                         |
-| ----------------- | ------------------------------- |
-| `Portrait`        | Bounding box (portrait photo)   |
-| `Family Name`     | String                          |
-| `Given Names`     | String                          |
-| `Document Id`     | String                          |
-| `Expiration Date` | Date (+ normalization)          |
-| `Date Of Birth`   | Date (+ normalization)          |
-| `Issue Date`      | Date (+ normalization)          |
-| `Address`         | String                          |
-| `MRZ Code`        | String  (Machine Readable Zone) |
+| Entity type       | Comment                        |
+| ----------------- | ------------------------------ |
+| `Portrait`        | Bounding box (portrait photo)  |
+| `Family Name`     | String                         |
+| `Given Names`     | String                         |
+| `Document Id`     | String                         |
+| `Expiration Date` | Date (+ normalization)         |
+| `Date Of Birth`   | Date (+ normalization)         |
+| `Issue Date`      | Date (+ normalization)         |
+| `Address`         | String                         |
+| `MRZ Code`        | String (Machine Readable Zone) |
 
 Please note that `Address` and `MRZ Code` are optional fields. For example, a US passport contains an MRZ but no address.
 
-## Fraud detection
+## Identity Document Proofing
 
-Available in preview, the **Identity Doc Fraud Detector** helps detect tampering attempts. Typically, when an identity document does not "pass" the fraud detector, your automated process can block the attempt or trigger a human validation.
+Available in public preview, the **Identity Document Proofing Parser** predicts the validity of ID documents using multiple signals. Typically, when an identity document does not "pass" the ID proofing, your automated process can block the attempt or trigger a human validation.
 
-Here is an example of signals returned:
+Here is an example of the signals returned for a valid ID document:
 
-| Entity type                          | Example                       |
-| ------------------------------------ | ----------------------------- |
-| `fraud-signals/is-identity-document` | "NOT_AN_ID"                   |
-| `fraud-signals/suspicious-words`     | "PASS"                        |
-| `fraud-signals/image-manipulation`   | "POSSIBLE_IMAGE_MANIPULATION" |
+| Entity type                             | Value    |
+| --------------------------------------- | -------- |
+| `fraud_signals_is_identity_document`    | `"PASS"` |
+| `fraud_signals_suspicious_words`        | `"PASS"` |
+| `evidence_suspicious_word`              | `""`     |
+| `evidence_inconclusive_suspicious_word` | `""`     |
+| `fraud_signals_image_manipulation`      | `"PASS"` |
+| `fraud_signals_online_duplicate`        | `"PASS"` |
+| `evidence_hostname`                     | `""`     |
+| `evidence_thumbnail_url`                | `""`     |
+
+Here are examples of fraud detections for invalid identity documents, sample documents, or tampering attempts:
+
+| Entity type                             | Possible values                              |
+| --------------------------------------- | -------------------------------------------- |
+| `fraud_signals_is_identity_document`    | `"NOT_AN_ID"`                                |
+| `fraud_signals_suspicious_words`        | `"SUSPICIOUS_WORDS_FOUND"`, `"INCONCLUSIVE"` |
+| `evidence_suspicious_word`              | `"SAMPLE"`, `"SPECIMEN"`, `"123456"`,…       |
+| `evidence_inconclusive_suspicious_word` | `"99999"`, `"CARDHOLDER"`, `"EXEMPLAR"`,…    |
+| `fraud_signals_image_manipulation`      | `"POSSIBLE_IMAGE_MANIPULATION"`              |
+| `fraud_signals_online_duplicate`        | `"POSSIBLE_ONLINE_DUPLICATE"`                |
+| `evidence_hostname`                     | `"site-with-sample.com"`,…                   |
+| `evidence_thumbnail_url`                | `"https://….gstatic.com/images?…"`           |
 
 ## Sample demo
 
@@ -252,8 +268,9 @@ def process_document(
     location: str,
     processor_id: str,
 ) -> docai.Document:
-    api_endpoint = {"api_endpoint": f"{location}-documentai.googleapis.com"}
-    client = docai.DocumentProcessorServiceClient(client_options=api_endpoint)
+    """Analyze the input file with Document AI and return a structured document."""
+    client_options = {"api_endpoint": f"{location}-documentai.googleapis.com"}
+    client = docai.DocumentProcessorServiceClient(client_options=client_options)
 
     raw_document = docai.RawDocument(content=file.read(), mime_type=mime_type)
     name = client.processor_path(project_id, location, processor_id)
@@ -265,7 +282,7 @@ def process_document(
     )
     response = client.process_document(request)
 
-    return docai.Document(response.document)
+    return response.document
 ```
 
 This function uses the Python client library:
@@ -279,21 +296,24 @@ You can collect the detected fields by parsing the document `entities`:
 
 ```py
 def id_data_from_document(document: docai.Document) -> dict:
+    """Return ID data mapping for the frontend."""
     id_data = defaultdict(dict)
 
     for entity in document.entities:
         key = entity.type_
-        page_index = 0
-        value = entity.mention_text
-        confidence, normalized = None, None
+        page_refs = entity.page_anchor.page_refs
+        page_index = page_refs[0].page if page_refs else 0
+        confidence = entity.confidence
+        normalized = None
 
-        if entity.page_anchor:
-            page_index = entity.page_anchor.page_refs[0].page
-        if not value:  # Send the detected portrait image instead
+        if key.lower() == "portrait":
             image = crop_entity(document, entity)
             value = data_url_from_image(image)
-        if entity.confidence != 0.0:
-            confidence = int(entity.confidence * 100 + 0.5)
+        else:
+            value = text_from_entity(document, entity)
+
+        if confidence != 0.0:
+            confidence = int(confidence * 100 + 0.5)
         if entity.normalized_value:
             normalized = entity.normalized_value.text
 

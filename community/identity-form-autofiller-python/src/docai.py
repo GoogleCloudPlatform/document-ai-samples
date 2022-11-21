@@ -17,17 +17,15 @@ import logging
 from base64 import b64decode, b64encode
 from collections import defaultdict
 from io import BytesIO
+from pathlib import Path
 from re import match
-from typing import BinaryIO, Sequence, TypeAlias, cast
+from typing import BinaryIO, Iterator, Mapping, Sequence, cast
 
-from google.api_core.client_options import ClientOptions
 from google.cloud.documentai_v1 import (
     BoundingPoly,
     Document,
     DocumentProcessorServiceClient,
-    NormalizedVertex,
     Processor,
-    ProcessorType,
     ProcessRequest,
     RawDocument,
 )
@@ -45,26 +43,10 @@ from docai_schemas import (
     ProcessorInfo,
 )
 
-PageAnchor: TypeAlias = Document.PageAnchor
-PageRef: TypeAlias = Document.PageAnchor.PageRef
-PageRefs: TypeAlias = Sequence[Document.PageAnchor.PageRef]
-Entity: TypeAlias = Document.Entity
-Entities: TypeAlias = Sequence[Document.Entity]
-NormalizedValue: TypeAlias = Document.Entity.NormalizedValue
-TextAnchor: TypeAlias = Document.TextAnchor
-TextSegment: TypeAlias = Document.TextAnchor.TextSegment
-TextSegments: TypeAlias = Sequence[Document.TextAnchor.TextSegment]
-Page: TypeAlias = Document.Page
-Pages: TypeAlias = Sequence[Document.Page]
-PageImage: TypeAlias = Document.Page.Image
-NormalizedVertices: TypeAlias = Sequence[NormalizedVertex]
-Locations: TypeAlias = Sequence[str]
-ProcessorTypes: TypeAlias = Sequence[str]
-Processors: TypeAlias = Sequence[Processor]
-
 
 def get_client(location: str) -> DocumentProcessorServiceClient:
-    client_options = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
+    """Return a Document AI client."""
+    client_options = {"api_endpoint": f"{location}-documentai.googleapis.com"}
 
     return DocumentProcessorServiceClient(client_options=client_options)
 
@@ -72,6 +54,7 @@ def get_client(location: str) -> DocumentProcessorServiceClient:
 def get_client_and_parent(
     project_id: str, location: str
 ) -> tuple[DocumentProcessorServiceClient, str]:
+    """Return a Document AI client and parent."""
     client = get_client(location)
     parent = client.common_location_path(project_id, location)
 
@@ -97,7 +80,7 @@ def process_document(
     )
     response = client.process_document(request)
 
-    return cast(Document, response.document)
+    return response.document
 
 
 def process_document_with_proc(
@@ -120,28 +103,31 @@ def process_files(
     if len(files) == 1:
         image_io, mime_type = files[0]
     else:
-        images = [Image.open(file) for (file, _) in files]
+        images = [file for (file, _) in files]
         image_io, mime_type = group_images_in_tiff_container(images)
 
     return process_document_with_proc(image_io, mime_type, processor)
 
 
-def group_images_in_tiff_container(images: Sequence[PilImage]) -> tuple[BytesIO, str]:
-    """Group input images into single container to be processed by Document AI."""
+def group_images_in_tiff_container(images: Sequence[BytesIO]) -> tuple[BytesIO, str]:
+    """Group input images into a single container to be processed by Document AI."""
     if len(images) < 2:
         raise ValueError("At least two images are expected")
 
-    format, mime_type = "tiff", "image/tiff"
-    params = dict(save_all=True, append_images=images[1:], compression=None)
+    next_images = (Image.open(image) for image in images)
+    first_image = next(next_images)
+    params = dict(save_all=True, append_images=next_images, compression=None)
 
     image_io = BytesIO()
-    images[0].save(image_io, format, **params)
+    image_format, mime_type = "tiff", "image/tiff"
+    first_image.save(image_io, image_format, **params)
     image_io.seek(0)
 
     return image_io, mime_type
 
 
 def processor_locations() -> Sequence[str]:
+    """Return processing locations to be displayed in the frontend."""
     return LOCATIONS
 
 
@@ -173,17 +159,17 @@ def processor_from_frontend_proc_info(proc_info: str) -> ProcessorInfo | None:
     )
 
 
-def frontend_id_processors(project_id: str, api_location: str) -> dict[str, str]:
+def frontend_id_processors(project_id: str, api_location: str) -> Mapping[str, str]:
     """Return mapping of identity processors to be displayed by frontend.
     Keys are processor display names, values are opaque strings.
     """
-    id_processors = dict()
+    id_processors: dict[str, str] = {}
 
     client, parent = get_client_and_parent(project_id, api_location)
     procs = get_processors_of_types(client, parent, ID_PROCESSORS)
     for proc in procs:
         key = proc.display_name
-        value = frontend_proc_info(str(proc.type_), str(proc.process_endpoint))
+        value = frontend_proc_info(proc.type_, proc.process_endpoint)
         id_processors[key] = value
 
     return id_processors
@@ -191,29 +177,28 @@ def frontend_id_processors(project_id: str, api_location: str) -> dict[str, str]
 
 def get_document(local_sample: str) -> Document:
     """Return document from JSON serialization."""
-    with open(local_sample) as json_file:
-        json = json_file.read()
+    json = Path(local_sample).read_text(encoding="utf-8")
 
     return cast(Document, Document.from_json(json))
 
 
-def get_processor_fields(processor: ProcessorInfo) -> dict:
+def get_processor_fields(processor: ProcessorInfo) -> Mapping[str, Sequence]:
     """Return processor field mapping for frontend."""
-    all = list()
-    images = list()
+    all_fields = []
+    image_fields = []
 
     proc_type = processor.type
     replacements = PROCESSOR_FIELD_REPLACEMENTS.get(proc_type, {})
     snake_case = proc_type not in LEGACY_NON_SNAKE_CASE_PROCESSORS
 
-    for field in PROCESSOR_FIELDS[proc_type]:
+    for field in PROCESSOR_FIELDS.get(proc_type, []):
         field = replacements.get(field, field)
         value = to_snake_case(field.value) if snake_case else field.value
-        all.append(value)
+        all_fields.append(value)
         if field == FIELD.PORTRAIT:
-            images.append(value)
+            image_fields.append(value)
 
-    return dict(all=all, images=images)
+    return dict(all_fields=all_fields, image_fields=image_fields)
 
 
 def to_snake_case(field: str) -> str:
@@ -221,18 +206,16 @@ def to_snake_case(field: str) -> str:
     return "".join("_" if c == " " else c.lower() for c in field)
 
 
-def id_data_from_document(document: Document) -> dict:
+def id_data_from_document(document: Document) -> Mapping[str, Mapping[int, Mapping]]:
     """Return ID data mapping for frontend."""
     id_data: dict = defaultdict(dict)
 
-    entities = cast(Entities, document.entities)
-    for entity in entities:
-        key = cast(str, entity.type_)
-        page_index = 0
-        confidence, normalized = None, None
-        page_anchor = cast(PageAnchor, entity.page_anchor)
-        page_refs = cast(PageRefs, page_anchor.page_refs)
-        page_index = cast(int, page_refs[0].page) if page_refs else 0
+    for entity in document.entities:
+        key = entity.type_
+        page_refs = entity.page_anchor.page_refs
+        page_index = page_refs[0].page if page_refs else 0
+        confidence = entity.confidence
+        normalized = None
 
         if key.lower() == FIELD.PORTRAIT.value.lower():
             image = crop_entity(document, entity)
@@ -240,12 +223,10 @@ def id_data_from_document(document: Document) -> dict:
         else:
             value = text_from_entity(document, entity)
 
-        confidence = cast(float, entity.confidence)
         if confidence != 0.0:
             confidence = int(confidence * 100 + 0.5)
         if entity.normalized_value:
-            normalized_value = cast(NormalizedValue, entity.normalized_value)
-            normalized = normalized_value.text
+            normalized = entity.normalized_value.text
 
         id_data[key][page_index] = dict(
             value=value,
@@ -256,40 +237,30 @@ def id_data_from_document(document: Document) -> dict:
     return id_data
 
 
-def text_from_entity(doc: Document, entity: Entity) -> str:
+def text_from_entity(doc: Document, entity: Document.Entity) -> str:
     """Return a single string of line-break-separated text segments."""
-    text_anchor = cast(TextAnchor, entity.text_anchor)
-    text_segments = cast(TextSegments, text_anchor.text_segments)
+    text_segments = entity.text_anchor.text_segments
 
     if not text_segments:
-        # Some processors can return entity text unrelated to the document text
-        # e.g. ID_FRAUD_DETECTION_PROCESSOR
-        return cast(str, entity.mention_text)
+        # Some processors can return entity text not present in the document text
+        # Example: ID_PROOFING_PROCESSOR
+        return entity.mention_text
 
     # For demo purposes, return line breaks so they can be made visible in the UI
-    full_text = cast(str, doc.text)
-    text = "\n".join(
-        full_text[cast(int, ts.start_index) : cast(int, ts.end_index)]
-        for ts in text_segments
-    )
+    text = "\n".join(doc.text[ts.start_index : ts.end_index] for ts in text_segments)
 
     return text
 
 
 def crop_entity(doc: Document, entity: Document.Entity) -> PilImage:
     """Return image cropped from page image for detected entity."""
-    page_anchor = cast(PageAnchor, entity.page_anchor)
-    page_refs = cast(PageRefs, page_anchor.page_refs)
-    page_ref = page_refs[0]
-    image_page = cast(int, page_ref.page)
-    doc_page = cast(Pages, doc.pages)[image_page]
-    page_image = cast(PageImage, doc_page.image)
-    image_content = cast(bytes, page_image.content)
+    page_ref = entity.page_anchor.page_refs[0]
+    doc_page = doc.pages[page_ref.page]
+    image_content = doc_page.image.content
 
     doc_image = Image.open(BytesIO(image_content))
     w, h = doc_image.size
-    bounding_poly = cast(BoundingPoly, page_ref.bounding_poly)
-    vertices = vertices_from_bounding_poly(bounding_poly, w, h)
+    vertices = vertices_from_bounding_poly(page_ref.bounding_poly, w, h)
     (top, left), (bottom, right) = vertices[0], vertices[2]
     cropped_image = doc_image.crop((top, left, bottom, right))
 
@@ -300,15 +271,9 @@ def vertices_from_bounding_poly(
     bounding_poly: BoundingPoly, w: int, h: int
 ) -> Sequence[tuple[int, int]]:
     """Return bounding polygon vertices as image coordinates."""
-    vertices = cast(NormalizedVertices, bounding_poly.normalized_vertices)
+    vertices = bounding_poly.normalized_vertices
 
-    return [
-        (
-            int(cast(float, v.x) * w + 0.5),
-            int(cast(float, v.y) * h + 0.5),
-        )
-        for v in vertices
-    ]
+    return [(int(v.x * w + 0.5), int(v.y * h + 0.5)) for v in vertices]
 
 
 def data_url_from_image(image: PilImage) -> str:
@@ -330,49 +295,31 @@ def check_create_processors(project_id: str):
     for location in locations:
         client, parent = get_client_and_parent(project_id, location)
         existing_names = [
-            cast(str, proc.display_name)
+            proc.display_name
             for proc in get_processors_of_types(client, parent, proc_types)
         ]
 
         for proc_type in proc_types:
             if proc_type in existing_names:
-                logging.info(f"OK existing: {location} / {proc_type}")
+                logging.info("OK existing: %s / %s", location, proc_type)
                 continue
             try:
-                logging.info(f".. Creating: {location} / {proc_type}")
+                logging.info(".. Creating: %s / %s", location, proc_type)
                 processor = Processor(display_name=proc_type, type_=proc_type)
                 client.create_processor(parent=parent, processor=processor)
-            except Exception as err:
-                logging.error(err)
-
-
-def get_processor_types(project_id: str, location: str) -> ProcessorTypes:
-    client, parent = get_client_and_parent(project_id, location)
-    response = client.fetch_processor_types(parent=parent)
-
-    processor_types = [
-        cast(str, proc_type.type_)
-        for proc_type in cast(Sequence[ProcessorType], response.processor_types)
-    ]
-
-    return processor_types
+            except Exception as e:
+                logging.exception(e)
 
 
 def get_processors_of_types(
     client: DocumentProcessorServiceClient,
     parent: str,
-    proc_types: ProcessorTypes,
-) -> Processors:
-    response = client.list_processors(parent=parent)
-    processors = [
+    proc_types: Sequence[str],
+) -> Iterator[Processor]:
+    """Yield enabled processors belonging to the parent."""
+    procs = client.list_processors(parent=parent)
+    yield from (
         proc
-        for proc in response
-        if all(
-            [
-                cast(str, proc.type_) in proc_types,
-                cast(Processor.State, proc.state) == Processor.State.ENABLED,
-            ]
-        )
-    ]
-
-    return processors
+        for proc in procs
+        if proc.type_ in proc_types and proc.state == Processor.State.ENABLED
+    )

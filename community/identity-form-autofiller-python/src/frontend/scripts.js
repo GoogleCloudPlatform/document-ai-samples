@@ -13,7 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const VIDEO_CONSTRAINTS = { width: { min: 720 }, height: { min: 720 } }
+const VIDEO_CONSTRAINTS = {
+    width: { min: 720, ideal: 1024 },
+    height: { min: 720, ideal: 1024 },
+}
 const BUTTON_PHOTO1 = 'photo1'
 const BUTTON_PHOTO2 = 'photo2'
 const BUTTON_UPLOAD = 'upload'
@@ -582,8 +585,8 @@ async function initForm() {
     eForm.innerHTML = ''
     const fields = await getProcessorFields()
     if (!fields) return
-    const allFields = fields.all
-    gImageFields = fields.images
+    const allFields = fields.all_fields
+    gImageFields = fields.image_fields
 
     let maxLabelChars = 0
     for (const [index, field] of Object.entries(allFields))
