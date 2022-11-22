@@ -1,2 +1,2 @@
-google-cloud-documentai==2.2.0
+google-cloud-documentai==2.3.0
 pikepdf==6.2.4
