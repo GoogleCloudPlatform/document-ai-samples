@@ -1,5 +1,5 @@
 requests
 urllib3
-googlemaps==4.7.0
+googlemaps==4.7.3
 google-cloud-bigquery
 google-cloud-pubsub
