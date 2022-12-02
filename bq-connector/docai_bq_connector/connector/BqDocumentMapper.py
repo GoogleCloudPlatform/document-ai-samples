@@ -38,7 +38,7 @@ class BqDocumentMapper:
         self,
         document: ProcessedDocument,
         bq_schema: List[SchemaField],
-        custom_fields: {} = None,
+        custom_fields: dict = None,
         include_raw_entities: bool = True,
         include_error_fields: bool = True,
         continue_on_error: bool = False,
@@ -170,7 +170,7 @@ class BqDocumentMapper:
     def _map_document_to_bigquery_schema(
         self, fields: List[DocumentField], bq_schema: List[SchemaField]
     ):
-        result = {}
+        result: dict = {}
         for field in fields:
             field_name = field.to_bigquery_safe_name()
             if field.value is None:
