@@ -16,6 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from typing import List
+
 from docai_bq_connector.helper import find
 
 
@@ -25,7 +27,7 @@ class DocumentField:
         self.value = value
         self.confidence = confidence
         self.page_number = page_number
-        self.children: [DocumentRow] = []
+        self.children: List[DocumentRow] = []
 
     def to_bigquery_safe_name(self):
         return self.name.replace("-", "_")

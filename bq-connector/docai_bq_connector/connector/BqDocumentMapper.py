@@ -20,7 +20,7 @@
 import json
 import logging
 from datetime import date
-from typing import Sequence
+from typing import Sequence, List
 
 from google.cloud.bigquery import SchemaField
 
@@ -37,7 +37,7 @@ class BqDocumentMapper:
     def __init__(
         self,
         document: ProcessedDocument,
-        bq_schema: [SchemaField],
+        bq_schema: List[SchemaField],
         custom_fields: {} = None,
         include_raw_entities: bool = True,
         include_error_fields: bool = True,
@@ -49,7 +49,7 @@ class BqDocumentMapper:
         self.include_raw_entities = include_raw_entities
         self.include_error_fields = include_error_fields
         self.continue_on_error = continue_on_error
-        self.errors: [ConversionError] = []
+        self.errors: List[ConversionError] = []
         self.fields = self._parse_document()
         self.dictionary = self._map_document_to_bigquery_schema(self.fields, bq_schema)
 
@@ -57,7 +57,7 @@ class BqDocumentMapper:
         row = self._parse_entities(self.processed_document.document.entities)
         return row.fields
 
-    def _parse_entities(self, entities) -> [DocumentField]:
+    def _parse_entities(self, entities) -> List[DocumentField]:
         row = DocumentRow()
         for entity in entities:
             if len(entity.page_anchor.page_refs) != 1:
@@ -101,7 +101,7 @@ class BqDocumentMapper:
         return row
 
     def to_bq_row(
-        self, append_parsed_fields: bool = True, exclude_fields: [str] = None
+        self, append_parsed_fields: bool = True, exclude_fields: List[str] = None
     ):
         row = {}
         if self.custom_fields is not None and len(self.custom_fields.keys()) > 0:
