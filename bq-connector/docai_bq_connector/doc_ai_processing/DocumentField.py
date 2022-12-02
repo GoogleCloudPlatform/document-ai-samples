@@ -38,7 +38,7 @@ class DocumentField:
             f"confidence: {self.confidence}, page_number: {self.page_number})"
         )
 
-    def to_dictionary(self) -> {}:
+    def to_dictionary(self) -> dict:
         _dictionary = {
             "name": self.to_bigquery_safe_name(),
             "value": self.value,
