@@ -28,6 +28,7 @@ class StorageManager:
         self.project_id = project_id
         self.dataset_id = dataset_id
 
+        self.client: bigquery.client.Client = None
         if project_id is None:
             self.client = bigquery.Client()
             self.project_id = self.client.project
