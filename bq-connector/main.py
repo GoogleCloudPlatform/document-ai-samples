@@ -24,6 +24,7 @@ import os
 
 from docai_bq_connector import DocAIBQConnector
 
+
 script_dir = os.path.dirname(__file__)
 
 
