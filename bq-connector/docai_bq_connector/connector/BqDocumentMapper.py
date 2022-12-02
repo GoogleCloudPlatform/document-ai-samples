@@ -140,7 +140,10 @@ class BqDocumentMapper:
         error_records = []
         if len(errors) > 0:
             for err_list in errors:
-                for err in err_list.get("errors"):
+                errors = err_list.get("errors")
+                if not errors:
+                    continue
+                for err in errors:
                     field_name = err.get("location")
 
                     # If a nested field has an error, exclude the top level field
