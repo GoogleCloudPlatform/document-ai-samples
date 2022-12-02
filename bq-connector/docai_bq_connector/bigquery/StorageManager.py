@@ -66,20 +66,3 @@ class StorageManager:
         table_ref = bigquery.TableReference(self.dataset_ref, table_id)
         table = self.client.get_table(table_ref)
         return table.schema
-
-    @staticmethod
-    def _is_schema_equal(schema_1, schema_2):
-        if len(schema_1) != len(schema_2):
-            logging.debug('Schema list length difference')
-            return False
-        field_count = range(len(schema_1))
-        for i in field_count:
-            f_1: bigquery.SchemaField = schema_1[i]
-            f_2: bigquery.SchemaField = schema_2[i]
-            f_1_api_repr = f_1.to_api_repr()
-            f_2_api_repr = f_2.to_api_repr()
-            if f_1_api_repr != f_2_api_repr:
-                logging.debug('Schema field compare is not equal:\nschema_1: %s\nschema_2: %s', f_1_api_repr,
-                              f_2_api_repr)
-                return False
-        return True
