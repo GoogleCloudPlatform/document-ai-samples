@@ -25,6 +25,7 @@ from google.cloud import storage
 
 from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.doc_ai_processing.DocumentOperation import DocumentOperation
+from docai_bq_connector.exception import InvalidGcsUriError
 from docai_bq_connector.helper.gcs_util import get_gcs_blob
 from docai_bq_connector.helper.pdf_util import get_pdf_page_cnt
 
@@ -104,8 +105,8 @@ class Processor:
         results_json = documentai.types.Document.to_json(results.document)
         return ProcessedDocument(
             document=results.document,
-            hitl_operation_id=hitl_op_id,
             dictionary=results_json,
+            hitl_operation_id=hitl_op_id
         )
 
     def _process_async(self) -> Union[DocumentOperation, ProcessedDocument]:
@@ -164,8 +165,11 @@ class Processor:
             # Results are written to GCS. Use a regex to find
             # output files
             match = re.match(r"gs://([^/]+)/(.+)", destination_uri)
-            output_bucket = match.group(1)
-            prefix = match.group(2)
+            if match:
+                output_bucket = match.group(1)
+                prefix = match.group(2)
+            else:
+                raise InvalidGcsUriError(f'The supplied async_output_folder is not a properly structured GCS Path')
 
             storage_client = storage.Client()
             bucket = storage_client.get_bucket(output_bucket)
@@ -196,7 +200,7 @@ class Processor:
             results_json = documentai.types.Document.to_json(document)
 
             return ProcessedDocument(
-                document=document, hitl_operation_id=hitl_op_id, dictionary=results_json
+                document=document, dictionary=results_json, hitl_operation_id=hitl_op_id
             )
         else:
             return DocumentOperation(operation.operation.name)

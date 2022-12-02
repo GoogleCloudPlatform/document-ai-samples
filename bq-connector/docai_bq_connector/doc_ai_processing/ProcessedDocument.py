@@ -21,7 +21,7 @@ from google.cloud.documentai_v1 import Document
 
 
 class ProcessedDocument:
-    def __init__(self, document: Document, hitl_operation_id: str, dictionary):
+    def __init__(self, document: Document, dictionary, hitl_operation_id: str = None):
         self.document = document
-        self.hitl_operation_id = hitl_operation_id
         self.dictionary = dictionary
+        self.hitl_operation_id = hitl_operation_id
