@@ -25,11 +25,11 @@ from typing import Sequence, List
 from google.cloud.bigquery import SchemaField
 
 from docai_bq_connector.connector.ConversionError import ConversionError
-from docai_bq_connector.doc_ai_processing import ProcessedDocument
 from docai_bq_connector.doc_ai_processing.DocumentField import (
     DocumentRow,
     DocumentField,
 )
+from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.helper import find, get_bool_value, clean_number
 
 
