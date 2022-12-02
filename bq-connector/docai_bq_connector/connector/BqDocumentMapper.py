@@ -53,7 +53,7 @@ class BqDocumentMapper:
         self.fields = self._parse_document()
         self.dictionary = self._map_document_to_bigquery_schema(self.fields, bq_schema)
 
-    def _parse_document(self) -> [DocumentField]:
+    def _parse_document(self) -> List[DocumentField]:
         row = self._parse_entities(self.processed_document.document.entities)
         return row.fields
 
@@ -168,7 +168,7 @@ class BqDocumentMapper:
         return result
 
     def _map_document_to_bigquery_schema(
-        self, fields: [DocumentField], bq_schema: [SchemaField]
+        self, fields: List[DocumentField], bq_schema: List[SchemaField]
     ):
         result = {}
         for field in fields:
