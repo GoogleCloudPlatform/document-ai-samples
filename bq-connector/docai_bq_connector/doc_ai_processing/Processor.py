@@ -23,8 +23,8 @@ from typing import Union
 from google.cloud import documentai_v1 as documentai
 from google.cloud import storage
 
-from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.doc_ai_processing.DocumentOperation import DocumentOperation
+from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.exception import InvalidGcsUriError
 from docai_bq_connector.helper.gcs_util import get_gcs_blob
 from docai_bq_connector.helper.pdf_util import get_pdf_page_cnt
@@ -32,17 +32,17 @@ from docai_bq_connector.helper.pdf_util import get_pdf_page_cnt
 
 class Processor:
     def __init__(
-        self,
-        bucket_name: str,
-        file_name: str,
-        content_type: str,
-        processor_project_id: str,
-        processor_location: str,
-        processor_id: str,
-        async_output_folder: str,
-        sync_timeout: int = 900,
-        async_timeout: int = 900,
-        should_async_wait: bool = True,
+            self,
+            bucket_name: str,
+            file_name: str,
+            content_type: str,
+            processor_project_id: str,
+            processor_location: str,
+            processor_id: str,
+            async_output_folder: str,
+            sync_timeout: int = 900,
+            async_timeout: int = 900,
+            should_async_wait: bool = True,
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
