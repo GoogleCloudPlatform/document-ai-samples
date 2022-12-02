@@ -15,6 +15,7 @@
 /filter-hitl-language @holtskinner
 /fraud-detection-python @holtskinner
 /tax-processing-pipeline-python @holtskinner
+/bq-connector @mservidio
 
 # Community owners
 /community/identity-form-autofiller-python @PicardParis
