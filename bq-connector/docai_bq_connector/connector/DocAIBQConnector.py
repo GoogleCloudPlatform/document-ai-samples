@@ -43,7 +43,7 @@ class DocAIBQConnector:
         destination_table_id: str,
         doc_ai_sync_timeout: int = 900,
         doc_ai_async_timeout: int = 900,
-        custom_fields: {} = None,
+        custom_fields: dict = None,
         include_raw_entities: bool = True,
         include_error_fields: bool = True,
         retry_count: int = 1,
