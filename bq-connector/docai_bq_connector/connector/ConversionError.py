@@ -17,13 +17,16 @@
 # limitations under the License.
 #
 
-class ConversionError:
-    error_type_conversion = 'TYPE_CONVERSION'
-    error_type_bq_insert = 'BQ_INSERT'
-    error_type_exclude_field = 'BQ_FIELD_EXCLUSION'
-    error_type_duplicate_field = 'DUPLICATE_FIELD'
 
-    def __init__(self, key: str, value, error, error_message, error_type, identifier: str = None):
+class ConversionError:
+    error_type_conversion = "TYPE_CONVERSION"
+    error_type_bq_insert = "BQ_INSERT"
+    error_type_exclude_field = "BQ_FIELD_EXCLUSION"
+    error_type_duplicate_field = "DUPLICATE_FIELD"
+
+    def __init__(
+        self, key: str, value, error, error_message, error_type, identifier: str = None
+    ):
         self.key = key
         self.value = value
         self.error = error
@@ -32,12 +35,16 @@ class ConversionError:
         self.identifier = identifier
 
     def __str__(self):
-        return f'ConversionError key is {self.key} value is {self.value} error is {self.error} ' \
-               f'error_message is {self.error_message} and error_type is {self.error_type} and id is {self.identifier}'
+        return (
+            f"ConversionError key is {self.key} value is {self.value} error is {self.error} "
+            f"error_message is {self.error_message} and error_type is {self.error_type} and id is {self.identifier}"
+        )
 
     def __repr__(self):
-        return f'ConversionError(key={self.key}, value={self.value}, error={self.error}, ' \
-               f'error_message={self.error_message}, error_type={self.error_type}, id={self.identifier})'
+        return (
+            f"ConversionError(key={self.key}, value={self.value}, error={self.error}, "
+            f"error_message={self.error_message}, error_type={self.error_type}, id={self.identifier})"
+        )
 
     def to_dict(self):
         return {
@@ -45,5 +52,5 @@ class ConversionError:
             "field": self.key,
             "value": self.value,
             "error": self.error,
-            "message": self.error_message
+            "message": self.error_message,
         }

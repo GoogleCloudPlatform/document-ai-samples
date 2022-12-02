@@ -28,5 +28,5 @@ def get_gcs_blob(bucket_name, file_name):
     gcs_file = bucket.get_blob(file_name)
     file_meta = gcs_file.metadata
     file_blob: bytes = gcs_file.download_as_bytes()
-    logging.info('Fetched file from GCS successfully.')
+    logging.info("Fetched file from GCS successfully.")
     return file_blob, file_meta

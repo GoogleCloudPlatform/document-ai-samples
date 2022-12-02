@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 
+
 def find(f, seq):
     """https://tomayko.com/blog/2004/cleanest-python-find-in-list-function"""
     """Return first item in sequence where f(item) == True."""
@@ -26,13 +27,13 @@ def find(f, seq):
 
 
 def get_bool_value(raw_value) -> bool:
-    if raw_value in (1, 'True' 'CHECKED'):
+    if raw_value in (1, "True" "CHECKED"):
         return True
     return False
 
 
 def clean_number(raw_value):
-    if "$" in raw_value or "," in raw_value or '.' in raw_value:
+    if "$" in raw_value or "," in raw_value or "." in raw_value:
         raw_value = raw_value.replace("$", "")
         raw_value = raw_value.replace(",", "")
     return raw_value

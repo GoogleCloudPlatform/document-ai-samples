@@ -30,16 +30,19 @@ from docai_bq_connector.helper.pdf_util import get_pdf_page_cnt
 
 
 class Processor:
-    def __init__(self,
-                 bucket_name: str, file_name: str,
-                 content_type: str,
-                 processor_project_id: str,
-                 processor_location: str,
-                 processor_id: str,
-                 async_output_folder: str,
-                 sync_timeout: int = 900,
-                 async_timeout: int = 900,
-                 should_async_wait: bool = True):
+    def __init__(
+        self,
+        bucket_name: str,
+        file_name: str,
+        content_type: str,
+        processor_project_id: str,
+        processor_location: str,
+        processor_id: str,
+        async_output_folder: str,
+        sync_timeout: int = 900,
+        async_timeout: int = 900,
+        should_async_wait: bool = True,
+    ):
         self.bucket_name = bucket_name
         self.file_name = file_name
         self.content_type = content_type
@@ -58,7 +61,7 @@ class Processor:
         return get_gcs_blob(self.bucket_name, self.file_name)
 
     def _get_input_uri(self):
-        return f'gs://{self.bucket_name}/{self.file_name}'
+        return f"gs://{self.bucket_name}/{self.file_name}"
 
     def _get_document_ai_options(self):
         return {"api_endpoint": f"{self.processor_location}-documentai.googleapis.com"}
@@ -66,65 +69,63 @@ class Processor:
     # TODO: Support for processing multiple files
     def _process_sync(self, document_blob: bytes) -> ProcessedDocument:
         """
-            This uses Doc AI to process the document synchronously.  The limit is 5 pages.
-            Args:
-                gcs_blob:
-                content_type:
-                project_number:
-                location:
-                processor_id:
+        This uses Doc AI to process the document synchronously.  The limit is 5 pages.
+        Args:
+            gcs_blob:
+            content_type:
+            project_number:
+            location:
+            processor_id:
 
-            Returns:
-                Document AI document object
-                HITL operation ID
-                Document Object as a json object
-            """
+        Returns:
+            Document AI document object
+            HITL operation ID
+            Document Object as a json object
+        """
         # You must set the api_endpoint if you use a location other than 'us', e.g.:
         opts = self._get_document_ai_options()
         client = documentai.DocumentProcessorServiceClient(client_options=opts)
 
-        document = {
-            "content": document_blob,
-            "mime_type": self.content_type
-        }
+        document = {"content": document_blob, "mime_type": self.content_type}
 
         processor_uri = self._get_processor_uri()
-        request = {
-            "name": processor_uri,
-            "raw_document": document
-        }
-        print(f'name: {processor_uri}, mime_type: {self.content_type}')
+        request = {"name": processor_uri, "raw_document": document}
+        print(f"name: {processor_uri}, mime_type: {self.content_type}")
 
         results = client.process_document(request)
-        print(f'HITL Output: {results.human_review_status}')
+        print(f"HITL Output: {results.human_review_status}")
 
         hitl_op = results.human_review_status.human_review_operation
         hitl_op_id = None
         if hitl_op:
-            hitl_op_split = hitl_op.split('/')
+            hitl_op_split = hitl_op.split("/")
             hitl_op_id = hitl_op_split.pop()
 
         results_json = documentai.types.Document.to_json(results.document)
-        return ProcessedDocument(document=results.document, hitl_operation_id=hitl_op_id, dictionary=results_json)
+        return ProcessedDocument(
+            document=results.document,
+            hitl_operation_id=hitl_op_id,
+            dictionary=results_json,
+        )
 
     def _process_async(self) -> Union[DocumentOperation, ProcessedDocument]:
         # if self.should_async_wait is True:
         # return type of ProcessedDocument
         # else return type of DocumentOperation
         """
-            This uses Doc AI to process the document asynchronously.  The limit is 100 pages.
-            Args:
-                gcs_blob:
-                content_type:
-                project_number:
-                location:
-                processor_id:
-                gcs_output_uri:
-                gcs_output_uri_prefix:
-                timeout:
-            Returns:
+        This uses Doc AI to process the document asynchronously.  The limit is 100 pages.
+        Args:
+            gcs_blob:
+            content_type:
+            project_number:
+            location:
+            processor_id:
+            gcs_output_uri:
+            gcs_output_uri_prefix:
+            timeout:
+        Returns:
 
-            """
+        """
         # You must set the api_endpoint if you use a location other than 'us', e.g.:
         opts = self._get_document_ai_options()
         client = documentai.DocumentProcessorServiceClient(client_options=opts)
@@ -132,7 +133,9 @@ class Processor:
         # TODO: Rename async_output_folder to async_output_folder_gcs_uri
         destination_uri = self.async_output_folder
         gcs_documents = documentai.GcsDocuments(
-            documents=[{"gcs_uri": self._get_input_uri(), "mime_type": self.content_type}]
+            documents=[
+                {"gcs_uri": self._get_input_uri(), "mime_type": self.content_type}
+            ]
         )
 
         # 'mime_type' can be 'application/pdf', 'image/tiff',
@@ -149,7 +152,7 @@ class Processor:
             name=processor_uri,
             input_documents=input_config,
             document_output_config=output_config,
-            skip_human_review=False  # TODO: Add supporting input arg.
+            skip_human_review=False,  # TODO: Add supporting input arg.
         )
 
         operation = client.batch_process_documents(request)
@@ -192,7 +195,9 @@ class Processor:
             hitl_op_id = None
             results_json = documentai.types.Document.to_json(document)
 
-            return ProcessedDocument(document=document, hitl_operation_id=hitl_op_id, dictionary=results_json)
+            return ProcessedDocument(
+                document=document, hitl_operation_id=hitl_op_id, dictionary=results_json
+            )
         else:
             return DocumentOperation(operation.operation.name)
 
