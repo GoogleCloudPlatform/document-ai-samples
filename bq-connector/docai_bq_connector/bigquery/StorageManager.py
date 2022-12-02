@@ -39,27 +39,27 @@ class StorageManager:
     def _does_dataset_exist(self, dataset_ref) -> bool:
         try:
             self.client.get_dataset(dataset_ref)
-            logging.debug('Dataset %s already exists', dataset_ref)
+            logging.debug("Dataset %s already exists", dataset_ref)
             return True
         except NotFound:
-            logging.debug('Dataset %s is not found', dataset_ref)
+            logging.debug("Dataset %s is not found", dataset_ref)
             return False
 
     def does_table_exist(self, name):
         table_ref = bigquery.TableReference(self.dataset_ref, name)
         try:
             self.client.get_table(table_ref)
-            logging.debug('Table %s already exists.', table_ref.table_id)
+            logging.debug("Table %s already exists.", table_ref.table_id)
             return True
         except NotFound:
-            logging.debug('Table %s is not found.', table_ref.table_id)
+            logging.debug("Table %s is not found.", table_ref.table_id)
             return False
 
     def write_record(self, table_id: str, record):
         table_ref = bigquery.TableReference(self.dataset_ref, table_id)
         errors = self.client.insert_rows_json(table_ref, [record])
         if errors:
-            logging.error('Encountered errors while inserting rows: %s', errors)
+            logging.error("Encountered errors while inserting rows: %s", errors)
         return errors
 
     def get_table_schema(self, table_id: str):

@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 
+
 class DocumentOperation:
     def __init__(self, operation_id: str):
         self.operation_id = operation_id

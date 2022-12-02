@@ -17,5 +17,6 @@
 # limitations under the License.
 #
 
+
 class TableNotFoundError(Exception):
     """Error for when the supplied table_id is not found in the specified project_id and dataset_id"""

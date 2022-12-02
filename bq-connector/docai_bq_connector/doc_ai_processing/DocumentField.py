@@ -28,18 +28,20 @@ class DocumentField:
         self.children: [DocumentRow] = []
 
     def to_bigquery_safe_name(self):
-        return self.name.replace('-', '_')
+        return self.name.replace("-", "_")
 
     def __repr__(self):
-        return f'DocumentField(name: {self.name}, value: {self.value}, ' \
-               f'confidence: {self.confidence}, page_number: {self.page_number})'
+        return (
+            f"DocumentField(name: {self.name}, value: {self.value}, "
+            f"confidence: {self.confidence}, page_number: {self.page_number})"
+        )
 
     def to_dictionary(self) -> {}:
         _dictionary = {
-            'name': self.to_bigquery_safe_name(),
-            'value': self.value,
-            'confidence': self.confidence,
-            'page_number': self.page_number
+            "name": self.to_bigquery_safe_name(),
+            "value": self.value,
+            "confidence": self.confidence,
+            "page_number": self.page_number,
         }
         if self.children and len(self.children) > 0:
             _children = []
@@ -48,7 +50,7 @@ class DocumentField:
                 for child_field in child_row.fields:
                     _fields.append(child_field.to_dictionary())
                 _children.append(_fields)
-            _dictionary['children'] = _children
+            _dictionary["children"] = _children
         return _dictionary
 
 
@@ -60,4 +62,4 @@ class DocumentRow:
         return find(lambda field: field.name == name, self.fields)
 
     def __repr__(self):
-        return f'DocumentRow({self.fields})'
+        return f"DocumentRow({self.fields})"
