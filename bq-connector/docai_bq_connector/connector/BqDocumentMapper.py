@@ -57,7 +57,7 @@ class BqDocumentMapper:
         row = self._parse_entities(self.processed_document.document.entities)
         return row.fields
 
-    def _parse_entities(self, entities) -> List[DocumentField]:
+    def _parse_entities(self, entities) -> DocumentRow:
         row = DocumentRow()
         for entity in entities:
             if len(entity.page_anchor.page_refs) != 1:
