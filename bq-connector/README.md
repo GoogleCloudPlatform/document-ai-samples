@@ -1,4 +1,4 @@
-# DocumentAI BQ Connector
+# Document AI BigQuery Connector
 
 ## Overview
 The DocAI BQ Connector is a helper library that invokes the DocAI processing library, and formats the response for saving directly into BigQuery.
