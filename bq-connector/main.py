@@ -33,7 +33,8 @@ def main():
                                          allow_abbrev=False)
 
     doc_options_group = arg_parser.add_argument_group('document arguments')
-    doc_options_group.add_argument('--bucket_name', type=str, help='The GCP bucket name for the source document')
+    doc_options_group.add_argument('--bucket_name', type=str, help='The Google Cloud Storage bucket name for the '
+                                                                   'source document')
     doc_options_group.add_argument('--file_name', type=str,
                                    help='The file name for the source document within the bucket')
     doc_options_group.add_argument('--content_type', type=str, help='The MIME type of the document to be processed')
