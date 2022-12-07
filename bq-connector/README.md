@@ -9,7 +9,7 @@ pip install -r ./docai_bq_connector/requirements.txt
 ```
 
 ## Usage
-```shell  
+```shell
 usage: main.py [-h] [--bucket_name BUCKET_NAME] [--file_name FILE_NAME]
                [--content_type CONTENT_TYPE]
                [--processing_type_override {sync,async}]
@@ -17,6 +17,8 @@ usage: main.py [-h] [--bucket_name BUCKET_NAME] [--file_name FILE_NAME]
                [--processor_location PROCESSOR_LOCATION]
                [--processor_id PROCESSOR_ID]
                [--async_output_folder ASYNC_OUTPUT_FOLDER]
+               [--write_extraction_result]
+               [--extraction_output_bucket EXTRACTION_OUTPUT_BUCKET]
                [--custom_fields CUSTOM_FIELDS]
                [--should_async_wait SHOULD_ASYNC_WAIT]
                [--operation_id OPERATION_ID]
@@ -61,6 +63,9 @@ document arguments:
   --processor_id PROCESSOR_ID
                         The id of the processor to be used
   --async_output_folder ASYNC_OUTPUT_FOLDER
+  --write_extraction_result
+                        Indicates if raw results of extraction should be written to GCS
+  --extraction_output_bucket EXTRACTION_OUTPUT_BUCKET
   --custom_fields CUSTOM_FIELDS
                         Custom field dictionary to union with the resulting
                         dictionary for BigQuery

@@ -43,11 +43,13 @@ class DocAIBQConnector:
         destination_table_id: str,
         doc_ai_sync_timeout: int = 900,
         doc_ai_async_timeout: int = 900,
+        extraction_result_output_bucket: str = None,
         custom_fields: dict = None,
         include_raw_entities: bool = True,
         include_error_fields: bool = True,
         retry_count: int = 1,
         continue_on_error: bool = False,
+        should_write_extraction_result: bool = True,
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
@@ -64,11 +66,13 @@ class DocAIBQConnector:
         self.destination_table_id = destination_table_id
         self.doc_ai_sync_timeout = doc_ai_sync_timeout
         self.doc_ai_async_timeout = doc_ai_async_timeout
+        self.extraction_result_output_bucket = extraction_result_output_bucket
         self.custom_fields = custom_fields
         self.include_raw_entities = include_raw_entities
         self.include_error_fields = include_error_fields
         self.retry_count = retry_count
         self.continue_on_error = continue_on_error
+        self.should_write_extraction_result = should_write_extraction_result
 
     def run(self):
         # Check if was invoked for a new document, or for an existing operation.
@@ -83,10 +87,12 @@ class DocAIBQConnector:
                 processor_project_id=self.processor_project_id,
                 processor_location=self.processor_location,
                 processor_id=self.processor_id,
+                extraction_result_output_bucket = self.extraction_result_output_bucket,
                 async_output_folder=self.async_output_folder,
                 sync_timeout=self.doc_ai_sync_timeout,
                 async_timeout=self.doc_ai_async_timeout,
                 should_async_wait=self.should_async_wait,
+                should_write_extraction_result=self.should_write_extraction_result,
             )
 
             document = doc_ai_process.process()
