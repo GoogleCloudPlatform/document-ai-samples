@@ -158,52 +158,52 @@ class Processor:
 
         operation = client.batch_process_documents(request)
 
-        if self.should_async_wait is True:
-            # Wait for the operation to finish
-            operation.result(timeout=self.async_timeout)
-
-            # Results are written to GCS. Use a regex to find
-            # output files
-            match = re.match(r"gs://([^/]+)/(.+)", destination_uri)
-            if match:
-                output_bucket = match.group(1)
-                prefix = match.group(2)
-            else:
-                raise InvalidGcsUriError(f'The supplied async_output_folder is not a properly structured GCS Path')
-
-            storage_client = storage.Client()
-            bucket = storage_client.get_bucket(output_bucket)
-            blob_list = list(bucket.list_blobs(prefix=prefix))
-            print("Output files:")
-            # should always be a single document here
-            for i, blob in enumerate(blob_list):
-                # If JSON file, download the contents of this blob as a bytes object.
-                if ".json" in blob.name:
-                    blob_as_bytes = blob.download_as_bytes()
-
-                    document = documentai.types.Document.from_json(blob_as_bytes)
-                    print(f"Fetched file {i + 1}")
-
-                    # For a full list of Document object attributes, please reference this page:
-                    # https://cloud.google.com/document-ai/docs/reference/rpc/google.cloud.documentai.v1beta3#document
-
-                    # Read the text recognition output from the processor
-                    # kvs = get_kv_as_json(document)
-                else:
-                    print(f"Skipping non-supported file type {blob.name}")
-
-            # operation.metadata.individual_process_statuses[0].human_review_status
-            # hitl_op = results.human_review_status.human_review_operation
-            # hitl_op_split = hitl_op.split('/')
-            # hitl_op_id = hitl_op_split.pop()
-            hitl_op_id = None
-            results_json = documentai.types.Document.to_json(document)
-
-            return ProcessedDocument(
-                document=document, dictionary=results_json, hitl_operation_id=hitl_op_id
-            )
-        else:
+        if self.should_async_wait is False:
             return DocumentOperation(operation.operation.name)
+
+        # Wait for the operation to finish
+        operation.result(timeout=self.async_timeout)
+
+        # Results are written to GCS. Use a regex to find
+        # output files
+        match = re.match(r"gs://([^/]+)/(.+)", destination_uri)
+        if match:
+            output_bucket = match.group(1)
+            prefix = match.group(2)
+        else:
+            raise InvalidGcsUriError(f'The supplied async_output_folder is not a properly structured GCS Path')
+
+        storage_client = storage.Client()
+        bucket = storage_client.get_bucket(output_bucket)
+        blob_list = list(bucket.list_blobs(prefix=prefix))
+        print("Output files:")
+        # should always be a single document here
+        for i, blob in enumerate(blob_list):
+            # If JSON file, download the contents of this blob as a bytes object.
+            if ".json" in blob.name:
+                blob_as_bytes = blob.download_as_bytes()
+
+                document = documentai.types.Document.from_json(blob_as_bytes)
+                print(f"Fetched file {i + 1}")
+
+                # For a full list of Document object attributes, please reference this page:
+                # https://cloud.google.com/document-ai/docs/reference/rpc/google.cloud.documentai.v1beta3#document
+
+                # Read the text recognition output from the processor
+                # kvs = get_kv_as_json(document)
+            else:
+                print(f"Skipping non-supported file type {blob.name}")
+
+        # operation.metadata.individual_process_statuses[0].human_review_status
+        # hitl_op = results.human_review_status.human_review_operation
+        # hitl_op_split = hitl_op.split('/')
+        # hitl_op_id = hitl_op_split.pop()
+        hitl_op_id = None
+        results_json = documentai.types.Document.to_json(document)
+
+        return ProcessedDocument(
+            document=document, dictionary=results_json, hitl_operation_id=hitl_op_id
+        )
 
     def process(self) -> Union[DocumentOperation, ProcessedDocument]:
         gcs_doc_blob, gcs_doc_meta = self._get_gcs_blob()
