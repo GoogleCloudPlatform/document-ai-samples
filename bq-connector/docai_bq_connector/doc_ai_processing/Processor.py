@@ -26,7 +26,7 @@ from google.cloud import storage
 from docai_bq_connector.doc_ai_processing.DocumentOperation import DocumentOperation
 from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.exception.InvalidGcsUriError import InvalidGcsUriError
-from docai_bq_connector.helper.gcs_util import get_gcs_blob
+from docai_bq_connector.helper.gcs_util import get_gcs_blob, write_gcs_blob
 from docai_bq_connector.helper.pdf_util import get_pdf_page_cnt
 
 
@@ -39,10 +39,12 @@ class Processor:
             processor_project_id: str,
             processor_location: str,
             processor_id: str,
+            extraction_result_output_bucket: str,
             async_output_folder: str,
             sync_timeout: int = 900,
             async_timeout: int = 900,
             should_async_wait: bool = True,
+            should_write_extraction_result: bool = True,
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
@@ -50,10 +52,14 @@ class Processor:
         self.processor_project_id = processor_project_id
         self.processor_location = processor_location
         self.processor_id = processor_id
+        self.extraction_result_output_bucket = extraction_result_output_bucket
         self.async_output_folder = async_output_folder
         self.sync_timeout = sync_timeout
         self.async_timeout = async_timeout
         self.should_async_wait = should_async_wait
+        if should_write_extraction_result and extraction_result_output_bucket is None:
+            raise Exception("extraction_result_output_bucket should be set when should_write_extraction_result is set to True")
+        self.should_write_extraction_result = should_write_extraction_result
 
     def _get_processor_uri(self):
         return f"projects/{self.processor_project_id}/locations/{self.processor_location}/processors/{self.processor_id}"
@@ -66,6 +72,12 @@ class Processor:
 
     def _get_document_ai_options(self):
         return {"api_endpoint": f"{self.processor_location}-documentai.googleapis.com"}
+
+    def _write_result_to_gcs(self,json_result_as_str):
+        if self.should_write_extraction_result: 
+            split_fname = self.file_name.split('.')[0]
+            json_file_name = f'{split_fname}.json'
+            write_gcs_blob(self.extraction_result_output_bucket, json_file_name, json_result_as_str, content_type='application/json')
 
     # TODO: Support for processing multiple files
     def _process_sync(self, document_blob: bytes) -> ProcessedDocument:
@@ -209,6 +221,10 @@ class Processor:
         gcs_doc_blob, gcs_doc_meta = self._get_gcs_blob()
         page_count = get_pdf_page_cnt(gcs_doc_blob)
         if page_count <= 5:
-            return self._process_sync(document_blob=gcs_doc_blob)
+            process_result = self._process_sync(document_blob=gcs_doc_blob)
         else:
-            return self._process_async()
+            process_result = self._process_async()
+        if isinstance(process_result, ProcessedDocument) and process_result is not None:
+            self._write_result_to_gcs(process_result.dictionary)
+
+        return process_result
