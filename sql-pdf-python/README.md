@@ -7,7 +7,7 @@ The goal of this demo is to run a BigQuery SQL and extract information from docu
 
 ## Architecture
 
-![SQL Doc](/img/SQL-on-pdf.png)
+![SQL Doc](img/SQL-on-pdf.png)
 
 ## Setting up the demo
 **1)** In Cloud Shell or other environment where you have the gcloud SDK installed, execute the following commands:
