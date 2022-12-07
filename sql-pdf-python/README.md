@@ -15,8 +15,8 @@ The goal of this demo is to run a BigQuery SQL and extract information from docu
 gcloud components update 
 cd $HOME
 
-git clone https://github.com/dojowahi/docai-on-bigquery.git
-cd ~/docai-on-bigquery
+git clone https://github.com/GoogleCloudPlatform/document-ai-samples.git
+cd ~/document-ai-samples/sql-pdf-python
 chmod +x *.sh
 ```
 

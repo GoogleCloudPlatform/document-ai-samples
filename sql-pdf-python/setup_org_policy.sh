@@ -1,14 +1,16 @@
-##################################################
-##
-## Create and Configure GCP project for EE+BQ
-##
-##################################################
+#!/bin/bash
 
+##################################################
+##
+## Create and Configure GCP project for Doc AI+BQ
+##
+##################################################
+# shellcheck disable=SC1091
 # source the previously set env variables
 source ./config.sh
 
 # prompt user to login
-gcloud auth login ${USER_EMAIL}
+gcloud auth login "${USER_EMAIL}"
 
 ##################################################
 ##
@@ -18,11 +20,11 @@ gcloud auth login ${USER_EMAIL}
 
 echo "Creating new project"
 
-gcloud projects create ${PROJECT_ID}
+gcloud projects create "${PROJECT_ID}"
 
 echo "Setting default project"
 
-gcloud config set project ${PROJECT_ID}
+gcloud config set project "${PROJECT_ID}"
 
 ##################################################
 ##
@@ -32,7 +34,7 @@ gcloud config set project ${PROJECT_ID}
 
 echo "Assigning billing account"
 
-gcloud beta billing projects link ${PROJECT_ID} --billing-account=${BILLING_ACCOUNT_ID}
+gcloud beta billing projects link "${PROJECT_ID}" --billing-account="${BILLING_ACCOUNT_ID}"
 
 ##################################################
 ##
@@ -48,11 +50,11 @@ listPolicy:
     allValues: ALLOW
 EOF
 gcloud resource-manager org-policies set-policy \
-    --project=${PROJECT_ID} new_policy.yaml
+    --project="${PROJECT_ID}" new_policy.yaml
 
 #disable the shielded vm requirement
 gcloud resource-manager org-policies disable-enforce \
-    compute.requireShieldedVm --project=${PROJECT_ID}
+    compute.requireShieldedVm --project="${PROJECT_ID}"
 
 #allow external IPs for app engine
     cat <<EOF > new_policy.yaml
@@ -61,7 +63,7 @@ listPolicy:
     allValues: ALLOW
 EOF
 gcloud resource-manager org-policies set-policy  \
-    --project=${PROJECT_ID} new_policy.yaml
+    --project="${PROJECT_ID}" new_policy.yaml
 
 #enable Cloud Function
 cat <<EOF > new_policy.yaml
@@ -70,7 +72,7 @@ listPolicy:
     allValues: ALLOW
 EOF
 gcloud resource-manager org-policies set-policy \
-    --project=${PROJECT_ID} new_policy.yaml
+    --project="${PROJECT_ID}" new_policy.yaml
 
 cat <<EOF > new_policy.yaml
 constraint: constraints/iam.allowedPolicyMemberDomains
@@ -78,7 +80,7 @@ listPolicy:
     allValues: ALLOW
 EOF
 gcloud resource-manager org-policies set-policy \
-    --project=${PROJECT_ID} new_policy.yaml    
+    --project="${PROJECT_ID}" new_policy.yaml    
 
 
 #enable Key creation
@@ -88,4 +90,4 @@ boolean_policy:
     enforced: false
 EOF
 gcloud resource-manager org-policies set-policy \
-    --project=${PROJECT_ID} new_policy.yaml
+    --project="${PROJECT_ID}" new_policy.yaml
