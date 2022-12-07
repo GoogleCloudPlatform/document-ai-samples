@@ -9,7 +9,7 @@ pip install -r ./docai_bq_connector/requirements.txt
 ```
 
 ## Usage
-```shell
+```shell  
 usage: main.py [-h] [--bucket_name BUCKET_NAME] [--file_name FILE_NAME]
                [--content_type CONTENT_TYPE]
                [--processing_type_override {sync,async}]
