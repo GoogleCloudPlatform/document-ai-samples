@@ -63,7 +63,8 @@ class Processor:
         self.should_write_extraction_result = should_write_extraction_result
 
     def _get_processor_uri(self):
-        return f"projects/{self.processor_project_id}/locations/{self.processor_location}/processors/{self.processor_id}"
+        return f"projects/{self.processor_project_id}/locations/{self.processor_location}/" \
+               f"processors/{self.processor_id}"
 
     def _get_gcs_blob(self):
         return get_gcs_blob(self.bucket_name, self.file_name)
@@ -185,7 +186,7 @@ class Processor:
             output_bucket = match.group(1)
             prefix = match.group(2)
         else:
-            raise InvalidGcsUriError(f'The supplied async_output_folder is not a properly structured GCS Path')
+            raise InvalidGcsUriError('The supplied async_output_folder is not a properly structured GCS Path')
 
         storage_client = storage.Client()
         bucket = storage_client.get_bucket(output_bucket)
