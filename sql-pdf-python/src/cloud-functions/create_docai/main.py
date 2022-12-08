@@ -12,13 +12,14 @@ def get_request(request):
     project_id = urllib.request.urlopen(req).read().decode()
 
     x = random.randint(1, 100)
-    processor_name = 'rf_expense_' + str(x)
-    location = 'us'
+    processor_name = "rf_expense_" + str(x)
+    location = "us"
     processor_display_name = processor_name
-    processor_type = 'EXPENSE_PROCESSOR'
+    processor_type = "EXPENSE_PROCESSOR"
     project_number = get_project_number(project_id)
     processor_id = create_processor_sample(
-        project_number, location, processor_display_name, processor_type)
+        project_number, location, processor_display_name, processor_type
+    )
     return processor_id
 
 
@@ -27,22 +28,19 @@ def get_project_number(project_id):
     # Create a client
     client = resourcemanager_v3.ProjectsClient()
     # Initialize request argument(s)
-    request = resourcemanager_v3.SearchProjectsRequest(
-        query=f"id:{project_id}")
+    request = resourcemanager_v3.SearchProjectsRequest(query=f"id:{project_id}")
     # Make the request
     page_result = client.search_projects(request=request)
     # Handle the response
     for response in page_result:
         if response.project_id == project_id:
             project = response.name
-            return project.replace('projects/', '')
+            return project.replace("projects/", "")
 
 
 def create_processor_sample(
-        project_id: str,
-        location: str,
-        processor_display_name: str,
-        processor_type: str):
+    project_id: str, location: str, processor_display_name: str, processor_type: str
+):
     # You must set the api_endpoint if you use a location other than 'us',
     # e.g.:
     opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
