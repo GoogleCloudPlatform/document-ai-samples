@@ -17,4 +17,4 @@
 # limitations under the License.
 #
 
-from .connector.DocAIBQConnector import DocAIBQConnector
+from .connector.DocAIBQConnector import DocAIBQConnector  # noqa: F401
