@@ -33,9 +33,10 @@ def main():
 
     doc_options_group = arg_parser.add_argument_group('document arguments')
     doc_options_group.add_argument('--bucket_name', type=str, help='The Google Cloud Storage bucket name for the '
-                                                                   'source document')
+                                                                   'source document. Example: \'split-docs\'')
     doc_options_group.add_argument('--file_name', type=str,
-                                   help='The file name for the source document within the bucket')
+                                   help='The file name for the source document within the bucket. Example: '
+                                        '\'my-document-12.pdf\'')
     doc_options_group.add_argument('--content_type', type=str, help='The MIME type of the document to be processed')
     doc_options_group.add_argument('--processing_type_override', choices=['sync', 'async'],
                                    default=None,
@@ -48,7 +49,7 @@ def main():
     doc_options_group.add_argument('--write_extraction_result', action='store_true', help='Indicates if raw results of '
                                                                                           'extraction should be '
                                                                                           'written '
-                                                                                          'to GCS ')
+                                                                                          'to GCS')
     doc_options_group.add_argument('--extraction_output_bucket', type=str, help='')
     doc_options_group.add_argument('--custom_fields', type=json.loads, help='Custom field json dictionary to union '
                                                                             'with the '
