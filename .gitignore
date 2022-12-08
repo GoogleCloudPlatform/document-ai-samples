@@ -152,3 +152,7 @@ data/
 # Misc.
 tmp/
 temp/
+
+# JS
+node_modules/
+.angular/
