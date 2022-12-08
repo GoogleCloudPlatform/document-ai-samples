@@ -1,0 +1,7 @@
+typing
+
+google-api-core
+google-cloud-enterpriseknowledgegraph
+
+Flask
+gunicorn
