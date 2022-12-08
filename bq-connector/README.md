@@ -7,7 +7,7 @@ The DocAI BQ Connector is a helper library that invokes the DocAI processing lib
 There are currently two parsing methodologies supported. The parsing methodology is supplied via argument --parsing_methodology.
 
 - entities: The entities in the response from DocAI will be iterated and the content field will be extracted and cast based on the supplied BQ table schema. The result will form a json dictionary for insert into BQ.
-- normalized_values: The entities in the response will be iterated, and the normalized_value property will be used depending on the field type correpsonding to the column in the correpsonding BQ table schema. 
+- normalized_values: The entities in the response will be iterated, and the normalized_value property will be used depending on the field type correpsonding to the column in the correpsonding BQ table schema.
 
 ## Setup
 ```commandline
