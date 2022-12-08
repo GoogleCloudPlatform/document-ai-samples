@@ -17,4 +17,4 @@
 # limitations under the License.
 #
 
-from .connector import DocAIBQConnector
+from .connector.DocAIBQConnector import DocAIBQConnector
