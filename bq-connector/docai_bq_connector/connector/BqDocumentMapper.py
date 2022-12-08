@@ -19,7 +19,6 @@
 
 import json
 import logging
-import datetime
 from typing import Sequence, List
 
 from google.cloud.bigquery import SchemaField
@@ -222,12 +221,13 @@ class BqDocumentMapper:
             if bq_datatype == "BOOLEAN":
                 return get_bool_value(raw_value)
             if bq_datatype == "DATETIME":
-                return datetime(raw_value)
+                # return datetime(raw_value)
+                return raw_value
             if bq_datatype in ("DECIMAL", "FLOAT", "NUMERIC"):
                 return float(clean_number(raw_value))
             if bq_datatype == "INTEGER":
                 return int(clean_number(raw_value))
-            return raw_value, None
+            return raw_value
         except ValueError as ve:
             return ConversionError(
                 field.name,
