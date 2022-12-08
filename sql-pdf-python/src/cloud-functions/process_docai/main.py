@@ -12,15 +12,14 @@ def get_project_number(project_id):
     # Create a client
     client = resourcemanager_v3.ProjectsClient()
     # Initialize request argument(s)
-    request = resourcemanager_v3.SearchProjectsRequest(
-        query=f"id:{project_id}")
+    request = resourcemanager_v3.SearchProjectsRequest(query=f"id:{project_id}")
     # Make the request
     page_result = client.search_projects(request=request)
     # Handle the response
     for response in page_result:
         if response.project_id == project_id:
             project = response.name
-            return project.replace('projects/', '')
+            return project.replace("projects/", "")
 
 
 def get_gcs_file(uri):
@@ -48,7 +47,7 @@ def get_doc(request):
     request_json = request.get_json(silent=True)
 
     replies = []
-    calls = request_json['calls']
+    calls = request_json["calls"]
 
     for call in calls:
         uri = call[0]
@@ -68,20 +67,18 @@ def get_doc(request):
             "image/tiff",
             "image/jpeg",
             "image/webp",
-            "image/bmp"}
-        opts = ClientOptions(
-            api_endpoint=f"{location}-documentai.googleapis.com")
-        docai_client = documentai.DocumentProcessorServiceClient(
-            client_options=opts)
-        processor = docai_client.processor_path(
-            project_number, location, processor_id)
+            "image/bmp",
+        }
+        opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
+        docai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
+        processor = docai_client.processor_path(project_number, location, processor_id)
 
         if content_type in accepted_file_types:
             file = get_gcs_file(uri)
-            raw_document = documentai.RawDocument(
-                content=file, mime_type=content_type)
+            raw_document = documentai.RawDocument(content=file, mime_type=content_type)
             request = documentai.ProcessRequest(
-                name=processor, raw_document=raw_document)
+                name=processor, raw_document=raw_document
+            )
             response = docai_client.process_document(request=request)
             document = response.document
 
@@ -109,12 +106,12 @@ def get_doc(request):
                 "Type": types,
                 "Raw Value": raw_values,
                 "Normalized Value": normalized_values,
-                "Confidence": confidence}
+                "Confidence": confidence,
+            }
             replies.append(extracted_val)
 
         else:
-            error_response = [{'output': 'Cannot parse the file type'}]
+            error_response = [{"output": "Cannot parse the file type"}]
             replies.append(error_response)
 
-    return json.dumps({'replies': [json.dumps(extracts)
-                      for extracts in replies]})
+    return json.dumps({"replies": [json.dumps(extracts) for extracts in replies]})
