@@ -51,7 +51,7 @@ class TestMain(unittest.TestCase):
         mocked_client_instance = MagicMock()
 
         # Mock list processor API call to get a fake processor to use
-        mocked_client_instance.list_processors.return_value =
+        mocked_client_instance.list_processors.return_value = \
             docai.services.document_processor_service.pagers.ListProcessorsPager(
                 method=mocked_client_instance.list_processors,
                 request=docai.ListProcessorsRequest(parent=PARENT),
@@ -125,7 +125,7 @@ class TestMain(unittest.TestCase):
         mocked_client_instance = MagicMock()
 
         # Mock list processor API call to get a fake processor to use
-        mocked_client_instance.list_processors.return_value =
+        mocked_client_instance.list_processors.return_value = \
             docai.services.document_processor_service.pagers.ListProcessorsPager(
                 method=mocked_client_instance.list_processors,
                 request=docai.ListProcessorsRequest(parent=PARENT),
