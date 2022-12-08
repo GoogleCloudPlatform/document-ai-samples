@@ -161,7 +161,7 @@ class Processor:
             gcs_output_config={"gcs_uri": destination_uri}
         )
 
-        processor_uri = self._get_processor_uri()
+        processor_uri = client.processor_path(self.processor_project_id, self.processor_location, self.processor_id)
         request = documentai.types.document_processor_service.BatchProcessRequest(
             name=processor_uri,
             input_documents=input_config,
