@@ -109,11 +109,11 @@ class DocAIBQConnector:
                 schema = storage_manager.get_table_schema(self.destination_table_id)
                 mapper = BqDocumentMapper(
                     document,
-                    schema,
-                    self.custom_fields,
-                    self.include_raw_entities,
-                    self.include_error_fields,
-                    self.parsing_methodology
+                    bq_schema=schema,
+                    custom_fields=self.custom_fields,
+                    include_raw_entities=self.include_raw_entities,
+                    include_error_fields=self.include_error_fields,
+                    parsing_methodology=self.parsing_methodology
                 )
 
                 if (

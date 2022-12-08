@@ -55,11 +55,8 @@ class BqDocumentMapper:
         self.dictionary = self._map_document_to_bigquery_schema(self.fields, bq_schema)
 
     def _parse_document(self) -> List[DocumentField]:
-        if self.parsing_methodology == 'entities':
-            row = self._parse_entities(self.processed_document.document.entities)
-            return row.fields
-        else:
-            raise Exception('--parsing_methodology supplied needs to be implemented!')
+        row = self._parse_entities(self.processed_document.document.entities)
+        return row.fields
 
     def _parse_entities(self, entities) -> DocumentRow:
         row = DocumentRow()
@@ -87,6 +84,7 @@ class BqDocumentMapper:
                     DocumentField(
                         entity.type_,
                         value,
+                        entity.normalized_value,
                         entity.confidence,
                         entity.page_anchor.page_refs[0].page + 1,
                     )
@@ -97,6 +95,7 @@ class BqDocumentMapper:
                     parent_field = DocumentField(
                         entity.type_,
                         value,
+                        entity.normalized_value,
                         entity.confidence,
                         entity.page_anchor.page_refs[0].page + 1,
                     )
@@ -215,24 +214,39 @@ class BqDocumentMapper:
     def _error_list_dictionary(self):
         return list(map(lambda x: x.to_dict(), self.errors))
 
-    @staticmethod
-    def _cast_type(field: DocumentField, bq_datatype):
+    def _cast_type(self, field: DocumentField, bq_datatype):
         try:
-            if field.value is None:
-                return None
             raw_value = field.value.strip()
-            if bq_datatype == "STRING":
+            if self.parsing_methodology == 'entities':
+                if field.value is None:
+                    return None
+                if bq_datatype == "STRING":
+                    return raw_value
+                if bq_datatype == "BOOLEAN":
+                    return get_bool_value(raw_value)
+                if bq_datatype == "DATETIME":
+                    # return datetime(raw_value)
+                    return raw_value
+                if bq_datatype in ("DECIMAL", "FLOAT", "NUMERIC"):
+                    return float(clean_number(raw_value))
+                if bq_datatype == "INTEGER":
+                    return int(clean_number(raw_value))
                 return raw_value
-            if bq_datatype == "BOOLEAN":
-                return get_bool_value(raw_value)
-            if bq_datatype == "DATETIME":
-                # return datetime(raw_value)
+            elif self.parsing_methodology == 'normalized_values':
+                normalized_value = field.normalized_value
+                if normalized_value is None:
+                    return None
+                if bq_datatype == "STRING":
+                    return normalized_value.text
+                if bq_datatype == "BOOLEAN":
+                    return normalized_value.boolean_value
+                if bq_datatype == "DATETIME":
+                    return normalized_value.datetime_value
+                if bq_datatype in ("DECIMAL", "FLOAT", "NUMERIC"):
+                    return normalized_value.float_value
+                if bq_datatype == "INTEGER":
+                    return normalized_value.integer_value
                 return raw_value
-            if bq_datatype in ("DECIMAL", "FLOAT", "NUMERIC"):
-                return float(clean_number(raw_value))
-            if bq_datatype == "INTEGER":
-                return int(clean_number(raw_value))
-            return raw_value
         except ValueError as ve:
             return ConversionError(
                 field.name,
