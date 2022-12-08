@@ -24,7 +24,6 @@ import os
 
 from docai_bq_connector import DocAIBQConnector
 
-
 script_dir = os.path.dirname(__file__)
 
 
@@ -47,8 +46,8 @@ def main():
     doc_options_group.add_argument('--processor_id', type=str, help='The id of the processor to be used')
     doc_options_group.add_argument('--async_output_folder', type=str, default="output", help='')
     doc_options_group.add_argument('--write_extraction_result', action='store_true', help='Indicates if raw results of '
-                                                                                           'extraction should be written '
-                                                                                           'to GCS ') 
+                                                                                          'extraction should be written '
+                                                                                          'to GCS ')
     doc_options_group.add_argument('--extraction_output_bucket', type=str, help='')
     doc_options_group.add_argument('--custom_fields', type=str, help='Custom field dictionary to union with the '
                                                                      'resulting dictionary for BigQuery')
