@@ -80,7 +80,7 @@ class Processor:
             write_gcs_blob(self.extraction_result_output_bucket, json_file_name, json_result_as_str, content_type='application/json')
 
     # TODO: Support for processing multiple files
-    def _process_sync(self, document_blob: bytes) -> ProcessedDocument:
+    def _process_sync(self, document_blob: bytes) -> Union[DocumentOperation, ProcessedDocument]:
         """
         This uses Doc AI to process the document synchronously.  The limit is 5 pages.
         Args:
