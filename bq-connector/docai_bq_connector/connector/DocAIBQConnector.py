@@ -87,7 +87,7 @@ class DocAIBQConnector:
                 processor_project_id=self.processor_project_id,
                 processor_location=self.processor_location,
                 processor_id=self.processor_id,
-                extraction_result_output_bucket = self.extraction_result_output_bucket,
+                extraction_result_output_bucket=self.extraction_result_output_bucket,
                 async_output_folder=self.async_output_folder,
                 sync_timeout=self.doc_ai_sync_timeout,
                 async_timeout=self.doc_ai_async_timeout,
