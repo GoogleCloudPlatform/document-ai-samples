@@ -31,8 +31,8 @@ def get_gcs_blob(bucket_name, file_name):
         file_blob: bytes = gcs_file.download_as_bytes()
         logging.info("Fetched file from GCS successfully.")
         return file_blob, file_meta
-    except Exception as e:
-        raise Exception(f"Cannot get file {file_name} from bucket {bucket_name}")
+    except Exception as err:
+        raise Exception(f"Cannot get file {file_name} from bucket {bucket_name}. Error: {err}")
 
 
 def write_gcs_blob(bucket_name, file_name, content_as_str, content_type):
