@@ -35,6 +35,8 @@ PROCESSOR_ID = "processor-id"
 PARENT = f"projects/{PROJECT_ID}/locations/{LOCATION}"
 PROCESSOR_NAME = f"projects/{PROJECT_ID}/locations/{LOCATION}/processors/{PROCESSOR_ID}"
 
+MOCK_PROCESSOR_NAME = "projects/PROJECT_ID/locations/LOCATION/processors/PROCESSOR_ID"
+
 TEST_FILENAME = "multi_document.pdf"
 
 
@@ -49,18 +51,19 @@ class TestMain(unittest.TestCase):
         mocked_client_instance = MagicMock()
 
         # Mock list processor API call to get a fake processor to use
-        mocked_client_instance.list_processors.return_value = docai.services.document_processor_service.pagers.ListProcessorsPager(
-            method=mocked_client_instance.list_processors,
-            request=docai.ListProcessorsRequest(parent=PARENT),
-            response=docai.ListProcessorsResponse(
-                processors=[
-                    docai.types.Processor(
-                        type_=PROCESSOR_TYPE,
-                        name="projects/PROJECT_ID/locations/LOCATION/processors/PROCESSOR_ID",
-                    )
-                ],
-            ),
-        )
+        mocked_client_instance.list_processors.return_value =
+            docai.services.document_processor_service.pagers.ListProcessorsPager(
+                method=mocked_client_instance.list_processors,
+                request=docai.ListProcessorsRequest(parent=PARENT),
+                response=docai.ListProcessorsResponse(
+                    processors=[
+                        docai.types.Processor(
+                            type_=PROCESSOR_TYPE,
+                            name=MOCK_PROCESSOR_NAME,
+                        )
+                    ],
+                ),
+            )
 
         # Mock process document API call to use a fake API response
         mocked_client_instance.process_document.return_value = (
@@ -122,18 +125,19 @@ class TestMain(unittest.TestCase):
         mocked_client_instance = MagicMock()
 
         # Mock list processor API call to get a fake processor to use
-        mocked_client_instance.list_processors.return_value = docai.services.document_processor_service.pagers.ListProcessorsPager(
-            method=mocked_client_instance.list_processors,
-            request=docai.ListProcessorsRequest(parent=PARENT),
-            response=docai.ListProcessorsResponse(
-                processors=[
-                    docai.types.Processor(
-                        type_=PROCESSOR_TYPE,
-                        name="projects/PROJECT_ID/locations/LOCATION/processors/PROCESSOR_ID",
-                    )
-                ],
-            ),
-        )
+        mocked_client_instance.list_processors.return_value =
+            docai.services.document_processor_service.pagers.ListProcessorsPager(
+                method=mocked_client_instance.list_processors,
+                request=docai.ListProcessorsRequest(parent=PARENT),
+                response=docai.ListProcessorsResponse(
+                    processors=[
+                        docai.types.Processor(
+                            type_=PROCESSOR_TYPE,
+                            name=MOCK_PROCESSOR_NAME,
+                        )
+                    ],
+                ),
+            )
 
         # Mock process document API call to use a fake API response
         mocked_client_instance.process_document.return_value = (
