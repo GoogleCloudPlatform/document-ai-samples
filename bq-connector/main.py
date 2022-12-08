@@ -50,8 +50,11 @@ def main():
                                                                                           'written '
                                                                                           'to GCS ')
     doc_options_group.add_argument('--extraction_output_bucket', type=str, help='')
-    doc_options_group.add_argument('--custom_fields', type=str, help='Custom field dictionary to union with the '
-                                                                     'resulting dictionary for BigQuery')
+    doc_options_group.add_argument('--custom_fields', type=json.loads, help='Custom field json dictionary to union '
+                                                                            'with the '
+                                                                            'resulting dictionary for BigQuery. '
+                                                                            'Example: \'{"event_id": 1, '
+                                                                            '"document_type": "my_document"}\'')
     doc_options_group.add_argument('--should_async_wait', type=bool, default=True, help='Specifies if the CLI should '
                                                                                         'block and wait until async '
                                                                                         'document operation is '
@@ -117,7 +120,7 @@ def main():
 
     custom_fields = None
     if args.custom_fields is not None:
-        custom_fields = json.loads(args.custom_fields)
+        custom_fields = args.custom_fields
 
     connector = DocAIBQConnector(
         bucket_name=bucket_name,
