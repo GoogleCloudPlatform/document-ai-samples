@@ -64,10 +64,6 @@ class Processor:
                 "extraction_result_output_bucket should be set when should_write_extraction_result is set to True")
         self.should_write_extraction_result = should_write_extraction_result
 
-    def _get_processor_uri(self):
-        return f"projects/{self.processor_project_id}/locations/{self.processor_location}/" \
-               f"processors/{self.processor_id}"
-
     def _get_gcs_blob(self):
         return get_gcs_blob(self.bucket_name, self.file_name)
 
@@ -106,7 +102,7 @@ class Processor:
 
         document = {"content": document_blob, "mime_type": self.content_type}
 
-        processor_uri = self._get_processor_uri()
+        processor_uri = client.processor_path(self.processor_project_id, self.processor_location, self.processor_id)
         request = {"name": processor_uri, "raw_document": document}
         print(f"name: {processor_uri}, mime_type: {self.content_type}")
 
