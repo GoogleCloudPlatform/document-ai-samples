@@ -50,6 +50,8 @@ class DocAIBQConnector:
         retry_count: int = 1,
         continue_on_error: bool = False,
         should_write_extraction_result: bool = True,
+        max_sync_page_count: int = 5,
+        parsing_methodology: str = 'entities'
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
@@ -73,6 +75,8 @@ class DocAIBQConnector:
         self.retry_count = retry_count
         self.continue_on_error = continue_on_error
         self.should_write_extraction_result = should_write_extraction_result
+        self.max_sync_page_count = max_sync_page_count
+        self.parsing_methodology = parsing_methodology
 
     def run(self):
         # Check if was invoked for a new document, or for an existing operation.
@@ -93,6 +97,7 @@ class DocAIBQConnector:
                 async_timeout=self.doc_ai_async_timeout,
                 should_async_wait=self.should_async_wait,
                 should_write_extraction_result=self.should_write_extraction_result,
+                max_sync_page_count=self.max_sync_page_count
             )
 
             document = doc_ai_process.process()
@@ -108,6 +113,7 @@ class DocAIBQConnector:
                     self.custom_fields,
                     self.include_raw_entities,
                     self.include_error_fields,
+                    self.parsing_methodology
                 )
 
                 if (

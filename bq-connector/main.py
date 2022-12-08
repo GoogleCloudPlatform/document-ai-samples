@@ -46,6 +46,11 @@ def main():
     doc_options_group.add_argument('--processor_location', type=str, help='The location of the processor to be used')
     doc_options_group.add_argument('--processor_id', type=str, help='The id of the processor to be used')
     doc_options_group.add_argument('--async_output_folder', type=str, default="output", help='')
+    doc_options_group.add_argument('--max_sync_page_count', type=int, default=5, help='The maximum number of pages '
+                                                                                      'that will be supported for '
+                                                                                      'sync processing. If page count '
+                                                                                      'is larger, async processing '
+                                                                                      'will be used.')
     doc_options_group.add_argument('--write_extraction_result', action='store_true', help='Indicates if raw results of '
                                                                                           'extraction should be '
                                                                                           'written '
@@ -63,6 +68,9 @@ def main():
                                                                                         'into BigQuery')
     doc_options_group.add_argument('--operation_id', type=str, help='An existing operation id for which to complete '
                                                                     'BQ processing')
+    doc_options_group.add_argument('--parsing_methodology', choices=['entities', 'normalized_values'],
+                                   default='entities',
+                                   help='The parsing methodology')
 
     timeout_filter_group = doc_options_group.add_mutually_exclusive_group()
     timeout_filter_group.add_argument('--doc_ai_sync_timeout', type=int, default=900, help='The sync processor timeout')
@@ -119,6 +127,8 @@ def main():
     retry_count = args.retry_count
     continue_on_error = args.continue_on_error
     custom_fields = args.custom_fields
+    max_sync_page_count = args.max_sync_page_count
+    parsing_methodology = args.parsing_methodology
 
     connector = DocAIBQConnector(
         bucket_name=bucket_name,
@@ -142,7 +152,9 @@ def main():
         include_raw_entities=include_raw_entities,
         include_error_fields=include_error_fields,
         retry_count=retry_count,
-        continue_on_error=continue_on_error
+        continue_on_error=continue_on_error,
+        max_sync_page_count=max_sync_page_count,
+        parsing_methodology=parsing_methodology
     )
 
     connector.run()

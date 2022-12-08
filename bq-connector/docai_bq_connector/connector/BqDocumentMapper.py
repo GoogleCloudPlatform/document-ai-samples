@@ -41,6 +41,7 @@ class BqDocumentMapper:
         include_raw_entities: bool = True,
         include_error_fields: bool = True,
         continue_on_error: bool = False,
+        parsing_methodology: str = 'entities'
     ):
         self.processed_document = document
         self.bq_schema = bq_schema
@@ -48,13 +49,17 @@ class BqDocumentMapper:
         self.include_raw_entities = include_raw_entities
         self.include_error_fields = include_error_fields
         self.continue_on_error = continue_on_error
+        self.parsing_methodology = parsing_methodology
         self.errors: List[ConversionError] = []
         self.fields = self._parse_document()
         self.dictionary = self._map_document_to_bigquery_schema(self.fields, bq_schema)
 
     def _parse_document(self) -> List[DocumentField]:
-        row = self._parse_entities(self.processed_document.document.entities)
-        return row.fields
+        if self.parsing_methodology == 'entities':
+            row = self._parse_entities(self.processed_document.document.entities)
+            return row.fields
+        else:
+            raise Exception('--parsing_methodology supplied needs to be implemented!')
 
     def _parse_entities(self, entities) -> DocumentRow:
         row = DocumentRow()

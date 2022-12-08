@@ -45,6 +45,7 @@ class Processor:
             async_timeout: int = 900,
             should_async_wait: bool = True,
             should_write_extraction_result: bool = True,
+            max_sync_page_count: int = 5
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
@@ -57,6 +58,7 @@ class Processor:
         self.sync_timeout = sync_timeout
         self.async_timeout = async_timeout
         self.should_async_wait = should_async_wait
+        self.max_sync_page_count = max_sync_page_count
         if should_write_extraction_result and extraction_result_output_bucket is None:
             raise Exception(
                 "extraction_result_output_bucket should be set when should_write_extraction_result is set to True")
@@ -85,7 +87,7 @@ class Processor:
     # TODO: Support for processing multiple files
     def _process_sync(self, document_blob: bytes) -> Union[DocumentOperation, ProcessedDocument]:
         """
-        This uses Doc AI to process the document synchronously.  The limit is 5 pages.
+        This uses Doc AI to process the document synchronously.
         Args:
             gcs_blob:
             content_type:
@@ -223,7 +225,8 @@ class Processor:
     def process(self) -> Union[DocumentOperation, ProcessedDocument]:
         gcs_doc_blob, gcs_doc_meta = self._get_gcs_blob()
         page_count = get_pdf_page_cnt(gcs_doc_blob)
-        if page_count <= 5:
+        # Limit is different per processor: https://cloud.google.com/document-ai/quotas
+        if page_count <= self.max_sync_page_count:
             process_result = self._process_sync(document_blob=gcs_doc_blob)
         else:
             process_result = self._process_async()
