@@ -58,7 +58,8 @@ class Processor:
         self.async_timeout = async_timeout
         self.should_async_wait = should_async_wait
         if should_write_extraction_result and extraction_result_output_bucket is None:
-            raise Exception("extraction_result_output_bucket should be set when should_write_extraction_result is set to True")
+            raise Exception(
+                "extraction_result_output_bucket should be set when should_write_extraction_result is set to True")
         self.should_write_extraction_result = should_write_extraction_result
 
     def _get_processor_uri(self):
@@ -73,11 +74,12 @@ class Processor:
     def _get_document_ai_options(self):
         return {"api_endpoint": f"{self.processor_location}-documentai.googleapis.com"}
 
-    def _write_result_to_gcs(self,json_result_as_str):
-        if self.should_write_extraction_result: 
+    def _write_result_to_gcs(self, json_result_as_str):
+        if self.should_write_extraction_result:
             split_fname = self.file_name.split('.')[0]
             json_file_name = f'{split_fname}.json'
-            write_gcs_blob(self.extraction_result_output_bucket, json_file_name, json_result_as_str, content_type='application/json')
+            write_gcs_blob(self.extraction_result_output_bucket, json_file_name, json_result_as_str,
+                           content_type='application/json')
 
     # TODO: Support for processing multiple files
     def _process_sync(self, document_blob: bytes) -> Union[DocumentOperation, ProcessedDocument]:
