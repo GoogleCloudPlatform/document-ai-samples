@@ -24,7 +24,7 @@ from typing import Dict
 from docai_bq_connector.bigquery.StorageManager import StorageManager
 from docai_bq_connector.connector.BqDocumentMapper import BqDocumentMapper
 from docai_bq_connector.connector.BqMetadataMapper import BqMetadataMapper, BqMetadataMappingInfo
-from docai_bq_connector.doc_ai_processing.DocumentOperation import DocumentOperation
+from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.doc_ai_processing.Processor import Processor
 from docai_bq_connector.exception.TableNotFoundError import TableNotFoundError
 
@@ -115,8 +115,8 @@ class DocAIBQConnector:
                 schema = storage_manager.get_table_schema(self.destination_table_id)
 
                 _hitl_op_id = None
-                if isinstance(document, DocumentOperation) and document is not None:
-                    _hitl_op_id = document.operation_id
+                if isinstance(document, ProcessedDocument) and document is not None:
+                    _hitl_op_id = document.hitl_operation_id
 
                 self._augment_metadata_mapping_info(file_name=self.file_name, hitl_operation_id=_hitl_op_id)
 
