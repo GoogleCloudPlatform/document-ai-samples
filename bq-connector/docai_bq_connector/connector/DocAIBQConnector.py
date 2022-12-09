@@ -75,7 +75,7 @@ class DocAIBQConnector:
         self.doc_ai_async_timeout = doc_ai_async_timeout
         self.extraction_result_output_bucket = extraction_result_output_bucket
         self.custom_fields = custom_fields
-        self.metadata_mapper = BqMetadataMapper(metadata_mapping_info)
+        self.metadata_mapper = BqMetadataMapper(metadata_mapping_info if metadata_mapping_info else {})
         self.include_raw_entities = include_raw_entities
         self.include_error_fields = include_error_fields
         self.retry_count = retry_count
