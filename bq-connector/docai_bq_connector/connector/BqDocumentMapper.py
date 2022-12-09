@@ -19,7 +19,7 @@
 
 import json
 import logging
-import datetime
+from datetime import datetime
 from typing import Sequence, List
 
 from google.cloud.bigquery import SchemaField
@@ -256,7 +256,7 @@ class BqDocumentMapper:
                     return get_bool_value(raw_value)
                 if bq_datatype == "DATETIME":
                     # return datetime(raw_value)
-                    if isinstance(field.value, datetime.datetime):
+                    if isinstance(field.value, datetime):
                         dt: datetime = field.value
                         return dt.isoformat()
                     return raw_value
