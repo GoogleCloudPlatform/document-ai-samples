@@ -17,31 +17,34 @@
 # limitations under the License.
 #
 
-from datetime import datetime
 import logging
+from datetime import datetime
 from typing import Dict
 
 # Indicates the metadata types that can be mapped - Informational only
-metadata_to_map = ["file_name", "doc_status", "doc_type", "doc_event_id", "doc_group_id", "hitl_operation_id","created_at", "updated_at"]
+metadata_to_map = ["file_name", "doc_status", "doc_type", "doc_event_id", "doc_group_id", "hitl_operation_id",
+                   "created_at", "updated_at"]
+
 
 # Class holding information about how to map a specific metadata type
 class BqMetadataMappingInfo:
     def __init__(
-        self,
-        bq_column_name: str, # The column in BQ this metadata will be mapped to
-        metadata_value: any = None,  # If set, this value will be used for the column. If not set, a default value will be used if possible
-        skip_map: bool = False, # If set this particular metadata will NOT be mapped into a BQ column
-    ):  
+            self,
+            bq_column_name: str,  # The column in BQ this metadata will be mapped to
+            metadata_value: any = None,
+            # If set, this value will be used for the column. If not set, a default value will be used if possible
+            skip_map: bool = False,  # If set this particular metadata will NOT be mapped into a BQ column
+    ):
         self.bq_column_name = bq_column_name
         self.metadata_value = metadata_value
         self.skip_map = skip_map
 
-    def __str__ (self):
+    def __str__(self):
         return f'bq_column_name={self.bq_column_name}, metadata_value={self.metadata_value}, skip_map = {self.skip_map}'
 
     def set_metadata_value_if_not_already_set(self, metadata_value):
         if self.metadata_value is None:
-           self.metadata_value = metadata_value
+            self.metadata_value = metadata_value
 
     def map_to_bq_col_and_value(self):
         if not self.skip_map:
@@ -49,8 +52,9 @@ class BqMetadataMappingInfo:
         else:
             return None, None
 
+
 def _generate_default_value(metadata_name):
-    if metadata_name in ['created_at','updated_at']:
+    if metadata_name in ['created_at', 'updated_at']:
         return datetime.now().isoformat()
     else:
         return None
@@ -59,9 +63,9 @@ def _generate_default_value(metadata_name):
 # This mapper class allows flexibility in schema column names for metadata to be added in BQ
 class BqMetadataMapper:
     def __init__(
-        self,
-        mapping_info: Dict[str, BqMetadataMappingInfo],
-        
+            self,
+            mapping_info: Dict[str, BqMetadataMappingInfo],
+
     ):
         self.mapping_info = mapping_info
         # Add default mappings for any missing metadata, using the same name for the BigQuery column
@@ -70,9 +74,9 @@ class BqMetadataMapper:
                 logging.debug(f"Adding default mapping for metadata = {cur_metadata}")
                 self.mapping_info[cur_metadata] = BqMetadataMappingInfo(bq_column_name=cur_metadata)
 
-    def __str__ (self):
+    def __str__(self):
         out_str = ""
-        for k,v in self.mapping_info.items():
+        for k, v in self.mapping_info.items():
             out_str = f'{out_str} metadata = {k} - mapping_info = {v}'
         return out_str
 
@@ -94,7 +98,5 @@ class BqMetadataMapper:
                 else:
                     mapping_for_cur_metadata["bq_column_value"] = bq_col_value
                 response.append(mapping_for_cur_metadata)
-        
+
         return response
-
-

@@ -24,39 +24,39 @@ from typing import Dict
 from docai_bq_connector.bigquery.StorageManager import StorageManager
 from docai_bq_connector.connector.BqDocumentMapper import BqDocumentMapper
 from docai_bq_connector.connector.BqMetadataMapper import BqMetadataMapper, BqMetadataMappingInfo
-from docai_bq_connector.doc_ai_processing.Processor import Processor
 from docai_bq_connector.doc_ai_processing.DocumentOperation import DocumentOperation
+from docai_bq_connector.doc_ai_processing.Processor import Processor
 from docai_bq_connector.exception.TableNotFoundError import TableNotFoundError
 
 
 class DocAIBQConnector:
     def __init__(
-        self,
-        bucket_name: str,
-        file_name: str,
-        content_type: str,
-        processing_type_override: str,
-        processor_project_id: str,
-        processor_location: str,
-        processor_id: str,
-        async_output_folder: str,
-        should_async_wait: bool,
-        operation_id: str,
-        destination_project_id: str,
-        destination_dataset_id: str,
-        destination_table_id: str,
-        doc_ai_sync_timeout: int = 900,
-        doc_ai_async_timeout: int = 900,
-        extraction_result_output_bucket: str = None,
-        custom_fields: dict = None,
-        metadata_mapping_info: Dict[str, BqMetadataMappingInfo] = None,
-        include_raw_entities: bool = True,
-        include_error_fields: bool = True,
-        retry_count: int = 1,
-        continue_on_error: bool = False,
-        should_write_extraction_result: bool = True,
-        max_sync_page_count: int = 5,
-        parsing_methodology: str = 'entities'
+            self,
+            bucket_name: str,
+            file_name: str,
+            content_type: str,
+            processing_type_override: str,
+            processor_project_id: str,
+            processor_location: str,
+            processor_id: str,
+            async_output_folder: str,
+            should_async_wait: bool,
+            operation_id: str,
+            destination_project_id: str,
+            destination_dataset_id: str,
+            destination_table_id: str,
+            doc_ai_sync_timeout: int = 900,
+            doc_ai_async_timeout: int = 900,
+            extraction_result_output_bucket: str = None,
+            custom_fields: dict = None,
+            metadata_mapping_info: Dict[str, BqMetadataMappingInfo] = None,
+            include_raw_entities: bool = True,
+            include_error_fields: bool = True,
+            retry_count: int = 1,
+            continue_on_error: bool = False,
+            should_write_extraction_result: bool = True,
+            max_sync_page_count: int = 5,
+            parsing_methodology: str = 'entities'
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
@@ -113,12 +113,12 @@ class DocAIBQConnector:
             )
             if storage_manager.does_table_exist(self.destination_table_id):
                 schema = storage_manager.get_table_schema(self.destination_table_id)
-                
+
                 _hitl_op_id = None
                 if isinstance(document, DocumentOperation) and document is not None:
                     _hitl_op_id = document.operation_id
 
-                self._augment_metadata_mapping_info(file_name = self.file_name, hitl_operation_id = _hitl_op_id)    
+                self._augment_metadata_mapping_info(file_name=self.file_name, hitl_operation_id=_hitl_op_id)
 
                 mapper = BqDocumentMapper(
                     document=document,
@@ -131,9 +131,9 @@ class DocAIBQConnector:
                 )
 
                 if (
-                    self.continue_on_error is False
-                    and self.include_error_fields is False
-                    and len(mapper.errors) > 0
+                        self.continue_on_error is False
+                        and self.include_error_fields is False
+                        and len(mapper.errors) > 0
                 ):
                     logging.error(mapper.errors)
                     exit(100)
@@ -201,6 +201,6 @@ class DocAIBQConnector:
         if self.metadata_mapper is None:
             return
         else:
-            self.metadata_mapper.set_default_value_for_metadata_if_not_set("file_name",file_name)
+            self.metadata_mapper.set_default_value_for_metadata_if_not_set("file_name", file_name)
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("doc_event_id", str(uuid.uuid4()))
-            self.metadata_mapper.set_default_value_for_metadata_if_not_set("hitl_operation_id",hitl_operation_id)
+            self.metadata_mapper.set_default_value_for_metadata_if_not_set("hitl_operation_id", hitl_operation_id)
