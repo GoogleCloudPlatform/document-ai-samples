@@ -45,7 +45,6 @@ class BqDocumentMapper:
             continue_on_error: bool = False,
             parsing_methodology: str = 'entities'
     ):
-
         self.processed_document = document
         self.bq_schema = bq_schema
         self.metadata_mapper = metadata_mapper
@@ -107,9 +106,7 @@ class BqDocumentMapper:
                 parent_field.children.append(self._parse_entities(entity.properties))
         return row
 
-    def to_bq_row(
-            self, append_parsed_fields: bool = True, exclude_fields: List[str] = None
-    ):
+    def to_bq_row(self, append_parsed_fields: bool = True, exclude_fields: List[str] = None):
         row = {}
         if self.custom_fields is not None and len(self.custom_fields.keys()) > 0:
             row.update(self.custom_fields)
@@ -177,9 +174,7 @@ class BqDocumentMapper:
             result.append(field.to_dictionary())
         return result
 
-    def _map_document_to_bigquery_schema(
-            self, fields: List[DocumentField], bq_schema: List[SchemaField]
-    ):
+    def _map_document_to_bigquery_schema(self, fields: List[DocumentField], bq_schema: List[SchemaField]):
         result: dict = {}
         for field in fields:
             field_name = field.to_bigquery_safe_name()
@@ -218,9 +213,7 @@ class BqDocumentMapper:
         result = result | metadata_dict
         return result
 
-    def _map_document_metadata_to_bigquery_schema(
-            self, bq_schema: List[SchemaField]
-    ):
+    def _map_document_metadata_to_bigquery_schema(self, bq_schema: List[SchemaField]):
         result: dict = {}
         mapped_metadata = self.metadata_mapper.map_metadata()
         for cur_metadata_mapping in mapped_metadata:
