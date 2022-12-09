@@ -70,7 +70,7 @@ class BqMetadataMapper:
         self.mapping_info = mapping_info
         # Add default mappings for any missing metadata, using the same name for the BigQuery column
         for cur_metadata in metadata_to_map:
-            if not cur_metadata in self.mapping_info:
+            if cur_metadata not in self.mapping_info:
                 logging.debug(f"Adding default mapping for metadata = {cur_metadata}")
                 self.mapping_info[cur_metadata] = BqMetadataMappingInfo(bq_column_name=cur_metadata)
 
@@ -82,7 +82,7 @@ class BqMetadataMapper:
 
     def set_default_value_for_metadata_if_not_set(self, metadata_name, new_default_value):
         mapping_info = self.mapping_info.get(metadata_name)
-        if not mapping_info is None:
+        if mapping_info is not None:
             mapping_info.set_metadata_value_if_not_already_set(new_default_value)
 
     # Return and array of column name and value
@@ -91,7 +91,7 @@ class BqMetadataMapper:
         for cur_metadata_name, cur_mapping_info_config in self.mapping_info.items():
             mapping_for_cur_metadata = {}
             bq_col_name, bq_col_value = cur_mapping_info_config.map_to_bq_col_and_value()
-            if not bq_col_name is None:
+            if bq_col_name is not None:
                 mapping_for_cur_metadata["bq_column_name"] = bq_col_name
                 if bq_col_value is None:
                     mapping_for_cur_metadata["bq_column_value"] = _generate_default_value(cur_metadata_name)
