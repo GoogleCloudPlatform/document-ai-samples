@@ -21,6 +21,8 @@ import json
 import logging
 from typing import Sequence, List
 
+from docai_bq_connector.connector.BqMetadataMapper import BqMetadataMapper, BqMetadataMappingInfo
+
 from google.cloud.bigquery import SchemaField
 
 from docai_bq_connector.connector.ConversionError import ConversionError
@@ -37,14 +39,17 @@ class BqDocumentMapper:
         self,
         document: ProcessedDocument,
         bq_schema: List[SchemaField],
+        metadata_mapper: BqMetadataMapper,
         custom_fields: dict = None,
         include_raw_entities: bool = True,
         include_error_fields: bool = True,
         continue_on_error: bool = False,
         parsing_methodology: str = 'entities'
     ):
+        
         self.processed_document = document
         self.bq_schema = bq_schema
+        self.metadata_mapper = metadata_mapper
         self.custom_fields = custom_fields
         self.include_raw_entities = include_raw_entities
         self.include_error_fields = include_error_fields
@@ -209,6 +214,36 @@ class BqDocumentMapper:
                     self.errors.append(_value)
                 else:
                     result[field_name] = self._cast_type(field, bq_field.field_type)
+
+        metadata_dict = self._map_document_metadata_to_bigquery_schema(bq_schema)
+        result = result | metadata_dict
+        return result
+
+    def _map_document_metadata_to_bigquery_schema(
+        self, bq_schema: List[SchemaField]
+    ):
+        result: dict = {}
+        mapped_metadata = self.metadata_mapper.map_metadata()
+        for cur_metadata_mapping in mapped_metadata:
+            col_name = cur_metadata_mapping['bq_column_name']
+            col_value = cur_metadata_mapping['bq_column_value']
+            if col_value is None:
+                continue
+            bq_field = find(
+                lambda schema_field: schema_field.name == col_name, bq_schema
+            )
+            if bq_field is None:
+                logging.warning(
+                    "Parsed field '%s' not found in BigQuery schema. Field will be excluded from the "
+                    "BigQuery payload",
+                    col_name,
+                )
+                continue
+            _value = self._cast_type(DocumentField(name=col_name,value=col_value,normalized_value=col_value,confidence=-1,page_number=-1), 
+                                     bq_field.field_type)
+            if not isinstance(_value, ConversionError):
+                result[col_name] = _value
+       
         return result
 
     def _error_list_dictionary(self):

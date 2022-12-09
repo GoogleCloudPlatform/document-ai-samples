@@ -22,7 +22,7 @@ import json
 import logging
 import os
 
-from docai_bq_connector import DocAIBQConnector
+from docai_bq_connector import DocAIBQConnector,BqMetadataMappingInfo
 
 script_dir = os.path.dirname(__file__)
 
@@ -61,6 +61,12 @@ def main():
                                                                             'resulting dictionary for BigQuery. '
                                                                             'Example: \'{"event_id": 1, '
                                                                             '"document_type": "my_document"}\'')
+    doc_options_group.add_argument('--metadata_mapping_info', type=json.loads, help='Json object holding information on how to map document '
+                                                                             'metadata to BigQuery. If column name or value not provided, '
+                                                                             'defaults will be used if possible. '
+                                                                             'Example: \'{"file_name": {"bq_column_name": "doc_file_name", '
+                                                                                        '               "metadata_value": "my_file.pdf", '
+                                                                                        '               "skip_map": "false"  }\'')  
     doc_options_group.add_argument('--should_async_wait', type=bool, default=True, help='Specifies if the CLI should '
                                                                                         'block and wait until async '
                                                                                         'document operation is '
@@ -130,6 +136,14 @@ def main():
     max_sync_page_count = args.max_sync_page_count
     parsing_methodology = args.parsing_methodology
 
+    my_metadata_mapping_info = None
+    if args.metadata_mapping_info is not None:
+        my_metadata_mapping_info = {}
+        for cur_metadata_name, cur_metadata_mapping_info in args.metadata_mapping_info.items():
+            my_metadata_mapping_info[cur_metadata_name] = BqMetadataMappingInfo(bq_column_name = cur_metadata_mapping_info.get('bq_column_name'),
+                                                                             metadata_value = cur_metadata_mapping_info.get('metadata_value'), skip_map = cur_metadata_mapping_info.get('skip_map')
+                                                                            )
+    
     connector = DocAIBQConnector(
         bucket_name=bucket_name,
         file_name=file_name,
@@ -149,6 +163,7 @@ def main():
         doc_ai_sync_timeout=doc_ai_sync_timeout,
         doc_ai_async_timeout=doc_ai_async_timeout,
         custom_fields=custom_fields,
+        metadata_mapping_info=my_metadata_mapping_info,
         include_raw_entities=include_raw_entities,
         include_error_fields=include_error_fields,
         retry_count=retry_count,
