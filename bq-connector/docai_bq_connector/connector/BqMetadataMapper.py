@@ -19,7 +19,7 @@
 
 import logging
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Any
 
 # Indicates the metadata types that can be mapped - Informational only
 metadata_to_map = ["file_name", "doc_status", "doc_type", "doc_event_id", "doc_group_id", "hitl_operation_id",
@@ -31,7 +31,7 @@ class BqMetadataMappingInfo:
     def __init__(
             self,
             bq_column_name: str,  # The column in BQ this metadata will be mapped to
-            metadata_value: any = None,
+            metadata_value: Any = None,
             # If set, this value will be used for the column. If not set, a default value will be used if possible
             skip_map: bool = False,  # If set this particular metadata will NOT be mapped into a BQ column
     ):
