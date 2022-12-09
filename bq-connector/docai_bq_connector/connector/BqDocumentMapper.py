@@ -19,6 +19,7 @@
 
 import json
 import logging
+import datetime
 from typing import Sequence, List
 
 from google.cloud.bigquery import SchemaField
@@ -245,7 +246,7 @@ class BqDocumentMapper:
 
     def _cast_type(self, field: DocumentField, bq_datatype):
         try:
-            raw_value = field.value.strip()
+            raw_value = field.value.strip() if isinstance(field.value, str) else field.value
             if self.parsing_methodology == 'entities':
                 if field.value is None:
                     return None
@@ -255,6 +256,9 @@ class BqDocumentMapper:
                     return get_bool_value(raw_value)
                 if bq_datatype == "DATETIME":
                     # return datetime(raw_value)
+                    if isinstance(field.value, datetime.datetime):
+                        dt: datetime = field.value
+                        return dt.isoformat()
                     return raw_value
                 if bq_datatype in ("DECIMAL", "FLOAT", "NUMERIC"):
                     return float(clean_number(raw_value))

@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+import datetime
 import logging
 import uuid
 from typing import Dict
@@ -204,3 +204,4 @@ class DocAIBQConnector:
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("file_name", file_name)
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("doc_event_id", str(uuid.uuid4()))
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("hitl_operation_id", hitl_operation_id)
+            self.metadata_mapper.set_default_value_for_metadata_if_not_set("submitted_on", datetime.datetime.now())
