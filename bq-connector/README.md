@@ -23,11 +23,13 @@ usage: main.py [-h] [--bucket_name BUCKET_NAME] [--file_name FILE_NAME]
                [--processor_location PROCESSOR_LOCATION]
                [--processor_id PROCESSOR_ID]
                [--async_output_folder ASYNC_OUTPUT_FOLDER]
+               [--max_sync_page_count MAX_SYNC_PAGE_COUNT]
                [--write_extraction_result]
                [--extraction_output_bucket EXTRACTION_OUTPUT_BUCKET]
                [--custom_fields CUSTOM_FIELDS]
                [--should_async_wait SHOULD_ASYNC_WAIT]
                [--operation_id OPERATION_ID]
+               [--parsing_methodology {entities,normalized_values}]
                [--doc_ai_sync_timeout DOC_AI_SYNC_TIMEOUT | --doc_ai_async_timeout DOC_AI_ASYNC_TIMEOUT]
                [--destination_project_id DESTINATION_PROJECT_ID]
                [--destination_dataset_id DESTINATION_DATASET_ID]
@@ -53,10 +55,11 @@ optional arguments:
 
 document arguments:
   --bucket_name BUCKET_NAME
-                        The GCP bucket name for the source document
+                        The Google Cloud Storage bucket name for the source
+                        document. Example: 'split-docs'
   --file_name FILE_NAME
                         The file name for the source document within the
-                        bucket
+                        bucket. Example: 'my-document-12.pdf'
   --content_type CONTENT_TYPE
                         The MIME type of the document to be processed
   --processing_type_override {sync,async}
@@ -69,12 +72,18 @@ document arguments:
   --processor_id PROCESSOR_ID
                         The id of the processor to be used
   --async_output_folder ASYNC_OUTPUT_FOLDER
+  --max_sync_page_count MAX_SYNC_PAGE_COUNT
+                        The maximum number of pages that will be supported for
+                        sync processing. If page count is larger, async
+                        processing will be used.
   --write_extraction_result
-                        Indicates if raw results of extraction should be written to GCS
+                        Indicates if raw results of extraction should be
+                        written to GCS
   --extraction_output_bucket EXTRACTION_OUTPUT_BUCKET
   --custom_fields CUSTOM_FIELDS
-                        Custom field dictionary to union with the resulting
-                        dictionary for BigQuery
+                        Custom field json dictionary to union with the
+                        resulting dictionary for BigQuery. Example:
+                        '{"event_id": 1, "document_type": "my_document"}'
   --should_async_wait SHOULD_ASYNC_WAIT
                         Specifies if the CLI should block and wait until async
                         document operation is completed and process result
@@ -82,6 +91,8 @@ document arguments:
   --operation_id OPERATION_ID
                         An existing operation id for which to complete BQ
                         processing
+  --parsing_methodology {entities,normalized_values}
+                        The parsing methodology
   --doc_ai_sync_timeout DOC_AI_SYNC_TIMEOUT
                         The sync processor timeout
   --doc_ai_async_timeout DOC_AI_ASYNC_TIMEOUT
