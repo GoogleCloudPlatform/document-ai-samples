@@ -4,8 +4,6 @@ mdc.autoInit();
 
 const MDCRipple = mdc.ripple.MDCRipple;
 const MDCTextField = mdc.textField.MDCTextField;
-const MDCCheckbox = mdc.checkbox.MDCCheckbox;
-const MDCFormField = mdc.formField.MDCFormField;
 const MDCSelect = mdc.select.MDCSelect;
 const MDCTabBar = mdc.tabBar.MDCTabBar;
 const MDCChipSet = mdc.chips.MDCChipSet;
@@ -13,11 +11,8 @@ const MDCChip = mdc.chips.MDCChip;
 
 MDCRipple.attachTo(document.querySelector('.search-button'));
 
-const textField = new MDCTextField(document.querySelector('.mdc-text-field'));
-
-const checkbox = new MDCCheckbox(document.querySelector('.mdc-checkbox'));
-const formField = new MDCFormField(document.querySelector('.mdc-form-field'));
-formField.input = checkbox;
+const queryTextField = new MDCTextField(document.querySelector('.mdc-text-field.query-field'));
+const typesTextField = new MDCTextField(document.querySelector('.mdc-text-field.types-field'));
 
 const select = new MDCSelect(document.querySelector('.mdc-select'));
 const tabBar = new MDCTabBar(document.querySelector('.mdc-tab-bar'));
