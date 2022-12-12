@@ -183,6 +183,7 @@ class DocAIBQConnector:
                     f"Destination table {self.destination_table_id} not found "
                     f"in '{self.destination_project_id}.{self.destination_dataset_id}'"
                 )
+            return document
         else:
             # TODO: Get result, process result, validate types, convert as necessary and store in destination BQ table.
             pass

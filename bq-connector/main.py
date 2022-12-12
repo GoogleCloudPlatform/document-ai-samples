@@ -175,7 +175,8 @@ def main():
         parsing_methodology=parsing_methodology
     )
 
-    connector.run()
+    processed_doc = connector.run()
+    print(f"Finished processing document - Extracted {len(processed_doc.document.entities)} entities and saved results to BigQuery")
 
 
 if __name__ == "__main__":
