@@ -176,7 +176,8 @@ def main():
     )
 
     processed_doc = connector.run()
-    print(f"Finished processing document - Extracted {len(processed_doc.document.entities)} entities and saved results to BigQuery")
+    print(f'Finished processing document - Extracted {len(processed_doc.document.entities)} entities '
+           'and saved results to BigQuery''')  # noqa: E127
 
 
 if __name__ == "__main__":
