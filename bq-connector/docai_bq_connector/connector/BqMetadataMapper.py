@@ -26,15 +26,37 @@ metadata_to_map = ["file_name", "doc_status", "doc_type", "doc_event_id", "doc_g
                    "created_at", "updated_at"]
 
 
-# Class holding information about how to map a specific metadata type
 class BqMetadataMappingInfo:
+    """
+    Class holding information about how to map a specific metadata type
+    
+    Attributes
+    ----
+    bq_column_name: str 
+        The column in BigQuery this metadata will be mapped to
+    metadata_value: Any
+        If set, this value will be used for the column. If not set, a default value will be used if possible
+    skip_map: bool
+        If set this particular metadata will NOT be mapped into a BQ column
+    """
     def __init__(
             self,
-            bq_column_name: str,  # The column in BQ this metadata will be mapped to
+            bq_column_name: str,  
             metadata_value: Any = None,
-            # If set, this value will be used for the column. If not set, a default value will be used if possible
-            skip_map: bool = False,  # If set this particular metadata will NOT be mapped into a BQ column
+            skip_map: bool = False, 
     ):
+        """
+        Initializer for the class
+
+        Parameters
+        ----
+        bq_column_name: str 
+            The column in BigQuery this metadata will be mapped to
+        metadata_value: Any
+            If set, this value will be used for the column. If not set, a default value will be used if possible
+        skip_map: bool
+            If set this particular metadata will NOT be mapped into a BQ column
+        """
         self.bq_column_name = bq_column_name
         self.metadata_value = metadata_value
         self.skip_map = skip_map
@@ -43,10 +65,21 @@ class BqMetadataMappingInfo:
         return f'bq_column_name={self.bq_column_name}, metadata_value={self.metadata_value}, skip_map = {self.skip_map}'
 
     def set_metadata_value_if_not_already_set(self, metadata_value):
+        """
+        Adds a value to be written to BigQuery, only if it has not previously been set
+        """
         if self.metadata_value is None:
             self.metadata_value = metadata_value
 
     def map_to_bq_col_and_value(self):
+        """
+        Returns
+        -----
+        bq_column_name: str
+            The BigQuery Column name the metadata will be written to
+        metadata_value: Any
+            The value that will be written into the BigQuery Column
+        """
         if not self.skip_map:
             return self.bq_column_name, self.metadata_value
         else:

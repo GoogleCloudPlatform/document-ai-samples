@@ -26,6 +26,7 @@ from docai_bq_connector.connector.BqDocumentMapper import BqDocumentMapper
 from docai_bq_connector.connector.BqMetadataMapper import BqMetadataMapper, BqMetadataMappingInfo
 from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.doc_ai_processing.Processor import Processor
+from docai_bq_connector.doc_ai_processing.DocumentState import DocumentState
 from docai_bq_connector.exception.TableNotFoundError import TableNotFoundError
 
 
@@ -202,7 +203,9 @@ class DocAIBQConnector:
         if self.metadata_mapper is None:
             return
         else:
+            current_status = DocumentState.document_processing_complete if hitl_operation_id is None else DocumentState.submitted_for_hitl
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("file_name", file_name)
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("doc_event_id", str(uuid.uuid4()))
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("hitl_operation_id", hitl_operation_id)
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("submitted_on", datetime.datetime.now())
+            self.metadata_mapper.set_default_value_for_metadata_if_not_set("doc_status", str(current_status))
