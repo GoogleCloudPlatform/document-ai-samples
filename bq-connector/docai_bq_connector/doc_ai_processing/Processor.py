@@ -81,7 +81,7 @@ class Processor:
             json_file_name = f'{split_fname}.json'
             write_gcs_blob(self.extraction_result_output_bucket, json_file_name, json_result_as_str,
                            content_type='application/json')
-
+            
     # TODO: Support for processing multiple files
     def _process_sync(self, document_blob: bytes) -> Union[DocumentOperation, ProcessedDocument]:
         """
@@ -117,6 +117,8 @@ class Processor:
             hitl_op_split = hitl_op.split("/")
             hitl_op_id = hitl_op_split.pop()
 
+        # This method will sometimes run out of memory if the document is big enough
+        # It seems to work fine if # of pages <= 5
         results_json = documentai.types.Document.to_json(results.document)
         return ProcessedDocument(
             document=results.document,
@@ -214,8 +216,8 @@ class Processor:
         # hitl_op_split = hitl_op.split('/')
         # hitl_op_id = hitl_op_split.pop()
         hitl_op_id = None
-        results_json = documentai.types.Document.to_json(document)
-
+        results_json = blob_as_bytes
+        
         return ProcessedDocument(
             document=document, dictionary=results_json, hitl_operation_id=hitl_op_id
         )
