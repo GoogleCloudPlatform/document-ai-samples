@@ -45,7 +45,7 @@ def main():
                                    help='The project id for the processor to be used')
     doc_options_group.add_argument('--processor_location', type=str, help='The location of the processor to be used')
     doc_options_group.add_argument('--processor_id', type=str, help='The id of the processor to be used')
-    doc_options_group.add_argument('--async_output_folder', type=str, default="output", help='')
+    doc_options_group.add_argument('--async_output_folder_gcs_uri', type=str, default="gs://output", help='')
     doc_options_group.add_argument('--max_sync_page_count', type=int, default=5, help='The maximum number of pages '
                                                                                       'that will be supported for '
                                                                                       'sync processing. If page count '
@@ -119,7 +119,7 @@ def main():
     processor_project_id = args.processor_project_id
     processor_location = args.processor_location
     processor_id = args.processor_id
-    async_output_folder = args.async_output_folder
+    async_output_folder_gcs_uri = args.async_output_folder_gcs_uri
     should_async_wait = args.should_async_wait
     should_write_extraction_result = args.write_extraction_result
     extraction_result_output_bucket = args.extraction_output_bucket
@@ -155,7 +155,7 @@ def main():
         processor_project_id=processor_project_id,
         processor_location=processor_location,
         processor_id=processor_id,
-        async_output_folder=async_output_folder,
+        async_output_folder_gcs_uri=async_output_folder_gcs_uri,
         should_async_wait=should_async_wait,
         extraction_result_output_bucket=extraction_result_output_bucket,
         should_write_extraction_result=should_write_extraction_result,

@@ -40,7 +40,7 @@ class DocAIBQConnector:
             processor_project_id: str,
             processor_location: str,
             processor_id: str,
-            async_output_folder: str,
+            async_output_folder_gcs_uri: str,
             should_async_wait: bool,
             operation_id: str,
             destination_project_id: str,
@@ -66,7 +66,7 @@ class DocAIBQConnector:
         self.processor_project_id = processor_project_id
         self.processor_location = processor_location
         self.processor_id = processor_id
-        self.async_output_folder = async_output_folder
+        self.async_output_folder_gcs_uri = async_output_folder_gcs_uri
         self.should_async_wait = should_async_wait
         self.operation_id = operation_id
         self.destination_project_id = destination_project_id
@@ -99,7 +99,7 @@ class DocAIBQConnector:
                 processor_location=self.processor_location,
                 processor_id=self.processor_id,
                 extraction_result_output_bucket=self.extraction_result_output_bucket,
-                async_output_folder=self.async_output_folder,
+                async_output_folder_gcs_uri=self.async_output_folder_gcs_uri,
                 sync_timeout=self.doc_ai_sync_timeout,
                 async_timeout=self.doc_ai_async_timeout,
                 should_async_wait=self.should_async_wait,

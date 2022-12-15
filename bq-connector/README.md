@@ -22,7 +22,7 @@ usage: main.py [-h] [--bucket_name BUCKET_NAME] [--file_name FILE_NAME]
                [--processor_project_id PROCESSOR_PROJECT_ID]
                [--processor_location PROCESSOR_LOCATION]
                [--processor_id PROCESSOR_ID]
-               [--async_output_folder ASYNC_OUTPUT_FOLDER]
+               [--async_output_folder_gcs_uri ASYNC_OUTPUT_FOLDER_GCS_URI]
                [--max_sync_page_count MAX_SYNC_PAGE_COUNT]
                [--write_extraction_result]
                [--extraction_output_bucket EXTRACTION_OUTPUT_BUCKET]
@@ -72,7 +72,7 @@ document arguments:
                         The location of the processor to be used
   --processor_id PROCESSOR_ID
                         The id of the processor to be used
-  --async_output_folder ASYNC_OUTPUT_FOLDER
+  --async_output_folder_gcs_uri ASYNC_OUTPUT_FOLDER_GCS_URI
   --max_sync_page_count MAX_SYNC_PAGE_COUNT
                         The maximum number of pages that will be supported for
                         sync processing. If page count is larger, async
