@@ -25,5 +25,5 @@ It is recommended to look at the code provided in the utils python files.
 ```commandline
 pip install -r requirements.txt
 ```
-2. Open dw_processing.ipynb and follow the step-by-step.
+2. Open dw_processing.ipynb and follow the step-by-step guide.
 
