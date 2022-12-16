@@ -164,18 +164,15 @@ class document_warehouse_utils:
 
     @staticmethod
     def set_raw_document_file_type_from_mimetype(document: contentwarehouse_v1.Document, mime_type):
-        if not mime_type:
-            return
-        elif mime_type.lower() == 'application/pdf':
-            document.raw_document_file_type = document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PDF
-        elif mime_type.lower() == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-            document.raw_document_file_type = document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_DOCX
-        elif mime_type.lower() == 'text/plain':
-            document.raw_document_file_type = document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_TEXT
-        elif mime_type.lower() == 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
-            document.raw_document_file_type = document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PPTX
-        elif mime_type.lower() == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-            document.raw_document_file_type = document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_XLSX
+        mime_to_dw_mime_enum = {
+            "application/pdf": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PDF,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_DOCX,
+            "text/plain": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_TEXT,
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PPTX,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":  document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_XLSX,
+        }
+        if mime_type.lower() in mime_to_dw_mime_enum:
+            document.raw_document_file_type =  mime_to_dw_mime_enum[mime_type.lower()]
         else:
             document.raw_document_file_type = document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_UNSPECIFIED
 
