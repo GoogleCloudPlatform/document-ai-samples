@@ -164,6 +164,10 @@ class document_warehouse_utils:
 
     @staticmethod
     def set_raw_document_file_type_from_mimetype(document: contentwarehouse_v1.Document, mime_type):
+
+        if not mime_type or len(mime_type) == 0 :
+            return False, 'mime_type is empty'
+
         mime_to_dw_mime_enum = {
             "application/pdf": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PDF,
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_DOCX,
@@ -176,10 +180,10 @@ class document_warehouse_utils:
         else:
             document.raw_document_file_type = document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_UNSPECIFIED
 
-    def apped_docai_entities_to_doc_properties(self,cloud_ai_document: docai.Document, document: contentwarehouse_v1.Document, docai_property_name: str):
+    def append_docai_entities_to_doc_properties(self,docai_document: docai.Document, docwarehouse_document: contentwarehouse_v1.Document, docai_property_name: str):
         # Append doc ai document entities if exists
-        if cloud_ai_document:
-            entities = document_ai_utils.get_entities(cloud_ai_document)
+        if docai_document:
+            entities = document_ai_utils.get_entities(docai_document)
             if len(entities) > 0:
                 map_property = contentwarehouse_v1.MapProperty()
                 for key in entities:
@@ -190,7 +194,7 @@ class document_warehouse_utils:
                 one_property = contentwarehouse_v1.Property()
                 one_property.map_property = map_property
                 one_property.name = docai_property_name
-                document.properties.append(one_property)
+                docwarehouse_document.properties.append(one_property)
 
     def create_document(
             self,
@@ -205,7 +209,7 @@ class document_warehouse_utils:
             raw_inline_bytes: str = None,
             document_text: str = None,
             apped_docai_entities_to_doc_properties: bool = False,
-            cloud_ai_document: Optional[docai.Document] = None) -> contentwarehouse_v1.Document:
+            docai_document: Optional[docai.Document] = None) -> contentwarehouse_v1.Document:
 
         # Create a client
         client = self.get_document_service_client()
@@ -226,10 +230,10 @@ class document_warehouse_utils:
         if len(metadata_properties) > 0:
             document.properties.extend(metadata_properties)
 
-        if cloud_ai_document:
-            document.cloud_ai_document = cloud_ai_document._pb
+        if docai_document:
+            document.cloud_ai_document = docai_document._pb
             if apped_docai_entities_to_doc_properties:
-                self.apped_docai_entities_to_doc_properties(cloud_ai_document = cloud_ai_document, document = document, docai_property_name= docai_property_name)
+                self.apped_docai_entities_to_doc_properties(cloud_ai_document = docai_document, document = document, docai_property_name= docai_property_name)
         elif document_text:
             document.plain_text = document_text
 
@@ -251,40 +255,10 @@ class document_warehouse_utils:
 
     # Schema
 
-    @staticmethod
-    def create_document_schema_property_definition(property_definition: dict) -> contentwarehouse_v1.PropertyDefinition():
-        prop = contentwarehouse_v1.PropertyDefinition()
-        prop.name = property_definition["name"]
 
-        prop.display_name = property_definition["display_name"]
-        prop.is_filterable = property_definition["is_filterable"]
-        prop.is_repeatable = property_definition["is_repeatable"]
-        prop.is_searchable = property_definition["is_searchable"]
-        prop.is_metadata = property_definition["is_metadata"]
-        prop.is_required = property_definition["is_required"]
+    def create_document_schema(self, schema: str) -> contentwarehouse_v1.DocumentSchema:
 
-        if "integer_type_options" in property_definition:
-            prop.integer_type_options =  property_definition["integer_type_options"]
-        elif "text_type_options" in property_definition:
-            prop.text_type_options =  property_definition["text_type_options"]
-        elif "float_type_options" in property_definition:
-            prop.float_type_options = property_definition["float_type_options"]
-        elif "timestamp_type_options" in property_definition:
-            prop.timestamp_type_options = property_definition["timestamp_type_options"]
-        elif "property_type_options" in property_definition:
-            prop.property_type_options = property_definition["property_type_options"]
-        elif "date_time_type_options" in property_definition:
-            prop.date_time_type_options = property_definition["date_time_type_options"]
-        elif "enum_type_options" in property_definition:
-            prop.enum_type_options = property_definition["enum_type_options"]
-        elif "map_type_options" in property_definition:
-            prop.map_type_options = property_definition["map_type_options"]
-
-        return prop
-
-    def create_document_schema(self, schema) -> contentwarehouse_v1.DocumentSchema:
-
-        schema_json = json.loads(schema)
+        # schema_json = json.loads(text_schema)
 
         client = self.get_document_schema_service_client()
         parent = client.common_location_path(self.project_number, self.api_location)
@@ -295,16 +269,9 @@ class document_warehouse_utils:
         request.parent = parent
 
         # define schema
-        request.document_schema = contentwarehouse_v1.DocumentSchema()
-        request.document_schema.display_name = schema_json["display_name"]
-        request.document_schema.document_is_folder = schema_json["document_is_folder"]
-        request.document_schema.description = schema_json["description"]
-
-        for property_definition in schema_json["property_definitions"]:
-            request.document_schema.property_definitions.append(self.create_document_schema_property_definition(property_definition))
+        request.document_schema = contentwarehouse_v1.DocumentSchema.from_json(schema)
 
         print(request)
-        print(request.document_schema)
 
         #Make the request
         response = client.create_document_schema(request=request)
@@ -343,8 +310,8 @@ class document_warehouse_utils:
         # Handle the response
         return response
 
-    def update_document_schema(self, schema_id: str, schema: str):
-        schema_json = json.loads(schema)
+    def update_document_schema(self, schema_id: str, text_schema: str):
+        schema_json = json.loads(text_schema)
 
         client = self.get_document_schema_service_client()
         parent = client.common_location_path(self.project_number, self.api_location)
@@ -355,14 +322,7 @@ class document_warehouse_utils:
         request.name = f"{parent}/documentSchemas/{schema_id}"
 
         # define schema
-        request.document_schema = contentwarehouse_v1.DocumentSchema()
-        request.document_schema.display_name = schema_json["display_name"]
-        request.document_schema.document_is_folder = schema_json["document_is_folder"]
-        request.document_schema.description = schema_json["description"]
-
-        for property_definition in schema_json["property_definitions"]:
-            request.document_schema.property_definitions.append(
-                self.create_document_schema_property_definition(property_definition))
+        request.document_schema = contentwarehouse_v1.DocumentSchema.from_json(schema_json)
 
         print(request)
         print(request.document_schema)
