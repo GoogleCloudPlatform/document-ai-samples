@@ -15,7 +15,7 @@ It is recommended to look at the code provided in the utils python files.
 
 ## Prerequisites
 
-1. Please ensure that you have a Document AI instance . You can follow this [quickstart](https://cloud.google.com/document-warehouse/docs/quickstart) to complete the setup.
+1. Please ensure that you have a Document AI Warehouse instance in your project. You can follow this [quickstart](https://cloud.google.com/document-warehouse/docs/quickstart) to complete the setup.
 2. Create a document AI [Invoice processor](https://cloud.google.com/document-ai/docs/processors-list#processor_invoice-processor) and update the DOCAI_PROCESSOR_ID variable below.
 3. If you are using Vertex AI Workbench Managed jupyter lab, pls ensure to grant [roles/contentwarehouse.documentAdmin](https://cloud.google.com/document-warehouse/docs/manage-access-control) & [roles/documentai.apiUser](https://cloud.google.com/document-ai/docs/access-control/iam-roles). If you are using your own dev environment please ensure to grant the specified permissions to the identity.
 
