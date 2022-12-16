@@ -16,7 +16,7 @@ class document_ai_utils:
     def get_docai_client(self) -> documentai_v1.DocumentProcessorServiceClient:
         if not self.document_ai_client:
             client_options = ClientOptions(
-                api_endpoint=f'{API_LOCATION}-documentai.googleapis.com'
+                api_endpoint=f'{self.api_location}-documentai.googleapis.com'
             )
             self.document_ai_client = documentai_v1.DocumentProcessorServiceClient(client_options=client_options)
         return self.document_ai_client
@@ -26,7 +26,7 @@ class document_ai_utils:
 
     def get_processor(self, processor_id):
         # compose full name for processor
-        processor_name = self.document_ai_client.processor_path(PROJECT_ID, API_LOCATION, processor_id)
+        processor_name = self.document_ai_client.processor_path(self.project_number, self.api_location, processor_id)
 
         # Initialize request argument(s)
         request = documentai_v1.GetProcessorRequest(
