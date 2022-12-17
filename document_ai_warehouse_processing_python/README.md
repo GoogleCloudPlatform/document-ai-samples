@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project demonstrates how to perform common actions on Document AI Warehouse through the API. `dw_processing.ipynb` uses `document_warehouse_utils.py` for abstraction and readability. 
+This project demonstrates how to perform common actions on Document AI Warehouse through the API. `dw_processing.ipynb` uses `DocumentWarehouseUtils.py` for abstraction and readability. 
 It is recommended to look at the code provided in the utils python files.
 
 1. Create document & folder Schema. 

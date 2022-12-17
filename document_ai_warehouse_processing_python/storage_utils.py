@@ -1,5 +1,6 @@
 from google.cloud import storage
 
+
 def read_binary_object(bucket_name, blob_name):
     storage_client = storage.Client()
 
@@ -8,7 +9,8 @@ def read_binary_object(bucket_name, blob_name):
 
     return blob.download_as_bytes()
 
+
 def read_file(file_path: str, mode = "rb"):
-    with open(file_path, mode) as file:
+    with open(file_path, mode = mode) as file:
         data = file.read()
     return data

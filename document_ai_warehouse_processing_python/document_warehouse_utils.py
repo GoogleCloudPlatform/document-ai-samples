@@ -3,13 +3,14 @@ from typing import Optional, List
 
 from google.cloud import contentwarehouse_v1
 import google.cloud.documentai_v1 as docai
-import document_ai_utils
+
+from document_ai_utils import DocumentaiUtils
 
 
-class document_warehouse_utils:
+class DocumentWarehouseUtils:
 
-    def __init__(self, project_number: str, api_location: str,
-                 document_service_client: contentwarehouse_v1.DocumentServiceClient = None):
+    def __init__(self, project_number: str,
+                 api_location: str):
         self.project_number = project_number
         self.api_location = api_location
 
@@ -42,7 +43,7 @@ class document_warehouse_utils:
 
         # Initialize request argument(s)
         request.resource = f"{parent}/documents/{document_id}"
-        request.request_metadata.user_info.id = caller_user_id
+        request.request_metadata = self.create_request_metadata(caller_user_id=caller_user_id)
 
         # Make the request
         response = client.fetch_acl(request=request)
@@ -76,7 +77,8 @@ class document_warehouse_utils:
 
         request.resource = f"{parent}/documents/{document_id}"
         request.policy = policy
-        request.request_metadata.user_info.id = caller_user_id
+        # request.request_metadata.user_info.id = caller_user_id
+        request.request_metadata = self.create_request_metadata(caller_user_id=caller_user_id)
 
         # Make the request
         response = client.set_acl(request=request)
@@ -97,7 +99,8 @@ class document_warehouse_utils:
         request.parent = parent
         request.document_query.query = query
 
-        request.request_metadata.user_info.id = caller_user_id
+        # request.request_metadata.user_info.id = caller_user_id
+        request.request_metadata = self.create_request_metadata(caller_user_id=caller_user_id)
 
         # Make the request
         response = client.search_documents(request=request)
@@ -113,10 +116,18 @@ class document_warehouse_utils:
         # Initialize request argument(s)
         request = contentwarehouse_v1.DeleteDocumentRequest()
         request.name = f"{parent}/documents/{document_id}"
-        request.request_metadata.user_info.id = caller_user_id
+
+        # request.request_metadata.user_info.id = caller_user_id
+        request.request_metadata = self.create_request_metadata(caller_user_id=caller_user_id)
 
         # Make the request
         client.delete_document(request=request)
+
+    def create_request_metadata(self,caller_user_id: str) -> contentwarehouse_v1.RequestMetadata:
+        request_metadata = contentwarehouse_v1.RequestMetadata()
+        request_metadata.user_info.id = caller_user_id
+
+        return request_metadata
 
     def get_document(self, document_id: str, caller_user_id: str) -> contentwarehouse_v1.Document:
         # Create a client
@@ -126,7 +137,9 @@ class document_warehouse_utils:
         # Initialize request argument(s)
         request = contentwarehouse_v1.GetDocumentRequest()
         request.name = f"{parent}/documents/{document_id}"
-        request.request_metadata.user_info.id = caller_user_id
+
+        # request.request_metadata.user_info.id = caller_user_id
+        request.request_metadata = self.create_request_metadata(caller_user_id=caller_user_id)
 
         # Make the request
         response = client.get_document(request=request)
@@ -149,12 +162,16 @@ class document_warehouse_utils:
             request.parent = f"{parent}/documents/{folder_document_id}"
             request.document_link.target_document_reference.document_name = f"{parent}/documents/{document_id}"
             request.document_link.source_document_reference.document_name = f"{parent}/documents/{folder_document_id}"
-            request.request_metadata.user_info.id = caller_user_id
+            # request.request_metadata.user_info.id = caller_user_id
+
+            request.request_metadata = self.create_request_metadata(caller_user_id=caller_user_id)
 
             # Make the request
             response = client.create_document_link(request=request)
 
+
             # Handle the response
+
             return response
 
         except Exception as e:
@@ -180,10 +197,11 @@ class document_warehouse_utils:
         else:
             document.raw_document_file_type = document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_UNSPECIFIED
 
-    def append_docai_entities_to_doc_properties(self,docai_document: docai.Document, docwarehouse_document: contentwarehouse_v1.Document, docai_property_name: str):
+    @staticmethod
+    def append_docai_entities_to_doc_properties(docai_document: docai.Document, docwarehouse_document: contentwarehouse_v1.Document, docai_property_name: str):
         # Append doc ai document entities if exists
         if docai_document:
-            entities = document_ai_utils.get_entities(docai_document)
+            entities = DocumentaiUtils.get_entity_key_value_pairs(docai_document)
             if len(entities) > 0:
                 map_property = contentwarehouse_v1.MapProperty()
                 for key in entities:
@@ -208,7 +226,7 @@ class document_warehouse_utils:
             mime_type: str = None,
             raw_inline_bytes: str = None,
             document_text: str = None,
-            apped_docai_entities_to_doc_properties: bool = False,
+            append_docai_entities_to_doc_properties: bool = False,
             docai_document: Optional[docai.Document] = None) -> contentwarehouse_v1.Document:
 
         # Create a client
@@ -232,8 +250,8 @@ class document_warehouse_utils:
 
         if docai_document:
             document.cloud_ai_document = docai_document._pb
-            if apped_docai_entities_to_doc_properties:
-                self.apped_docai_entities_to_doc_properties(cloud_ai_document = docai_document, document = document, docai_property_name= docai_property_name)
+            if append_docai_entities_to_doc_properties:
+                self.append_docai_entities_to_doc_properties(docai_document = docai_document, docwarehouse_document = document, docai_property_name= docai_property_name)
         elif document_text:
             document.plain_text = document_text
 
@@ -244,7 +262,7 @@ class document_warehouse_utils:
             document=document,
         )
 
-        request.request_metadata.user_info.id = caller_user_id
+        request.request_metadata = self.create_request_metadata(caller_user_id=caller_user_id)
 
         # Make the request
         response = client.create_document(request=request)
@@ -305,10 +323,9 @@ class document_warehouse_utils:
         request.name = f"{parent}/documentSchemas/{schema_id}"
 
         # Make the request
-        response = client.delete_document_schema(request=request)
+        client.delete_document_schema(request=request)
 
-        # Handle the response
-        return response
+
 
     def update_document_schema(self, schema_id: str, text_schema: str):
         schema_json = json.loads(text_schema)
