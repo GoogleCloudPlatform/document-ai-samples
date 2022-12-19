@@ -8,14 +8,16 @@
 *     @GoogleCloudPlatform/ml-apis
 
 # @matthewayne is the default owner for PDF splitter sample changes
-/pdf-splitter-python/ @matthewayne
-/web-app-demo/ @matthewayne
+/pdf-splitter-python/ @holtskinner
+/web-app-demo/ @galz10
 /extract-languages @holtskinner
 /extract-tables @holtskinner
 /filter-hitl-language @holtskinner
 /fraud-detection-python @holtskinner
 /tax-processing-pipeline-python @holtskinner
 /bq-connector @mservidio
+/sql-pdf-python @dojowahi
+/document_ai_warehouse_processing_python @HSbedi87
 
 # Community owners
 /community/identity-form-autofiller-python @PicardParis
