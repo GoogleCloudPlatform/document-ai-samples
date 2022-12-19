@@ -105,6 +105,18 @@ request and assign it to `@GoogleCloudPlatform/ml-apis`
     For Python, use [black](https://GitHub.com/psf/black) to format your code.
     Linting checks with flake8, isort, pylint, and mypy will also be performed.
 
+    1. Before submitting for review, create your Pull Request as a draft so that the linter can run before alerting reviewers.
+  
+    1. Alternatively, you can run super-linter locally using the following commands
+
+      ```sh
+      docker pull github/super-linter:slim-v4
+      docker run --rm \
+      -e RUN_LOCAL=true \
+      --env-file ".github/super-linter.env" \
+      -v "$PWD":/tmp/lint github/super-linter:slim-v4
+      ```
+
 1. [non-community samples only] Setup testing and GitHub Actions
 
     This step is not required for samples located in the `community` folder. All
