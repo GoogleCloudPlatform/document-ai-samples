@@ -29,10 +29,10 @@ metadata_to_map = ["file_name", "doc_status", "doc_type", "doc_event_id", "doc_g
 class BqMetadataMappingInfo:
     """
     Class holding information about how to map a specific metadata type
-    
+
     Attributes
     ----
-    bq_column_name: str 
+    bq_column_name: str
         The column in BigQuery this metadata will be mapped to
     metadata_value: Any
         If set, this value will be used for the column. If not set, a default value will be used if possible
@@ -51,7 +51,7 @@ class BqMetadataMappingInfo:
 
         Parameters
         ----
-        bq_column_name: str 
+        bq_column_name: str
             The column in BigQuery this metadata will be mapped to
         metadata_value: Any
             If set, this value will be used for the column. If not set, a default value will be used if possible

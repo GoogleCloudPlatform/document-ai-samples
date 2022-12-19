@@ -203,7 +203,12 @@ class DocAIBQConnector:
         if self.metadata_mapper is None:
             return
         else:
-            current_status = DocumentState.document_processing_complete if hitl_operation_id is None else DocumentState.submitted_for_hitl
+            current_status: DocumentState
+            if hitl_operation_id is None:
+                current_status = DocumentState.document_processing_complete
+            else:
+                current_status = DocumentState.submitted_for_hitl
+
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("file_name", file_name)
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("doc_event_id", str(uuid.uuid4()))
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("hitl_operation_id", hitl_operation_id)
