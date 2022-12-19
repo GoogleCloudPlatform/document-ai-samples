@@ -1,7 +1,7 @@
 from google.cloud import documentai_v1
 from google.api_core.client_options import ClientOptions
-
 import storage_utils
+
 
 class DocumentaiUtils:
 
@@ -15,20 +15,22 @@ class DocumentaiUtils:
             client_options = ClientOptions(
                 api_endpoint=f'{self.api_location}-documentai.googleapis.com'
             )
-            self.document_ai_client = documentai_v1.DocumentProcessorServiceClient(client_options=client_options)
+            self.document_ai_client = \
+                documentai_v1.DocumentProcessorServiceClient(
+                                client_options=client_options)
         return self.document_ai_client
 
-
     def get_parent(self) -> str:
-        return self.document_ai_client.common_location_path(self.project_number, self.api_location)
-
+        client = self.get_docai_client()
+        return client.\
+            common_location_path(self.project_number, self.api_location)
 
     def get_processor(self, processor_id):
         # compose full name for processor
-        processor_name = self.document_ai_client.processor_path(self.project_number,
-                                                                self.api_location,
-                                                                processor_id)
-
+        processor_name = self.document_ai_client.\
+            processor_path(self.project_number,
+                           self.api_location,
+                           processor_id)
         # Initialize request argument(s)
         request = documentai_v1.GetProcessorRequest(
             name=processor_name,
@@ -48,16 +50,20 @@ class DocumentaiUtils:
 
         processor_name = f"{parent}/processors/{processor_id}"
 
-        document_content = storage_utils.read_binary_object(bucket_name, file_path)
+        document_content = storage_utils.\
+            read_binary_object(bucket_name, file_path)
 
-        document = documentai_v1.RawDocument(content=document_content, mime_type=mime_type)
-        request = documentai_v1.ProcessRequest(raw_document=document, name=processor_name)
+        document = documentai_v1.\
+            RawDocument(content=document_content, mime_type=mime_type)
+        request = documentai_v1.\
+            ProcessRequest(raw_document=document, name=processor_name)
 
         response = client.process_document(request)
 
         return response.document
 
-    def get_entity_key_value_pairs(self, docai_document):
+    @staticmethod
+    def get_entity_key_value_pairs(docai_document):
         fields = {}
         if hasattr(docai_document, 'entities'):
             entities = {}

@@ -51,13 +51,15 @@ class DocumentWarehouseUtils:
         # Handle the response
         return response
 
-    def copy_document_acl_to_document(self, target_document_id: str, source_document_id: str,
-                caller_user_id: str):
+    def copy_document_acl_to_document(self,
+                                      target_document_id: str,
+                                      source_document_id: str,
+                                      caller_user_id: str):
         fetch_acl_response = self.fetch_acl(source_document_id, caller_user_id=caller_user_id)
 
         document_policy = fetch_acl_response.policy
 
-        self.set_acl(document_id=target_document_id, policy=document_policy,caller_user_id=caller_user_id)
+        self.set_acl(document_id=target_document_id, policy=document_policy, caller_user_id=caller_user_id)
 
         print(f"ACL copied from source document:{source_document_id} to target document:{target_document_id}")
 
@@ -123,7 +125,7 @@ class DocumentWarehouseUtils:
         # Make the request
         client.delete_document(request=request)
 
-    def create_request_metadata(self,caller_user_id: str) -> contentwarehouse_v1.RequestMetadata:
+    def create_request_metadata(self, caller_user_id: str) -> contentwarehouse_v1.RequestMetadata:
         request_metadata = contentwarehouse_v1.RequestMetadata()
         request_metadata.user_info.id = caller_user_id
 
@@ -169,39 +171,41 @@ class DocumentWarehouseUtils:
             # Make the request
             response = client.create_document_link(request=request)
 
-
             # Handle the response
-
             return response
 
         except Exception as e:
             error_msg = str(e)[:100]
             return False, error_msg
 
-
     @staticmethod
     def set_raw_document_file_type_from_mimetype(document: contentwarehouse_v1.Document, mime_type):
 
-        if not mime_type or len(mime_type) == 0 :
+        if not mime_type or len(mime_type) == 0:
             return False, 'mime_type is empty'
 
         mime_to_dw_mime_enum = {
             "application/pdf": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PDF,
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_DOCX,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_DOCX,
             "text/plain": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_TEXT,
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PPTX,
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":  document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_XLSX,
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PPTX,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_XLSX,
         }
         if mime_type.lower() in mime_to_dw_mime_enum:
-            document.raw_document_file_type =  mime_to_dw_mime_enum[mime_type.lower()]
+            document.raw_document_file_type = mime_to_dw_mime_enum[mime_type.lower()]
         else:
             document.raw_document_file_type = document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_UNSPECIFIED
 
     @staticmethod
-    def append_docai_entities_to_doc_properties(docai_document: docai.Document, docwarehouse_document: contentwarehouse_v1.Document, docai_property_name: str):
+    def append_docai_entities_to_doc_properties(docai_document: docai.Document,
+                                                docwarehouse_document: contentwarehouse_v1.Document,
+                                                docai_property_name: str):
         # Append doc ai document entities if exists
         if docai_document:
-            entities = DocumentaiUtils.get_entity_key_value_pairs(docai_document)
+            entities = DocumentaiUtils.get_entity_key_value_pairs(docai_document=docai_document)
             if len(entities) > 0:
                 map_property = contentwarehouse_v1.MapProperty()
                 for key in entities:
@@ -241,7 +245,7 @@ class DocumentWarehouseUtils:
         document.reference_id = reference_id
         document.inline_raw_document = raw_inline_bytes
         document.text_extraction_disabled = False
-        self.set_raw_document_file_type_from_mimetype(document = document, mime_type=mime_type)
+        self.set_raw_document_file_type_from_mimetype(document=document, mime_type=mime_type)
 
         # Add properties from metadata
 
@@ -251,7 +255,9 @@ class DocumentWarehouseUtils:
         if docai_document:
             document.cloud_ai_document = docai_document._pb
             if append_docai_entities_to_doc_properties:
-                self.append_docai_entities_to_doc_properties(docai_document = docai_document, docwarehouse_document = document, docai_property_name= docai_property_name)
+                self.append_docai_entities_to_doc_properties(docai_document=docai_document,
+                                                             docwarehouse_document=document,
+                                                             docai_property_name=docai_property_name)
         elif document_text:
             document.plain_text = document_text
 
@@ -270,10 +276,6 @@ class DocumentWarehouseUtils:
         # Handle the response
         return response
 
-
-    # Schema
-
-
     def create_document_schema(self, schema: str) -> contentwarehouse_v1.DocumentSchema:
 
         # schema_json = json.loads(text_schema)
@@ -291,13 +293,13 @@ class DocumentWarehouseUtils:
 
         print(request)
 
-        #Make the request
+        # Make the request
         response = client.create_document_schema(request=request)
 
         # Handle the response
         return response
 
-    def get_document_schema(self,schema_id: str):
+    def get_document_schema(self, schema_id: str):
         client = self.get_document_schema_service_client()
         parent = client.common_location_path(self.project_number, self.api_location)
 
@@ -312,7 +314,7 @@ class DocumentWarehouseUtils:
         # Handle the response
         return response
 
-    def delete_document_schema(self,schema_id: str):
+    def delete_document_schema(self, schema_id: str):
 
         client = self.get_document_schema_service_client()
         parent = client.common_location_path(self.project_number, self.api_location)
@@ -324,8 +326,6 @@ class DocumentWarehouseUtils:
 
         # Make the request
         client.delete_document_schema(request=request)
-
-
 
     def update_document_schema(self, schema_id: str, text_schema: str):
         schema_json = json.loads(text_schema)
@@ -340,9 +340,6 @@ class DocumentWarehouseUtils:
 
         # define schema
         request.document_schema = contentwarehouse_v1.DocumentSchema.from_json(schema_json)
-
-        print(request)
-        print(request.document_schema)
 
         # Make the request
         response = client.update_document_schema(request=request)
