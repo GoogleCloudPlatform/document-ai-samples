@@ -39,11 +39,12 @@ class BqMetadataMappingInfo:
     skip_map: bool
         If set this particular metadata will NOT be mapped into a BQ column
     """
+
     def __init__(
             self,
-            bq_column_name: str,  
+            bq_column_name: str,
             metadata_value: Any = None,
-            skip_map: bool = False, 
+            skip_map: bool = False,
     ):
         """
         Initializer for the class

@@ -81,7 +81,7 @@ class Processor:
             json_file_name = f'{split_fname}.json'
             write_gcs_blob(self.extraction_result_output_bucket, json_file_name, json_result_as_str,
                            content_type='application/json')
-            
+
     # TODO: Support for processing multiple files
     def _process_sync(self, document_blob: bytes) -> Union[DocumentOperation, ProcessedDocument]:
         """
@@ -151,7 +151,7 @@ class Processor:
         # Add a unique folder to the uri for this particular async operation
         unique_folder = ''.join(random.choice('0123456789abcdef') for i in range(32))
         destination_uri = f'{self.async_output_folder_gcs_uri}/{unique_folder}'
-        
+
         gcs_documents = documentai.GcsDocuments(
             documents=[
                 {"gcs_uri": self._get_input_uri(), "mime_type": self.content_type}
@@ -210,14 +210,14 @@ class Processor:
         # Delete the unique folder created for this operation
         blobs = list(bucket.list_blobs(prefix=prefix))
         bucket.delete_blobs(blobs)
-        
+
         # operation.metadata.individual_process_statuses[0].human_review_status
         # hitl_op = results.human_review_status.human_review_operation
         # hitl_op_split = hitl_op.split('/')
         # hitl_op_id = hitl_op_split.pop()
         hitl_op_id = None
         results_json = blob_as_bytes
-        
+
         return ProcessedDocument(
             document=document, dictionary=results_json, hitl_operation_id=hitl_op_id
         )
