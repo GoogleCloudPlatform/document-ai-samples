@@ -32,7 +32,9 @@ def get_gcs_blob(bucket_name, file_name):
         logging.info("Fetched file from GCS successfully.")
         return file_blob, file_meta
     except Exception as err:
-        raise Exception(f"Cannot get file {file_name} from bucket {bucket_name}. Error: {err}")
+        raise Exception(
+            f"Cannot get file {file_name} from bucket {bucket_name}. Error: {err}"
+        )
 
 
 def write_gcs_blob(bucket_name, file_name, content_as_str, content_type):
@@ -40,4 +42,4 @@ def write_gcs_blob(bucket_name, file_name, content_as_str, content_type):
     bucket = gcs_client.get_bucket(bucket_name)
     gcs_file = bucket.blob(file_name)
     gcs_file.upload_from_string(content_as_str, content_type=content_type)
-    logging.debug(f'Saving the file {file_name} to GCS.')
+    logging.debug(f"Saving the file {file_name} to GCS.")

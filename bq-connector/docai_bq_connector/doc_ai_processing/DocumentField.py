@@ -22,7 +22,14 @@ from docai_bq_connector.helper import find
 
 
 class DocumentField:
-    def __init__(self, name: str, value: str, normalized_value, confidence: float, page_number: int):
+    def __init__(
+        self,
+        name: str,
+        value: str,
+        normalized_value,
+        confidence: float,
+        page_number: int,
+    ):
         self.name = name
         self.value = value
         self.normalized_value = normalized_value

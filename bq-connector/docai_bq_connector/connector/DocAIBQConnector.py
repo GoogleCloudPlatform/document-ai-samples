@@ -51,7 +51,7 @@ class DocAIBQConnector:
         continue_on_error: bool = False,
         should_write_extraction_result: bool = True,
         max_sync_page_count: int = 5,
-        parsing_methodology: str = 'entities'
+        parsing_methodology: str = "entities",
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
@@ -97,7 +97,7 @@ class DocAIBQConnector:
                 async_timeout=self.doc_ai_async_timeout,
                 should_async_wait=self.should_async_wait,
                 should_write_extraction_result=self.should_write_extraction_result,
-                max_sync_page_count=self.max_sync_page_count
+                max_sync_page_count=self.max_sync_page_count,
             )
 
             document = doc_ai_process.process()
@@ -113,7 +113,7 @@ class DocAIBQConnector:
                     custom_fields=self.custom_fields,
                     include_raw_entities=self.include_raw_entities,
                     include_error_fields=self.include_error_fields,
-                    parsing_methodology=self.parsing_methodology
+                    parsing_methodology=self.parsing_methodology,
                 )
 
                 if (

@@ -41,7 +41,7 @@ class BqDocumentMapper:
         include_raw_entities: bool = True,
         include_error_fields: bool = True,
         continue_on_error: bool = False,
-        parsing_methodology: str = 'entities'
+        parsing_methodology: str = "entities",
     ):
         self.processed_document = document
         self.bq_schema = bq_schema
@@ -217,7 +217,7 @@ class BqDocumentMapper:
     def _cast_type(self, field: DocumentField, bq_datatype):
         try:
             raw_value = field.value.strip()
-            if self.parsing_methodology == 'entities':
+            if self.parsing_methodology == "entities":
                 if field.value is None:
                     return None
                 if bq_datatype == "STRING":
@@ -232,7 +232,7 @@ class BqDocumentMapper:
                 if bq_datatype == "INTEGER":
                     return int(clean_number(raw_value))
                 return raw_value
-            elif self.parsing_methodology == 'normalized_values':
+            elif self.parsing_methodology == "normalized_values":
                 normalized_value = field.normalized_value
                 if normalized_value is None:
                     return None
