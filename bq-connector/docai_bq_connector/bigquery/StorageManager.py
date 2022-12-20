@@ -62,7 +62,19 @@ class StorageManager:
         if errors:
             logging.error("Encountered errors while inserting rows: %s", errors)
         return errors
+    
+    def update_record(self, table_id: str, record_id_name, record_id_value, cols_to_update):
+        dml_statement = f"UPDATE `{self.project_id}.{self.dataset_id}.{table_id}`"
+        for cur_col, cur_val in cols_to_update.items():
+            dml_statement = f'{dml_statement} SET {cur_col} = {cur_val}'
+        dml_statement = f'{dml_statement} WHERE {record_id_name} = {record_id_value}'
+        records = self.client.query(dml_statement) 
+        return records
 
+    def get_records(self, query: str):
+        records = self.client.query(query) 
+        return records
+    
     def get_table_schema(self, table_id: str):
         table_ref = bigquery.TableReference(self.dataset_ref, table_id)
         table = self.client.get_table(table_ref)

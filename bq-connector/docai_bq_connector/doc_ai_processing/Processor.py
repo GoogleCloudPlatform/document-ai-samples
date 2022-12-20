@@ -105,7 +105,7 @@ class Processor:
         document = {"content": document_blob, "mime_type": self.content_type}
 
         processor_uri = client.processor_path(self.processor_project_id, self.processor_location, self.processor_id)
-        request = {"name": processor_uri, "raw_document": document}
+        request = {"name": processor_uri, "raw_document": document, "skip_human_review": False} # TODO: Add supporting input arg.
         print(f"name: {processor_uri}, mime_type: {self.content_type}")
 
         results = client.process_document(request)
@@ -176,16 +176,27 @@ class Processor:
         )
 
         operation = client.batch_process_documents(request)
-
+        logging.debug(f"DocAI Batch Process started. LRO = {operation.operation.name}")
+        
         if self.should_async_wait is False:
             return DocumentOperation(operation.operation.name)
 
         # Wait for the operation to finish
         operation.result(timeout=self.async_timeout)
-
+        logging.debug("DocAI Batch Process finished")
+        
+        if operation.metadata and operation.metadata.individual_process_statuses:
+            cur_process_status = operation.metadata.individual_process_statuses[0]
+            hitl_gcs_output =cur_process_status.output_gcs_destination
+            hitl_op_full_path = cur_process_status.human_review_status.human_review_operation
+        else:
+            # Fallback to using the GCS path set in the request
+            hitl_gcs_output = output_config
+            hitl_op_full_path = None
+        
         # Results are written to GCS. Use a regex to find
         # output files
-        match = re.match(r"gs://([^/]+)/(.+)", destination_uri)
+        match = re.match(r"gs://([^/]+)/(.+)", hitl_gcs_output)
         if match:
             output_bucket = match.group(1)
             prefix = match.group(2)
@@ -195,7 +206,6 @@ class Processor:
         storage_client = storage.Client()
         bucket = storage_client.get_bucket(output_bucket)
         blob_list = list(bucket.list_blobs(prefix=prefix))
-        logging.debug("Output files:")
         # should always be a single document here
         for i, blob in enumerate(blob_list):
             # If JSON file, download the contents of this blob as a bytes object.
@@ -203,34 +213,48 @@ class Processor:
                 blob_as_bytes = blob.download_as_bytes()
 
                 document = documentai.types.Document.from_json(blob_as_bytes)
-                logging.debug(f"Fetched file {i + 1}")
+                logging.debug(f"Fetched file {i + 1}: {blob.name}")
             else:
                 logging.info(f"Skipping non-supported file type {blob.name}")
 
         # Delete the unique folder created for this operation
         blobs = list(bucket.list_blobs(prefix=prefix))
         bucket.delete_blobs(blobs)
-
-        # operation.metadata.individual_process_statuses[0].human_review_status
-        # hitl_op = results.human_review_status.human_review_operation
-        # hitl_op_split = hitl_op.split('/')
-        # hitl_op_id = hitl_op_split.pop()
+        
         hitl_op_id = None
-        results_json = blob_as_bytes
-
+        if hitl_op_full_path: 
+            logging.debug(f"Async processing returned hitl_op = {hitl_op_full_path}")
+            hitl_op_split = hitl_op_full_path.split('/')
+            hitl_op_id = hitl_op_split.pop()
+        
         return ProcessedDocument(
-            document=document, dictionary=results_json, hitl_operation_id=hitl_op_id
+            document=document, dictionary=blob_as_bytes, hitl_operation_id=hitl_op_id
         )
+
+    def _process_hitl_output(self, gcs_blob: bytes) -> ProcessedDocument:
+        blob_as_bytes = gcs_blob.download_as_bytes()
+        document = documentai.types.Document.from_json(blob_as_bytes)
+        return ProcessedDocument(
+            document=document, dictionary=blob_as_bytes, hitl_operation_id=None
+        )
+
 
     def process(self) -> Union[DocumentOperation, ProcessedDocument]:
         gcs_doc_blob, gcs_doc_meta = self._get_gcs_blob()
-        page_count = get_pdf_page_cnt(gcs_doc_blob)
-        # Limit is different per processor: https://cloud.google.com/document-ai/quotas
-        if page_count <= self.max_sync_page_count:
-            process_result = self._process_sync(document_blob=gcs_doc_blob)
+        if self.content_type == "application/pdf":
+            # Original document. Needs to be processed by a DocAI extractor
+            page_count = get_pdf_page_cnt(gcs_doc_blob)
+            # Limit is different per processor: https://cloud.google.com/document-ai/quotas
+            if page_count <= self.max_sync_page_count:
+                process_result = self._process_sync(document_blob=gcs_doc_blob)
+            else:
+                process_result = self._process_async()
+            if isinstance(process_result, ProcessedDocument) and process_result is not None:
+                self._write_result_to_gcs(process_result.dictionary)
+        elif self.content_type == "application/pdf":
+            # This document was already processed and sent for HITL review. The result must now be processed
+            process_result = self._process_hitl_output(gcs_doc_blob)
         else:
-            process_result = self._process_async()
-        if isinstance(process_result, ProcessedDocument) and process_result is not None:
-            self._write_result_to_gcs(process_result.dictionary)
-
+            logging.info(f"Skipping non-supported file type {self.file_name} with content type = {self.content_type}")
+        
         return process_result

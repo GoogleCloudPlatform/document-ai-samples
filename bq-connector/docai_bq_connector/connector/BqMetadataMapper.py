@@ -21,10 +21,9 @@ import logging
 from datetime import datetime
 from typing import Dict, Any
 
-# Indicates the metadata types that can be mapped - Informational only
+# Indicates the metadata types that can be mapped
 metadata_to_map = ["file_name", "doc_status", "doc_type", "doc_event_id", "doc_group_id", "hitl_operation_id",
                    "created_at", "updated_at"]
-
 
 class BqMetadataMappingInfo:
     """
@@ -87,13 +86,6 @@ class BqMetadataMappingInfo:
             return None, None
 
 
-def _generate_default_value(metadata_name):
-    if metadata_name in ['created_at', 'updated_at']:
-        return datetime.now().isoformat()
-    else:
-        return None
-
-
 # This mapper class allows flexibility in schema column names for metadata to be added in BQ
 class BqMetadataMapper:
     def __init__(
@@ -114,12 +106,18 @@ class BqMetadataMapper:
             out_str = f'{out_str} metadata = {k} - mapping_info = {v}'
         return out_str
 
+    def get_value_for_metadata(self, metadata_name):
+        mapping_info = self.mapping_info.get(metadata_name)
+        if mapping_info is not None:
+            return mapping_info.metadata_value
+        return None
+
     def set_default_value_for_metadata_if_not_set(self, metadata_name, new_default_value):
         mapping_info = self.mapping_info.get(metadata_name)
         if mapping_info is not None:
             mapping_info.set_metadata_value_if_not_already_set(new_default_value)
 
-    # Return and array of column name and value
+    # Return an array of column name and value
     def map_metadata(self):
         response = []
         for cur_metadata_name, cur_mapping_info_config in self.mapping_info.items():
@@ -127,10 +125,6 @@ class BqMetadataMapper:
             bq_col_name, bq_col_value = cur_mapping_info_config.map_to_bq_col_and_value()
             if bq_col_name is not None:
                 mapping_for_cur_metadata["bq_column_name"] = bq_col_name
-                if bq_col_value is None:
-                    mapping_for_cur_metadata["bq_column_value"] = _generate_default_value(cur_metadata_name)
-                else:
-                    mapping_for_cur_metadata["bq_column_value"] = bq_col_value
+                mapping_for_cur_metadata["bq_column_value"] = bq_col_value
                 response.append(mapping_for_cur_metadata)
-
         return response
