@@ -15,13 +15,13 @@
 """Flask Web Server"""
 
 import os
+import re
 
 from flask import Flask, render_template, request
 
 from consts import (
     LOCATION,
     PROJECT_ID,
-    SUPPORTED_TYPES,
     VALID_LANGUAGES,
 )
 
@@ -35,7 +35,6 @@ app = Flask(__name__)
 
 FORM_OPTIONS = {
     "language_list": VALID_LANGUAGES,
-    "type_list": SUPPORTED_TYPES,
     "default_language": VALID_LANGUAGES[0],
 }
 
@@ -65,7 +64,9 @@ def search_ekg() -> str:
         )
 
     languages = request.form.getlist("languages")
-    types = request.form.getlist("types")
+    form_types = request.form.get("types", "")
+
+    types = re.split(r"[\s,]", form_types) if form_types else []
 
     entities, request_url, raw_request, raw_response = search_public_kg(
         project_id=PROJECT_ID,

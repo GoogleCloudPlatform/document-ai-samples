@@ -1,0 +1,15 @@
+{
+  "prefix": "invoice1.pdf.pdf",
+  "mime_type": "application/pdf",
+  "folder_id": "",
+  "schema_id": "",
+  "display_name":"Invoice 1",
+  "processor_id":"7d2ddd76d50426ce",
+  "properties":[
+    {"name":"supplier_name", "text_values":{"values":["Acme Inc"]}},
+    {"name":"supplier_address", "text_values":{"values":["123 Main street N. Seattle, WA 98109"]}},
+    {"name":"invoice_id", "text_values":{"values":["ABC123"]}},
+    {"name":"invoice_date","date_time_values":{"values": [{"year": 2022, "month": 12,"day": 12,"utc_offset": {"seconds": 0, "nanos": 0}}]}},
+    {"name":"total_amount","float_values":{"values":[3524.45]}}
+  ]
+}
