@@ -26,8 +26,9 @@
     </section>
 
     <main id="active-area">
-        <!-- Search Box -->
+
         <form class="search-form" action="/search_ekg" method="post">
+            <!-- Search Box -->
             <div class="mdc-text-field mdc-text-field--outlined query-field">
                 <input class="mdc-text-field__input" id="query-input" name="search_query" required>
                 <div class="mdc-notched-outline">
@@ -37,25 +38,6 @@
                     </div>
                     <div class="mdc-notched-outline__trailing"></div>
                 </div>
-            </div>
-            <!-- Checkboxes for Entity Type -->
-            <div class="mdc-form-field entity-checkboxes">
-                {% for t in form_options["type_list"] %}
-                <div class="mdc-checkbox">
-                    <input type="checkbox" class="mdc-checkbox__native-control" name="types" value="{{ t }}" />
-                    <div class="mdc-checkbox__background">
-                        <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
-                            <path class="mdc-checkbox__checkmark-path" fill="none"
-                                d="M1.73,12.91 8.1,19.28 22.79,4.59" />
-                        </svg>
-                        <div class="mdc-checkbox__mixedmark"></div>
-                    </div>
-                    <div class="mdc-checkbox__ripple"></div>
-                </div>
-                <label for="{{ t }}">
-                    <pre>{{ t }}</pre>
-                </label>
-                {% endfor %}
             </div>
             <!-- Language Selection Menu -->
             <div class="mdc-select mdc-select--filled language-selection">
@@ -103,6 +85,21 @@
                     </ul>
                 </div>
             </div>
+            <!-- Type Filter -->
+            <div class="schema-info">
+                Refer to the <a href="https://schema.org/docs/full.html">Schema.org full heirarchy</a> for supported
+                types.
+            </div>
+            <div class="mdc-text-field mdc-text-field--outlined types-field">
+                <input class="mdc-text-field__input" id="type-input" name="types">
+                <div class="mdc-notched-outline">
+                    <div class="mdc-notched-outline__leading"></div>
+                    <div class="mdc-notched-outline__notch">
+                        <label for="text-field-hero-input" class="mdc-floating-label">Types</label>
+                    </div>
+                    <div class="mdc-notched-outline__trailing"></div>
+                </div>
+            </div>
             <!-- Search Button -->
             <div class="button-container">
                 <button type="submit" class="search-button mdc-button mdc-button--outlined mdc-button--icon-leading">
@@ -113,7 +110,15 @@
             </div>
         </form>
         {% if message_error %}
-        <pre>{{message_error}}</pre>
+        <div class="mdc-layout-grid">
+            <div class="mdc-layout-grid__inner">
+                <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-3"></div>
+                <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6">
+                    <pre>{{message_error}}</pre>
+                </div>
+                <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-3"></div>
+            </div>
+        </div>
         {% elif message_success %}
         <div class="mdc-tab-bar" role="tablist">
             <div class="mdc-tab-scroller">
@@ -187,7 +192,8 @@
                                     </div>
                                     {% if entity.get("detailedDescription") %}
                                     <div class="mdc-typography mdc-typography--body2 entity-detailed-description">
-                                        <h3 class="mdc-typography mdc-typography--subtitle2">Detailed Description</h3>
+                                        <h3 class="mdc-typography mdc-typography--subtitle2">Detailed Description
+                                        </h3>
                                         {{entity["detailedDescription"]["articleBody"]}}
                                     </div>
                                     {% endif %}

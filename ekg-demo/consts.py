@@ -68,6 +68,3 @@ VALID_LANGUAGES = [
     {"code": "uk", "name": "Ukrainian"},
     {"code": "vi", "name": "Vietnamese"},
 ]
-
-# https://cloud.google.com/enterprise-knowledge-graph/docs/schema
-SUPPORTED_TYPES = ["Person", "Organization", "LocalBusiness"]

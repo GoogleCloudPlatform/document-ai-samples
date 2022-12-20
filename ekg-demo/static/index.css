@@ -20,7 +20,9 @@ body {
     fill: currentColor;
 }
 
-.query-field {
+.query-field,
+.schema-info,
+.types-field {
     display: block;
     width: 300px;
     margin: 20px auto;
@@ -65,6 +67,10 @@ footer {
     visibility: visible;
 }
 
+.error-message {
+    width: 500px;
+    margin: auto;
+}
 
 pre code {
     max-height: 30rem;

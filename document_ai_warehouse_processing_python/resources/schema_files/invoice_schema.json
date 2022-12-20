@@ -1,0 +1,57 @@
+{
+  "display_name": "Invoice",
+  "property_definitions": [
+    {
+      "name": "supplier_name",
+      "display_name": "supplier name",
+      "is_repeatable": false,
+      "is_filterable": true,
+      "is_searchable": true,
+      "is_metadata": true,
+      "is_required": false,
+      "text_type_options": {}
+    },
+    {
+      "name": "supplier_address",
+      "display_name": "supplier address",
+      "is_repeatable": false,
+      "is_filterable": true,
+      "is_searchable": true,
+      "is_metadata": true,
+      "is_required": false,
+      "text_type_options": {}
+    },
+    {
+      "name": "invoice_id",
+      "display_name": "invoice id",
+      "is_repeatable": false,
+      "is_filterable": true,
+      "is_searchable": true,
+      "is_metadata": true,
+      "is_required": false,
+      "text_type_options": {}
+    },
+    {
+      "name": "invoice_date",
+      "display_name": "invoice date",
+      "is_repeatable": false,
+      "is_filterable": true,
+      "is_searchable": true,
+      "is_metadata": true,
+      "is_required": false,
+      "date_time_type_options": {}
+    },
+    {
+      "name": "total_amount",
+      "display_name": "Total Amount",
+      "is_repeatable": false,
+      "is_filterable": true,
+      "is_searchable": true,
+      "is_metadata": true,
+      "is_required": false,
+      "float_type_options": {}
+    }
+  ],
+  "document_is_folder": false,
+  "description": "Invoice Document Schema"
+}
