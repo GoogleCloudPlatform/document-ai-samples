@@ -255,8 +255,6 @@ class BqDocumentMapper:
                 if bq_datatype == "BOOLEAN":
                     return get_bool_value(raw_value)
                 if bq_datatype == "DATETIME":
-                    # TODO: Needs implementation for conversion
-                    # return datetime(raw_value)
                     if isinstance(field.value, datetime):
                         dt: datetime = field.value
                         return dt.isoformat()
