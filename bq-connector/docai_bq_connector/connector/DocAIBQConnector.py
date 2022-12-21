@@ -144,7 +144,7 @@ class DocAIBQConnector:
             query = f'''
                 SELECT doc_id, file_name, doc_status, doc_type, doc_event_id, doc_group_id, created_at, destination_table_id
                 FROM `{self.destination_project_id}.{self.destination_dataset_id}.doc_reference`
-                WHERE hitl_operation_id = {self.operation_id}'''
+                WHERE hitl_operation_id = \'{self.operation_id}\' '''
             doc_reference_records = storage_manager.get_records(query)
 
             if len(doc_reference_records) == 0:
@@ -153,11 +153,12 @@ class DocAIBQConnector:
             elif len(doc_reference_records) > 1:
                 raise DocAlreadyProcessedError(
                     f'Duplicate hitl reference records found for hitl_operation_id: {self.operation_id}')
+            logging.debug("Will now work with the single result")
             doc_ref = doc_reference_records[0]
             _doc_id = doc_ref.get('doc_id')
             _doc_group_id = doc_ref.get('doc_group_id')
             _doc_type = doc_ref.get('doc_type')
-            _orig_file_name = doc_ref.get('orig_file_name')
+            _orig_file_name = doc_ref.get('file_name')
             _doc_created_at = doc_ref.get('created_at')
             self.destination_table_id = doc_ref.get('destination_table_id')
             self._augment_metadata_mapping_info(file_name=_orig_file_name, hitl_operation_id=self.operation_id, 
@@ -165,7 +166,10 @@ class DocAIBQConnector:
                                                 doc_status = DocumentState.document_processing_complete,
                                                 created_at=_doc_created_at)
             # Update status in doc_reference table
-            _status_update = {"doc_status" : str(DocumentState.document_processing_complete)}
+            _status_update = { 
+                "doc_status" : str(DocumentState.document_processing_complete), 
+                "updated_at": self.metadata_mapper.get_value_for_metadata("updated_at")
+            }
             logging.debug(f"Will update doc_reference record for doc_id = {_doc_id} - New status = {str(DocumentState.document_processing_complete)}")
             storage_manager.update_record(table_id='doc_reference',record_id_name='doc_id',record_id_value=_doc_id,cols_to_update=_status_update)
 

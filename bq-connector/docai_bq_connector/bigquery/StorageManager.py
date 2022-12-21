@@ -64,15 +64,26 @@ class StorageManager:
         return errors
     
     def update_record(self, table_id: str, record_id_name, record_id_value, cols_to_update):
-        dml_statement = f"UPDATE `{self.project_id}.{self.dataset_id}.{table_id}`"
+        # Assumes all columns and key are of type STRING
+        dml_statement = f"UPDATE `{self.project_id}.{self.dataset_id}.{table_id}` SET"
+        if len(cols_to_update) == 0:
+            # Nothing to do
+            return
         for cur_col, cur_val in cols_to_update.items():
-            dml_statement = f'{dml_statement} SET {cur_col} = {cur_val}'
-        dml_statement = f'{dml_statement} WHERE {record_id_name} = {record_id_value}'
-        records = self.client.query(dml_statement) 
-        return records
+            dml_statement = f"{dml_statement} {cur_col} = '{cur_val}',"
+        # Remove last comma
+        dml_statement = f"{dml_statement[:-1]} WHERE {record_id_name} = '{record_id_value}'"
+        logging.debug(f"About to run query: {dml_statement}")
+        query_job = self.client.query(dml_statement) 
+        records = query_job.result()
 
     def get_records(self, query: str):
-        records = self.client.query(query) 
+        logging.debug(f"About to run query: {query}")
+        query_job = self.client.query(query) 
+        bq_rows = query_job.result()
+        # Convert to array of dict
+        records = [dict(row) for row in bq_rows]
+        logging.debug(f"Will return {records}")
         return records
     
     def get_table_schema(self, table_id: str):

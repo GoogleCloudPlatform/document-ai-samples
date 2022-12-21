@@ -68,7 +68,7 @@ class BqDocumentMapper:
             if len(entity.page_anchor.page_refs) != 1:
                 continue
             if len(entity.properties) == 0:
-                content = entity.text_anchor.content
+                content = entity.mention_text
                 value = (
                     content if content is not None and content.strip() != "" else None
                 )

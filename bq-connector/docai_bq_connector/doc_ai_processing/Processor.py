@@ -106,7 +106,7 @@ class Processor:
 
         processor_uri = client.processor_path(self.processor_project_id, self.processor_location, self.processor_id)
         request = {"name": processor_uri, "raw_document": document, "skip_human_review": False} # TODO: Add supporting input arg.
-        print(f"name: {processor_uri}, mime_type: {self.content_type}")
+        print(f"Invoking name: {processor_uri}, mime_type: {self.content_type} in sync mode")
 
         results = client.process_document(request)
         print(f"HITL Output: {results.human_review_status}")
@@ -232,10 +232,9 @@ class Processor:
         )
 
     def _process_hitl_output(self, gcs_blob: bytes) -> ProcessedDocument:
-        blob_as_bytes = gcs_blob.download_as_bytes()
-        document = documentai.types.Document.from_json(blob_as_bytes)
+        document = documentai.types.Document.from_json(gcs_blob)
         return ProcessedDocument(
-            document=document, dictionary=blob_as_bytes, hitl_operation_id=None
+            document=document, dictionary=gcs_blob, hitl_operation_id=None
         )
 
 
@@ -251,8 +250,9 @@ class Processor:
                 process_result = self._process_async()
             if isinstance(process_result, ProcessedDocument) and process_result is not None:
                 self._write_result_to_gcs(process_result.dictionary)
-        elif self.content_type == "application/pdf":
+        elif self.content_type == "application/json":
             # This document was already processed and sent for HITL review. The result must now be processed
+            logging.debug(f"Read DocAI HITL Output file = {self.bucket_name}/{self.file_name}")
             process_result = self._process_hitl_output(gcs_doc_blob)
         else:
             logging.info(f"Skipping non-supported file type {self.file_name} with content type = {self.content_type}")
