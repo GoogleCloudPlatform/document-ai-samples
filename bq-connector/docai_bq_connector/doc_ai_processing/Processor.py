@@ -199,7 +199,7 @@ class Processor:
         # should always be a single document here
         for i, blob in enumerate(blob_list):
             # If JSON file, download the contents of this blob as a bytes object.
-            if ".json" in blob.name:
+            if blob.content_type == "application/json":
                 blob_as_bytes = blob.download_as_bytes()
 
                 document = documentai.types.Document.from_json(blob_as_bytes)
