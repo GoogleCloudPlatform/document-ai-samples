@@ -45,7 +45,7 @@ def main():
                                    help='The project id for the processor to be used')
     doc_options_group.add_argument('--processor_location', type=str, help='The location of the processor to be used')
     doc_options_group.add_argument('--processor_id', type=str, help='The id of the processor to be used')
-    doc_options_group.add_argument('--async_output_folder_gcs_uri', type=str, default="gs://output", help='')
+    doc_options_group.add_argument('--async_output_folder_gcs_uri', type=str, help='')
     doc_options_group.add_argument('--max_sync_page_count', type=int, default=5, help='The maximum number of pages '
                                                                                       'that will be supported for '
                                                                                       'sync processing. If page count '

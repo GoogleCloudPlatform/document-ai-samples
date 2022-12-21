@@ -150,6 +150,9 @@ class Processor:
 
         # Add a unique folder to the uri for this particular async operation
         unique_folder = ''.join(random.choice('0123456789abcdef') for i in range(32))
+
+        if self.async_output_folder_gcs_uri is None:
+            raise Exception("--async_output_folder_gcs_uri must be set when a document is processed asynchronously")
         destination_uri = f'{self.async_output_folder_gcs_uri}/{unique_folder}'
 
         gcs_documents = documentai.GcsDocuments(
