@@ -18,8 +18,8 @@
 #
 
 import logging
-import random
 import re
+import uuid
 from typing import Union
 
 from google.cloud import documentai_v1 as documentai
@@ -149,7 +149,7 @@ class Processor:
         client = documentai.DocumentProcessorServiceClient(client_options=opts)
 
         # Add a unique folder to the uri for this particular async operation
-        unique_folder = ''.join(random.choice('0123456789abcdef') for i in range(32))
+        unique_folder = uuid.uuid4().hex
         destination_uri = f'{self.async_output_folder_gcs_uri}/{unique_folder}'
 
         gcs_documents = documentai.GcsDocuments(
@@ -209,7 +209,7 @@ class Processor:
         # should always be a single document here
         for i, blob in enumerate(blob_list):
             # If JSON file, download the contents of this blob as a bytes object.
-            if ".json" in blob.name:
+            if blob.content_type == "application/json":
                 blob_as_bytes = blob.download_as_bytes()
 
                 document = documentai.types.Document.from_json(blob_as_bytes)

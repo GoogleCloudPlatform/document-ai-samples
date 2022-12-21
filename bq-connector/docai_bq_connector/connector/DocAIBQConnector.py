@@ -175,71 +175,72 @@ class DocAIBQConnector:
 
                 
         # Process result, validate types, convert as necessary and store in destination BQ table.
-        if storage_manager.does_table_exist(self.destination_table_id):
-            schema = storage_manager.get_table_schema(self.destination_table_id)
-            mapper = BqDocumentMapper(
-                document=document,
-                bq_schema=schema,
-                metadata_mapper=self.metadata_mapper,
-                custom_fields=self.custom_fields,
-                include_raw_entities=self.include_raw_entities,
-                include_error_fields=self.include_error_fields,
-                parsing_methodology=self.parsing_methodology
-            )
-
-            if (
-                    self.continue_on_error is False
-                    and self.include_error_fields is False
-                    and len(mapper.errors) > 0
-            ):
-                logging.error(mapper.errors)
-                exit(100)
-            bq_row = mapper.to_bq_row()
-
-            # 1: Attempt initial row insert
-            insert_1_errors = storage_manager.write_record(
-                self.destination_table_id, bq_row
-            )
-            self.log_bq_errors(1, insert_1_errors)
-            exclude_fields: [str] = mapper.process_insert_errors(insert_1_errors)
-
-            retry_success = False
-            if self.continue_on_error is True:
-                # 2: Attempt a second insert removing the offending fields
-                if len(insert_1_errors) > 0 and len(exclude_fields) > 0:
-                    current_try = 0
-                    while current_try < self.retry_count:
-                        current_try += 1
-                        # BQ only reports a single column insert error per row
-                        bq_row_attempt_2 = mapper.to_bq_row(
-                            exclude_fields=exclude_fields
-                        )
-                        insert_2_errors = storage_manager.write_record(
-                            self.destination_table_id, bq_row_attempt_2
-                        )
-                        self.log_bq_errors(current_try, insert_2_errors)
-                        exclude_fields.extend(
-                            mapper.process_insert_errors(insert_2_errors)
-                        )
-                        if len(insert_2_errors) == 0:
-                            retry_success = True
-                            break
-
-                # 3: If fails again, then fallback excluding the entities
-                if len(insert_1_errors) > 0 and retry_success is False:
-                    bq_row_attempt_3 = mapper.to_bq_row(append_parsed_fields=False)
-                    if len(bq_row_attempt_3) > 0:
-                        insert_3_errors = storage_manager.write_record(
-                            self.destination_table_id, bq_row_attempt_3
-                        )
-                        self.log_bq_errors(self.retry_count + 1, insert_3_errors)
-                    else:
-                        logging.warning("There are no fields to insert")
-        else:
+        if not storage_manager.does_table_exist(self.destination_table_id):
             raise TableNotFoundError(
                 f"Destination table {self.destination_table_id} not found "
                 f"in '{self.destination_project_id}.{self.destination_dataset_id}'"
             )
+
+        schema = storage_manager.get_table_schema(self.destination_table_id)
+        mapper = BqDocumentMapper(
+            document=document,
+            bq_schema=schema,
+            metadata_mapper=self.metadata_mapper,
+            custom_fields=self.custom_fields,
+            include_raw_entities=self.include_raw_entities,
+            include_error_fields=self.include_error_fields,
+            parsing_methodology=self.parsing_methodology
+        )
+
+        if (
+                self.continue_on_error is False
+                and self.include_error_fields is False
+                and len(mapper.errors) > 0
+        ):
+            logging.error(mapper.errors)
+            exit(100)
+        bq_row = mapper.to_bq_row()
+
+        # 1: Attempt initial row insert
+        insert_1_errors = storage_manager.write_record(
+            self.destination_table_id, bq_row
+        )
+        self.log_bq_errors(1, insert_1_errors)
+        exclude_fields: [str] = mapper.process_insert_errors(insert_1_errors)
+
+        retry_success = False
+        if self.continue_on_error is True:
+            # 2: Attempt a second insert removing the offending fields
+            if len(insert_1_errors) > 0 and len(exclude_fields) > 0:
+                current_try = 0
+                while current_try < self.retry_count:
+                    current_try += 1
+                    # BQ only reports a single column insert error per row
+                    bq_row_attempt_2 = mapper.to_bq_row(
+                        exclude_fields=exclude_fields
+                    )
+                    insert_2_errors = storage_manager.write_record(
+                        self.destination_table_id, bq_row_attempt_2
+                    )
+                    self.log_bq_errors(current_try, insert_2_errors)
+                    exclude_fields.extend(
+                        mapper.process_insert_errors(insert_2_errors)
+                    )
+                    if len(insert_2_errors) == 0:
+                        retry_success = True
+                        break
+
+            # 3: If fails again, then fallback excluding the entities
+            if len(insert_1_errors) > 0 and retry_success is False:
+                bq_row_attempt_3 = mapper.to_bq_row(append_parsed_fields=False)
+                if len(bq_row_attempt_3) > 0:
+                    insert_3_errors = storage_manager.write_record(
+                        self.destination_table_id, bq_row_attempt_3
+                    )
+                    self.log_bq_errors(self.retry_count + 1, insert_3_errors)
+                else:
+                    logging.warning("There are no fields to insert")
+
         return document
 
 

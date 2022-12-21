@@ -22,8 +22,8 @@ from datetime import datetime
 from typing import Dict, Any
 
 # Indicates the metadata types that can be mapped
-metadata_to_map = ["file_name", "doc_status", "doc_type", "doc_event_id", "doc_group_id", "hitl_operation_id",
-                   "created_at", "updated_at"]
+metadata_to_map = {"file_name", "doc_status", "doc_type", "doc_event_id", "doc_group_id", "hitl_operation_id",
+                   "created_at", "updated_at"}
 
 class BqMetadataMappingInfo:
     """
@@ -103,7 +103,7 @@ class BqMetadataMapper:
     def __str__(self):
         out_str = ""
         for k, v in self.mapping_info.items():
-            out_str = f'{out_str} metadata = {k} - mapping_info = {v}'
+           out_str = f"{out_str} metadata = {k} - mapping_info = {v}"
         return out_str
 
     def get_value_for_metadata(self, metadata_name):
@@ -123,8 +123,11 @@ class BqMetadataMapper:
         for cur_metadata_name, cur_mapping_info_config in self.mapping_info.items():
             mapping_for_cur_metadata = {}
             bq_col_name, bq_col_value = cur_mapping_info_config.map_to_bq_col_and_value()
-            if bq_col_name is not None:
-                mapping_for_cur_metadata["bq_column_name"] = bq_col_name
-                mapping_for_cur_metadata["bq_column_value"] = bq_col_value
-                response.append(mapping_for_cur_metadata)
+            
+            if not bq_col_name:
+                continue
+            mapping_for_cur_metadata["bq_column_name"] = bq_col_name
+            mapping_for_cur_metadata["bq_column_value"] = bq_col_value
+            response.append(mapping_for_cur_metadata)
+            
         return response
