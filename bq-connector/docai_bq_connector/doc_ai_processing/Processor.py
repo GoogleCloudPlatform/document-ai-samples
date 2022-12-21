@@ -211,10 +211,6 @@ class Processor:
         blobs = list(bucket.list_blobs(prefix=prefix))
         bucket.delete_blobs(blobs)
 
-        # operation.metadata.individual_process_statuses[0].human_review_status
-        # hitl_op = results.human_review_status.human_review_operation
-        # hitl_op_split = hitl_op.split('/')
-        # hitl_op_id = hitl_op_split.pop()
         hitl_op_id = None
         results_json = blob_as_bytes
 
