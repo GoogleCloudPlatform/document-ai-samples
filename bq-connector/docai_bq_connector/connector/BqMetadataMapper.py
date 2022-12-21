@@ -111,7 +111,7 @@ class BqMetadataMapper:
     def __str__(self):
         out_str = ""
         for k, v in self.mapping_info.items():
-            out_str = f'{out_str} metadata = {k} - mapping_info = {v}'
+            out_str = f"{out_str} metadata = {k} - mapping_info = {v}"
         return out_str
 
     def set_default_value_for_metadata_if_not_set(self, metadata_name, new_default_value):
