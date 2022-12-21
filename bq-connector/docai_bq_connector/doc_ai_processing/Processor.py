@@ -18,7 +18,6 @@
 #
 
 import logging
-import random
 import re
 import uuid
 from typing import Union
