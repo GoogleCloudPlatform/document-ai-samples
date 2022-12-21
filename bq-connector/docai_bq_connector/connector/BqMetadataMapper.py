@@ -22,8 +22,8 @@ from datetime import datetime
 from typing import Dict, Any
 
 # Indicates the metadata types that can be mapped - Informational only
-metadata_to_map = ["file_name", "doc_status", "doc_type", "doc_event_id", "doc_group_id", "hitl_operation_id",
-                   "created_at", "updated_at"]
+metadata_to_map = {"file_name", "doc_status", "doc_type", "doc_event_id", "doc_group_id", "hitl_operation_id",
+                   "created_at", "updated_at"}
 
 
 class BqMetadataMappingInfo:
