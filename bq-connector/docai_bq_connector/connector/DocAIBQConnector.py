@@ -166,13 +166,18 @@ class DocAIBQConnector:
                                                 doc_status = DocumentState.document_processing_complete,
                                                 created_at=_doc_created_at)
             # Update status in doc_reference table
-            _status_update = { 
-                "doc_status" : str(DocumentState.document_processing_complete), 
-                "updated_at": self.metadata_mapper.get_value_for_metadata("updated_at")
-            }
-            logging.debug(f"Will update doc_reference record for doc_id = {_doc_id} - New status = {str(DocumentState.document_processing_complete)}")
-            storage_manager.update_record(table_id='doc_reference',record_id_name='doc_id',record_id_value=_doc_id,cols_to_update=_status_update)
-
+            try:
+                _status_update = { 
+                    "doc_status" : str(DocumentState.document_processing_complete), 
+                    "updated_at": self.metadata_mapper.get_value_for_metadata("updated_at")
+                }
+                logging.debug(f"Will update doc_reference record for doc_id = {_doc_id} - New status = {str(DocumentState.document_processing_complete)}")
+                storage_manager.update_record(table_id='doc_reference',record_id_name='doc_id',record_id_value=_doc_id,cols_to_update=_status_update)
+            except Exception as e:
+                # If the original document was processed fairly recently, the row in bq doc_reference table will still 
+                # be in BQ's streaming buffer and won't be updatable. Ignore this problem
+                logging.info(f"Could not update doc_reference table for doc_id = {doc_id}. Probable cause: row still in BQ streaming buffer")
+                pass
                 
         # Process result, validate types, convert as necessary and store in destination BQ table.
         if not storage_manager.does_table_exist(self.destination_table_id):
