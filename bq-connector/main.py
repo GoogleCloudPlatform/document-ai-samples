@@ -22,7 +22,7 @@ import json
 import logging
 import os
 
-from docai_bq_connector import DocAIBQConnector
+from docai_bq_connector import DocAIBQConnector, BqMetadataMappingInfo
 
 script_dir = os.path.dirname(__file__)
 
@@ -45,7 +45,7 @@ def main():
                                    help='The project id for the processor to be used')
     doc_options_group.add_argument('--processor_location', type=str, help='The location of the processor to be used')
     doc_options_group.add_argument('--processor_id', type=str, help='The id of the processor to be used')
-    doc_options_group.add_argument('--async_output_folder', type=str, default="output", help='')
+    doc_options_group.add_argument('--async_output_folder_gcs_uri', type=str, help='')
     doc_options_group.add_argument('--max_sync_page_count', type=int, default=5, help='The maximum number of pages '
                                                                                       'that will be supported for '
                                                                                       'sync processing. If page count '
@@ -61,6 +61,13 @@ def main():
                                                                             'resulting dictionary for BigQuery. '
                                                                             'Example: \'{"event_id": 1, '
                                                                             '"document_type": "my_document"}\'')
+    doc_options_group.add_argument('--metadata_mapping_info', type=json.loads,
+                                   help='Json object holding information on how to map document '
+                                        'metadata to BigQuery. If column name or value not provided, '
+                                        'defaults will be used if possible. '
+                                        'Example: \'{"file_name": {"bq_column_name": "doc_file_name", '
+                                        '               "metadata_value": "my_file.pdf", '
+                                        '               "skip_map": "false"  }\'')
     doc_options_group.add_argument('--should_async_wait', type=bool, default=True, help='Specifies if the CLI should '
                                                                                         'block and wait until async '
                                                                                         'document operation is '
@@ -112,7 +119,7 @@ def main():
     processor_project_id = args.processor_project_id
     processor_location = args.processor_location
     processor_id = args.processor_id
-    async_output_folder = args.async_output_folder
+    async_output_folder_gcs_uri = args.async_output_folder_gcs_uri
     should_async_wait = args.should_async_wait
     should_write_extraction_result = args.write_extraction_result
     extraction_result_output_bucket = args.extraction_output_bucket
@@ -130,6 +137,16 @@ def main():
     max_sync_page_count = args.max_sync_page_count
     parsing_methodology = args.parsing_methodology
 
+    my_metadata_mapping_info = None
+    if args.metadata_mapping_info is not None:
+        my_metadata_mapping_info = {}
+        for cur_metadata_name, cur_metadata_mapping_info in args.metadata_mapping_info.items():
+            my_metadata_mapping_info[cur_metadata_name] = BqMetadataMappingInfo(
+                bq_column_name=cur_metadata_mapping_info.get('bq_column_name'),
+                metadata_value=cur_metadata_mapping_info.get('metadata_value'),
+                skip_map=cur_metadata_mapping_info.get('skip_map')
+                )
+
     connector = DocAIBQConnector(
         bucket_name=bucket_name,
         file_name=file_name,
@@ -138,7 +155,7 @@ def main():
         processor_project_id=processor_project_id,
         processor_location=processor_location,
         processor_id=processor_id,
-        async_output_folder=async_output_folder,
+        async_output_folder_gcs_uri=async_output_folder_gcs_uri,
         should_async_wait=should_async_wait,
         extraction_result_output_bucket=extraction_result_output_bucket,
         should_write_extraction_result=should_write_extraction_result,
@@ -149,6 +166,7 @@ def main():
         doc_ai_sync_timeout=doc_ai_sync_timeout,
         doc_ai_async_timeout=doc_ai_async_timeout,
         custom_fields=custom_fields,
+        metadata_mapping_info=my_metadata_mapping_info,
         include_raw_entities=include_raw_entities,
         include_error_fields=include_error_fields,
         retry_count=retry_count,
@@ -157,7 +175,9 @@ def main():
         parsing_methodology=parsing_methodology
     )
 
-    connector.run()
+    processed_doc = connector.run()
+    print(f'Finished processing document - Extracted {len(processed_doc.document.entities)} entities '
+           'and saved results to BigQuery''')  # noqa: E127
 
 
 if __name__ == "__main__":

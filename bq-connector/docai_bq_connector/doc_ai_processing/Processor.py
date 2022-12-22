@@ -17,7 +17,9 @@
 # limitations under the License.
 #
 
+import logging
 import re
+import uuid
 from typing import Union
 
 from google.cloud import documentai_v1 as documentai
@@ -40,7 +42,7 @@ class Processor:
             processor_location: str,
             processor_id: str,
             extraction_result_output_bucket: str,
-            async_output_folder: str,
+            async_output_folder_gcs_uri: str,
             sync_timeout: int = 900,
             async_timeout: int = 900,
             should_async_wait: bool = True,
@@ -54,7 +56,7 @@ class Processor:
         self.processor_location = processor_location
         self.processor_id = processor_id
         self.extraction_result_output_bucket = extraction_result_output_bucket
-        self.async_output_folder = async_output_folder
+        self.async_output_folder_gcs_uri = async_output_folder_gcs_uri
         self.sync_timeout = sync_timeout
         self.async_timeout = async_timeout
         self.should_async_wait = should_async_wait
@@ -115,6 +117,8 @@ class Processor:
             hitl_op_split = hitl_op.split("/")
             hitl_op_id = hitl_op_split.pop()
 
+        # This method will sometimes run out of memory if the document is big enough
+        # It seems to work fine if # of pages <= 5
         results_json = documentai.types.Document.to_json(results.document)
         return ProcessedDocument(
             document=results.document,
@@ -144,8 +148,13 @@ class Processor:
         opts = self._get_document_ai_options()
         client = documentai.DocumentProcessorServiceClient(client_options=opts)
 
-        # TODO: Rename async_output_folder to async_output_folder_gcs_uri
-        destination_uri = self.async_output_folder
+        # Add a unique folder to the uri for this particular async operation
+        unique_folder = uuid.uuid4().hex
+
+        if self.async_output_folder_gcs_uri is None:
+            raise Exception("--async_output_folder_gcs_uri must be set when a document is processed asynchronously")
+        destination_uri = f'{self.async_output_folder_gcs_uri}/{unique_folder}'
+
         gcs_documents = documentai.GcsDocuments(
             documents=[
                 {"gcs_uri": self._get_input_uri(), "mime_type": self.content_type}
@@ -184,35 +193,29 @@ class Processor:
             output_bucket = match.group(1)
             prefix = match.group(2)
         else:
-            raise InvalidGcsUriError('The supplied async_output_folder is not a properly structured GCS Path')
+            raise InvalidGcsUriError('The supplied async_output_folder_gcs_uri is not a properly structured GCS Path')
 
         storage_client = storage.Client()
         bucket = storage_client.get_bucket(output_bucket)
         blob_list = list(bucket.list_blobs(prefix=prefix))
-        print("Output files:")
+        logging.debug("Output files:")
         # should always be a single document here
         for i, blob in enumerate(blob_list):
             # If JSON file, download the contents of this blob as a bytes object.
-            if ".json" in blob.name:
+            if blob.content_type == "application/json":
                 blob_as_bytes = blob.download_as_bytes()
 
                 document = documentai.types.Document.from_json(blob_as_bytes)
-                print(f"Fetched file {i + 1}")
-
-                # For a full list of Document object attributes, please reference this page:
-                # https://cloud.google.com/document-ai/docs/reference/rpc/google.cloud.documentai.v1beta3#document
-
-                # Read the text recognition output from the processor
-                # kvs = get_kv_as_json(document)
+                logging.debug(f"Fetched file {i + 1}")
             else:
-                print(f"Skipping non-supported file type {blob.name}")
+                logging.info(f"Skipping non-supported file type {blob.name}")
 
-        # operation.metadata.individual_process_statuses[0].human_review_status
-        # hitl_op = results.human_review_status.human_review_operation
-        # hitl_op_split = hitl_op.split('/')
-        # hitl_op_id = hitl_op_split.pop()
+        # Delete the unique folder created for this operation
+        blobs = list(bucket.list_blobs(prefix=prefix))
+        bucket.delete_blobs(blobs)
+
         hitl_op_id = None
-        results_json = documentai.types.Document.to_json(document)
+        results_json = blob_as_bytes
 
         return ProcessedDocument(
             document=document, dictionary=results_json, hitl_operation_id=hitl_op_id
