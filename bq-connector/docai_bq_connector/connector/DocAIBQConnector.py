@@ -176,7 +176,7 @@ class DocAIBQConnector:
             except Exception as e:
                 # If the original document was processed fairly recently, the row in bq doc_reference table will still 
                 # be in BQ's streaming buffer and won't be updatable. Ignore this problem
-                logging.info(f"Could not update doc_reference table for doc_id = {doc_id}. Probable cause: row still in BQ streaming buffer")
+                logging.info(f"Could not update doc_reference table for doc_id = {_doc_id}. Probable cause: row still in BQ streaming buffer")
                 pass
                 
         # Process result, validate types, convert as necessary and store in destination BQ table.
