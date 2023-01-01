@@ -23,7 +23,10 @@ from typing import Dict
 
 from docai_bq_connector.bigquery.StorageManager import StorageManager
 from docai_bq_connector.connector.BqDocumentMapper import BqDocumentMapper
-from docai_bq_connector.connector.BqMetadataMapper import BqMetadataMapper, BqMetadataMappingInfo
+from docai_bq_connector.connector.BqMetadataMapper import (
+    BqMetadataMapper,
+    BqMetadataMappingInfo,
+)
 from docai_bq_connector.doc_ai_processing.DocumentState import DocumentState
 from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.doc_ai_processing.Processor import Processor
@@ -32,32 +35,32 @@ from docai_bq_connector.exception.TableNotFoundError import TableNotFoundError
 
 class DocAIBQConnector:
     def __init__(
-            self,
-            bucket_name: str,
-            file_name: str,
-            content_type: str,
-            processing_type_override: str,
-            processor_project_id: str,
-            processor_location: str,
-            processor_id: str,
-            async_output_folder_gcs_uri: str,
-            should_async_wait: bool,
-            operation_id: str,
-            destination_project_id: str,
-            destination_dataset_id: str,
-            destination_table_id: str,
-            doc_ai_sync_timeout: int = 900,
-            doc_ai_async_timeout: int = 900,
-            extraction_result_output_bucket: str = None,
-            custom_fields: dict = None,
-            metadata_mapping_info: Dict[str, BqMetadataMappingInfo] = None,
-            include_raw_entities: bool = True,
-            include_error_fields: bool = True,
-            retry_count: int = 1,
-            continue_on_error: bool = False,
-            should_write_extraction_result: bool = True,
-            max_sync_page_count: int = 5,
-            parsing_methodology: str = 'entities'
+        self,
+        bucket_name: str,
+        file_name: str,
+        content_type: str,
+        processing_type_override: str,
+        processor_project_id: str,
+        processor_location: str,
+        processor_id: str,
+        async_output_folder_gcs_uri: str,
+        should_async_wait: bool,
+        operation_id: str,
+        destination_project_id: str,
+        destination_dataset_id: str,
+        destination_table_id: str,
+        doc_ai_sync_timeout: int = 900,
+        doc_ai_async_timeout: int = 900,
+        extraction_result_output_bucket: str = None,
+        custom_fields: dict = None,
+        metadata_mapping_info: Dict[str, BqMetadataMappingInfo] = None,
+        include_raw_entities: bool = True,
+        include_error_fields: bool = True,
+        retry_count: int = 1,
+        continue_on_error: bool = False,
+        should_write_extraction_result: bool = True,
+        max_sync_page_count: int = 5,
+        parsing_methodology: str = "entities",
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
@@ -76,7 +79,9 @@ class DocAIBQConnector:
         self.doc_ai_async_timeout = doc_ai_async_timeout
         self.extraction_result_output_bucket = extraction_result_output_bucket
         self.custom_fields = custom_fields
-        self.metadata_mapper = BqMetadataMapper(metadata_mapping_info if metadata_mapping_info else {})
+        self.metadata_mapper = BqMetadataMapper(
+            metadata_mapping_info if metadata_mapping_info else {}
+        )
         self.include_raw_entities = include_raw_entities
         self.include_error_fields = include_error_fields
         self.retry_count = retry_count
@@ -104,7 +109,7 @@ class DocAIBQConnector:
                 async_timeout=self.doc_ai_async_timeout,
                 should_async_wait=self.should_async_wait,
                 should_write_extraction_result=self.should_write_extraction_result,
-                max_sync_page_count=self.max_sync_page_count
+                max_sync_page_count=self.max_sync_page_count,
             )
 
             document = doc_ai_process.process()
@@ -125,7 +130,9 @@ class DocAIBQConnector:
             if isinstance(document, ProcessedDocument) and document is not None:
                 _hitl_op_id = document.hitl_operation_id
 
-            self._augment_metadata_mapping_info(file_name=self.file_name, hitl_operation_id=_hitl_op_id)
+            self._augment_metadata_mapping_info(
+                file_name=self.file_name, hitl_operation_id=_hitl_op_id
+            )
 
             mapper = BqDocumentMapper(
                 document=document,
@@ -134,13 +141,13 @@ class DocAIBQConnector:
                 custom_fields=self.custom_fields,
                 include_raw_entities=self.include_raw_entities,
                 include_error_fields=self.include_error_fields,
-                parsing_methodology=self.parsing_methodology
+                parsing_methodology=self.parsing_methodology,
             )
 
             if (
-                    self.continue_on_error is False
-                    and self.include_error_fields is False
-                    and len(mapper.errors) > 0
+                self.continue_on_error is False
+                and self.include_error_fields is False
+                and len(mapper.errors) > 0
             ):
                 logging.error(mapper.errors)
                 exit(100)
@@ -211,8 +218,18 @@ class DocAIBQConnector:
             else:
                 current_status = DocumentState.submitted_for_hitl
 
-            self.metadata_mapper.set_default_value_for_metadata_if_not_set("file_name", file_name)
-            self.metadata_mapper.set_default_value_for_metadata_if_not_set("doc_event_id", str(uuid.uuid4()))
-            self.metadata_mapper.set_default_value_for_metadata_if_not_set("hitl_operation_id", hitl_operation_id)
-            self.metadata_mapper.set_default_value_for_metadata_if_not_set("submitted_on", datetime.datetime.now())
-            self.metadata_mapper.set_default_value_for_metadata_if_not_set("doc_status", str(current_status))
+            self.metadata_mapper.set_default_value_for_metadata_if_not_set(
+                "file_name", file_name
+            )
+            self.metadata_mapper.set_default_value_for_metadata_if_not_set(
+                "doc_event_id", str(uuid.uuid4())
+            )
+            self.metadata_mapper.set_default_value_for_metadata_if_not_set(
+                "hitl_operation_id", hitl_operation_id
+            )
+            self.metadata_mapper.set_default_value_for_metadata_if_not_set(
+                "submitted_on", datetime.datetime.now()
+            )
+            self.metadata_mapper.set_default_value_for_metadata_if_not_set(
+                "doc_status", str(current_status)
+            )

@@ -34,20 +34,20 @@ from docai_bq_connector.helper.pdf_util import get_pdf_page_cnt
 
 class Processor:
     def __init__(
-            self,
-            bucket_name: str,
-            file_name: str,
-            content_type: str,
-            processor_project_id: str,
-            processor_location: str,
-            processor_id: str,
-            extraction_result_output_bucket: str,
-            async_output_folder_gcs_uri: str,
-            sync_timeout: int = 900,
-            async_timeout: int = 900,
-            should_async_wait: bool = True,
-            should_write_extraction_result: bool = True,
-            max_sync_page_count: int = 5
+        self,
+        bucket_name: str,
+        file_name: str,
+        content_type: str,
+        processor_project_id: str,
+        processor_location: str,
+        processor_id: str,
+        extraction_result_output_bucket: str,
+        async_output_folder_gcs_uri: str,
+        sync_timeout: int = 900,
+        async_timeout: int = 900,
+        should_async_wait: bool = True,
+        should_write_extraction_result: bool = True,
+        max_sync_page_count: int = 5,
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
@@ -63,7 +63,8 @@ class Processor:
         self.max_sync_page_count = max_sync_page_count
         if should_write_extraction_result and extraction_result_output_bucket is None:
             raise Exception(
-                "extraction_result_output_bucket should be set when should_write_extraction_result is set to True")
+                "extraction_result_output_bucket should be set when should_write_extraction_result is set to True"
+            )
         self.should_write_extraction_result = should_write_extraction_result
 
     def _get_gcs_blob(self):
@@ -77,13 +78,19 @@ class Processor:
 
     def _write_result_to_gcs(self, json_result_as_str):
         if self.should_write_extraction_result:
-            split_fname = self.file_name.split('.')[0]
-            json_file_name = f'{split_fname}.json'
-            write_gcs_blob(self.extraction_result_output_bucket, json_file_name, json_result_as_str,
-                           content_type='application/json')
+            split_fname = self.file_name.split(".")[0]
+            json_file_name = f"{split_fname}.json"
+            write_gcs_blob(
+                self.extraction_result_output_bucket,
+                json_file_name,
+                json_result_as_str,
+                content_type="application/json",
+            )
 
     # TODO: Support for processing multiple files
-    def _process_sync(self, document_blob: bytes) -> Union[DocumentOperation, ProcessedDocument]:
+    def _process_sync(
+        self, document_blob: bytes
+    ) -> Union[DocumentOperation, ProcessedDocument]:
         """
         This uses Doc AI to process the document synchronously.
         Args:
@@ -104,7 +111,9 @@ class Processor:
 
         document = {"content": document_blob, "mime_type": self.content_type}
 
-        processor_uri = client.processor_path(self.processor_project_id, self.processor_location, self.processor_id)
+        processor_uri = client.processor_path(
+            self.processor_project_id, self.processor_location, self.processor_id
+        )
         request = {"name": processor_uri, "raw_document": document}
         print(f"name: {processor_uri}, mime_type: {self.content_type}")
 
@@ -123,7 +132,7 @@ class Processor:
         return ProcessedDocument(
             document=results.document,
             dictionary=results_json,
-            hitl_operation_id=hitl_op_id
+            hitl_operation_id=hitl_op_id,
         )
 
     def _process_async(self) -> Union[DocumentOperation, ProcessedDocument]:
@@ -152,8 +161,10 @@ class Processor:
         unique_folder = uuid.uuid4().hex
 
         if self.async_output_folder_gcs_uri is None:
-            raise Exception("--async_output_folder_gcs_uri must be set when a document is processed asynchronously")
-        destination_uri = f'{self.async_output_folder_gcs_uri}/{unique_folder}'
+            raise Exception(
+                "--async_output_folder_gcs_uri must be set when a document is processed asynchronously"
+            )
+        destination_uri = f"{self.async_output_folder_gcs_uri}/{unique_folder}"
 
         gcs_documents = documentai.GcsDocuments(
             documents=[
@@ -170,7 +181,9 @@ class Processor:
             gcs_output_config={"gcs_uri": destination_uri}
         )
 
-        processor_uri = client.processor_path(self.processor_project_id, self.processor_location, self.processor_id)
+        processor_uri = client.processor_path(
+            self.processor_project_id, self.processor_location, self.processor_id
+        )
         request = documentai.types.document_processor_service.BatchProcessRequest(
             name=processor_uri,
             input_documents=input_config,
@@ -193,7 +206,9 @@ class Processor:
             output_bucket = match.group(1)
             prefix = match.group(2)
         else:
-            raise InvalidGcsUriError('The supplied async_output_folder_gcs_uri is not a properly structured GCS Path')
+            raise InvalidGcsUriError(
+                "The supplied async_output_folder_gcs_uri is not a properly structured GCS Path"
+            )
 
         storage_client = storage.Client()
         bucket = storage_client.get_bucket(output_bucket)
