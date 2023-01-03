@@ -5,7 +5,7 @@ google-cloud-documentai==2.6.0
 google-auth==2.15.0
 
 # https://pypi.org/project/Pillow
-Pillow==9.3.0
+Pillow==9.4.0
 
 # https://pypi.org/project/flask
 Flask==2.2.2
