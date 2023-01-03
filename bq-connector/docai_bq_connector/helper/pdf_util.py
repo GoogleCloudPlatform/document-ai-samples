@@ -17,7 +17,7 @@
 
 from io import BytesIO
 
-from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfReader
 
 
 def get_pdf_page_cnt(pdf_doc: bytes):
@@ -29,6 +29,6 @@ def get_pdf_page_cnt(pdf_doc: bytes):
         integer
     """
     pdf_file = BytesIO(pdf_doc)
-    pdf_reader = PdfFileReader(pdf_file)
-    num_pages = pdf_reader.getNumPages()
+    reader = PdfReader(pdf_file)
+    num_pages = len(reader.pages)
     return num_pages
