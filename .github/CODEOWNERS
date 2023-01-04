@@ -18,6 +18,7 @@
 /bq-connector @mservidio
 /sql-pdf-python @dojowahi
 /document_ai_warehouse_processing_python @HSbedi87
+/document-json-explorer @kolban-google
 
 # Community owners
 /community/identity-form-autofiller-python @PicardParis
