@@ -19,10 +19,12 @@
 
 import json
 import logging
+from datetime import datetime
 from typing import Sequence, List
 
 from google.cloud.bigquery import SchemaField
 
+from docai_bq_connector.connector.BqMetadataMapper import BqMetadataMapper
 from docai_bq_connector.connector.ConversionError import ConversionError
 from docai_bq_connector.doc_ai_processing.DocumentField import (
     DocumentRow,
@@ -45,6 +47,7 @@ class BqDocumentMapper:
     ):
         self.processed_document = document
         self.bq_schema = bq_schema
+        self.metadata_mapper = metadata_mapper
         self.custom_fields = custom_fields
         self.include_raw_entities = include_raw_entities
         self.include_error_fields = include_error_fields
@@ -103,9 +106,7 @@ class BqDocumentMapper:
                 parent_field.children.append(self._parse_entities(entity.properties))
         return row
 
-    def to_bq_row(
-        self, append_parsed_fields: bool = True, exclude_fields: List[str] = None
-    ):
+    def to_bq_row(self, append_parsed_fields: bool = True, exclude_fields: List[str] = None):
         row = {}
         if self.custom_fields is not None and len(self.custom_fields.keys()) > 0:
             row.update(self.custom_fields)
@@ -151,7 +152,7 @@ class BqDocumentMapper:
 
                     # If a nested field has an error, exclude the top level field
                     if "." in field_name:
-                        field_name = field_name[0 : field_name.split(".")[0].rfind("[")]
+                        field_name = field_name[0: field_name.split(".")[0].rfind("[")]
 
                     error_val = self.dictionary.get(field_name)
                     error_records.append(
@@ -173,9 +174,7 @@ class BqDocumentMapper:
             result.append(field.to_dictionary())
         return result
 
-    def _map_document_to_bigquery_schema(
-        self, fields: List[DocumentField], bq_schema: List[SchemaField]
-    ):
+    def _map_document_to_bigquery_schema(self, fields: List[DocumentField], bq_schema: List[SchemaField]):
         result: dict = {}
         for field in fields:
             field_name = field.to_bigquery_safe_name()
@@ -209,6 +208,36 @@ class BqDocumentMapper:
                     self.errors.append(_value)
                 else:
                     result[field_name] = self._cast_type(field, bq_field.field_type)
+
+        metadata_dict = self._map_document_metadata_to_bigquery_schema(bq_schema)
+        result = result | metadata_dict
+        return result
+
+    def _map_document_metadata_to_bigquery_schema(self, bq_schema: List[SchemaField]):
+        result: dict = {}
+        mapped_metadata = self.metadata_mapper.map_metadata()
+        for cur_metadata_mapping in mapped_metadata:
+            col_name = cur_metadata_mapping['bq_column_name']
+            col_value = cur_metadata_mapping['bq_column_value']
+            if col_value is None:
+                continue
+            bq_field = find(
+                lambda schema_field: schema_field.name == col_name, bq_schema
+            )
+            if bq_field is None:
+                logging.warning(
+                    "Parsed field '%s' not found in BigQuery schema. Field will be excluded from the "
+                    "BigQuery payload",
+                    col_name,
+                )
+                continue
+            _value = self._cast_type(
+                DocumentField(name=col_name, value=col_value, normalized_value=col_value, confidence=-1,
+                              page_number=-1),
+                bq_field.field_type)
+            if not isinstance(_value, ConversionError):
+                result[col_name] = _value
+
         return result
 
     def _error_list_dictionary(self):
@@ -225,7 +254,9 @@ class BqDocumentMapper:
                 if bq_datatype == "BOOLEAN":
                     return get_bool_value(raw_value)
                 if bq_datatype == "DATETIME":
-                    # return datetime(raw_value)
+                    if isinstance(field.value, datetime):
+                        dt: datetime = field.value
+                        return dt.isoformat()
                     return raw_value
                 if bq_datatype in ("DECIMAL", "FLOAT", "NUMERIC"):
                     return float(clean_number(raw_value))

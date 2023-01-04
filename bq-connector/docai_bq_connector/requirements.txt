@@ -1,4 +1,4 @@
 google-cloud-bigquery==3.4.1
 google-cloud-documentai==2.6.0
 google-cloud-storage==2.7.0
-PyPDF2==2.12.1
+PyPDF2==3.0.1
