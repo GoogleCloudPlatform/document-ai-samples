@@ -47,6 +47,7 @@ jobs:
       ################################
       # Run Linter against code base #
       ################################
+      - run: cat .github/super-linter.env >> "$GITHUB_ENV"
       - name: Lint Code Base
         uses: github/super-linter/slim@v4
         env:
