@@ -36,15 +36,15 @@ from docai_bq_connector.helper import find, get_bool_value, clean_number
 
 class BqDocumentMapper:
     def __init__(
-            self,
-            document: ProcessedDocument,
-            bq_schema: List[SchemaField],
-            metadata_mapper: BqMetadataMapper,
-            custom_fields: dict = None,
-            include_raw_entities: bool = True,
-            include_error_fields: bool = True,
-            continue_on_error: bool = False,
-            parsing_methodology: str = 'entities'
+        self,
+        document: ProcessedDocument,
+        bq_schema: List[SchemaField],
+        metadata_mapper: BqMetadataMapper,
+        custom_fields: dict = None,
+        include_raw_entities: bool = True,
+        include_error_fields: bool = True,
+        continue_on_error: bool = False,
+        parsing_methodology: str = "entities",
     ):
         self.processed_document = document
         self.bq_schema = bq_schema
@@ -107,7 +107,9 @@ class BqDocumentMapper:
                 parent_field.children.append(self._parse_entities(entity.properties))
         return row
 
-    def to_bq_row(self, append_parsed_fields: bool = True, exclude_fields: List[str] = None):
+    def to_bq_row(
+        self, append_parsed_fields: bool = True, exclude_fields: List[str] = None
+    ):
         row = {}
         if self.custom_fields is not None and len(self.custom_fields.keys()) > 0:
             row.update(self.custom_fields)
@@ -153,7 +155,7 @@ class BqDocumentMapper:
 
                     # If a nested field has an error, exclude the top level field
                     if "." in field_name:
-                        field_name = field_name[0: field_name.split(".")[0].rfind("[")]
+                        field_name = field_name[0 : field_name.split(".")[0].rfind("[")]
 
                     error_val = self.dictionary.get(field_name)
                     error_records.append(
@@ -175,7 +177,9 @@ class BqDocumentMapper:
             result.append(field.to_dictionary())
         return result
 
-    def _map_document_to_bigquery_schema(self, fields: List[DocumentField], bq_schema: List[SchemaField]):
+    def _map_document_to_bigquery_schema(
+        self, fields: List[DocumentField], bq_schema: List[SchemaField]
+    ):
         result: dict = {}
         for field in fields:
             field_name = field.to_bigquery_safe_name()
@@ -218,8 +222,8 @@ class BqDocumentMapper:
         result: dict = {}
         mapped_metadata = self.metadata_mapper.map_metadata()
         for cur_metadata_mapping in mapped_metadata:
-            col_name = cur_metadata_mapping['bq_column_name']
-            col_value = cur_metadata_mapping['bq_column_value']
+            col_name = cur_metadata_mapping["bq_column_name"]
+            col_value = cur_metadata_mapping["bq_column_value"]
             if col_value is None:
                 continue
             bq_field = find(
@@ -233,9 +237,15 @@ class BqDocumentMapper:
                 )
                 continue
             _value = self._cast_type(
-                DocumentField(name=col_name, value=col_value, normalized_value=col_value, confidence=-1,
-                              page_number=-1),
-                bq_field.field_type)
+                DocumentField(
+                    name=col_name,
+                    value=col_value,
+                    normalized_value=col_value,
+                    confidence=-1,
+                    page_number=-1,
+                ),
+                bq_field.field_type,
+            )
             if not isinstance(_value, ConversionError):
                 result[col_name] = _value
 
@@ -246,8 +256,10 @@ class BqDocumentMapper:
 
     def _cast_type(self, field: DocumentField, bq_datatype):
         try:
-            raw_value = field.value.strip() if isinstance(field.value, str) else field.value
-            if self.parsing_methodology == 'entities':
+            raw_value = (
+                field.value.strip() if isinstance(field.value, str) else field.value
+            )
+            if self.parsing_methodology == "entities":
                 if field.value is None:
                     return None
                 if bq_datatype == "STRING":
@@ -264,7 +276,7 @@ class BqDocumentMapper:
                 if bq_datatype == "INTEGER":
                     return int(clean_number(raw_value))
                 return raw_value
-            elif self.parsing_methodology == 'normalized_values':
+            elif self.parsing_methodology == "normalized_values":
                 normalized_value = field.normalized_value
                 if normalized_value is None:
                     return None
