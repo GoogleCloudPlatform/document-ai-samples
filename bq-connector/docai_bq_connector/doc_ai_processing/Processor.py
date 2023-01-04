@@ -161,8 +161,10 @@ class Processor:
         unique_folder = uuid.uuid4().hex
 
         if self.async_output_folder_gcs_uri is None:
-            raise Exception("--async_output_folder_gcs_uri must be set when a document is processed asynchronously")
-        destination_uri = f'{self.async_output_folder_gcs_uri}/{unique_folder}'
+            raise Exception(
+                "--async_output_folder_gcs_uri must be set when a document is processed asynchronously"
+            )
+        destination_uri = f"{self.async_output_folder_gcs_uri}/{unique_folder}"
 
         gcs_documents = documentai.GcsDocuments(
             documents=[

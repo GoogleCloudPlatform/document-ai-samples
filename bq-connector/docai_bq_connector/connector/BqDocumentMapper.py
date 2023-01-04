@@ -106,7 +106,9 @@ class BqDocumentMapper:
                 parent_field.children.append(self._parse_entities(entity.properties))
         return row
 
-    def to_bq_row(self, append_parsed_fields: bool = True, exclude_fields: List[str] = None):
+    def to_bq_row(
+        self, append_parsed_fields: bool = True, exclude_fields: List[str] = None
+    ):
         row = {}
         if self.custom_fields is not None and len(self.custom_fields.keys()) > 0:
             row.update(self.custom_fields)
@@ -152,7 +154,7 @@ class BqDocumentMapper:
 
                     # If a nested field has an error, exclude the top level field
                     if "." in field_name:
-                        field_name = field_name[0: field_name.split(".")[0].rfind("[")]
+                        field_name = field_name[0 : field_name.split(".")[0].rfind("[")]
 
                     error_val = self.dictionary.get(field_name)
                     error_records.append(
@@ -174,7 +176,9 @@ class BqDocumentMapper:
             result.append(field.to_dictionary())
         return result
 
-    def _map_document_to_bigquery_schema(self, fields: List[DocumentField], bq_schema: List[SchemaField]):
+    def _map_document_to_bigquery_schema(
+        self, fields: List[DocumentField], bq_schema: List[SchemaField]
+    ):
         result: dict = {}
         for field in fields:
             field_name = field.to_bigquery_safe_name()
@@ -217,8 +221,8 @@ class BqDocumentMapper:
         result: dict = {}
         mapped_metadata = self.metadata_mapper.map_metadata()
         for cur_metadata_mapping in mapped_metadata:
-            col_name = cur_metadata_mapping['bq_column_name']
-            col_value = cur_metadata_mapping['bq_column_value']
+            col_name = cur_metadata_mapping["bq_column_name"]
+            col_value = cur_metadata_mapping["bq_column_value"]
             if col_value is None:
                 continue
             bq_field = find(
@@ -232,9 +236,15 @@ class BqDocumentMapper:
                 )
                 continue
             _value = self._cast_type(
-                DocumentField(name=col_name, value=col_value, normalized_value=col_value, confidence=-1,
-                              page_number=-1),
-                bq_field.field_type)
+                DocumentField(
+                    name=col_name,
+                    value=col_value,
+                    normalized_value=col_value,
+                    confidence=-1,
+                    page_number=-1,
+                ),
+                bq_field.field_type,
+            )
             if not isinstance(_value, ConversionError):
                 result[col_name] = _value
 

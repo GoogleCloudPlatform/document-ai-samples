@@ -215,12 +215,15 @@ def main():
     my_metadata_mapping_info = None
     if args.metadata_mapping_info is not None:
         my_metadata_mapping_info = {}
-        for cur_metadata_name, cur_metadata_mapping_info in args.metadata_mapping_info.items():
+        for (
+            cur_metadata_name,
+            cur_metadata_mapping_info,
+        ) in args.metadata_mapping_info.items():
             my_metadata_mapping_info[cur_metadata_name] = BqMetadataMappingInfo(
-                bq_column_name=cur_metadata_mapping_info.get('bq_column_name'),
-                metadata_value=cur_metadata_mapping_info.get('metadata_value'),
-                skip_map=cur_metadata_mapping_info.get('skip_map')
-                )
+                bq_column_name=cur_metadata_mapping_info.get("bq_column_name"),
+                metadata_value=cur_metadata_mapping_info.get("metadata_value"),
+                skip_map=cur_metadata_mapping_info.get("skip_map"),
+            )
 
     connector = DocAIBQConnector(
         bucket_name=bucket_name,
@@ -251,8 +254,11 @@ def main():
     )
 
     processed_doc = connector.run()
-    print(f'Finished processing document - Extracted {len(processed_doc.document.entities)} entities '
-           'and saved results to BigQuery''')  # noqa: E127
+    print(
+        f"Finished processing document - Extracted {len(processed_doc.document.entities)} entities "
+        "and saved results to BigQuery"
+        ""
+    )  # noqa: E127
 
 
 if __name__ == "__main__":
