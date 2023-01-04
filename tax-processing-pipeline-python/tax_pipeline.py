@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# type: ignore[1]
 """Tax Processing Functions"""
 
 from decimal import Decimal
@@ -29,7 +28,6 @@ _STANDARD_DEDUCTION = 12400
 
 
 def calculate_tax_values(data: dict) -> List[List]:
-    # pylint: disable=too-many-locals
     """
     Calculate tax values based on extracted data from documents
     """
