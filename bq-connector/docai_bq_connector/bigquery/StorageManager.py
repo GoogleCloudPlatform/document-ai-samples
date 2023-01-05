@@ -80,6 +80,7 @@ class StorageManager:
         dml_statement = f"{dml_statement[:-1]} WHERE {record_id_name} = @param_record_id"
         cur_qp = bigquery.ScalarQueryParameter('param_record_id', 'STRING', record_id_value)
         query_params.append(cur_qp)
+
         logging.debug(f"About to run query: {dml_statement} with params: {query_params}")
         query_job_config = bigquery.QueryJobConfig(use_legacy_sql=False)
         query_job_config.query_parameters = query_params
