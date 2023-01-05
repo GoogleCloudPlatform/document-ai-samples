@@ -248,7 +248,7 @@ class Processor:
         )
 
     def _process_hitl_output(self, gcs_blob: bytes) -> ProcessedDocument:
-        document = documentai.types.Document.from_json(gcs_blob)
+        document = documentai.types.Document.from_json(gcs_blob, ignore_unknown_fields=True)
         return ProcessedDocument(
             document=document, dictionary=gcs_blob, hitl_operation_id=None
         )
