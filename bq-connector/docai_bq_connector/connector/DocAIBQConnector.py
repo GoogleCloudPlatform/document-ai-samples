@@ -93,7 +93,6 @@ class DocAIBQConnector:
         self.parsing_methodology = parsing_methodology
 
     def run(self):
-
         storage_manager = StorageManager(
             self.destination_project_id, self.destination_dataset_id
         )
