@@ -141,12 +141,7 @@ class BqMetadataMapper:
                 continue
 
             mapping_for_cur_metadata["bq_column_name"] = bq_col_name
-            if bq_col_value is None:
-                mapping_for_cur_metadata["bq_column_value"] = _generate_default_value(
-                    cur_metadata_name
-                )
-            else:
-                mapping_for_cur_metadata["bq_column_value"] = bq_col_value
+            mapping_for_cur_metadata["bq_column_value"] = bq_col_value
             response.append(mapping_for_cur_metadata)
 
         return response
