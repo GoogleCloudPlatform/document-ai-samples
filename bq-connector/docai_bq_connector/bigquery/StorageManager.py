@@ -73,7 +73,7 @@ class StorageManager:
         idx = 0
         for cur_col, cur_val in cols_to_update.items():
             dml_statement = f"{dml_statement} {cur_col} = @param_{idx},"
-            cur_qp = bigquery.ScalarQueryParameter(f'param_{idx}', 'STRING', cur_val)
+            cur_qp = bigquery.ScalarQueryParameter(f"param_{idx}", "STRING", cur_val)
             query_params.append(cur_qp)
             idx += 1
         # Remove last comma
