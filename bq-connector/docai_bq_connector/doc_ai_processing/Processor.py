@@ -31,6 +31,9 @@ from docai_bq_connector.exception.InvalidGcsUriError import InvalidGcsUriError
 from docai_bq_connector.helper.gcs_util import get_gcs_blob, write_gcs_blob
 from docai_bq_connector.helper.pdf_util import get_pdf_page_cnt
 
+CONTENT_TYPE_PDF = "application/pdf"
+CONTENT_TYPE_JSON = "application/json"
+
 
 class Processor:
     def __init__(
@@ -255,7 +258,7 @@ class Processor:
 
     def process(self) -> Union[DocumentOperation, ProcessedDocument]:
         gcs_doc_blob, gcs_doc_meta = self._get_gcs_blob()
-        if self.content_type == "application/pdf":
+        if self.content_type == CONTENT_TYPE_PDF:
             # Original document. Needs to be processed by a DocAI extractor
             page_count = get_pdf_page_cnt(gcs_doc_blob)
             # Limit is different per processor: https://cloud.google.com/document-ai/quotas
@@ -265,7 +268,7 @@ class Processor:
                 process_result = self._process_async()
             if isinstance(process_result, ProcessedDocument) and process_result is not None:
                 self._write_result_to_gcs(process_result.dictionary)
-        elif self.content_type == "application/json":
+        elif self.content_type == CONTENT_TYPE_JSON:
             # This document was already processed and sent for HITL review. The result must now be processed
             logging.debug(f"Read DocAI HITL Output file = {self.bucket_name}/{self.file_name}")
             process_result = self._process_hitl_output(gcs_doc_blob)
