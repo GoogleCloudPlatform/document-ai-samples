@@ -111,16 +111,15 @@ class Processor:
 
         document = {"content": document_blob, "mime_type": self.content_type}
 
-        print(f"Invoking name: {processor_uri}, mime_type: {self.content_type} in sync mode")
         processor_uri = client.processor_path(
             self.processor_project_id, self.processor_location, self.processor_id
         )
         request = {"name": processor_uri, "raw_document": document}
-        print(f"Invoking name: {processor_uri}, mime_type: {self.content_type} in sync mode")
+        logging.info(f"Invoking name: {processor_uri}, mime_type: {self.content_type} in sync mode")
         
 
         results = client.process_document(request)
-        print(f"HITL Output: {results.human_review_status}")
+        logging.debug(f"HITL Output: {results.human_review_status}")
 
         hitl_op = results.human_review_status.human_review_operation
         hitl_op_id = None
