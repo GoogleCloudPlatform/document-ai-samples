@@ -198,12 +198,11 @@ class DocAIBQConnector:
                 storage_manager.update_record(table_id='doc_reference', record_id_name='doc_id',
                                               record_id_value=_doc_id, cols_to_update=_status_update)
             except Exception as e:
-                # If the original document was processed fairly recently, the row in bq doc_reference table will still 
+                # If the original document was processed fairly recently, the row in bq doc_reference table will still
                 # be in BQ's streaming buffer and won't be updatable. Ignore this problem
                 logging.info(
                     f"Could not update doc_reference table for doc_id = {_doc_id}. Probable cause: row still in BQ "
-                    f"streaming buffer")
-                pass
+                    f"streaming buffer: {str(e)}")
 
         # Process result, validate types, convert as necessary and store in destination BQ table.
         if not storage_manager.does_table_exist(self.destination_table_id):
