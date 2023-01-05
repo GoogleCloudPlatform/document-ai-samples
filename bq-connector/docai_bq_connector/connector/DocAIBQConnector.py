@@ -23,7 +23,10 @@ from typing import Dict
 
 from docai_bq_connector.bigquery.StorageManager import StorageManager
 from docai_bq_connector.connector.BqDocumentMapper import BqDocumentMapper
-from docai_bq_connector.connector.BqMetadataMapper import BqMetadataMapper, BqMetadataMappingInfo
+from docai_bq_connector.connector.BqMetadataMapper import (
+    BqMetadataMapper,
+    BqMetadataMappingInfo,
+)
 from docai_bq_connector.doc_ai_processing.DocumentState import DocumentState
 from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.doc_ai_processing.Processor import Processor
@@ -34,32 +37,32 @@ from docai_bq_connector.exception.TableNotFoundError import TableNotFoundError
 
 class DocAIBQConnector:
     def __init__(
-            self,
-            bucket_name: str,
-            file_name: str,
-            content_type: str,
-            processing_type_override: str,
-            processor_project_id: str,
-            processor_location: str,
-            processor_id: str,
-            async_output_folder_gcs_uri: str,
-            should_async_wait: bool,
-            operation_id: str,
-            destination_project_id: str,
-            destination_dataset_id: str,
-            destination_table_id: str,
-            doc_ai_sync_timeout: int = 900,
-            doc_ai_async_timeout: int = 900,
-            extraction_result_output_bucket: str = None,
-            custom_fields: dict = None,
-            metadata_mapping_info: Dict[str, BqMetadataMappingInfo] = None,
-            include_raw_entities: bool = True,
-            include_error_fields: bool = True,
-            retry_count: int = 1,
-            continue_on_error: bool = False,
-            should_write_extraction_result: bool = True,
-            max_sync_page_count: int = 5,
-            parsing_methodology: str = 'entities'
+        self,
+        bucket_name: str,
+        file_name: str,
+        content_type: str,
+        processing_type_override: str,
+        processor_project_id: str,
+        processor_location: str,
+        processor_id: str,
+        async_output_folder_gcs_uri: str,
+        should_async_wait: bool,
+        operation_id: str,
+        destination_project_id: str,
+        destination_dataset_id: str,
+        destination_table_id: str,
+        doc_ai_sync_timeout: int = 900,
+        doc_ai_async_timeout: int = 900,
+        extraction_result_output_bucket: str = None,
+        custom_fields: dict = None,
+        metadata_mapping_info: Dict[str, BqMetadataMappingInfo] = None,
+        include_raw_entities: bool = True,
+        include_error_fields: bool = True,
+        retry_count: int = 1,
+        continue_on_error: bool = False,
+        should_write_extraction_result: bool = True,
+        max_sync_page_count: int = 5,
+        parsing_methodology: str = "entities",
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
@@ -78,7 +81,9 @@ class DocAIBQConnector:
         self.doc_ai_async_timeout = doc_ai_async_timeout
         self.extraction_result_output_bucket = extraction_result_output_bucket
         self.custom_fields = custom_fields
-        self.metadata_mapper = BqMetadataMapper(metadata_mapping_info if metadata_mapping_info else {})
+        self.metadata_mapper = BqMetadataMapper(
+            metadata_mapping_info if metadata_mapping_info else {}
+        )
         self.include_raw_entities = include_raw_entities
         self.include_error_fields = include_error_fields
         self.retry_count = retry_count
