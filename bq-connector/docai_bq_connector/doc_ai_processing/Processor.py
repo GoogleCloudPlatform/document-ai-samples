@@ -241,8 +241,7 @@ class Processor:
         hitl_op_id = None
         if hitl_op_full_path:
             logging.debug(f"Async processing returned hitl_op = {hitl_op_full_path}")
-            hitl_op_split = hitl_op_full_path.split('/')
-            hitl_op_id = hitl_op_split.pop()
+            hitl_op_id = hitl_op_full_path.split("/").pop()
 
         return ProcessedDocument(
             document=document, dictionary=blob_as_bytes, hitl_operation_id=hitl_op_id
