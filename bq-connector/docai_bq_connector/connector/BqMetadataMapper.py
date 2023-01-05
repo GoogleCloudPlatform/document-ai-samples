@@ -21,7 +21,7 @@ import logging
 from datetime import datetime
 from typing import Dict, Any
 
-# Indicates the metadata types that can be mapped
+# Indicates the metadata types that can be mapped - Informational only
 metadata_to_map = {
     "file_name",
     "doc_status",
@@ -92,7 +92,6 @@ class BqMetadataMappingInfo:
             return self.bq_column_name, self.metadata_value
         else:
             return None, None
-
 
 # This mapper class allows flexibility in schema column names for metadata to be added in BQ
 class BqMetadataMapper:

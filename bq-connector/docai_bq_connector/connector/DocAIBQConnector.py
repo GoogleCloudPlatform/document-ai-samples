@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 from datetime import datetime
 import logging
 import uuid
@@ -260,7 +261,6 @@ class DocAIBQConnector:
                     logging.warning("There are no fields to insert")
 
         return document
-
 
     @staticmethod
     def log_bq_errors(retry, errors):
