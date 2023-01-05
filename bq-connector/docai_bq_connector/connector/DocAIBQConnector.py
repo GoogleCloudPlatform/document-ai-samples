@@ -144,8 +144,15 @@ class DocAIBQConnector:
             query = f'''
                 SELECT doc_id, file_name, doc_status, doc_type, doc_event_id, doc_group_id, created_at, destination_table_id
                 FROM `{self.destination_project_id}.{self.destination_dataset_id}.doc_reference`
-                WHERE hitl_operation_id = \'{self.operation_id}\' '''
-            doc_reference_records = storage_manager.get_records(query)
+                WHERE hitl_operation_id = @operation_id '''
+            query_params = [
+                {
+                    "name": "operation_id",
+                    "type": "STRING",
+                    "value": self.operation_id
+                }
+            ]
+            doc_reference_records = storage_manager.get_records(query, query_params)
 
             if len(doc_reference_records) == 0:
                 raise InitialDocRecordNotFoundError(

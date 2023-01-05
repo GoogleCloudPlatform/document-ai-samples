@@ -65,21 +65,40 @@ class StorageManager:
     
     def update_record(self, table_id: str, record_id_name, record_id_value, cols_to_update):
         # Assumes all columns and key are of type STRING
+        query_params = []
         dml_statement = f"UPDATE `{self.project_id}.{self.dataset_id}.{table_id}` SET"
         if len(cols_to_update) == 0:
             # Nothing to do
             return
+        idx = 0
         for cur_col, cur_val in cols_to_update.items():
-            dml_statement = f"{dml_statement} {cur_col} = '{cur_val}',"
+            dml_statement = f"{dml_statement} {cur_col} = @param_{idx},"
+            cur_qp = bigquery.ScalarQueryParameter(f'param_{idx}', 'STRING', cur_val)
+            query_params.append(cur_qp)
+            idx += 1
         # Remove last comma
-        dml_statement = f"{dml_statement[:-1]} WHERE {record_id_name} = '{record_id_value}'"
-        logging.debug(f"About to run query: {dml_statement}")
-        query_job = self.client.query(dml_statement) 
-        records = query_job.result()
+        dml_statement = f"{dml_statement[:-1]} WHERE {record_id_name} = @param_record_id"
+        cur_qp = bigquery.ScalarQueryParameter('param_record_id', 'STRING', record_id_value)
+        query_params.append(cur_qp)
+        logging.debug(f"About to run query: {dml_statement} with params: {query_params}")
+        query_job_config = bigquery.QueryJobConfig(use_legacy_sql=False)
+        query_job_config.query_parameters = query_params
+        query_job = self.client.query(query = dml_statement, job_config = query_job_config) 
+        query_job.result()
 
-    def get_records(self, query: str):
-        logging.debug(f"About to run query: {query}")
-        query_job = self.client.query(query) 
+
+    def get_records(self, query: str, query_params=[]):
+        # Only supports scalar parameters
+        bq_q_params = []
+        for qp in query_params:
+            logging.debug(qp)
+            cur_p = bigquery.ScalarQueryParameter(qp['name'], qp['type'], qp['value'])
+            bq_q_params.append(cur_p)
+        logging.debug(f"About to run query: {query} with params: {bq_q_params}")
+        query_job_config = bigquery.QueryJobConfig(use_legacy_sql=False)
+        query_job_config.query_parameters = bq_q_params
+        query_job = self.client.query(query = query, job_config = query_job_config) 
+        
         bq_rows = query_job.result()
         # Convert to array of dict
         records = [dict(row) for row in bq_rows]
