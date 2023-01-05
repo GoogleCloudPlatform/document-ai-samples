@@ -10,7 +10,7 @@ There are currently two parsing methodologies supported. The parsing methodology
 - normalized_values: The entities in the response will be iterated, and the normalized_value property will be used depending on the field type corresponding to the column in the corresponding BQ table schema.
 
 ## Handling HITL Output
-The library is capable of handling the results of a HITL review operation. It uses a BigQuery table called `doc_reference` to keep track of metadata for every processed document. 
+The library is capable of handling the results of a HITL review operation. It uses a BigQuery table called `doc_reference` to keep track of metadata for every processed document.
 When a HITL result file is found, it uses the doc_reference table to match the results to the originally processed document and add the HITL results as a new row in the destination BigQuery table with the same metadata as the original document.
 
 In order to process HITL Output, set the `--operation_id` parameter to the HITL operation ID and the `--bucket_name` and `--file_name` parameters to point to the JSON file containing the HITL operation results.
