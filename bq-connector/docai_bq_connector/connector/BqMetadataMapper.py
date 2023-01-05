@@ -18,7 +18,6 @@
 #
 
 import logging
-from datetime import datetime
 from typing import Dict, Any
 
 # Indicates the metadata types that can be mapped - Informational only
@@ -32,6 +31,7 @@ metadata_to_map = {
     "created_at",
     "updated_at",
 }
+
 
 class BqMetadataMappingInfo:
     """
@@ -48,10 +48,10 @@ class BqMetadataMappingInfo:
     """
 
     def __init__(
-        self,
-        bq_column_name: str,
-        metadata_value: Any = None,
-        skip_map: bool = False,
+            self,
+            bq_column_name: str,
+            metadata_value: Any = None,
+            skip_map: bool = False,
     ):
         """
         Initializer for the class
@@ -93,11 +93,12 @@ class BqMetadataMappingInfo:
         else:
             return None, None
 
+
 # This mapper class allows flexibility in schema column names for metadata to be added in BQ
 class BqMetadataMapper:
     def __init__(
-        self,
-        mapping_info: Dict[str, BqMetadataMappingInfo],
+            self,
+            mapping_info: Dict[str, BqMetadataMappingInfo],
     ):
         self.mapping_info = mapping_info
         # Add default mappings for any missing metadata, using the same name for the BigQuery column
@@ -111,7 +112,7 @@ class BqMetadataMapper:
     def __str__(self):
         out_str = ""
         for k, v in self.mapping_info.items():
-           out_str = f"{out_str} metadata = {k} - mapping_info = {v}"
+            out_str = f"{out_str} metadata = {k} - mapping_info = {v}"
         return out_str
 
     def get_value_for_metadata(self, metadata_name):
@@ -122,7 +123,7 @@ class BqMetadataMapper:
 
     def set_default_value_for_metadata_if_not_set(
             self, metadata_name, new_default_value
-        ):
+    ):
         mapping_info = self.mapping_info.get(metadata_name)
         if mapping_info is not None:
             mapping_info.set_metadata_value_if_not_already_set(new_default_value)

@@ -40,7 +40,7 @@ class BqDocumentMapper:
         document: ProcessedDocument,
         bq_schema: List[SchemaField],
         metadata_mapper: BqMetadataMapper,
-        custom_fields: dict = None,
+        custom_fields: Optional[dict] = None,
         include_raw_entities: bool = True,
         include_error_fields: bool = True,
         continue_on_error: bool = False,
