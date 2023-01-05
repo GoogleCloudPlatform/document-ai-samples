@@ -230,7 +230,7 @@ class Processor:
             if blob.content_type == "application/json":
                 blob_as_bytes = blob.download_as_bytes()
 
-                document = documentai.types.Document.from_json(blob_as_bytes)
+                document = documentai.Document.from_json(blob_as_bytes, ignore_unknown_fields=True)
                 logging.debug(f"Fetched file {i + 1}: {blob.name}")
             else:
                 logging.info(f"Skipping non-supported file type {blob.name}")
