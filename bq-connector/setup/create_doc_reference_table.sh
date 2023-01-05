@@ -1,3 +1,4 @@
+#!/bin/bash
 bq --project_id=$PROJECT_ID \
    --dataset_id=$DATASET_ID \
    mk --table \
