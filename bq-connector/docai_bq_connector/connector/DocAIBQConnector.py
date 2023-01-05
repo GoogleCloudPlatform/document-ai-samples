@@ -20,7 +20,7 @@
 from datetime import datetime
 import logging
 import uuid
-from typing import Dict
+from typing import Dict, Optional
 
 from docai_bq_connector.bigquery.StorageManager import StorageManager
 from docai_bq_connector.connector.BqDocumentMapper import BqDocumentMapper
@@ -56,7 +56,7 @@ class DocAIBQConnector:
         doc_ai_async_timeout: int = 900,
         extraction_result_output_bucket: str = None,
         custom_fields: dict = None,
-        metadata_mapping_info: Dict[str, BqMetadataMappingInfo] = None,
+        metadata_mapping_info: Optional[Dict[str, BqMetadataMappingInfo]] = None,
         include_raw_entities: bool = True,
         include_error_fields: bool = True,
         retry_count: int = 1,

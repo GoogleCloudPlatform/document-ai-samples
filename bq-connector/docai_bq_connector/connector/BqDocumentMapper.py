@@ -20,7 +20,7 @@
 import json
 import logging
 from datetime import datetime
-from typing import Sequence, List
+from typing import Sequence, List, Optional
 
 from google.cloud.bigquery import SchemaField
 
@@ -108,7 +108,7 @@ class BqDocumentMapper:
         return row
 
     def to_bq_row(
-        self, append_parsed_fields: bool = True, exclude_fields: List[str] = None
+        self, append_parsed_fields: bool = True, exclude_fields: Optional[List[str]] = None
     ):
         row = {}
         if self.custom_fields is not None and len(self.custom_fields.keys()) > 0:
