@@ -17,11 +17,13 @@
 # limitations under the License.
 #
 
+from typing import Optional
+
 from google.cloud.documentai_v1 import Document
 
 
 class ProcessedDocument:
-    def __init__(self, document: Document, dictionary, hitl_operation_id: str = None):
+    def __init__(self, document: Document, dictionary, hitl_operation_id: Optional[str] = None):
         self.document = document
         self.dictionary = dictionary
         self.hitl_operation_id = hitl_operation_id
