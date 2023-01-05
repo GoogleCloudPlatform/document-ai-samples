@@ -150,6 +150,9 @@ class Processor:
 
         # Add a unique folder to the uri for this particular async operation
         unique_folder = uuid.uuid4().hex
+
+        if self.async_output_folder_gcs_uri is None:
+            raise Exception("--async_output_folder_gcs_uri must be set when a document is processed asynchronously")
         destination_uri = f'{self.async_output_folder_gcs_uri}/{unique_folder}'
 
         gcs_documents = documentai.GcsDocuments(
@@ -220,7 +223,6 @@ class Processor:
         # Delete the unique folder created for this operation
         blobs = list(bucket.list_blobs(prefix=prefix))
         bucket.delete_blobs(blobs)
-        
         hitl_op_id = None
         if hitl_op_full_path: 
             logging.debug(f"Async processing returned hitl_op = {hitl_op_full_path}")
