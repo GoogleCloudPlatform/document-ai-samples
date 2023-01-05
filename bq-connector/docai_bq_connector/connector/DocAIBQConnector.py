@@ -17,9 +17,9 @@
 # limitations under the License.
 #
 
-from datetime import datetime
 import logging
 import uuid
+from datetime import datetime
 from typing import Dict, Optional
 
 from docai_bq_connector.bigquery.StorageManager import StorageManager
@@ -31,39 +31,38 @@ from docai_bq_connector.connector.BqMetadataMapper import (
 from docai_bq_connector.doc_ai_processing.DocumentState import DocumentState
 from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.doc_ai_processing.Processor import Processor
-from docai_bq_connector.doc_ai_processing.DocumentState import DocumentState
 from docai_bq_connector.exception.DocReferenceException import InitialDocRecordNotFoundError, DocAlreadyProcessedError
 from docai_bq_connector.exception.TableNotFoundError import TableNotFoundError
 
 
 class DocAIBQConnector:
     def __init__(
-        self,
-        bucket_name: str,
-        file_name: str,
-        content_type: str,
-        processing_type_override: str,
-        processor_project_id: str,
-        processor_location: str,
-        processor_id: str,
-        async_output_folder_gcs_uri: str,
-        should_async_wait: bool,
-        operation_id: str,
-        destination_project_id: str,
-        destination_dataset_id: str,
-        destination_table_id: str,
-        doc_ai_sync_timeout: int = 900,
-        doc_ai_async_timeout: int = 900,
-        extraction_result_output_bucket: str = None,
-        custom_fields: dict = None,
-        metadata_mapping_info: Optional[Dict[str, BqMetadataMappingInfo]] = None,
-        include_raw_entities: bool = True,
-        include_error_fields: bool = True,
-        retry_count: int = 1,
-        continue_on_error: bool = False,
-        should_write_extraction_result: bool = True,
-        max_sync_page_count: int = 5,
-        parsing_methodology: str = "entities",
+            self,
+            bucket_name: str,
+            file_name: str,
+            content_type: str,
+            processing_type_override: str,
+            processor_project_id: str,
+            processor_location: str,
+            processor_id: str,
+            async_output_folder_gcs_uri: str,
+            should_async_wait: bool,
+            operation_id: str,
+            destination_project_id: str,
+            destination_dataset_id: str,
+            destination_table_id: str,
+            doc_ai_sync_timeout: int = 900,
+            doc_ai_async_timeout: int = 900,
+            extraction_result_output_bucket: str = None,
+            custom_fields: dict = None,
+            metadata_mapping_info: Optional[Dict[str, BqMetadataMappingInfo]] = None,
+            include_raw_entities: bool = True,
+            include_error_fields: bool = True,
+            retry_count: int = 1,
+            continue_on_error: bool = False,
+            should_write_extraction_result: bool = True,
+            max_sync_page_count: int = 5,
+            parsing_methodology: str = "entities",
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
@@ -94,10 +93,10 @@ class DocAIBQConnector:
         self.parsing_methodology = parsing_methodology
 
     def run(self):
-        
+
         storage_manager = StorageManager(
             self.destination_project_id, self.destination_dataset_id
-    )
+        )
         doc_ai_process = Processor(
             bucket_name=self.bucket_name,
             file_name=self.file_name,
@@ -120,21 +119,23 @@ class DocAIBQConnector:
         if self.operation_id is None:
             # New document
             # Check if a HITL operation was initiated as part of the processing
-            
+
             _hitl_op_id = None
             if isinstance(document, ProcessedDocument) and document is not None:
                 _hitl_op_id = document.hitl_operation_id
             _current_doc_status = DocumentState.document_processing_complete if _hitl_op_id is None else DocumentState.submitted_for_hitl
-            _doc_unique_id = self._augment_metadata_mapping_info(file_name=self.file_name, hitl_operation_id=_hitl_op_id, doc_status = _current_doc_status)
-            
+            _doc_unique_id = self._augment_metadata_mapping_info(file_name=self.file_name,
+                                                                 hitl_operation_id=_hitl_op_id,
+                                                                 doc_status=_current_doc_status)
+
             # Insert tracking info in the doc_reference table
-            bq_row = { 
+            bq_row = {
                 "doc_id": _doc_unique_id,
                 "file_name": self.file_name,
                 "doc_status": str(_current_doc_status),
                 "doc_type": self.metadata_mapper.get_value_for_metadata("doc_type"),
                 "doc_event_id": self.metadata_mapper.get_value_for_metadata("doc_event_id"),
-                "doc_group_id":  self.metadata_mapper.get_value_for_metadata("doc_group_id"),
+                "doc_group_id": self.metadata_mapper.get_value_for_metadata("doc_group_id"),
                 "hitl_operation_id": _hitl_op_id,
                 "created_at": self.metadata_mapper.get_value_for_metadata("created_at"),
                 "updated_at": self.metadata_mapper.get_value_for_metadata("updated_at"),
@@ -143,11 +144,11 @@ class DocAIBQConnector:
             logging.debug("Will insert into doc_reference table:")
             logging.debug(bq_row)
             storage_manager.write_record("doc_reference", bq_row)
-            
+
         else:
             # Existing document that was sent for HITL review
             # Retrieve info stored when the doc was first processed
-            
+
             query = f'''
                 SELECT doc_id, file_name, doc_status, doc_type, doc_event_id, doc_group_id, created_at, destination_table_id
                 FROM `{self.destination_project_id}.{self.destination_dataset_id}.doc_reference`
@@ -175,24 +176,27 @@ class DocAIBQConnector:
             _orig_file_name = doc_ref.get('file_name')
             _doc_created_at = doc_ref.get('created_at')
             self.destination_table_id = doc_ref.get('destination_table_id')
-            self._augment_metadata_mapping_info(file_name=_orig_file_name, hitl_operation_id=self.operation_id, 
-                                                doc_group_id= _doc_group_id, doc_type=_doc_type,
-                                                doc_status = DocumentState.document_processing_complete,
+            self._augment_metadata_mapping_info(file_name=_orig_file_name, hitl_operation_id=self.operation_id,
+                                                doc_group_id=_doc_group_id, doc_type=_doc_type,
+                                                doc_status=DocumentState.document_processing_complete,
                                                 created_at=_doc_created_at)
             # Update status in doc_reference table
             try:
-                _status_update = { 
-                    "doc_status" : str(DocumentState.document_processing_complete), 
+                _status_update = {
+                    "doc_status": str(DocumentState.document_processing_complete),
                     "updated_at": self.metadata_mapper.get_value_for_metadata("updated_at")
                 }
-                logging.debug(f"Will update doc_reference record for doc_id = {_doc_id} - New status = {str(DocumentState.document_processing_complete)}")
-                storage_manager.update_record(table_id='doc_reference',record_id_name='doc_id',record_id_value=_doc_id,cols_to_update=_status_update)
+                logging.debug(
+                    f"Will update doc_reference record for doc_id = {_doc_id} - New status = {str(DocumentState.document_processing_complete)}")
+                storage_manager.update_record(table_id='doc_reference', record_id_name='doc_id',
+                                              record_id_value=_doc_id, cols_to_update=_status_update)
             except Exception as e:
                 # If the original document was processed fairly recently, the row in bq doc_reference table will still 
                 # be in BQ's streaming buffer and won't be updatable. Ignore this problem
-                logging.info(f"Could not update doc_reference table for doc_id = {_doc_id}. Probable cause: row still in BQ streaming buffer")
+                logging.info(
+                    f"Could not update doc_reference table for doc_id = {_doc_id}. Probable cause: row still in BQ streaming buffer")
                 pass
-                
+
         # Process result, validate types, convert as necessary and store in destination BQ table.
         if not storage_manager.does_table_exist(self.destination_table_id):
             raise TableNotFoundError(
@@ -272,8 +276,8 @@ class DocAIBQConnector:
             logging.info("BQ submission insert attempt %s succeeded", retry)
 
     # Augment the configured metadata mapping info with default values that can be derived by the connector itself
-    def _augment_metadata_mapping_info(self, file_name=None, hitl_operation_id=None, doc_group_id=None, 
-                                       doc_type=None, doc_status=None,created_at=None):
+    def _augment_metadata_mapping_info(self, file_name=None, hitl_operation_id=None, doc_group_id=None,
+                                       doc_type=None, doc_status=None, created_at=None):
         doc_unique_id = str(uuid.uuid4())
         if self.metadata_mapper is not None:
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("file_name", file_name)
@@ -282,10 +286,10 @@ class DocAIBQConnector:
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("doc_event_id", doc_unique_id)
             _doc_group_id = doc_group_id if doc_group_id is not None else doc_unique_id
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("doc_group_id", _doc_group_id)
-            self.metadata_mapper.set_default_value_for_metadata_if_not_set("hitl_operation_id", 
-                                                                            hitl_operation_id)
+            self.metadata_mapper.set_default_value_for_metadata_if_not_set("hitl_operation_id",
+                                                                           hitl_operation_id)
             _now_timestamp = datetime.now().isoformat()
             _doc_created_at = _now_timestamp if created_at is None else created_at
             self.metadata_mapper.set_default_value_for_metadata_if_not_set("created_at", _doc_created_at)
-            self.metadata_mapper.set_default_value_for_metadata_if_not_set("updated_at",_now_timestamp)
+            self.metadata_mapper.set_default_value_for_metadata_if_not_set("updated_at", _now_timestamp)
         return doc_unique_id

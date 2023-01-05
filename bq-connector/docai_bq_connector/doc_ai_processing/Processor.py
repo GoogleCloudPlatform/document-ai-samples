@@ -34,20 +34,20 @@ from docai_bq_connector.helper.pdf_util import get_pdf_page_cnt
 
 class Processor:
     def __init__(
-        self,
-        bucket_name: str,
-        file_name: str,
-        content_type: str,
-        processor_project_id: str,
-        processor_location: str,
-        processor_id: str,
-        extraction_result_output_bucket: str,
-        async_output_folder_gcs_uri: str,
-        sync_timeout: int = 900,
-        async_timeout: int = 900,
-        should_async_wait: bool = True,
-        should_write_extraction_result: bool = True,
-        max_sync_page_count: int = 5,
+            self,
+            bucket_name: str,
+            file_name: str,
+            content_type: str,
+            processor_project_id: str,
+            processor_location: str,
+            processor_id: str,
+            extraction_result_output_bucket: str,
+            async_output_folder_gcs_uri: str,
+            sync_timeout: int = 900,
+            async_timeout: int = 900,
+            should_async_wait: bool = True,
+            should_write_extraction_result: bool = True,
+            max_sync_page_count: int = 5,
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
@@ -89,7 +89,7 @@ class Processor:
 
     # TODO: Support for processing multiple files
     def _process_sync(
-        self, document_blob: bytes
+            self, document_blob: bytes
     ) -> Union[DocumentOperation, ProcessedDocument]:
         """
         This uses Doc AI to process the document synchronously.
@@ -116,7 +116,6 @@ class Processor:
         )
         request = {"name": processor_uri, "raw_document": document}
         logging.info(f"Invoking name: {processor_uri}, mime_type: {self.content_type} in sync mode")
-        
 
         results = client.process_document(request)
         logging.debug(f"HITL Output: {results.human_review_status}")
@@ -194,23 +193,23 @@ class Processor:
 
         operation = client.batch_process_documents(request)
         logging.debug(f"DocAI Batch Process started. LRO = {operation.operation.name}")
-        
+
         if self.should_async_wait is False:
             return DocumentOperation(operation.operation.name)
 
         # Wait for the operation to finish
         operation.result(timeout=self.async_timeout)
         logging.debug("DocAI Batch Process finished")
-        
+
         if operation.metadata and operation.metadata.individual_process_statuses:
             cur_process_status = operation.metadata.individual_process_statuses[0]
-            hitl_gcs_output =cur_process_status.output_gcs_destination
+            hitl_gcs_output = cur_process_status.output_gcs_destination
             hitl_op_full_path = cur_process_status.human_review_status.human_review_operation
         else:
             # Fallback to using the GCS path set in the request
             hitl_gcs_output = output_config
             hitl_op_full_path = None
-        
+
         # Results are written to GCS. Use a regex to find
         # output files
         match = re.match(r"gs://([^/]+)/(.+)", hitl_gcs_output)
@@ -240,11 +239,11 @@ class Processor:
         blobs = list(bucket.list_blobs(prefix=prefix))
         bucket.delete_blobs(blobs)
         hitl_op_id = None
-        if hitl_op_full_path: 
+        if hitl_op_full_path:
             logging.debug(f"Async processing returned hitl_op = {hitl_op_full_path}")
             hitl_op_split = hitl_op_full_path.split('/')
             hitl_op_id = hitl_op_split.pop()
-        
+
         return ProcessedDocument(
             document=document, dictionary=blob_as_bytes, hitl_operation_id=hitl_op_id
         )
@@ -254,7 +253,6 @@ class Processor:
         return ProcessedDocument(
             document=document, dictionary=gcs_blob, hitl_operation_id=None
         )
-
 
     def process(self) -> Union[DocumentOperation, ProcessedDocument]:
         gcs_doc_blob, gcs_doc_meta = self._get_gcs_blob()
@@ -274,5 +272,5 @@ class Processor:
             process_result = self._process_hitl_output(gcs_doc_blob)
         else:
             logging.info(f"Skipping non-supported file type {self.file_name} with content type = {self.content_type}")
-        
+
         return process_result
