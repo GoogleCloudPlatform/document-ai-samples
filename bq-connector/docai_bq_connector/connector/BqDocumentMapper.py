@@ -108,7 +108,9 @@ class BqDocumentMapper:
         return row
 
     def to_bq_row(
-        self, append_parsed_fields: bool = True, exclude_fields: Optional[List[str]] = None
+        self,
+        append_parsed_fields: bool = True,
+        exclude_fields: Optional[List[str]] = None,
     ):
         row = {}
         if self.custom_fields is not None and len(self.custom_fields.keys()) > 0:

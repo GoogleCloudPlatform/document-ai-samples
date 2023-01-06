@@ -48,10 +48,10 @@ class BqMetadataMappingInfo:
     """
 
     def __init__(
-            self,
-            bq_column_name: str,
-            metadata_value: Any = None,
-            skip_map: bool = False,
+        self,
+        bq_column_name: str,
+        metadata_value: Any = None,
+        skip_map: bool = False,
     ):
         """
         Initializer for the class
@@ -97,8 +97,8 @@ class BqMetadataMappingInfo:
 # This mapper class allows flexibility in schema column names for metadata to be added in BQ
 class BqMetadataMapper:
     def __init__(
-            self,
-            mapping_info: Dict[str, BqMetadataMappingInfo],
+        self,
+        mapping_info: Dict[str, BqMetadataMappingInfo],
     ):
         self.mapping_info = mapping_info
         # Add default mappings for any missing metadata, using the same name for the BigQuery column
@@ -122,7 +122,7 @@ class BqMetadataMapper:
         return None
 
     def set_default_value_for_metadata_if_not_set(
-            self, metadata_name, new_default_value
+        self, metadata_name, new_default_value
     ):
         mapping_info = self.mapping_info.get(metadata_name)
         if mapping_info is not None:
