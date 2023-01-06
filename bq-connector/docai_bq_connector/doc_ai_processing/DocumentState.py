@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class DocumentState(Enum):
-    submission_received = "SUBMISSION_RECEIVED"
+    document_received = "DOCUMENT_RECEIVED"
     document_extraction_complete = "DOCUMENT_EXTRACTION_COMPLETE"
     submitted_for_hitl = "SUBMITTED_FOR_HITL"
     hitl_review_complete = "HITL_REVIEW_COMPLETE"

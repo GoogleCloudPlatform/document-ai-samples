@@ -20,7 +20,7 @@
 import json
 import logging
 from datetime import datetime
-from typing import Sequence, List
+from typing import Sequence, List, Optional
 
 from google.cloud.bigquery import SchemaField
 
@@ -40,7 +40,7 @@ class BqDocumentMapper:
         document: ProcessedDocument,
         bq_schema: List[SchemaField],
         metadata_mapper: BqMetadataMapper,
-        custom_fields: dict = None,
+        custom_fields: Optional[dict] = None,
         include_raw_entities: bool = True,
         include_error_fields: bool = True,
         continue_on_error: bool = False,
@@ -68,7 +68,7 @@ class BqDocumentMapper:
             if len(entity.page_anchor.page_refs) != 1:
                 continue
             if len(entity.properties) == 0:
-                content = entity.text_anchor.content
+                content = entity.mention_text
                 value = (
                     content if content is not None and content.strip() != "" else None
                 )
@@ -108,7 +108,9 @@ class BqDocumentMapper:
         return row
 
     def to_bq_row(
-        self, append_parsed_fields: bool = True, exclude_fields: List[str] = None
+        self,
+        append_parsed_fields: bool = True,
+        exclude_fields: Optional[List[str]] = None,
     ):
         row = {}
         if self.custom_fields is not None and len(self.custom_fields.keys()) > 0:

@@ -1,0 +1,60 @@
+[
+    {
+        "name": "doc_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique key"
+    },
+    {
+        "name": "file_name",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Document file name"
+    },
+    {
+        "name": "doc_status",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Indicates, whether processing has finished, HITL review is pending, etc."
+    },
+    {
+        "name": "doc_type",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Document type if known"
+    },
+    {
+        "name": "doc_event_id",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Optional - Id for the even that triggered the document processing"
+    },
+    {
+        "name": "doc_group_id",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Identifies the group of documents, this doc is part of"
+    },
+    {
+        "name": "hitl_operation_id",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "If a HITL review is triggered, the operation id assigned to it. It is later used to match the HITL review output to the original document"
+    },
+    {
+        "name": "created_at",
+        "type": "DATETIME",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "updated_at",
+        "type": "DATETIME",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "destination_table_id",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Used in case a HITL review is triggered, to identify the table where a new record should be added with the reviewed document entities"
+    }
+]

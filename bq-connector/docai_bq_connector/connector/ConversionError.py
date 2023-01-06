@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+from typing import Optional
+
 
 class ConversionError:
     error_type_conversion = "TYPE_CONVERSION"
@@ -25,7 +27,13 @@ class ConversionError:
     error_type_duplicate_field = "DUPLICATE_FIELD"
 
     def __init__(
-        self, key: str, value, error, error_message, error_type, identifier: str = None
+        self,
+        key: str,
+        value,
+        error,
+        error_message,
+        error_type,
+        identifier: Optional[str] = None,
     ):
         self.key = key
         self.value = value
