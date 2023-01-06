@@ -82,8 +82,7 @@ class StorageManager:
         query_params.append(cur_qp)
 
         logging.debug(f"About to run query: {dml_statement} with params: {query_params}")
-        query_job_config = bigquery.QueryJobConfig(use_legacy_sql=False)
-        query_job_config.query_parameters = query_params
+        query_job_config = bigquery.QueryJobConfig(use_legacy_sql=False, query_parameters=query_params)
         query_job = self.client.query(query=dml_statement, job_config=query_job_config)
         query_job.result()
 
@@ -95,8 +94,7 @@ class StorageManager:
             cur_p = bigquery.ScalarQueryParameter(qp["name"], qp["type"], qp["value"])
             bq_q_params.append(cur_p)
         logging.debug(f"About to run query: {query} with params: {bq_q_params}")
-        query_job_config = bigquery.QueryJobConfig(use_legacy_sql=False)
-        query_job_config.query_parameters = bq_q_params
+        query_job_config = bigquery.QueryJobConfig(use_legacy_sql=False,query_parameters=bq_q_params)
         query_job = self.client.query(query=query, job_config=query_job_config)
 
         bq_rows = query_job.result()
