@@ -37,20 +37,20 @@ CONTENT_TYPE_JSON = "application/json"
 
 class Processor:
     def __init__(
-            self,
-            bucket_name: str,
-            file_name: str,
-            content_type: str,
-            processor_project_id: str,
-            processor_location: str,
-            processor_id: str,
-            extraction_result_output_bucket: str,
-            async_output_folder_gcs_uri: str,
-            sync_timeout: int = 900,
-            async_timeout: int = 900,
-            should_async_wait: bool = True,
-            should_write_extraction_result: bool = True,
-            max_sync_page_count: int = 5,
+        self,
+        bucket_name: str,
+        file_name: str,
+        content_type: str,
+        processor_project_id: str,
+        processor_location: str,
+        processor_id: str,
+        extraction_result_output_bucket: str,
+        async_output_folder_gcs_uri: str,
+        sync_timeout: int = 900,
+        async_timeout: int = 900,
+        should_async_wait: bool = True,
+        should_write_extraction_result: bool = True,
+        max_sync_page_count: int = 5,
     ):
         self.bucket_name = bucket_name
         self.file_name = file_name
@@ -92,7 +92,7 @@ class Processor:
 
     # TODO: Support for processing multiple files
     def _process_sync(
-            self, document_blob: bytes
+        self, document_blob: bytes
     ) -> Union[DocumentOperation, ProcessedDocument]:
         """
         This uses Doc AI to process the document synchronously.
@@ -118,7 +118,9 @@ class Processor:
             self.processor_project_id, self.processor_location, self.processor_id
         )
         request = {"name": processor_uri, "raw_document": document}
-        logging.info(f"Invoking name: {processor_uri}, mime_type: {self.content_type} in sync mode")
+        logging.info(
+            f"Invoking name: {processor_uri}, mime_type: {self.content_type} in sync mode"
+        )
 
         results = client.process_document(request)
         logging.debug(f"HITL Output: {results.human_review_status}")
@@ -207,7 +209,9 @@ class Processor:
         if operation.metadata and operation.metadata.individual_process_statuses:
             cur_process_status = operation.metadata.individual_process_statuses[0]
             hitl_gcs_output = cur_process_status.output_gcs_destination
-            hitl_op_full_path = cur_process_status.human_review_status.human_review_operation
+            hitl_op_full_path = (
+                cur_process_status.human_review_status.human_review_operation
+            )
         else:
             # Fallback to using the GCS path set in the request
             hitl_gcs_output = output_config
@@ -233,7 +237,9 @@ class Processor:
             if blob.content_type == "application/json":
                 blob_as_bytes = blob.download_as_bytes()
 
-                document = documentai.Document.from_json(blob_as_bytes, ignore_unknown_fields=True)
+                document = documentai.Document.from_json(
+                    blob_as_bytes, ignore_unknown_fields=True
+                )
                 logging.debug(f"Fetched file {i + 1}: {blob.name}")
             else:
                 logging.info(f"Skipping non-supported file type {blob.name}")
@@ -251,7 +257,9 @@ class Processor:
         )
 
     def _process_hitl_output(self, gcs_blob: bytes) -> ProcessedDocument:
-        document = documentai.types.Document.from_json(gcs_blob, ignore_unknown_fields=True)
+        document = documentai.types.Document.from_json(
+            gcs_blob, ignore_unknown_fields=True
+        )
         return ProcessedDocument(
             document=document, dictionary=gcs_blob, hitl_operation_id=None
         )
@@ -266,13 +274,20 @@ class Processor:
                 process_result = self._process_sync(document_blob=gcs_doc_blob)
             else:
                 process_result = self._process_async()
-            if isinstance(process_result, ProcessedDocument) and process_result is not None:
+            if (
+                isinstance(process_result, ProcessedDocument)
+                and process_result is not None
+            ):
                 self._write_result_to_gcs(process_result.dictionary)
         elif self.content_type == CONTENT_TYPE_JSON:
             # This document was already processed and sent for HITL review. The result must now be processed
-            logging.debug(f"Read DocAI HITL Output file = {self.bucket_name}/{self.file_name}")
+            logging.debug(
+                f"Read DocAI HITL Output file = {self.bucket_name}/{self.file_name}"
+            )
             process_result = self._process_hitl_output(gcs_doc_blob)
         else:
-            logging.info(f"Skipping non-supported file type {self.file_name} with content type = {self.content_type}")
+            logging.info(
+                f"Skipping non-supported file type {self.file_name} with content type = {self.content_type}"
+            )
 
         return process_result
