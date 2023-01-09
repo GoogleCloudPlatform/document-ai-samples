@@ -147,14 +147,14 @@ class BqDocumentMapper:
         response = ""
         # If a text segment spans several lines, it will
         # be stored in different text segments.
-        for segment in doc_element.text_anchor.text_segments:
+        for segment in doc_element.text_anchor.text_segments:  # type: ignore[attr-defined]
             start_index = (
                 int(segment.start_index)
-                if segment in doc_element.text_anchor.text_segments
+                if segment in doc_element.text_anchor.text_segments  # type: ignore[attr-defined]
                 else 0
             )
             end_index = int(segment.end_index)
-            temp = document.text[start_index:end_index].strip()
+            temp = document.text[start_index:end_index].strip()  # type: ignore[attr-defined]
             response += temp.replace("\n", " ")
         return response.strip()
 
