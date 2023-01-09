@@ -19,6 +19,7 @@
 
 import json
 import logging
+import re
 from datetime import datetime
 from typing import Sequence, List, Optional
 
@@ -123,12 +124,13 @@ class BqDocumentMapper:
         for page in document.pages:
             for field in page.form_fields:
                 name = BqDocumentMapper.__get_text(field.field_name, document)
+                safe_name = BqDocumentMapper.convert_to_underscore(name)
                 # name_confidence = round(field.field_name.confidence, 4)
                 value = BqDocumentMapper.__get_text(field.field_value, document)
                 value_confidence = round(field.field_value.confidence, 4)
                 row.fields.append(
                     DocumentField(
-                        name=name,
+                        name=safe_name,
                         value=value,
                         normalized_value=None,
                         confidence=value_confidence,
@@ -136,6 +138,12 @@ class BqDocumentMapper:
                     )
                 )
         return row
+
+    @staticmethod
+    def convert_to_underscore(name):
+        name = name.strip("@").strip("#").strip("$").replace(" ", "")
+        sub_str = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+        return re.sub("([a-z0-9])([A-Z])", r"\1_\2", sub_str).lower()
 
     @staticmethod
     def __get_text(doc_element: dict, document: dict):
