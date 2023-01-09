@@ -121,7 +121,7 @@ def main():
     )
     doc_options_group.add_argument(
         "--parsing_methodology",
-        choices=["entities", "normalized_values"],
+        choices=["entities", "form", "normalized_values"],
         default="entities",
         help="The parsing methodology",
     )
