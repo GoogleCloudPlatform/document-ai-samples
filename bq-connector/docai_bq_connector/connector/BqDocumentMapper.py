@@ -34,21 +34,21 @@ from docai_bq_connector.doc_ai_processing.DocumentField import (
 from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.helper import find, get_bool_value, clean_number
 
-PARSING_METHOD_ENTITIES = 'entities'
-PARSING_METHOD_FORM = 'form'
+PARSING_METHOD_ENTITIES = "entities"
+PARSING_METHOD_FORM = "form"
 
 
 class BqDocumentMapper:
     def __init__(
-            self,
-            document: ProcessedDocument,
-            bq_schema: List[SchemaField],
-            metadata_mapper: BqMetadataMapper,
-            custom_fields: Optional[dict] = None,
-            include_raw_entities: bool = True,
-            include_error_fields: bool = True,
-            continue_on_error: bool = False,
-            parsing_methodology: str = PARSING_METHOD_ENTITIES,
+        self,
+        document: ProcessedDocument,
+        bq_schema: List[SchemaField],
+        metadata_mapper: BqMetadataMapper,
+        custom_fields: Optional[dict] = None,
+        include_raw_entities: bool = True,
+        include_error_fields: bool = True,
+        continue_on_error: bool = False,
+        parsing_methodology: str = PARSING_METHOD_ENTITIES,
     ):
         self.processed_document = document
         self.bq_schema = bq_schema
@@ -157,9 +157,9 @@ class BqDocumentMapper:
         return response.strip()
 
     def to_bq_row(
-            self,
-            append_parsed_fields: bool = True,
-            exclude_fields: Optional[List[str]] = None,
+        self,
+        append_parsed_fields: bool = True,
+        exclude_fields: Optional[List[str]] = None,
     ):
         row = {}
         if self.custom_fields is not None and len(self.custom_fields.keys()) > 0:
@@ -206,7 +206,7 @@ class BqDocumentMapper:
 
                     # If a nested field has an error, exclude the top level field
                     if "." in field_name:
-                        field_name = field_name[0: field_name.split(".")[0].rfind("[")]
+                        field_name = field_name[0 : field_name.split(".")[0].rfind("[")]
 
                     error_val = self.dictionary.get(field_name)
                     error_records.append(
@@ -229,7 +229,7 @@ class BqDocumentMapper:
         return result
 
     def _map_document_to_bigquery_schema(
-            self, fields: List[DocumentField], bq_schema: List[SchemaField]
+        self, fields: List[DocumentField], bq_schema: List[SchemaField]
     ):
         result: dict = {}
         for field in fields:
