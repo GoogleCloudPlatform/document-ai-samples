@@ -23,6 +23,7 @@ import logging
 import os
 
 from docai_bq_connector import DocAIBQConnector, BqMetadataMappingInfo
+from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 
 script_dir = os.path.dirname(__file__)
 
@@ -262,11 +263,12 @@ def main():
     )
 
     processed_doc = connector.run()
-    print(
-        f"Finished processing document - Extracted {len(processed_doc.document.entities)} entities "
-        "and saved results to BigQuery"
-        ""
-    )  # noqa: E127
+    if isinstance(processed_doc, ProcessedDocument):
+        print(
+            f"Finished processing document - Extracted {processed_doc.field_count} fields "
+            "and saved results to BigQuery"
+            ""
+        )  # noqa: E127
 
 
 if __name__ == "__main__":

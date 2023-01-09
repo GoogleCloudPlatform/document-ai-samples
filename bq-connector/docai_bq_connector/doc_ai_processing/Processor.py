@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+import json
 import logging
 import re
 import uuid
@@ -136,7 +136,7 @@ class Processor:
         results_json = documentai.types.Document.to_json(results.document)
         return ProcessedDocument(
             document=results.document,
-            dictionary=results_json,
+            dictionary=json.loads(results_json),
             hitl_operation_id=hitl_op_id,
         )
 
@@ -253,7 +253,9 @@ class Processor:
             hitl_op_id = hitl_op_full_path.split("/").pop()
 
         return ProcessedDocument(
-            document=document, dictionary=blob_as_bytes, hitl_operation_id=hitl_op_id
+            document=document,
+            dictionary=json.loads(blob_as_bytes),
+            hitl_operation_id=hitl_op_id,
         )
 
     def _process_hitl_output(self, gcs_blob: bytes) -> ProcessedDocument:
@@ -261,7 +263,7 @@ class Processor:
             gcs_blob, ignore_unknown_fields=True
         )
         return ProcessedDocument(
-            document=document, dictionary=gcs_blob, hitl_operation_id=None
+            document=document, dictionary=json.loads(gcs_blob), hitl_operation_id=None
         )
 
     def process(self) -> Union[DocumentOperation, ProcessedDocument]:

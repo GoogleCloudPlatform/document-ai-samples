@@ -240,6 +240,8 @@ class DocAIBQConnector:
             parsing_methodology=self.parsing_methodology,
         )
 
+        document.field_count = len(mapper.fields)
+
         if (
             self.continue_on_error is False
             and self.include_error_fields is False

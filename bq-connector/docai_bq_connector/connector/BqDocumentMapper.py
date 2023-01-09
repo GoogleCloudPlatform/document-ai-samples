@@ -320,7 +320,7 @@ class BqDocumentMapper:
             raw_value = (
                 field.value.strip() if isinstance(field.value, str) else field.value
             )
-            if self.parsing_methodology == "entities":
+            if self.parsing_methodology in ["entities", "form"]:
                 if field.value is None:
                     return None
                 if bq_datatype == "STRING":
@@ -337,7 +337,7 @@ class BqDocumentMapper:
                 if bq_datatype == "INTEGER":
                     return int(clean_number(raw_value))
                 return raw_value
-            elif self.parsing_methodology in ["normalized_values", "form"]:
+            elif self.parsing_methodology in ["normalized_values"]:
                 normalized_value = field.normalized_value
                 if normalized_value is None:
                     return None

@@ -29,3 +29,4 @@ class ProcessedDocument:
         self.document = document
         self.dictionary = dictionary
         self.hitl_operation_id = hitl_operation_id
+        self.field_count = 0
