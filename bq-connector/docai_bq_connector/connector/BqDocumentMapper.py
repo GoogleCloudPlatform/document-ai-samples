@@ -37,6 +37,7 @@ from docai_bq_connector.helper import find, get_bool_value, clean_number
 
 PARSING_METHOD_ENTITIES = "entities"
 PARSING_METHOD_FORM = "form"
+PARSING_METHOD_NORMALIZED_VALUES = "normalized_values"
 
 
 class BqDocumentMapper:
@@ -320,7 +321,7 @@ class BqDocumentMapper:
             raw_value = (
                 field.value.strip() if isinstance(field.value, str) else field.value
             )
-            if self.parsing_methodology in ["entities", "form"]:
+            if self.parsing_methodology in [PARSING_METHOD_ENTITIES, PARSING_METHOD_FORM]:
                 if field.value is None:
                     return None
                 if bq_datatype == "STRING":
@@ -337,7 +338,7 @@ class BqDocumentMapper:
                 if bq_datatype == "INTEGER":
                     return int(clean_number(raw_value))
                 return raw_value
-            elif self.parsing_methodology in ["normalized_values"]:
+            elif self.parsing_methodology in [PARSING_METHOD_NORMALIZED_VALUES]:
                 normalized_value = field.normalized_value
                 if normalized_value is None:
                     return None
