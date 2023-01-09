@@ -63,11 +63,13 @@ class BqDocumentMapper:
         self.dictionary = self._map_document_to_bigquery_schema(self.fields, bq_schema)
 
     def _parse_document(self) -> List[DocumentField]:
-        row: DocumentRow = None
+        row: DocumentRow
         if self.parsing_methodology == PARSING_METHOD_ENTITIES:
             row = self._parse_entities(self.processed_document.document.entities)
         elif self.parsing_methodology == PARSING_METHOD_FORM:
             row = self._parse_form_entities(self.processed_document.document)
+        else:
+            raise Exception("Unsupported parsing methodology")
         return row.fields
 
     def _parse_entities(self, entities) -> DocumentRow:
@@ -142,6 +144,7 @@ class BqDocumentMapper:
         in document text. This function converts offsets
         to text snippets.
         """
+        # type: ignore[attr-defined]
         response = ""
         # If a text segment spans several lines, it will
         # be stored in different text segments.
