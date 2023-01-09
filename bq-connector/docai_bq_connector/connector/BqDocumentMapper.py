@@ -144,7 +144,6 @@ class BqDocumentMapper:
         in document text. This function converts offsets
         to text snippets.
         """
-        # type: ignore[attr-defined]
         response = ""
         # If a text segment spans several lines, it will
         # be stored in different text segments.
