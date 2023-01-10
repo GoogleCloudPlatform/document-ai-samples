@@ -133,10 +133,10 @@ class Processor:
 
         # This method will sometimes run out of memory if the document is big enough
         # It seems to work fine if # of pages <= 5
-        results_json = documentai.types.Document.to_json(results.document)
+        results_dict = documentai.types.Document.to_dict(results.document)
         return ProcessedDocument(
             document=results.document,
-            dictionary=json.loads(results_json),
+            dictionary=results_dict,
             hitl_operation_id=hitl_op_id,
         )
 
@@ -262,8 +262,9 @@ class Processor:
         document = documentai.types.Document.from_json(
             gcs_blob, ignore_unknown_fields=True
         )
+        results_dict = documentai.types.Document.to_dict(document)
         return ProcessedDocument(
-            document=document, dictionary=json.loads(gcs_blob), hitl_operation_id=None
+            document=document, dictionary=results_dict, hitl_operation_id=None
         )
 
     def process(self) -> Union[DocumentOperation, ProcessedDocument]:

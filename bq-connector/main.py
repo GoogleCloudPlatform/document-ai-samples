@@ -263,12 +263,11 @@ def main():
     )
 
     processed_doc = connector.run()
-    if isinstance(processed_doc, ProcessedDocument):
-        print(
-            f"Finished processing document - Extracted {processed_doc.field_count} fields "
-            "and saved results to BigQuery"
-            ""
-        )  # noqa: E127
+    print(
+        f"Finished processing document - Extracted fields using parsing methodology '{parsing_methodology}' "
+        "and saved results to BigQuery"
+        ""
+    )  # noqa: E127
 
 
 if __name__ == "__main__":

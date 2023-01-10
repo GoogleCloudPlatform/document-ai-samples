@@ -321,7 +321,10 @@ class BqDocumentMapper:
             raw_value = (
                 field.value.strip() if isinstance(field.value, str) else field.value
             )
-            if self.parsing_methodology in [PARSING_METHOD_ENTITIES, PARSING_METHOD_FORM]:
+            if self.parsing_methodology in [
+                PARSING_METHOD_ENTITIES,
+                PARSING_METHOD_FORM,
+            ]:
                 if field.value is None:
                     return None
                 if bq_datatype == "STRING":
