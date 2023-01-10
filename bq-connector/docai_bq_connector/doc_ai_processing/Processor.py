@@ -16,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import logging
 import re
 import uuid
@@ -133,10 +132,10 @@ class Processor:
 
         # This method will sometimes run out of memory if the document is big enough
         # It seems to work fine if # of pages <= 5
-        results_json = documentai.types.Document.to_json(results.document)
+        results_dict = documentai.types.Document.to_dict(results.document)
         return ProcessedDocument(
             document=results.document,
-            dictionary=results_json,
+            dictionary=results_dict,
             hitl_operation_id=hitl_op_id,
         )
 
@@ -252,16 +251,20 @@ class Processor:
             logging.debug(f"Async processing returned hitl_op = {hitl_op_full_path}")
             hitl_op_id = hitl_op_full_path.split("/").pop()
 
+        results_dict = documentai.types.Document.to_dict(document)
         return ProcessedDocument(
-            document=document, dictionary=blob_as_bytes, hitl_operation_id=hitl_op_id
+            document=document,
+            dictionary=results_dict,
+            hitl_operation_id=hitl_op_id,
         )
 
     def _process_hitl_output(self, gcs_blob: bytes) -> ProcessedDocument:
         document = documentai.types.Document.from_json(
             gcs_blob, ignore_unknown_fields=True
         )
+        results_dict = documentai.types.Document.to_dict(document)
         return ProcessedDocument(
-            document=document, dictionary=gcs_blob, hitl_operation_id=None
+            document=document, dictionary=results_dict, hitl_operation_id=None
         )
 
     def process(self) -> Union[DocumentOperation, ProcessedDocument]:
@@ -271,7 +274,8 @@ class Processor:
             page_count = get_pdf_page_cnt(gcs_doc_blob)
             # Limit is different per processor: https://cloud.google.com/document-ai/quotas
             if page_count <= self.max_sync_page_count:
-                process_result = self._process_sync(document_blob=gcs_doc_blob)
+                # process_result = self._process_sync(document_blob=gcs_doc_blob)
+                process_result = self._process_async()
             else:
                 process_result = self._process_async()
             if (

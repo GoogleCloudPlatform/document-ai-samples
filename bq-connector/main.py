@@ -121,7 +121,7 @@ def main():
     )
     doc_options_group.add_argument(
         "--parsing_methodology",
-        choices=["entities", "normalized_values"],
+        choices=["entities", "form", "normalized_values"],
         default="entities",
         help="The parsing methodology",
     )
@@ -261,9 +261,9 @@ def main():
         parsing_methodology=parsing_methodology,
     )
 
-    processed_doc = connector.run()
+    connector.run()
     print(
-        f"Finished processing document - Extracted {len(processed_doc.document.entities)} entities "
+        f"Finished processing document - Extracted fields using parsing methodology '{parsing_methodology}' "
         "and saved results to BigQuery"
         ""
     )  # noqa: E127

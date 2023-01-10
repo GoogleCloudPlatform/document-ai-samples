@@ -4,9 +4,10 @@
 The DocAI BQ Connector is a helper library that invokes the DocAI processing library, and formats the response for saving directly into BigQuery. The implementation should work on any processor that returns entities. Support for form processors has not been verified.
 
 ## Parsing Methodologies
-There are currently two parsing methodologies supported. The parsing methodology is supplied via argument --parsing_methodology.
+There are currently three parsing methodologies supported. The parsing methodology is supplied via argument --parsing_methodology.
 
 - entities: The entities in the response from DocAI will be iterated and the content field will be extracted and cast based on the supplied BQ table schema. The result will form a json dictionary for insert into BQ.
+- form: Each field is iterated, and the form field values are parsed.
 - normalized_values: The entities in the response will be iterated, and the normalized_value property will be used depending on the field type corresponding to the column in the corresponding BQ table schema.
 
 ## Handling HITL Output
@@ -45,7 +46,7 @@ usage: main.py [-h] [--bucket_name BUCKET_NAME] [--file_name FILE_NAME]
                [--metadata_mapping_info METADATA_MAPPING_INFO]
                [--should_async_wait SHOULD_ASYNC_WAIT]
                [--operation_id OPERATION_ID]
-               [--parsing_methodology {entities,normalized_values}]
+               [--parsing_methodology {entities,form,normalized_values}]
                [--doc_ai_sync_timeout DOC_AI_SYNC_TIMEOUT | --doc_ai_async_timeout DOC_AI_ASYNC_TIMEOUT]
                [--destination_project_id DESTINATION_PROJECT_ID]
                [--destination_dataset_id DESTINATION_DATASET_ID]
@@ -114,7 +115,7 @@ document arguments:
   --operation_id OPERATION_ID
                         An existing operation id for which to complete BQ
                         processing
-  --parsing_methodology {entities,normalized_values}
+  --parsing_methodology {entities,form,normalized_values}
                         The parsing methodology
   --doc_ai_sync_timeout DOC_AI_SYNC_TIMEOUT
                         The sync processor timeout
