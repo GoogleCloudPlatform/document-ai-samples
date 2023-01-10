@@ -252,9 +252,10 @@ class Processor:
             logging.debug(f"Async processing returned hitl_op = {hitl_op_full_path}")
             hitl_op_id = hitl_op_full_path.split("/").pop()
 
+        results_dict = documentai.types.Document.to_dict(document)
         return ProcessedDocument(
             document=document,
-            dictionary=json.loads(blob_as_bytes),
+            dictionary=results_dict,
             hitl_operation_id=hitl_op_id,
         )
 
@@ -274,7 +275,8 @@ class Processor:
             page_count = get_pdf_page_cnt(gcs_doc_blob)
             # Limit is different per processor: https://cloud.google.com/document-ai/quotas
             if page_count <= self.max_sync_page_count:
-                process_result = self._process_sync(document_blob=gcs_doc_blob)
+                # process_result = self._process_sync(document_blob=gcs_doc_blob)
+                process_result = self._process_async()
             else:
                 process_result = self._process_async()
             if (
