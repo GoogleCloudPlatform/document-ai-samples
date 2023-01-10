@@ -16,6 +16,7 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 * [BQ Connector](bq-connector/): This project uses the Document AI API to process a document, format the result and save it into a BigQuery table.
 * [Filter HITL Language](filter-hitl-language/): This project uses the languages detected by Document AI (post-HITL) to sort the `Document.json` files into separate Cloud Storage buckets.
 * [Fraud Detection](fraud-detection-python/): This project uses the Document AI Invoice Parser with EKG and Google Maps to store document Entities in BigQuery.
+* [JSON Explorer](document-json-explorer/): A React Tool to explore the Document JSON Response.
 * [Language Extraction](extract-languages/): This project uses the Document AI API to detect the languages in a multi-page document.
 * [Paper Summarization](paper_summarization/): This project uses the Document AI API to summarize scientific articles.
 * [PDF Splitter](pdf-splitter-python/): This project uses the Document AI API to split PDF documents.
@@ -24,45 +25,18 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 * [Tax Processing Pipeline](tax-processing-pipeline-python/): This project uses the Document AI API to classify, parse, and calculate a tax form using multiple document types.
 * [Web App Demo](web-app-demo/): This project is a full-stack application that uses Document AI to process different types of documents. This application currently supports Form, Invoice and OCR processors.
 
+### Samples not in this Repository
+
+* https://github.com/GoogleCloudPlatform/documentai-sheets-plugin
+* https://github.com/GoogleCloudPlatform/document-intake-accelerator
+
 ### Test Document Files
 
 If you need Document Files to run the samples, you can access them from this publicly-accessible [Google Cloud Storage Bucket](https://cloud.google.com/storage/docs/downloading-objects).
 
 `gs://cloud-samples-data/documentai/`
 
-The directory is organized by solution and document type, you can see the folder structure listed here.
-
-```console
-documentai/
-├── ContractDocAI
-├── GeneralProcessors
-│   ├── FormParser
-│   ├── OCR
-│   └── Quality
-├── IdentityDocAI
-│   ├── Driver's License (USA)
-│   └── Passport (USA)
-├── LendingDocAI
-│   ├── 1040 Parser
-│   ├── 1099-DIV Parser
-│   ├── 1099-INT Parser
-│   ├── 1099-MISC Parser
-│   ├── 1099-NEC Parser
-│   ├── 1099-R Parser
-│   ├── Bank Statement Parser
-│   ├── Lending Document Splitter & Classifier
-│   └── Pay Slip Parser
-├── ProcurementDocAI
-│   ├── Expense Parser
-│   ├── Invoice Parser
-│   ├── Procurement Document Splitter & Classifier
-│   └── Utility Parser
-├── codelabs
-    ├── form-parser
-    ├── hitl
-    ├── ocr
-    └── specialized-processors
-```
+You can also view sample input/output files by processor on the [Sample Output](https://cloud.google.com/document-ai/docs/output) page of the documentation.
 
 ## Codelabs
 <!-- markdownlint-disable MD033 -->
@@ -80,7 +54,7 @@ documentai/
 
 ---
 
-* [PDF Annotator Sample](https://github.com/GoogleCloudPlatform/document-ai-samples/tree/main/community/pdf-annotator-python): This project uses the Document AI API to annotate PDF documents.
+* [PDF Annotator Sample](community/pdf-annotator-python): This project uses the Document AI API to annotate PDF documents.
 
 ## Contributing
 
