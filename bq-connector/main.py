@@ -23,7 +23,6 @@ import logging
 import os
 
 from docai_bq_connector import DocAIBQConnector, BqMetadataMappingInfo
-from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 
 script_dir = os.path.dirname(__file__)
 
@@ -262,7 +261,7 @@ def main():
         parsing_methodology=parsing_methodology,
     )
 
-    processed_doc = connector.run()
+    connector.run()
     print(
         f"Finished processing document - Extracted fields using parsing methodology '{parsing_methodology}' "
         "and saved results to BigQuery"
