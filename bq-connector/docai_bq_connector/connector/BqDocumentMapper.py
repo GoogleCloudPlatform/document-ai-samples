@@ -66,7 +66,10 @@ class BqDocumentMapper:
 
     def _parse_document(self) -> List[DocumentField]:
         row: DocumentRow
-        if self.parsing_methodology == PARSING_METHOD_ENTITIES:
+        if self.parsing_methodology in [
+            PARSING_METHOD_ENTITIES,
+            PARSING_METHOD_NORMALIZED_VALUES,
+        ]:
             row = self._parse_entities(self.processed_document.document.entities)
         elif self.parsing_methodology == PARSING_METHOD_FORM:
             row = self._parse_form_entities(self.processed_document.document)
