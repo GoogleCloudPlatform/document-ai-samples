@@ -20,3 +20,4 @@ Known issues with the digital PDF feature of the Document AI OCR Processor:
 - [Declaration of Independence (Cursive)](DeclarationOfIndependence-Cursive.pdf)
   - This document is the text of The Declaration of Independence in a cursive script created in Google Docs.
   - Try this document with the sample code in [`main.py`](main.py) with `enable_native_pdf_parsing` set to `True` or `False` and compare the results.
+  - [Example Diff](https://www.diffchecker.com/Z4QIzt3H/) (`enable_native_pdf_parsing` set to `True` and `False` respectively
