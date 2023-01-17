@@ -19,6 +19,7 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 * [JSON Explorer](document-json-explorer/): A React Tool to explore the Document JSON Response.
 * [Language Extraction](extract-languages/): This project uses the Document AI API to detect the languages in a multi-page document.
 * [Paper Summarization](paper_summarization/): This project uses the Document AI API to summarize scientific articles.
+* [PDF Embedded Text](pdf-embedded-text/): Demonstrates how to use the Native PDF parsing feature for the OCR Processor (`v1beta3`)
 * [PDF Splitter](pdf-splitter-python/): This project uses the Document AI API to split PDF documents.
 * [SQL over Docs](sql-pdf-python/): This project shows how to run a BigQuery SQL and extract information from documents.
 * [Tabular Data Extraction](extract-tables/): This project uses the Document AI API to extract tabular data from a document.
