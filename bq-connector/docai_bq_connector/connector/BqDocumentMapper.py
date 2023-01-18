@@ -19,10 +19,12 @@
 
 import json
 import logging
+import re
 from datetime import datetime
 from typing import Sequence, List, Optional
 
 from google.cloud.bigquery import SchemaField
+from google.cloud.documentai_v1 import Document
 
 from docai_bq_connector.connector.BqMetadataMapper import BqMetadataMapper
 from docai_bq_connector.connector.ConversionError import ConversionError
@@ -32,6 +34,10 @@ from docai_bq_connector.doc_ai_processing.DocumentField import (
 )
 from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.helper import find, get_bool_value, clean_number
+
+PARSING_METHOD_ENTITIES = "entities"
+PARSING_METHOD_FORM = "form"
+PARSING_METHOD_NORMALIZED_VALUES = "normalized_values"
 
 
 class BqDocumentMapper:
@@ -44,7 +50,7 @@ class BqDocumentMapper:
         include_raw_entities: bool = True,
         include_error_fields: bool = True,
         continue_on_error: bool = False,
-        parsing_methodology: str = "entities",
+        parsing_methodology: str = PARSING_METHOD_ENTITIES,
     ):
         self.processed_document = document
         self.bq_schema = bq_schema
@@ -59,7 +65,16 @@ class BqDocumentMapper:
         self.dictionary = self._map_document_to_bigquery_schema(self.fields, bq_schema)
 
     def _parse_document(self) -> List[DocumentField]:
-        row = self._parse_entities(self.processed_document.document.entities)
+        row: DocumentRow
+        if self.parsing_methodology in [
+            PARSING_METHOD_ENTITIES,
+            PARSING_METHOD_NORMALIZED_VALUES,
+        ]:
+            row = self._parse_entities(self.processed_document.document.entities)
+        elif self.parsing_methodology == PARSING_METHOD_FORM:
+            row = self._parse_form_entities(self.processed_document.document)
+        else:
+            raise Exception("Unsupported parsing methodology")
         return row.fields
 
     def _parse_entities(self, entities) -> DocumentRow:
@@ -106,6 +121,54 @@ class BqDocumentMapper:
                     row.fields.append(parent_field)
                 parent_field.children.append(self._parse_entities(entity.properties))
         return row
+
+    @staticmethod
+    def _parse_form_entities(document: Document) -> DocumentRow:
+        row = DocumentRow()
+        for page in document.pages:
+            for field in page.form_fields:
+                name = BqDocumentMapper.__get_text(field.field_name, document)
+                safe_name = BqDocumentMapper.convert_to_underscore(name)
+                # name_confidence = round(field.field_name.confidence, 4)
+                value = BqDocumentMapper.__get_text(field.field_value, document)
+                value_confidence = round(field.field_value.confidence, 4)
+                row.fields.append(
+                    DocumentField(
+                        name=safe_name,
+                        value=value,
+                        normalized_value=None,
+                        confidence=value_confidence,
+                        page_number=page.page_number,
+                    )
+                )
+        return row
+
+    @staticmethod
+    def convert_to_underscore(name):
+        name = name.strip("@").strip("#").strip("$").strip(":").replace(" ", "")
+        sub_str = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+        return re.sub("([a-z0-9])([A-Z])", r"\1_\2", sub_str).lower()
+
+    @staticmethod
+    def __get_text(doc_element: dict, document: dict):
+        """
+        Document AI identifies form fields by their offsets
+        in document text. This function converts offsets
+        to text snippets.
+        """
+        response = ""
+        # If a text segment spans several lines, it will
+        # be stored in different text segments.
+        for segment in doc_element.text_anchor.text_segments:  # type: ignore[attr-defined]
+            start_index = (
+                int(segment.start_index)
+                if segment in doc_element.text_anchor.text_segments  # type: ignore[attr-defined]
+                else 0
+            )
+            end_index = int(segment.end_index)
+            temp = document.text[start_index:end_index].strip()  # type: ignore[attr-defined]
+            response += temp.replace("\n", " ")
+        return response.strip()
 
     def to_bq_row(
         self,
@@ -261,7 +324,10 @@ class BqDocumentMapper:
             raw_value = (
                 field.value.strip() if isinstance(field.value, str) else field.value
             )
-            if self.parsing_methodology == "entities":
+            if self.parsing_methodology in [
+                PARSING_METHOD_ENTITIES,
+                PARSING_METHOD_FORM,
+            ]:
                 if field.value is None:
                     return None
                 if bq_datatype == "STRING":
@@ -278,7 +344,7 @@ class BqDocumentMapper:
                 if bq_datatype == "INTEGER":
                     return int(clean_number(raw_value))
                 return raw_value
-            elif self.parsing_methodology == "normalized_values":
+            elif self.parsing_methodology in [PARSING_METHOD_NORMALIZED_VALUES]:
                 normalized_value = field.normalized_value
                 if normalized_value is None:
                     return None
