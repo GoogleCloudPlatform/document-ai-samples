@@ -17,7 +17,7 @@
 /tax-processing-pipeline-python @holtskinner
 /bq-connector @mservidio
 /sql-pdf-python @dojowahi
-/document_ai_warehouse_processing_python @HSbedi87
+/document_ai_warehouse/document_ai_warehouse_processing_python @HSbedi87
 /document-json-explorer @kolban-google
 
 # Community owners
