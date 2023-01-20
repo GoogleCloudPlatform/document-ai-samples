@@ -1,5 +1,5 @@
 # https://pypi.org/project/google-cloud-documentai
-google-cloud-documentai==2.9.0
+google-cloud-documentai==2.9.1
 
 # https://pypi.org/project/google-auth
 google-auth==2.16.0
