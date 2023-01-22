@@ -42,38 +42,34 @@ public class SearchDocuments {
     this.USERID = userId;
   }
 
-  /**
-   */
+  /** */
   public void searchDocuments(String query) {
     try {
-      try (DocumentServiceClient documentServiceClient =
-             DocumentServiceClient.create()) {
-        DocumentQuery documentQuery = DocumentQuery.newBuilder()
-          .setQuery(query)
-          .build();
+      try (DocumentServiceClient documentServiceClient = DocumentServiceClient.create()) {
+        DocumentQuery documentQuery = DocumentQuery.newBuilder().setQuery(query).build();
 
-        RequestMetadata requestMetadata = RequestMetadata.newBuilder()
-          .setUserInfo(UserInfo.newBuilder()
-            .setId(USERID)
-            .build())
-          .build();
+        RequestMetadata requestMetadata =
+            RequestMetadata.newBuilder()
+                .setUserInfo(UserInfo.newBuilder().setId(USERID).build())
+                .build();
 
         SearchDocumentsRequest searchDocumentsRequest =
-          SearchDocumentsRequest.newBuilder()
-          .setDocumentQuery(documentQuery)
-          .setParent(LocationName.of(PROJECT_NUMBER, LOCATION).toString())
-          .setRequestMetadata(requestMetadata)
-          .build();
+            SearchDocumentsRequest.newBuilder()
+                .setDocumentQuery(documentQuery)
+                .setParent(LocationName.of(PROJECT_NUMBER, LOCATION).toString())
+                .setRequestMetadata(requestMetadata)
+                .build();
 
-        DocumentServiceClient.SearchDocumentsPagedResponse response
-          = documentServiceClient.searchDocuments(searchDocumentsRequest);
+        DocumentServiceClient.SearchDocumentsPagedResponse response =
+            documentServiceClient.searchDocuments(searchDocumentsRequest);
         System.out.println("display name    name");
-        System.out.println("--------------- ----------------------------" +
-          "--------------------------------------------");
-        for (SearchDocumentsResponse.MatchingDocument matchingDocument:
-          response.iterateAll()) {
-          System.out.printf("%-15.15s %s\n",
-            matchingDocument.getDocument().getDisplayName() ,
+        System.out.println(
+            "--------------- ----------------------------"
+                + "--------------------------------------------");
+        for (SearchDocumentsResponse.MatchingDocument matchingDocument : response.iterateAll()) {
+          System.out.printf(
+              "%-15.15s %s\n",
+              matchingDocument.getDocument().getDisplayName(),
               matchingDocument.getDocument().getName());
         }
       }
@@ -105,11 +101,9 @@ public class SearchDocuments {
     String query = args[0]; // Query string to look for.
     try {
       SearchDocuments app = new SearchDocuments();
-      app.setProjectNumber(projectNumber)
-        .setLocation(location)
-        .setUserId(userid);
+      app.setProjectNumber(projectNumber).setLocation(location).setUserId(userid);
       app.searchDocuments(query);
-    } catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       return;
     }

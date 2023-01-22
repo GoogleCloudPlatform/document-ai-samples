@@ -37,57 +37,83 @@ public class CreateSchema {
     return this;
   }
 
-
-  /**
-   * Create a schema.
-   */
+  /** Create a schema. */
   public void createSchema() {
     try {
-      try (DocumentSchemaServiceClient documentSchemaServiceClient = DocumentSchemaServiceClient.create()) {
-        DocumentSchema documentSchema = DocumentSchema.newBuilder()
-          .setDisplayName("Invoice")
-          .setDescription("Invoice Schema")
-          .setDocumentIsFolder(false)
-          .addPropertyDefinitions(PropertyDefinition.newBuilder()
-            .setName("payee")
-            .setDisplayName("Payee")
-            .setIsFilterable(true).setIsSearchable(true).setIsMetadata(true).setIsRequired(true)
-            .setTextTypeOptions(TextTypeOptions.newBuilder().build())
-            .build())
-          .addPropertyDefinitions(PropertyDefinition.newBuilder()
-            .setName("payer")
-            .setDisplayName("Payer")
-            .setIsFilterable(true).setIsSearchable(false).setIsMetadata(true).setIsRequired(true)
-            .setTextTypeOptions(TextTypeOptions.newBuilder().build())
-            .build())
-          .addPropertyDefinitions(PropertyDefinition.newBuilder()
-            .setName("amount")
-            .setDisplayName("Amount")
-            .setIsFilterable(true).setIsSearchable(false).setIsMetadata(true).setIsRequired(false)
-            .setFloatTypeOptions(FloatTypeOptions.newBuilder().build())
-            .build())
-          .addPropertyDefinitions(PropertyDefinition.newBuilder()
-            .setName("id")
-            .setDisplayName("Invoice ID")
-            .setIsFilterable(true).setIsSearchable(false).setIsMetadata(true).setIsRequired(false)
-            .setTextTypeOptions(TextTypeOptions.newBuilder().build())
-            .build())
-          .addPropertyDefinitions(PropertyDefinition.newBuilder()
-            .setName("date")
-            .setDisplayName("Date")
-            .setIsFilterable(true).setIsSearchable(false).setIsMetadata(true).setIsRequired(false)
-            .setDateTimeTypeOptions(DateTimeTypeOptions.newBuilder().build())
-            .build())
-          .addPropertyDefinitions(PropertyDefinition.newBuilder()
-            .setName("notes")
-            .setDisplayName("Notes")
-            .setIsFilterable(true).setIsSearchable(false).setIsMetadata(true).setIsRequired(false)
-            .setTextTypeOptions(TextTypeOptions.newBuilder().build())
-            .build())
-          .build();
-        DocumentSchema newDocumentSchema = documentSchemaServiceClient.createDocumentSchema(LocationName.of(PROJECT_NUMBER, LOCATION), documentSchema);
+      try (DocumentSchemaServiceClient documentSchemaServiceClient =
+          DocumentSchemaServiceClient.create()) {
+        DocumentSchema documentSchema =
+            DocumentSchema.newBuilder()
+                .setDisplayName("Invoice")
+                .setDescription("Invoice Schema")
+                .setDocumentIsFolder(false)
+                .addPropertyDefinitions(
+                    PropertyDefinition.newBuilder()
+                        .setName("payee")
+                        .setDisplayName("Payee")
+                        .setIsFilterable(true)
+                        .setIsSearchable(true)
+                        .setIsMetadata(true)
+                        .setIsRequired(true)
+                        .setTextTypeOptions(TextTypeOptions.newBuilder().build())
+                        .build())
+                .addPropertyDefinitions(
+                    PropertyDefinition.newBuilder()
+                        .setName("payer")
+                        .setDisplayName("Payer")
+                        .setIsFilterable(true)
+                        .setIsSearchable(false)
+                        .setIsMetadata(true)
+                        .setIsRequired(true)
+                        .setTextTypeOptions(TextTypeOptions.newBuilder().build())
+                        .build())
+                .addPropertyDefinitions(
+                    PropertyDefinition.newBuilder()
+                        .setName("amount")
+                        .setDisplayName("Amount")
+                        .setIsFilterable(true)
+                        .setIsSearchable(false)
+                        .setIsMetadata(true)
+                        .setIsRequired(false)
+                        .setFloatTypeOptions(FloatTypeOptions.newBuilder().build())
+                        .build())
+                .addPropertyDefinitions(
+                    PropertyDefinition.newBuilder()
+                        .setName("id")
+                        .setDisplayName("Invoice ID")
+                        .setIsFilterable(true)
+                        .setIsSearchable(false)
+                        .setIsMetadata(true)
+                        .setIsRequired(false)
+                        .setTextTypeOptions(TextTypeOptions.newBuilder().build())
+                        .build())
+                .addPropertyDefinitions(
+                    PropertyDefinition.newBuilder()
+                        .setName("date")
+                        .setDisplayName("Date")
+                        .setIsFilterable(true)
+                        .setIsSearchable(false)
+                        .setIsMetadata(true)
+                        .setIsRequired(false)
+                        .setDateTimeTypeOptions(DateTimeTypeOptions.newBuilder().build())
+                        .build())
+                .addPropertyDefinitions(
+                    PropertyDefinition.newBuilder()
+                        .setName("notes")
+                        .setDisplayName("Notes")
+                        .setIsFilterable(true)
+                        .setIsSearchable(false)
+                        .setIsMetadata(true)
+                        .setIsRequired(false)
+                        .setTextTypeOptions(TextTypeOptions.newBuilder().build())
+                        .build())
+                .build();
+        DocumentSchema newDocumentSchema =
+            documentSchemaServiceClient.createDocumentSchema(
+                LocationName.of(PROJECT_NUMBER, LOCATION), documentSchema);
         System.out.println("name");
-        System.out.println("-------------------------------------------------------------------------");
+        System.out.println(
+            "-------------------------------------------------------------------------");
         System.out.println(newDocumentSchema.getName());
       }
     } catch (Exception e) {

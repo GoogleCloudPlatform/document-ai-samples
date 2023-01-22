@@ -23,27 +23,27 @@ import com.google.cloud.contentwarehouse.v1.UserInfo;
 public class DeleteDocument {
   private String USERID;
 
-
   public void setUserId(String userId) {
     this.USERID = userId;
   }
 
   /**
    * Delete a document.
+   *
    * @param documentName The name of the document to delete.
    */
   public void deleteDocument(String documentName) {
     try {
       try (DocumentServiceClient documentServiceClient = DocumentServiceClient.create()) {
-        RequestMetadata requestMetadata = RequestMetadata.newBuilder()
-          .setUserInfo(UserInfo.newBuilder()
-            .setId(USERID)
-            .build())
-          .build();
-        DeleteDocumentRequest deleteDocumentRequest = DeleteDocumentRequest.newBuilder()
-          .setName(documentName)
-          .setRequestMetadata(requestMetadata)
-          .build();
+        RequestMetadata requestMetadata =
+            RequestMetadata.newBuilder()
+                .setUserInfo(UserInfo.newBuilder().setId(USERID).build())
+                .build();
+        DeleteDocumentRequest deleteDocumentRequest =
+            DeleteDocumentRequest.newBuilder()
+                .setName(documentName)
+                .setRequestMetadata(requestMetadata)
+                .build();
         documentServiceClient.deleteDocument(deleteDocumentRequest);
       }
     } catch (Exception e) {

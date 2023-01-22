@@ -53,11 +53,11 @@ public class CreateDocumentDocAI {
     return this;
   }
 
-
   /**
-   * Create a document.
-   * This method performs the work to make a request to Document AI Warehouse to create (ingest) a new
-   * document.  It is expected that the schema will have at least two properties called `payee` and `payer`.
+   * Create a document. This method performs the work to make a request to Document AI Warehouse to
+   * create (ingest) a new document. It is expected that the schema will have at least two
+   * properties called `payee` and `payer`.
+   *
    * @param schemaName The Document AI Warehouse identity of the schema.
    * @param docAiDocument The result of performing a Doc AI parse.
    * @param fileData The data read from the file.
@@ -68,40 +68,46 @@ public class CreateDocumentDocAI {
       ByteString fileData) {
     try {
       try (DocumentServiceClient documentServiceClient = DocumentServiceClient.create()) {
-        Document document = Document.newBuilder()
-          .setDisplayName("Invoice 1")
-          .setTitle("My Invoice 1")
-          .setDocumentSchemaName(schemaName)
-          .setCloudAiDocument(docAiDocument)
-          .setInlineRawDocument(fileData)
-          .setRawDocumentFileType(RawDocumentFileType.RAW_DOCUMENT_FILE_TYPE_PDF)
-          .setTextExtractionDisabled(true)
-          .addProperties(Property.newBuilder()
-            .setName("payee")
-            .setTextValues(TextArray.newBuilder().addValues("Developer Company").build())
-            .build())
-          .addProperties(Property.newBuilder()
-            .setName("payer")
-            .setTextValues(TextArray.newBuilder().addValues("Buyer Company").build())
-            .build())
-          .build();
+        Document document =
+            Document.newBuilder()
+                .setDisplayName("Invoice 1")
+                .setTitle("My Invoice 1")
+                .setDocumentSchemaName(schemaName)
+                .setCloudAiDocument(docAiDocument)
+                .setInlineRawDocument(fileData)
+                .setRawDocumentFileType(RawDocumentFileType.RAW_DOCUMENT_FILE_TYPE_PDF)
+                .setTextExtractionDisabled(true)
+                .addProperties(
+                    Property.newBuilder()
+                        .setName("payee")
+                        .setTextValues(
+                            TextArray.newBuilder().addValues("Developer Company").build())
+                        .build())
+                .addProperties(
+                    Property.newBuilder()
+                        .setName("payer")
+                        .setTextValues(TextArray.newBuilder().addValues("Buyer Company").build())
+                        .build())
+                .build();
 
-        RequestMetadata requestMetadata = RequestMetadata.newBuilder()
-          .setUserInfo(UserInfo.newBuilder()
-            .setId(USERID)
-            .build())
-          .build();
+        RequestMetadata requestMetadata =
+            RequestMetadata.newBuilder()
+                .setUserInfo(UserInfo.newBuilder().setId(USERID).build())
+                .build();
 
-        CreateDocumentRequest createDocumentRequest = CreateDocumentRequest.newBuilder()
-          .setDocument(document)
-          .setParent(LocationName.of(PROJECT_NUMBER, LOCATION).toString())
-          .setRequestMetadata(requestMetadata)
-          .build();
+        CreateDocumentRequest createDocumentRequest =
+            CreateDocumentRequest.newBuilder()
+                .setDocument(document)
+                .setParent(LocationName.of(PROJECT_NUMBER, LOCATION).toString())
+                .setRequestMetadata(requestMetadata)
+                .build();
 
-        CreateDocumentResponse createDocumentResponse = documentServiceClient.createDocument(createDocumentRequest);
+        CreateDocumentResponse createDocumentResponse =
+            documentServiceClient.createDocument(createDocumentRequest);
 
         System.out.println("name");
-        System.out.println("-------------------------------------------------------------------------");
+        System.out.println(
+            "-------------------------------------------------------------------------");
         System.out.println(createDocumentResponse.getDocument().getName());
       }
     } catch (Exception e) {
@@ -111,25 +117,24 @@ public class CreateDocumentDocAI {
 
   /**
    * Parse a PDF document using Doc AI.
+   *
    * @param processorName The name of the processor to use for Doc AI parsing.
    * @param fileData The data read from the file that is to be parsed.
    * @return A DocAI Document representing the resulting parsed output.
    */
-  public com.google.cloud.documentai.v1.Document processDocAI(String processorName, ByteString fileData) {
+  public com.google.cloud.documentai.v1.Document processDocAI(
+      String processorName, ByteString fileData) {
     try {
-      try (DocumentProcessorServiceClient documentProcessorServiceClient = DocumentProcessorServiceClient.create()) {
-        RawDocument rawDocument = RawDocument.newBuilder()
-          .setContent(fileData)
-          .setMimeType("application/pdf")
-          .build();
-        ProcessRequest processRequest = ProcessRequest.newBuilder()
-          .setName(processorName)
-          .setRawDocument(rawDocument)
-          .build();
+      try (DocumentProcessorServiceClient documentProcessorServiceClient =
+          DocumentProcessorServiceClient.create()) {
+        RawDocument rawDocument =
+            RawDocument.newBuilder().setContent(fileData).setMimeType("application/pdf").build();
+        ProcessRequest processRequest =
+            ProcessRequest.newBuilder().setName(processorName).setRawDocument(rawDocument).build();
         ProcessResponse response = documentProcessorServiceClient.processDocument(processRequest);
         return response.getDocument();
       }
-    } catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       return null;
     }
@@ -156,8 +161,8 @@ public class CreateDocumentDocAI {
       return;
     }
 
-    String schemaName = args[0];    // Name of schema to associate with document.
-    String fileName = args[1];      // Local file name of document.
+    String schemaName = args[0]; // Name of schema to associate with document.
+    String fileName = args[1]; // Local file name of document.
     String processorName = args[2]; // Name of the DocAI processor to use
 
     try {
@@ -165,9 +170,10 @@ public class CreateDocumentDocAI {
       ByteString fileData = ByteString.readFrom(new FileInputStream(fileName));
       CreateDocumentDocAI app = new CreateDocumentDocAI();
       app.setProjectNumber(projectNumber).setUserId(userid).setLocation(location);
-      com.google.cloud.documentai.v1.Document docAiDocument = app.processDocAI(processorName, fileData);
+      com.google.cloud.documentai.v1.Document docAiDocument =
+          app.processDocAI(processorName, fileData);
       app.createDocument(schemaName, docAiDocument, fileData);
-    } catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       return;
     }

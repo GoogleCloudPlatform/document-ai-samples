@@ -33,17 +33,20 @@ public class ListSchema {
     return this;
   }
 
-  /**
-   * List the schema that are defined in Document AI Warehouse.
-   */
+  /** List the schema that are defined in Document AI Warehouse. */
   public void listSchema() {
     try {
-      try (DocumentSchemaServiceClient documentSchemaServiceClient = DocumentSchemaServiceClient.create()) {
-        DocumentSchemaServiceClient.ListDocumentSchemasPagedResponse response = documentSchemaServiceClient.listDocumentSchemas(LocationName.of(PROJECT_NUMBER, LOCATION));
+      try (DocumentSchemaServiceClient documentSchemaServiceClient =
+          DocumentSchemaServiceClient.create()) {
+        DocumentSchemaServiceClient.ListDocumentSchemasPagedResponse response =
+            documentSchemaServiceClient.listDocumentSchemas(
+                LocationName.of(PROJECT_NUMBER, LOCATION));
         System.out.println("display name    name");
-        System.out.println("--------------- ------------------------------------------------------------------------");
-        for (DocumentSchema currentSchema: response.iterateAll()) {
-          System.out.printf("%-15.15s %s\n",currentSchema.getDisplayName() , currentSchema.getName());
+        System.out.println(
+            "--------------- ------------------------------------------------------------------------");
+        for (DocumentSchema currentSchema : response.iterateAll()) {
+          System.out.printf(
+              "%-15.15s %s\n", currentSchema.getDisplayName(), currentSchema.getName());
         }
       }
     } catch (Exception e) {
