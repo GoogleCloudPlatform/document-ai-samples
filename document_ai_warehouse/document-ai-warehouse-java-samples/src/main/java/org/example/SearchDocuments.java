@@ -46,7 +46,8 @@ public class SearchDocuments {
    */
   public void searchDocuments(String query) {
     try {
-      try (DocumentServiceClient documentServiceClient = DocumentServiceClient.create()) {
+      try (DocumentServiceClient documentServiceClient =
+             DocumentServiceClient.create()) {
         DocumentQuery documentQuery = DocumentQuery.newBuilder()
           .setQuery(query)
           .build();
@@ -57,7 +58,8 @@ public class SearchDocuments {
             .build())
           .build();
 
-        SearchDocumentsRequest searchDocumentsRequest = SearchDocumentsRequest.newBuilder()
+        SearchDocumentsRequest searchDocumentsRequest =
+          SearchDocumentsRequest.newBuilder()
           .setDocumentQuery(documentQuery)
           .setParent(LocationName.of(PROJECT_NUMBER, LOCATION).toString())
           .setRequestMetadata(requestMetadata)
@@ -66,10 +68,13 @@ public class SearchDocuments {
         DocumentServiceClient.SearchDocumentsPagedResponse response
           = documentServiceClient.searchDocuments(searchDocumentsRequest);
         System.out.println("display name    name");
-        System.out.println("--------------- ------------------------------------------------------------------------");
-        for (SearchDocumentsResponse.MatchingDocument matchingDocument: response.iterateAll()) {
+        System.out.println("--------------- ----------------------------" +
+          "--------------------------------------------");
+        for (SearchDocumentsResponse.MatchingDocument matchingDocument:
+          response.iterateAll()) {
           System.out.printf("%-15.15s %s\n",
-            matchingDocument.getDocument().getDisplayName() , matchingDocument.getDocument().getName());
+            matchingDocument.getDocument().getDisplayName() ,
+              matchingDocument.getDocument().getName());
         }
       }
     } catch (Exception e) {
@@ -100,7 +105,9 @@ public class SearchDocuments {
     String query = args[0]; // Query string to look for.
     try {
       SearchDocuments app = new SearchDocuments();
-      app.setProjectNumber(projectNumber).setLocation(location).setUserId(userid);
+      app.setProjectNumber(projectNumber)
+        .setLocation(location)
+        .setUserId(userid);
       app.searchDocuments(query);
     } catch(Exception e) {
       e.printStackTrace();
