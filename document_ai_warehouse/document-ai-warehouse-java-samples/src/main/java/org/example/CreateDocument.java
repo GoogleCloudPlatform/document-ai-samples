@@ -31,23 +31,32 @@ import java.io.FileInputStream;
 
 /** Sample that illustrates creating a document in Document AI Warehouse. */
 public class CreateDocument {
-  private String PROJECT_NUMBER;
-  private String LOCATION;
-  private String USERID;
+  private String projectNumber;
+  private String location;
+  private String userId;
 
-  public CreateDocument setProjectNumber(String projectNumber) {
-    this.PROJECT_NUMBER = projectNumber;
-    return this;
+  /**
+   * Setter for project number
+   * @param projectNumber The project number.
+   */
+  public void setProjectNumber(String projectNumber) {
+    this.projectNumber = projectNumber;
   }
 
-  public CreateDocument setLocation(String location) {
-    this.LOCATION = location;
-    return this;
+  /**
+   * Setter for location
+   * @param location The location for the document AI Warehouse.
+   */
+  public void setLocation(String location) {
+    this.location = location;
   }
 
-  public CreateDocument setUserId(String userId) {
-    this.USERID = userId;
-    return this;
+  /**
+   * Setter for userid
+   * @param userId The userid for ACLs.
+   */
+  public void setUserId(String userId) {
+    this.userId = userId;
   }
 
   /**
@@ -60,7 +69,8 @@ public class CreateDocument {
    */
   public void createDocument(String schemaName, ByteString fileData) {
     try {
-      try (DocumentServiceClient documentServiceClient = DocumentServiceClient.create()) {
+      try (DocumentServiceClient documentServiceClient =
+        DocumentServiceClient.create()) {
         Document document =
             Document.newBuilder()
                 .setDisplayName("Invoice 1")
@@ -73,24 +83,26 @@ public class CreateDocument {
                     Property.newBuilder()
                         .setName("payee")
                         .setTextValues(
-                            TextArray.newBuilder().addValues("Developer Company").build())
+                            TextArray.newBuilder()
+                              .addValues("Developer Company").build())
                         .build())
                 .addProperties(
                     Property.newBuilder()
                         .setName("payer")
-                        .setTextValues(TextArray.newBuilder().addValues("Buyer Company").build())
+                        .setTextValues(TextArray.newBuilder()
+                          .addValues("Buyer Company").build())
                         .build())
                 .build();
 
         RequestMetadata requestMetadata =
             RequestMetadata.newBuilder()
-                .setUserInfo(UserInfo.newBuilder().setId(USERID).build())
+                .setUserInfo(UserInfo.newBuilder().setId(userId).build())
                 .build();
 
         CreateDocumentRequest createDocumentRequest =
             CreateDocumentRequest.newBuilder()
                 .setDocument(document)
-                .setParent(LocationName.of(PROJECT_NUMBER, LOCATION).toString())
+                .setParent(LocationName.of(projectNumber, location).toString())
                 .setRequestMetadata(requestMetadata)
                 .build();
 
@@ -107,7 +119,12 @@ public class CreateDocument {
     }
   } // createDocument
 
-  public static void main(String[] args) {
+  /**
+   * Entry point into the sample
+   *
+   * @param args Any passed in arguments.
+   */
+  public static void main(final String[] args) {
     String projectNumber = System.getenv("PROJECT_NUMBER");
     if (projectNumber == null) {
       System.err.println("No PROJECT_NUMBER environment variable set");
@@ -132,10 +149,13 @@ public class CreateDocument {
     String fileName = args[1]; // Local file name of document.
 
     try {
-      // Read the document data into memory for passing to Document AI Warehouse.
+      // Read the document data into memory for passing to
+      // Document AI Warehouse.
       ByteString fileData = ByteString.readFrom(new FileInputStream(fileName));
       CreateDocument app = new CreateDocument();
-      app.setProjectNumber(projectNumber).setUserId(userid).setLocation(location);
+      app.setProjectNumber(projectNumber);
+      app.setUserId(userid);
+      app.setLocation(location);
       app.createDocument(schemaName, fileData);
     } catch (Exception e) {
       e.printStackTrace();
