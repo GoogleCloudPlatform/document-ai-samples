@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.example;
 
 import com.google.cloud.contentwarehouse.v1.DocumentQuery;
@@ -23,26 +24,29 @@ import com.google.cloud.contentwarehouse.v1.SearchDocumentsRequest;
 import com.google.cloud.contentwarehouse.v1.SearchDocumentsResponse;
 import com.google.cloud.contentwarehouse.v1.UserInfo;
 
+/**
+ * Sample that searches documents.
+ */
 public class SearchDocuments {
-  private String PROJECT_NUMBER;
-  private String LOCATION;
-  private String USERID;
+  private String projectNumber;
+  private String location;
+  private String userId;
 
-  public SearchDocuments setProjectNumber(String projectNumber) {
-    this.PROJECT_NUMBER = projectNumber;
-    return this;
+  public void setProjectNumber(String projectNumberValue) {
+    this.projectNumber = projectNumberValue;
   }
 
-  public SearchDocuments setLocation(String location) {
-    this.LOCATION = location;
-    return this;
+  public void setLocation(String locationValue) {
+    this.location = locationValue;
   }
 
-  public void setUserId(String userId) {
-    this.USERID = userId;
+  public void setUserId(String userIdValue) {
+    this.userId = userIdValue;
   }
 
-  /** */
+  /**
+   * Sample that searches documents.
+   */
   public void searchDocuments(String query) {
     try {
       try (DocumentServiceClient documentServiceClient = DocumentServiceClient.create()) {
@@ -50,13 +54,13 @@ public class SearchDocuments {
 
         RequestMetadata requestMetadata =
             RequestMetadata.newBuilder()
-                .setUserInfo(UserInfo.newBuilder().setId(USERID).build())
+                .setUserInfo(UserInfo.newBuilder().setId(userId).build())
                 .build();
 
         SearchDocumentsRequest searchDocumentsRequest =
             SearchDocumentsRequest.newBuilder()
                 .setDocumentQuery(documentQuery)
-                .setParent(LocationName.of(PROJECT_NUMBER, LOCATION).toString())
+                .setParent(LocationName.of(projectNumber, location).toString())
                 .setRequestMetadata(requestMetadata)
                 .build();
 
@@ -78,6 +82,11 @@ public class SearchDocuments {
     }
   } // searchDocuments
 
+  /**
+   * Main entry point into the sample.
+   *
+   * @param args Arguments passed into the sample.
+   */
   public static void main(String[] args) {
     String projectNumber = System.getenv("PROJECT_NUMBER");
     if (projectNumber == null) {
@@ -101,7 +110,9 @@ public class SearchDocuments {
     String query = args[0]; // Query string to look for.
     try {
       SearchDocuments app = new SearchDocuments();
-      app.setProjectNumber(projectNumber).setLocation(location).setUserId(userid);
+      app.setProjectNumber(projectNumber);
+      app.setLocation(location);
+      app.setUserId(userid);
       app.searchDocuments(query);
     } catch (Exception e) {
       e.printStackTrace();

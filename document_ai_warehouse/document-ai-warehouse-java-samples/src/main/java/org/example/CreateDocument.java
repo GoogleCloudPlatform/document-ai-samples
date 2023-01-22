@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.example;
 
 import com.google.cloud.contentwarehouse.v1.CreateDocumentRequest;
@@ -26,7 +27,6 @@ import com.google.cloud.contentwarehouse.v1.RequestMetadata;
 import com.google.cloud.contentwarehouse.v1.TextArray;
 import com.google.cloud.contentwarehouse.v1.UserInfo;
 import com.google.protobuf.ByteString;
-
 import java.io.FileInputStream;
 
 /** Sample that illustrates creating a document in Document AI Warehouse. */
@@ -46,7 +46,8 @@ public class CreateDocument {
 
   /**
    * Setter for project number.
-   * @param projectNumber The project number.
+   *
+   * @param projectNumberValue The project number.
    */
   public void setProjectNumber(final String projectNumberValue) {
     this.projectNumber = projectNumberValue;
@@ -54,7 +55,8 @@ public class CreateDocument {
 
   /**
    * Setter for location.
-   * @param location The location for the document AI Warehouse.
+   *
+   * @param locationValue The location for the document AI Warehouse.
    */
   public void setLocation(final String locationValue) {
     this.location = locationValue;
@@ -62,16 +64,18 @@ public class CreateDocument {
 
   /**
    * Setter for userid.
-   * @param userId The userid for ACLs.
+   *
+   * @param userIdValue The userid for ACLs.
    */
   public void setUserId(final String userIdValue) {
     this.userId = userIdValue;
   }
 
   /**
-   * Create a document. This method performs the work to make a request to Document AI Warehouse to
-   * create (ingest) a new document. It is expected that the schema will have at least two
-   * properties called `payee` and `payer`.
+   * Create a document. This method performs the work to make a request to
+   * Document AI Warehouse to create (ingest) a new document. It is expected
+   * that the schema will have at least two properties called `payee`
+   * and `payer`.
    *
    * @param fileData The document data to be loaded into Document AI Warehouse.
    * @param schemaName The Document AI Warehouse identity of the schema.
@@ -82,7 +86,7 @@ public class CreateDocument {
       try (DocumentServiceClient documentServiceClient =
              DocumentServiceClient.create()) {
         Document document =
-          Document.newBuilder()
+            Document.newBuilder()
             .setDisplayName("Invoice 1")
             .setTitle("My Invoice 1")
             .setDocumentSchemaName(schemaName)
@@ -105,23 +109,21 @@ public class CreateDocument {
             .build();
 
         RequestMetadata requestMetadata =
-          RequestMetadata.newBuilder()
+            RequestMetadata.newBuilder()
             .setUserInfo(UserInfo.newBuilder().setId(userId).build())
             .build();
 
         CreateDocumentRequest createDocumentRequest =
-          CreateDocumentRequest.newBuilder()
+            CreateDocumentRequest.newBuilder()
             .setDocument(document)
             .setParent(LocationName.of(projectNumber, location).toString())
             .setRequestMetadata(requestMetadata)
             .build();
 
-        CreateDocumentResponse createDocumentResponse =
-          documentServiceClient.createDocument(createDocumentRequest);
+        CreateDocumentResponse createDocumentResponse = documentServiceClient.createDocument(createDocumentRequest);
 
         System.out.println("name");
-        System.out.println(
-          "-------------------------------------------------------------------------");
+        System.out.println("-------------------------------------------------------------------------");
         System.out.println(createDocumentResponse.getDocument().getName());
       }
     } catch (Exception e) {

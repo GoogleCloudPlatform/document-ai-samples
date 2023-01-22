@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.example;
 
 import com.google.cloud.contentwarehouse.v1.CreateDocumentRequest;
@@ -30,33 +31,33 @@ import com.google.cloud.documentai.v1.ProcessRequest;
 import com.google.cloud.documentai.v1.ProcessResponse;
 import com.google.cloud.documentai.v1.RawDocument;
 import com.google.protobuf.ByteString;
-
 import java.io.FileInputStream;
 
-public class CreateDocumentDocAI {
-  private String PROJECT_NUMBER;
-  private String LOCATION;
-  private String USERID;
+/**
+ * Sample that creates a document in Document AI Warehouse.
+ */
+public class CreateDocumentDocAi {
+  private String projectNumber;
+  private String location;
+  private String userId;
 
-  public CreateDocumentDocAI setProjectNumber(String projectNumber) {
-    this.PROJECT_NUMBER = projectNumber;
-    return this;
+  public void setProjectNumber(final String projectNumberValue) {
+    this.projectNumber = projectNumberValue;
   }
 
-  public CreateDocumentDocAI setLocation(String location) {
-    this.LOCATION = location;
-    return this;
+  public void setLocation(final String locationValue) {
+    this.location = locationValue;
   }
 
-  public CreateDocumentDocAI setUserId(String userId) {
-    this.USERID = userId;
-    return this;
+  public void setUserId(final String userIdValue) {
+    this.userId = userIdValue;
   }
 
   /**
-   * Create a document. This method performs the work to make a request to Document AI Warehouse to
-   * create (ingest) a new document. It is expected that the schema will have at least two
-   * properties called `payee` and `payer`.
+   * Create a document. This method performs the work to make a request to
+   * Document AI Warehouse to create (ingest) a new document. It is
+   * expected that the schema will have at least two properties called
+   * `payee` and `payer`.
    *
    * @param schemaName The Document AI Warehouse identity of the schema.
    * @param docAiDocument The result of performing a Doc AI parse.
@@ -67,7 +68,8 @@ public class CreateDocumentDocAI {
       com.google.cloud.documentai.v1.Document docAiDocument,
       ByteString fileData) {
     try {
-      try (DocumentServiceClient documentServiceClient = DocumentServiceClient.create()) {
+      try (DocumentServiceClient documentServiceClient =
+             DocumentServiceClient.create()) {
         Document document =
             Document.newBuilder()
                 .setDisplayName("Invoice 1")
@@ -75,30 +77,33 @@ public class CreateDocumentDocAI {
                 .setDocumentSchemaName(schemaName)
                 .setCloudAiDocument(docAiDocument)
                 .setInlineRawDocument(fileData)
-                .setRawDocumentFileType(RawDocumentFileType.RAW_DOCUMENT_FILE_TYPE_PDF)
+                .setRawDocumentFileType(
+                  RawDocumentFileType.RAW_DOCUMENT_FILE_TYPE_PDF)
                 .setTextExtractionDisabled(true)
                 .addProperties(
                     Property.newBuilder()
                         .setName("payee")
                         .setTextValues(
-                            TextArray.newBuilder().addValues("Developer Company").build())
+                            TextArray.newBuilder()
+                              .addValues("Developer Company").build())
                         .build())
                 .addProperties(
                     Property.newBuilder()
                         .setName("payer")
-                        .setTextValues(TextArray.newBuilder().addValues("Buyer Company").build())
+                        .setTextValues(TextArray.newBuilder()
+                          .addValues("Buyer Company").build())
                         .build())
                 .build();
 
         RequestMetadata requestMetadata =
             RequestMetadata.newBuilder()
-                .setUserInfo(UserInfo.newBuilder().setId(USERID).build())
+                .setUserInfo(UserInfo.newBuilder().setId(userId).build())
                 .build();
 
         CreateDocumentRequest createDocumentRequest =
             CreateDocumentRequest.newBuilder()
                 .setDocument(document)
-                .setParent(LocationName.of(PROJECT_NUMBER, LOCATION).toString())
+                .setParent(LocationName.of(projectNumber, location).toString())
                 .setRequestMetadata(requestMetadata)
                 .build();
 
@@ -122,15 +127,17 @@ public class CreateDocumentDocAI {
    * @param fileData The data read from the file that is to be parsed.
    * @return A DocAI Document representing the resulting parsed output.
    */
-  public com.google.cloud.documentai.v1.Document processDocAI(
+  public com.google.cloud.documentai.v1.Document processDocAi(
       String processorName, ByteString fileData) {
     try {
       try (DocumentProcessorServiceClient documentProcessorServiceClient =
           DocumentProcessorServiceClient.create()) {
         RawDocument rawDocument =
-            RawDocument.newBuilder().setContent(fileData).setMimeType("application/pdf").build();
+            RawDocument.newBuilder().setContent(fileData)
+              .setMimeType("application/pdf").build();
         ProcessRequest processRequest =
-            ProcessRequest.newBuilder().setName(processorName).setRawDocument(rawDocument).build();
+            ProcessRequest.newBuilder()
+              .setName(processorName).setRawDocument(rawDocument).build();
         ProcessResponse response = documentProcessorServiceClient.processDocument(processRequest);
         return response.getDocument();
       }
@@ -140,6 +147,11 @@ public class CreateDocumentDocAI {
     }
   } // processDocAI
 
+  /**
+   * Main entry into sample application.
+   *
+   * @param args Arguments for the application.
+   */
   public static void main(String[] args) {
     String projectNumber = System.getenv("PROJECT_NUMBER");
     if (projectNumber == null) {
@@ -166,12 +178,15 @@ public class CreateDocumentDocAI {
     String processorName = args[2]; // Name of the DocAI processor to use
 
     try {
-      // Read the document data into memory for passing to Document AI Warehouse.
+      // Read the document data into memory for passing to
+      // Document AI Warehouse.
       ByteString fileData = ByteString.readFrom(new FileInputStream(fileName));
-      CreateDocumentDocAI app = new CreateDocumentDocAI();
-      app.setProjectNumber(projectNumber).setUserId(userid).setLocation(location);
+      CreateDocumentDocAi app = new CreateDocumentDocAi();
+      app.setProjectNumber(projectNumber);
+      app.setUserId(userid);
+      app.setLocation(location);
       com.google.cloud.documentai.v1.Document docAiDocument =
-          app.processDocAI(processorName, fileData);
+          app.processDocAi(processorName, fileData);
       app.createDocument(schemaName, docAiDocument, fileData);
     } catch (Exception e) {
       e.printStackTrace();

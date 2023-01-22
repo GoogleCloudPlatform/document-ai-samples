@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.example;
 
 import com.google.cloud.contentwarehouse.v1.DeleteDocumentRequest;
@@ -20,11 +21,14 @@ import com.google.cloud.contentwarehouse.v1.DocumentServiceClient;
 import com.google.cloud.contentwarehouse.v1.RequestMetadata;
 import com.google.cloud.contentwarehouse.v1.UserInfo;
 
+/**
+ * Sample application that deletes a document from Document AI Warehouse.
+ */
 public class DeleteDocument {
-  private String USERID;
+  private String userId;
 
-  public void setUserId(String userId) {
-    this.USERID = userId;
+  public void setUserId(String userIdValue) {
+    this.userId = userIdValue;
   }
 
   /**
@@ -37,7 +41,7 @@ public class DeleteDocument {
       try (DocumentServiceClient documentServiceClient = DocumentServiceClient.create()) {
         RequestMetadata requestMetadata =
             RequestMetadata.newBuilder()
-                .setUserInfo(UserInfo.newBuilder().setId(USERID).build())
+                .setUserInfo(UserInfo.newBuilder().setId(userId).build())
                 .build();
         DeleteDocumentRequest deleteDocumentRequest =
             DeleteDocumentRequest.newBuilder()
@@ -51,6 +55,11 @@ public class DeleteDocument {
     }
   } // deleteDocument
 
+  /**
+   * Main entry point into the application.
+   *
+   * @param args Parameters to the application.
+   */
   public static void main(String[] args) {
     String userid = System.getenv("USERID");
     if (userid == null) {

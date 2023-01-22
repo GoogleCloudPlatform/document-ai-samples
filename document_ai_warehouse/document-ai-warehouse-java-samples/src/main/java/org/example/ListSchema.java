@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.example;
 
 import com.google.cloud.contentwarehouse.v1.DocumentSchema;
 import com.google.cloud.contentwarehouse.v1.DocumentSchemaServiceClient;
 import com.google.cloud.contentwarehouse.v1.LocationName;
 
+/**
+ * A sample application that lists schemas.
+ */
 public class ListSchema {
-  private String PROJECT_NUMBER;
-  private String LOCATION;
+  private String projectNumber;
+  private String location;
 
-  public ListSchema setProjectNumber(String projectNumber) {
-    this.PROJECT_NUMBER = projectNumber;
-    return this;
+  public void setProjectNumber(String projectNumberValue) {
+    this.projectNumber = projectNumberValue;
   }
 
-  public ListSchema setLocation(String location) {
-    this.LOCATION = location;
-    return this;
+  public void setLocation(String locationValue) {
+    this.location = locationValue;
   }
 
   /** List the schema that are defined in Document AI Warehouse. */
@@ -40,7 +42,7 @@ public class ListSchema {
           DocumentSchemaServiceClient.create()) {
         DocumentSchemaServiceClient.ListDocumentSchemasPagedResponse response =
             documentSchemaServiceClient.listDocumentSchemas(
-                LocationName.of(PROJECT_NUMBER, LOCATION));
+                LocationName.of(projectNumber, location));
         System.out.println("display name    name");
         System.out.println(
             "--------------- ------------------------------------------------------------------------");
@@ -54,6 +56,11 @@ public class ListSchema {
     }
   } // listSchema
 
+  /**
+   * Main entry into the application.
+   *
+   * @param args Arguments to the application.
+   */
   public static void main(String[] args) {
     String projectNumber = System.getenv("PROJECT_NUMBER");
     if (projectNumber == null) {
@@ -66,7 +73,8 @@ public class ListSchema {
     }
 
     ListSchema app = new ListSchema();
-    app.setProjectNumber(projectNumber).setLocation(location);
+    app.setProjectNumber(projectNumber);
+    app.setLocation(location);
     app.listSchema();
     System.out.println("ListSchema completed");
   } // main

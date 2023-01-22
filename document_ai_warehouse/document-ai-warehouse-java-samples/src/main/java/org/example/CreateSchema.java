@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.example;
 
 import com.google.cloud.contentwarehouse.v1.DateTimeTypeOptions;
@@ -23,18 +24,19 @@ import com.google.cloud.contentwarehouse.v1.LocationName;
 import com.google.cloud.contentwarehouse.v1.PropertyDefinition;
 import com.google.cloud.contentwarehouse.v1.TextTypeOptions;
 
+/**
+ * Sample application that creates a Document AI Warehouse Schema.
+ */
 public class CreateSchema {
-  private String PROJECT_NUMBER;
-  private String LOCATION;
+  private String projectNumber;
+  private String location;
 
-  public CreateSchema setProjectNumber(String projectNumber) {
-    this.PROJECT_NUMBER = projectNumber;
-    return this;
+  public void setProjectNumber(String projectNumberValue) {
+    this.projectNumber = projectNumberValue;
   }
 
-  public CreateSchema setLocation(String location) {
-    this.LOCATION = location;
-    return this;
+  public void setLocation(String locationValue) {
+    this.location = locationValue;
   }
 
   /** Create a schema. */
@@ -110,7 +112,7 @@ public class CreateSchema {
                 .build();
         DocumentSchema newDocumentSchema =
             documentSchemaServiceClient.createDocumentSchema(
-                LocationName.of(PROJECT_NUMBER, LOCATION), documentSchema);
+                LocationName.of(projectNumber, location), documentSchema);
         System.out.println("name");
         System.out.println(
             "-------------------------------------------------------------------------");
@@ -121,6 +123,11 @@ public class CreateSchema {
     }
   } // createSchema
 
+  /**
+   * Main entry into the application.
+   *
+   * @param args Arguments to the application.
+   */
   public static void main(String[] args) {
     String projectNumber = System.getenv("PROJECT_NUMBER");
     if (projectNumber == null) {
@@ -133,7 +140,8 @@ public class CreateSchema {
     }
 
     CreateSchema app = new CreateSchema();
-    app.setProjectNumber(projectNumber).setLocation(location);
+    app.setProjectNumber(projectNumber);
+    app.setLocation(location);
     app.createSchema();
     System.out.println("CreateSchema completed");
   } // main
