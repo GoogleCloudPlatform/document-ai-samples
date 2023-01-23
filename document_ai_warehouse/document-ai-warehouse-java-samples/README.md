@@ -55,7 +55,7 @@ document we need a few pieces of information:
 
 We pass in positional arguments for these.  The first argument is the schema name, the second is the local file for
 the document.  This document will be read and passed in.  The sample sets properties named `payer` and `payee`
-which are present in the schema built in the `CreateSchema` sample.  Sample PDFs are available in the `data` folder.
+which are present in the schema created in the `CreateSchema` sample.  Sample PDFs are available in the `data` folder.
 
 ## `DeleteDocument`
 Delete a document.  This sample deletes a document from Document AI Warehouse.  The name of the document to be deleted
