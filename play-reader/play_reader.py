@@ -1,9 +1,10 @@
-from typing import Dict, Tuple, List
+import os
 from random import choice
+from typing import Dict, List, Tuple
+
 from gender_guesser.detector import Detector
 from google.cloud import texttospeech_v1beta1 as texttospeech
 from pydub import AudioSegment
-import os
 
 DEFAULT_LANGUAGE = "en"
 # Voice used for narration, scene details, etc.
