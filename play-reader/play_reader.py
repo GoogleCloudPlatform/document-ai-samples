@@ -120,18 +120,31 @@ def combine_audio_files(audio_files: List, filename: str):
     print(f"Audio content written to file {outfile_name}")
 
 
+def get_characters(input_file) -> List:
+
+    character_list = []
+    with open(input_file, "r") as f:
+        lines = f.readlines()
+
+    start_line = lines.index("Characters:\n")
+
+    for i in range(start_line + 2, len(lines)):
+        if lines[i] == "\n":
+            break
+        character_list.append(lines[i].strip())
+    return character_list
+
+
 def main():
+    # input_file = "TheTamingoftheShrew.txt"
+    filename = "TheTamingoftheShrew"
+    input_file = f"{filename}.txt"
 
     gender_to_voices, total_voices = list_voices_by_gender()
     print_gender_map(gender_to_voices)
     print("\n")
 
-    character_list = [
-        "Petruchio",
-        "Hortensio",
-        "Gremio",
-        "Baptista",
-    ]
+    character_list = get_characters(input_file)
 
     if len(character_list) > total_voices:
         print(
@@ -141,10 +154,6 @@ def main():
 
     character_to_voice = create_character_map(character_list, gender_to_voices)
     print_character_map(character_to_voice)
-
-    # input_file = "TheTamingoftheShrew.txt"
-    filename = "TheTamingoftheShrew"
-    input_file = f"{filename}.txt"
 
     with open(input_file, "r") as f:
         lines = f.readlines()

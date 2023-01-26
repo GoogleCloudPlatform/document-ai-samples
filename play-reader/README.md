@@ -6,4 +6,3 @@ This is a sample application that uses the Text-to-Speech API to read the dialog
 
 - Plans
   - Incorporate PDF parsing with Document AI
-  - Parse List of Characters from Text File
