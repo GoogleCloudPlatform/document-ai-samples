@@ -18,6 +18,12 @@ gender_detector = Detector()
 SILENCE_LENGTH = 200
 TXT_EXTENSION = ".txt"
 
+# For character names that are not supported by gender_guesser
+CHARACTER_GENDER = {
+    "Macbeth": "male",
+    "Lady Macbeth": "female",
+}
+
 
 def list_voices_by_gender(
     language_code: str = DEFAULT_LANGUAGE,
@@ -64,14 +70,19 @@ def create_character_map(
             character_to_voice[name] = DEFAULT_VOICE
             continue
 
-        gender = gender_detector.get_gender(name)
+        if name in CHARACTER_GENDER:
+            gender = CHARACTER_GENDER[name]
+        else:
+            gender = gender_detector.get_gender(name)
 
         # If gender is indeterminate/androgynous, pick random one
         if gender not in supported_genders:
             gender = choice(supported_genders)
 
         # Assign Voice to Character and don't reuse.
-        character_to_voice[name] = gender_to_voices[gender].pop()
+        voice = choice(gender_to_voices[gender])
+        gender_to_voices[gender].remove(voice)
+        character_to_voice[name] = voice
 
     return character_to_voice
 
