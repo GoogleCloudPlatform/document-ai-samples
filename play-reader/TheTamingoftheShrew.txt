@@ -11,7 +11,7 @@ Baptista
 
 Act I
 
-Scene I: In Padua
+Scene 1: In Padua
 
 Petruchio, Hortensio, and Gremio, three gentlemen of Verona, arrive in Padua. They are discussing the merits of the women of Padua.
 
@@ -43,7 +43,7 @@ Gremio: I pity the poor man who marries that shrew.
 
 Act I
 
-Scene II: In Baptista's house
+Scene 2: In Baptista's house
 
 Baptista Minola, a wealthy Paduan merchant, is discussing his daughters, Katherina and Bianca, with his friend, Gremio.
 
@@ -71,7 +71,7 @@ Baptista: I hope so, for Katherina's sake.
 
 Act I
 
-Scene III: In Petruchio's house
+Scene 3: In Petruchio's house
 
 Petruchio is discussing his plans to marry Katherina with his friend, Hortensio.
 

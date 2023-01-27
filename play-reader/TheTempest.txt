@@ -12,15 +12,7 @@ Ariel
 
 Act I
 
-Scene I: On a ship at sea
-
-The Tempest
-
-William Shakespeare
-
-Act I
-
-Scene I: On a ship at sea
+Scene 1: On a ship at sea
 
 Enter a Master and a Boatswain
 
@@ -48,7 +40,7 @@ Boatswain: Farewell, Master. I hope you find peace in the afterlife.
 
 Act I
 
-Scene II: On an island
+Scene 2: On an island
 
 Enter Prospero, Miranda, and Ariel
 

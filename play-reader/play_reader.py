@@ -158,6 +158,8 @@ def parse_file(input_file: str, character_to_voice: Dict[str, Tuple]) -> List[st
 
         if len(split_line) <= 1:
             dialogue = split_line[0]
+        elif "Scene" in split_line[0]:
+            dialogue = split_line[0] + split_line[1]
         else:
             dialogue = split_line[1]
 
