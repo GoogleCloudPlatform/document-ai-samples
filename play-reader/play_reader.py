@@ -19,10 +19,7 @@ SILENCE_LENGTH = 200
 TXT_EXTENSION = ".txt"
 
 # For character names that are not supported by gender_guesser
-CHARACTER_GENDER = {
-    "Macbeth": "male",
-    "Lady Macbeth": "female",
-}
+CHARACTER_GENDER = {"Macbeth": "male", "Lady Macbeth": "female", "Ariel": "female"}
 
 
 def list_voices_by_gender(
@@ -35,7 +32,7 @@ def list_voices_by_gender(
     response = tts_client.list_voices(language_code=language_code)
 
     for voice in response.voices:
-        if "Neural2" not in voice.name or DEFAULT_VOICE == voice.name:
+        if "Neural2" not in voice.name or DEFAULT_VOICE[0] == voice.name:
             continue
 
         ssml_gender = texttospeech.SsmlVoiceGender(voice.ssml_gender).name.lower()
