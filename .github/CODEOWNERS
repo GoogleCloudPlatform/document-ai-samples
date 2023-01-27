@@ -9,7 +9,7 @@
 
 # @matthewayne is the default owner for PDF splitter sample changes
 /pdf-splitter-python/ @holtskinner
-/web-app-demo/ @galz10
+/web-app-demo/ @galz10 @holtskinner
 /extract-languages @holtskinner
 /extract-tables @holtskinner
 /filter-hitl-language @holtskinner
