@@ -109,6 +109,10 @@ class BqDocumentMapper:
                     )
                 )
             else:
+                content = entity.mention_text
+                value = (
+                    content if content is not None and content.strip() != "" else None
+                )
                 parent_field = row.find_field_by_name(entity.type_)
                 if parent_field is None:
                     parent_field = DocumentField(
@@ -247,6 +251,7 @@ class BqDocumentMapper:
     ):
         result: dict = {}
         for field in fields:
+            print(f"field={field}")
             field_name = field.to_bigquery_safe_name()
             if field.value is None:
                 continue

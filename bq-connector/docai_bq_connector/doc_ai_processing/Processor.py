@@ -188,6 +188,9 @@ class Processor:
         processor_uri = client.processor_path(
             self.processor_project_id, self.processor_location, self.processor_id
         )
+
+        logging.debug(f"name={processor_uri}, input_documents={input_config}, "
+                      f"document_output_config={output_config}")
         request = documentai.types.document_processor_service.BatchProcessRequest(
             name=processor_uri,
             input_documents=input_config,

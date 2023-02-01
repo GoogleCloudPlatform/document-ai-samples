@@ -22,6 +22,7 @@ from typing import Dict, Any
 
 # Indicates the metadata types that can be mapped - Informational only
 metadata_to_map = {
+    "doc_id",
     "file_name",
     "doc_status",
     "doc_type",
