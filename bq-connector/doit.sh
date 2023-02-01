@@ -1,3 +1,4 @@
+#! /bin/bash
 # A sample example of calling main.py function, to process PDF form and store raw_entities as is in BQ
 
 # Developer replace data below below (at least PROCESSOR_ID, FILE_NAME)
