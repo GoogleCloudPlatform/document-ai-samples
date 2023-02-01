@@ -309,6 +309,9 @@ class DocAIBQConnector:
         doc_unique_id = str(uuid.uuid4())
         if self.metadata_mapper is not None:
             self.metadata_mapper.set_default_value_for_metadata_if_not_set(
+                "doc_id", doc_unique_id
+            )
+            self.metadata_mapper.set_default_value_for_metadata_if_not_set(
                 "file_name", file_name
             )
             self.metadata_mapper.set_default_value_for_metadata_if_not_set(
