@@ -82,11 +82,11 @@ class BqDocumentMapper:
         for entity in entities:
             if len(entity.page_anchor.page_refs) != 1:
                 continue
+            content = entity.mention_text
+            value = (
+                content if content is not None and content.strip() != "" else None
+            )
             if len(entity.properties) == 0:
-                content = entity.mention_text
-                value = (
-                    content if content is not None and content.strip() != "" else None
-                )
                 if row.find_field_by_name(entity.type_) is not None:
                     self.errors.append(
                         ConversionError(
@@ -109,10 +109,6 @@ class BqDocumentMapper:
                     )
                 )
             else:
-                content = entity.mention_text
-                value = (
-                    content if content is not None and content.strip() != "" else None
-                )
                 parent_field = row.find_field_by_name(entity.type_)
                 if parent_field is None:
                     parent_field = DocumentField(
