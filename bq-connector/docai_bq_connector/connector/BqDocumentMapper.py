@@ -247,7 +247,6 @@ class BqDocumentMapper:
     ):
         result: dict = {}
         for field in fields:
-            print(f"field={field}")
             field_name = field.to_bigquery_safe_name()
             if field.value is None:
                 continue
