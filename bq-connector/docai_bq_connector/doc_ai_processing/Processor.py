@@ -277,8 +277,7 @@ class Processor:
             page_count = get_pdf_page_cnt(gcs_doc_blob)
             # Limit is different per processor: https://cloud.google.com/document-ai/quotas
             if page_count <= self.max_sync_page_count:
-                # process_result = self._process_sync(document_blob=gcs_doc_blob)
-                process_result = self._process_async()
+                process_result = self._process_sync(document_blob=gcs_doc_blob)
             else:
                 process_result = self._process_async()
             if (
