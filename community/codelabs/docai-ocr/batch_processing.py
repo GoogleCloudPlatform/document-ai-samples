@@ -90,7 +90,6 @@ storage_client = storage.Client()
 # One process per Input Document
 # pylint: disable=not-an-iterable
 for process in metadata.individual_process_statuses:
-
     # output_gcs_destination format: gs://BUCKET/PREFIX/OPERATION_NUMBER/0
     # The GCS API requires the bucket name and URI prefix separately
     output_bucket, output_prefix = re.match(

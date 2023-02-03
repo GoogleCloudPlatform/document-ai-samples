@@ -82,7 +82,6 @@ class DocumentWarehouseUtils:
     def set_acl(
         self, document_id: str, policy: str, caller_user_id: str
     ) -> contentwarehouse_v1.SetAclResponse:
-
         if len(document_id) == 0 or policy:
             return False, "document_id or policy is empty"
 
@@ -112,7 +111,6 @@ class DocumentWarehouseUtils:
     def search_documents(
         self, query: str, caller_user_id: str
     ) -> contentwarehouse_v1.SearchDocumentsResponse:
-
         # Create a client
         client = self.get_document_service_client()
         parent = client.common_location_path(self.project_number, self.api_location)
@@ -221,7 +219,6 @@ class DocumentWarehouseUtils:
     def set_raw_document_file_type_from_mimetype(
         document: contentwarehouse_v1.Document, mime_type
     ):
-
         if not mime_type or len(mime_type) == 0:
             return False, "mime_type is empty"
 
@@ -277,7 +274,6 @@ class DocumentWarehouseUtils:
         append_docai_entities_to_doc_properties: bool = False,
         docai_document: Optional[docai.Document] = None,
     ) -> contentwarehouse_v1.Document:
-
         # Create a client
         client = self.get_document_service_client()
         parent = client.common_location_path(self.project_number, self.api_location)
@@ -328,7 +324,6 @@ class DocumentWarehouseUtils:
         return response
 
     def create_document_schema(self, schema: str) -> contentwarehouse_v1.DocumentSchema:
-
         # schema_json = json.loads(text_schema)
 
         client = self.get_document_schema_service_client()
@@ -366,7 +361,6 @@ class DocumentWarehouseUtils:
         return response
 
     def delete_document_schema(self, schema_id: str):
-
         client = self.get_document_schema_service_client()
         parent = client.common_location_path(self.project_number, self.api_location)
 

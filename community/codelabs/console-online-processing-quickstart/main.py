@@ -23,7 +23,6 @@ MIME_TYPE = "application/pdf"
 FIELD_MASK = "text,entities,pages.pageNumber"
 
 if __name__ == "__main__":
-
     # You must set the api_endpoint if you use a location other than 'us', e.g.:
     opts = ClientOptions(api_endpoint=f"{LOCATION}-documentai.googleapis.com")
 

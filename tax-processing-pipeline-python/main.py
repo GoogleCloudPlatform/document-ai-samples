@@ -119,7 +119,6 @@ def save_files_to_temp_directory(files, temp_dir) -> List[Tuple[str, str]]:
     """
     uploaded_filenames = []
     for file in files:
-
         if not file or file.filename == "":
             print("Skipping corrupt file")
             continue

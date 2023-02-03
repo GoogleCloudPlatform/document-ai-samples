@@ -43,7 +43,6 @@ storage_client = storage.Client()
 
 
 def get_doc(request):
-
     request_json = request.get_json(silent=True)
 
     replies = []
