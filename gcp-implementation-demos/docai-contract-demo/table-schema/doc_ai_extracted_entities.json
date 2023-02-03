@@ -1,0 +1,72 @@
+[
+    {
+      "mode": "NULLABLE",
+      "name": "document_name",
+      "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "agreement_date",
+        "type": "DATE"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "arbitration_venue",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "confidentiality_clause",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "effective_date",
+        "type": "DATE"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "expiration_date",
+        "type": "DATE"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "governing_law",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "indemnity_clause",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "initial_term",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "litigation_venue",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "notice_to_terminate_renewal",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "non_compete_clause",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "parties",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "renewal_term",
+        "type": "STRING"
+    }
+  ]

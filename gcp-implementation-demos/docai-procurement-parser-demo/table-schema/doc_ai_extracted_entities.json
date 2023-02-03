@@ -1,0 +1,157 @@
+[
+    {
+      "mode": "NULLABLE",
+      "name": "currency",
+      "type": "STRING"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "invoice_id",
+      "type": "STRING"
+    },    
+    {
+      "mode": "NULLABLE",
+      "name": "net_amount",
+      "type": "STRING"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "remit_to_name",
+      "type": "STRING"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "remit_to_address",
+      "type": "STRING"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "invoice_date",
+      "type": "DATE"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "supplier_address",
+      "type": "STRING"
+    },    
+    {
+      "mode": "NULLABLE",
+      "name": "supplier_city",
+      "type": "STRING"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "supplier_name",
+      "type": "STRING"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "supplier_website",
+      "type": "STRING"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "supplier_email",
+      "type": "STRING"
+    }, 
+    {
+        "mode": "NULLABLE",
+        "name": "receiver_name",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "receiver_tax_id",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "receiver_address",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "supplier_iban",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "purchase_order",
+        "type": "STRING"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "total_amount",
+      "type": "STRING"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "total_tax_amount",
+      "type": "STRING"
+    },
+    {
+      "mode": "NULLABLE",
+      "name": "line_item",
+      "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "line_item_amount",
+        "type": "STRING"
+    },    
+    {
+        "mode": "NULLABLE",
+        "name": "line_item_description",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "ship_from_address",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "ship_to_address",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "carrier",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "freight_amount",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "delivery_date",
+        "type": "DATE"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "due_date",
+        "type": "DATE"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "vat",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "vat_tax_amount",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "payment_terms",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "line_item_product_code",
+        "type": "STRING"
+    }
+  ]
