@@ -3,8 +3,8 @@
 Uses the Document AI online processing method to call a form parser processor
 Extracts the key value pairs found in the document.
 """
-import pandas as pd
 from google.cloud import documentai_v1 as documentai
+import pandas as pd
 
 
 def online_process(

@@ -2,10 +2,9 @@
 Detect Languages from a Document
 Works with any processor that outputs "detectedLanguage"
 """
-import pandas as pd
-
-from google.cloud import documentai_v1 as documentai
 from google.api_core.client_options import ClientOptions
+from google.cloud import documentai_v1 as documentai
+import pandas as pd
 
 
 def online_process(

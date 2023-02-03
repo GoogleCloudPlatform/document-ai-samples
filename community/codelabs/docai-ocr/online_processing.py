@@ -5,7 +5,6 @@ Makes a Online Processing Request to Document AI
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai_v1 as documentai
 
-
 PROJECT_ID = "YOUR_PROJECT_ID"
 LOCATION = "YOUR_PROJECT_LOCATION"  # Format is 'us' or 'eu'
 PROCESSOR_ID = "YOUR_PROCESSOR_ID"  # Create processor in Cloud Console

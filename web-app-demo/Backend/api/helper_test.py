@@ -15,12 +15,12 @@
 """ Backend Unit Tests"""
 
 import os
-import unittest
 from typing import Dict
-from unittest.mock import MagicMock, patch
+import unittest
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 from google.cloud import documentai_v1beta3 as docai
-
 from helper import process_document  # pylint: disable=E0401
 
 processor_id_by_processor_type: Dict[str, str] = {"OCR": "6d7af7fc640a7219"}

@@ -19,16 +19,13 @@ import os
 import sys
 from typing import Sequence
 
-import google.auth
 from google.api_core.client_options import ClientOptions
-
-from google.cloud.documentai import (
-    Document,
-    DocumentProcessorServiceClient,
-    Processor,
-    ProcessRequest,
-    RawDocument,
-)
+import google.auth
+from google.cloud.documentai import Document
+from google.cloud.documentai import DocumentProcessorServiceClient
+from google.cloud.documentai import Processor
+from google.cloud.documentai import ProcessRequest
+from google.cloud.documentai import RawDocument
 from pikepdf import Pdf
 
 DEFAULT_MULTI_REGION_LOCATION = "us"

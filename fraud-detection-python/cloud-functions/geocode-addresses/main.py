@@ -7,9 +7,9 @@ import json
 import os
 from urllib.parse import urlencode
 
-import requests
 from google.api_core.exceptions import GoogleAPICallError
 from google.cloud import bigquery
+import requests
 
 DATASET_NAME = "invoice_parser_results"
 TABLE_NAME = "geocode_details"

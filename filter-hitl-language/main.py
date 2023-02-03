@@ -5,7 +5,6 @@ Works with any processor that outputs "detectedLanguage"
 
 from docai_utils import sort_document_files_by_language
 
-
 PROJECT_ID = "YOUR PROJECT ID"
 
 # Output Files from Human-in-the-loop

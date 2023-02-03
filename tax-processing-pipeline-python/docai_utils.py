@@ -16,17 +16,14 @@
 
 from typing import Tuple
 
+from consts import CLASSIFIER_PROCESSOR_TYPES
+from consts import DEFAULT_MIME_TYPE
+from consts import DOCAI_ACTIVE_PROCESSORS
+from consts import DOCAI_PROCESSOR_LOCATION
+from consts import DOCAI_PROJECT_ID
+from consts import DOCUMENT_SUPPORTED_PROCESSOR_TYPES
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai_v1 as documentai
-
-from consts import (
-    CLASSIFIER_PROCESSOR_TYPES,
-    DEFAULT_MIME_TYPE,
-    DOCAI_ACTIVE_PROCESSORS,
-    DOCAI_PROCESSOR_LOCATION,
-    DOCAI_PROJECT_ID,
-    DOCUMENT_SUPPORTED_PROCESSOR_TYPES,
-)
 
 client_options = ClientOptions(
     api_endpoint=f"{DOCAI_PROCESSOR_LOCATION}-documentai.googleapis.com"

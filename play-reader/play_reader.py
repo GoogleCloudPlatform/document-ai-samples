@@ -62,7 +62,6 @@ def create_character_map(
     supported_genders = list(gender_to_voices.keys())
 
     for name in names:
-
         if name == "Narrator":
             character_to_voice[name] = DEFAULT_VOICE
             continue
@@ -116,7 +115,6 @@ def synthesize_text(
 
 
 def combine_audio_files(audio_files: List, filename: str):
-
     full_audio = AudioSegment.silent(duration=SILENCE_LENGTH)
 
     for file in audio_files:
@@ -132,7 +130,6 @@ def combine_audio_files(audio_files: List, filename: str):
 
 
 def get_characters(input_file) -> List:
-
     character_list = []
     with open(input_file, "r") as f:
         lines = f.readlines()
@@ -184,7 +181,6 @@ def file_prefix(input_file: str) -> str:
 
 
 def main(args: argparse.Namespace) -> int:
-
     input_file = os.path.abspath(args.input)
 
     if not os.path.isfile(input_file):

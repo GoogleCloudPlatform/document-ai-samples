@@ -10,7 +10,6 @@ from google.api_core.client_options import ClientOptions
 from google.cloud import documentai_v1 as documentai
 from google.cloud import storage
 
-
 PROJECT_ID = "YOUR_PROJECT_ID"
 LOCATION = "YOUR_PROJECT_LOCATION"  # Format is 'us' or 'eu'
 PROCESSOR_ID = "YOUR_PROCESSOR_ID"  # Create processor in Cloud Console
@@ -85,7 +84,6 @@ storage_client = storage.Client()
 # One process per Input Document
 # pylint: disable=not-an-iterable
 for process in metadata.individual_process_statuses:
-
     # output_gcs_destination format: gs://BUCKET/PREFIX/OPERATION_NUMBER/0
     # The GCS API requires the bucket name and URI prefix separately
     output_bucket, output_prefix = re.match(

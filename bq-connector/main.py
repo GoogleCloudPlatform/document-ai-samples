@@ -22,7 +22,8 @@ import json
 import logging
 import os
 
-from docai_bq_connector import DocAIBQConnector, BqMetadataMappingInfo
+from docai_bq_connector import BqMetadataMappingInfo
+from docai_bq_connector import DocAIBQConnector
 
 script_dir = os.path.dirname(__file__)
 

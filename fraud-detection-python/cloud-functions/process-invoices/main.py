@@ -13,7 +13,8 @@ from google.api_core.client_options import ClientOptions
 from google.api_core.operation import Operation
 from google.cloud import bigquery
 from google.cloud import documentai_v1 as documentai
-from google.cloud import pubsub_v1, storage
+from google.cloud import pubsub_v1
+from google.cloud import storage
 
 # Reading environment variables
 gcs_output_uri_prefix = os.environ.get("GCS_OUTPUT_URI_PREFIX")

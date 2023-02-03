@@ -13,35 +13,31 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import logging
-from base64 import b64decode, b64encode
+from base64 import b64decode
+from base64 import b64encode
 from collections import defaultdict
 from io import BytesIO
+import logging
 from pathlib import Path
 from re import match
-from typing import BinaryIO, Iterator, Mapping, Sequence, cast
+from typing import BinaryIO, cast, Iterator, Mapping, Sequence
 
-from google.cloud.documentai_v1 import (
-    BoundingPoly,
-    Document,
-    DocumentProcessorServiceClient,
-    Processor,
-    ProcessRequest,
-    RawDocument,
-)
+from docai_schemas import FIELD
+from docai_schemas import ID_PROCESSOR
+from docai_schemas import ID_PROCESSORS
+from docai_schemas import LEGACY_NON_SNAKE_CASE_PROCESSORS
+from docai_schemas import LOCATIONS
+from docai_schemas import PROCESSOR_FIELD_REPLACEMENTS
+from docai_schemas import PROCESSOR_FIELDS
+from docai_schemas import ProcessorInfo
+from google.cloud.documentai_v1 import BoundingPoly
+from google.cloud.documentai_v1 import Document
+from google.cloud.documentai_v1 import DocumentProcessorServiceClient
+from google.cloud.documentai_v1 import Processor
+from google.cloud.documentai_v1 import ProcessRequest
+from google.cloud.documentai_v1 import RawDocument
 from PIL import Image
 from PIL.Image import Image as PilImage
-
-from docai_schemas import (
-    FIELD,
-    ID_PROCESSOR,
-    ID_PROCESSORS,
-    LEGACY_NON_SNAKE_CASE_PROCESSORS,
-    LOCATIONS,
-    PROCESSOR_FIELD_REPLACEMENTS,
-    PROCESSOR_FIELDS,
-    ProcessorInfo,
-)
 
 
 def get_client(location: str) -> DocumentProcessorServiceClient:

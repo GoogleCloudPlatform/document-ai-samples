@@ -209,7 +209,7 @@ To test prior to submitting a pull request, you can follow these steps for Pytho
 From a command-line terminal, install the code analysis tools:
 
 ```shell
-pip3 install --user -U black flake8 isort pyupgrade
+pip3 install --user -U black black[jupyter] flake8 isort pyupgrade
 ```
 
 You'll likely need to add the directory where these were installed to your PATH:
@@ -229,8 +229,9 @@ automatically fix any issues. If the fixes can't be performed automatically,
 then you will need to manually address them before submitting your PR.
 
 ```shell
-black "$sample"
+black "$sample" --line-length=88
 pyupgrade "$sample"
-nbqa isort "$sample"
+isort "$sample" --profile google
+nbqa isort "$sample" --profile google
 flake8 "$sample" --extend-ignore=W391,E501,F821,E402,F404,W503,E203,E722,W293,W291
 ```

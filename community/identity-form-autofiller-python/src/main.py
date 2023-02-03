@@ -13,18 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import logging
 from io import BytesIO
+import logging
 from os import environ
 from pathlib import Path
 from typing import Iterator
 
-import google.auth
-from flask import Flask, jsonify, request, send_from_directory
+import docai
+from flask import Flask
+from flask import jsonify
+from flask import request
+from flask import send_from_directory
 from flask.wrappers import Response
 from google.api_core.exceptions import BadRequest
-
-import docai
+import google.auth
 
 STATIC_FOLDER = "frontend"
 SAMPLES_PATH = Path("./samples")

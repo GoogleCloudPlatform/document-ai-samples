@@ -16,17 +16,21 @@
 """Flask Web Server"""
 
 import os
-from uuid import uuid4
-
 from tempfile import TemporaryDirectory
 from typing import List, Tuple
-from flask import Flask, after_this_request, render_template, request
-from werkzeug.exceptions import HTTPException
+from uuid import uuid4
 
-from consts import FIRESTORE_PROJECT_ID, FIRESTORE_COLLECTION_PREFIX
+from consts import FIRESTORE_COLLECTION_PREFIX
+from consts import FIRESTORE_PROJECT_ID
 from docai_pipeline import run_docai_pipeline
-from firestore_utils import read_collection, delete_collection
+from firestore_utils import delete_collection
+from firestore_utils import read_collection
+from flask import after_this_request
+from flask import Flask
+from flask import render_template
+from flask import request
 from tax_pipeline import calculate_tax_values
+from werkzeug.exceptions import HTTPException
 
 SESSION_ID = str(uuid4())
 FIRESTORE_COLLECTION = f"{FIRESTORE_COLLECTION_PREFIX}-{SESSION_ID}"
@@ -119,7 +123,6 @@ def save_files_to_temp_directory(files, temp_dir) -> List[Tuple[str, str]]:
     """
     uploaded_filenames = []
     for file in files:
-
         if not file or file.filename == "":
             print("Skipping corrupt file")
             continue

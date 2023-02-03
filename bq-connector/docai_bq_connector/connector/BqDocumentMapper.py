@@ -17,23 +17,23 @@
 # limitations under the License.
 #
 
+from datetime import datetime
 import json
 import logging
 import re
-from datetime import datetime
-from typing import Sequence, List, Optional
-
-from google.cloud.bigquery import SchemaField
-from google.cloud.documentai_v1 import Document
+from typing import List, Optional, Sequence
 
 from docai_bq_connector.connector.BqMetadataMapper import BqMetadataMapper
 from docai_bq_connector.connector.ConversionError import ConversionError
-from docai_bq_connector.doc_ai_processing.DocumentField import (
-    DocumentRow,
-    DocumentField,
-)
-from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
-from docai_bq_connector.helper import find, get_bool_value, clean_number
+from docai_bq_connector.doc_ai_processing.DocumentField import DocumentField
+from docai_bq_connector.doc_ai_processing.DocumentField import DocumentRow
+from docai_bq_connector.doc_ai_processing.ProcessedDocument import \
+    ProcessedDocument
+from docai_bq_connector.helper import clean_number
+from docai_bq_connector.helper import find
+from docai_bq_connector.helper import get_bool_value
+from google.cloud.bigquery import SchemaField
+from google.cloud.documentai_v1 import Document
 
 PARSING_METHOD_ENTITIES = "entities"
 PARSING_METHOD_FORM = "form"

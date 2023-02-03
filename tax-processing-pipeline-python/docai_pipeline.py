@@ -17,20 +17,15 @@
 from os.path import basename as path_basename
 from typing import List, Tuple
 
-from google.api_core.exceptions import GoogleAPICallError
-
-from consts import (
-    DOCAI_PROCESSOR_LOCATION,
-    DOCAI_PROJECT_ID,
-    FIRESTORE_PROJECT_ID,
-)
-from docai_utils import (
-    classify_document_bytes,
-    extract_document_entities,
-    process_document_bytes,
-    select_processor_from_classification,
-)
+from consts import DOCAI_PROCESSOR_LOCATION
+from consts import DOCAI_PROJECT_ID
+from consts import FIRESTORE_PROJECT_ID
+from docai_utils import classify_document_bytes
+from docai_utils import extract_document_entities
+from docai_utils import process_document_bytes
+from docai_utils import select_processor_from_classification
 from firestore_utils import save_to_firestore
+from google.api_core.exceptions import GoogleAPICallError
 
 
 def run_docai_pipeline(

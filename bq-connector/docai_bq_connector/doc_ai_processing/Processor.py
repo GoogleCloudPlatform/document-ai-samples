@@ -18,17 +18,19 @@
 #
 import logging
 import re
-import uuid
 from typing import Union
+import uuid
 
+from docai_bq_connector.doc_ai_processing.DocumentOperation import \
+    DocumentOperation
+from docai_bq_connector.doc_ai_processing.ProcessedDocument import \
+    ProcessedDocument
+from docai_bq_connector.exception.InvalidGcsUriError import InvalidGcsUriError
+from docai_bq_connector.helper.gcs_util import get_gcs_blob
+from docai_bq_connector.helper.gcs_util import write_gcs_blob
+from docai_bq_connector.helper.pdf_util import get_pdf_page_cnt
 from google.cloud import documentai_v1 as documentai
 from google.cloud import storage
-
-from docai_bq_connector.doc_ai_processing.DocumentOperation import DocumentOperation
-from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
-from docai_bq_connector.exception.InvalidGcsUriError import InvalidGcsUriError
-from docai_bq_connector.helper.gcs_util import get_gcs_blob, write_gcs_blob
-from docai_bq_connector.helper.pdf_util import get_pdf_page_cnt
 
 CONTENT_TYPE_PDF = "application/pdf"
 CONTENT_TYPE_JSON = "application/json"
