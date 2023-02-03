@@ -2,8 +2,8 @@
 """
 Sends a request to a Document AI Specialized Parser Processor
 """
-import pandas as pd
 from google.cloud import documentai_v1 as documentai
+import pandas as pd
 
 
 def online_process(

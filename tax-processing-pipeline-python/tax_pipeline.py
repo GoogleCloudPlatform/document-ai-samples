@@ -16,7 +16,7 @@
 """Tax Processing Functions"""
 
 from decimal import Decimal
-from typing import List, Dict, Tuple
+from typing import Dict, List, Tuple
 
 _FORM_1099DIV = "FORM_1099DIV"
 _FORM_1099INT = "FORM_1099INT"

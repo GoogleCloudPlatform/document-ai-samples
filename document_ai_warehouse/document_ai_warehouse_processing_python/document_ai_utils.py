@@ -1,5 +1,5 @@
-from google.cloud import documentai_v1
 from google.api_core.client_options import ClientOptions
+from google.cloud import documentai_v1
 import storage_utils
 
 

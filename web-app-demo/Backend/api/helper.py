@@ -14,13 +14,11 @@
 # pylint: disable-msg=too-many-locals
 
 """ Helper file that holds DocAI API calls"""
-from google.cloud.documentai_v1beta3 import (
-    DocumentProcessorServiceClient,
-    Document,
-    ListProcessorsRequest,
-    ProcessRequest,
-    ProcessResponse,
-)
+from google.cloud.documentai_v1beta3 import Document
+from google.cloud.documentai_v1beta3 import DocumentProcessorServiceClient
+from google.cloud.documentai_v1beta3 import ListProcessorsRequest
+from google.cloud.documentai_v1beta3 import ProcessRequest
+from google.cloud.documentai_v1beta3 import ProcessResponse
 
 
 def process_document(process_document_request):

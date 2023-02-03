@@ -4,14 +4,11 @@ Document AI Functions
 from collections import defaultdict
 from typing import Any
 
+from gcs_utils import create_bucket
+from gcs_utils import get_all_buckets
+from gcs_utils import get_files_from_gcs
+from gcs_utils import move_file
 from google.cloud import documentai_v1 as documentai
-
-from gcs_utils import (
-    get_files_from_gcs,
-    get_all_buckets,
-    create_bucket,
-    move_file,
-)
 
 UNDEFINED_LANGUAGE = "und"
 

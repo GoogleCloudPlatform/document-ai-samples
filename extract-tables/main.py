@@ -4,10 +4,10 @@
 Makes a Online Processing Request to Document AI
 """
 from typing import List, Sequence
-import pandas as pd
 
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai_v1 as documentai
+import pandas as pd
 
 
 def online_process(

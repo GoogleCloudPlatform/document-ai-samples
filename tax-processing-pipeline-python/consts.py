@@ -14,7 +14,8 @@
 
 """DocAI End-to-End Pipeline Demo Constant Definitions"""
 
-from general_utils import invert_dictionary_with_array, read_yaml
+from general_utils import invert_dictionary_with_array
+from general_utils import read_yaml
 
 # Processors that Split & Classify
 CLASSIFIER_PROCESSOR_TYPES = set(

@@ -1,10 +1,9 @@
 import json
-from typing import Optional, List
-
-from google.cloud import contentwarehouse_v1
-import google.cloud.documentai_v1 as docai
+from typing import List, Optional
 
 from document_ai_utils import DocumentaiUtils
+from google.cloud import contentwarehouse_v1
+import google.cloud.documentai_v1 as docai
 
 
 class DocumentWarehouseUtils:

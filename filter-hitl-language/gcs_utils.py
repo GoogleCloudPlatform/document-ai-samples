@@ -1,7 +1,7 @@
 """
 Google Cloud Storage Functions
 """
-from typing import Set, Any
+from typing import Any, Set
 
 from google.cloud import storage
 

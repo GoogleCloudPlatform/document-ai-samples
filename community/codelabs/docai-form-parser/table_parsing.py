@@ -6,8 +6,8 @@ Extracts the tables and data in the document.
 from os.path import splitext
 from typing import List, Sequence
 
-import pandas as pd
 from google.cloud import documentai
+import pandas as pd
 
 
 def online_process(

@@ -17,5 +17,5 @@
 # limitations under the License.
 #
 
-from .connector.DocAIBQConnector import DocAIBQConnector  # noqa: F401
 from .connector.BqMetadataMapper import BqMetadataMappingInfo  # noqa: F401
+from .connector.DocAIBQConnector import DocAIBQConnector  # noqa: F401

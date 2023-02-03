@@ -1,7 +1,8 @@
-from google.api_core.client_options import ClientOptions
-from google.cloud import documentai
 import random
 import urllib.request
+
+from google.api_core.client_options import ClientOptions
+from google.cloud import documentai
 from google.cloud import resourcemanager_v3
 
 
