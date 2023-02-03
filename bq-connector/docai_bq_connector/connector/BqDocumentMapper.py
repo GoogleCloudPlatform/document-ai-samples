@@ -83,9 +83,7 @@ class BqDocumentMapper:
             if len(entity.page_anchor.page_refs) != 1:
                 continue
             content = entity.mention_text
-            value = (
-                content if content is not None and content.strip() != "" else None
-            )
+            value = content if content is not None and content.strip() != "" else None
             if len(entity.properties) == 0:
                 if row.find_field_by_name(entity.type_) is not None:
                     self.errors.append(
