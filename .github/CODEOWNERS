@@ -20,11 +20,6 @@
 /document_ai_warehouse/document_ai_warehouse_processing_python @HSbedi87
 /document-json-explorer @kolban-google
 
-# @tgaillard1 is the default owner of the items below
-/gcp-implementation-demos @tgaillard1
-/gcp-implementation-demos/docai-contract-demo @tgaillard1
-/gcp-implementation-demos/docai-procurement-parser-demo @tgaillard1
-
 # Community owners
 /community/identity-form-autofiller-python @PicardParis
 /community/codelabs/docai-form-parser @holtskinner
