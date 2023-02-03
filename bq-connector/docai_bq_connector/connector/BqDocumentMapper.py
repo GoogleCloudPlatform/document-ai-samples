@@ -119,7 +119,11 @@ class BqDocumentMapper:
                         entity.page_anchor.page_refs[0].page + 1,
                     )
                     row.fields.append(parent_field)
-                parent_field.children.append(self._parse_entities(entity.properties))
+                row_children = self._parse_entities(entity.properties)
+                if len(parent_field.children) > 0:
+                    parent_field.children[0].fields.extend(row_children.fields)
+                else:
+                    parent_field.children.append(row_children)
         return row
 
     @staticmethod

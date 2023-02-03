@@ -47,6 +47,11 @@
         "mode": "REQUIRED"
     },
     {
+        "name": "raw_entities",
+        "type": "JSON",
+        "mode": "NULLABLE"
+    },
+    {
         "name": "updated_at",
         "type": "DATETIME",
         "mode": "REQUIRED"
