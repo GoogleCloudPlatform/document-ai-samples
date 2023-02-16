@@ -20,16 +20,21 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 * [Language Extraction](extract-languages/): This project uses the Document AI API to detect the languages in a multi-page document.
 * [Paper Summarization](paper_summarization/): This project uses the Document AI API to summarize scientific articles.
 * [PDF Embedded Text](pdf-embedded-text/): Demonstrates how to use the Native PDF parsing feature for the OCR Processor (`v1beta3`)
-* [PDF Splitter](pdf-splitter-python/): This project uses the Document AI API to split PDF documents.
 * [SQL over Docs](sql-pdf-python/): This project shows how to run a BigQuery SQL and extract information from documents.
-* [Tabular Data Extraction](extract-tables/): This project uses the Document AI API to extract tabular data from a document.
 * [Tax Processing Pipeline](tax-processing-pipeline-python/): This project uses the Document AI API to classify, parse, and calculate a tax form using multiple document types.
 * [Web App Demo](web-app-demo/): This project is a full-stack application that uses Document AI to process different types of documents. This application currently supports Form, Invoice and OCR processors.
 
 ### Samples not in this Repository
 
-* https://github.com/GoogleCloudPlatform/documentai-sheets-plugin
-* https://github.com/GoogleCloudPlatform/document-intake-accelerator
+* [Document AI Sheets Plugin](https://github.com/GoogleCloudPlatform/documentai-sheets-plugin)
+* [Document AI Intake Accelerator](https://github.com/GoogleCloudPlatform/document-intake-accelerator)
+
+### Deprecated Samples
+
+Replaced by [Document AI Toolbox](https://cloud.google.com/document-ai/docs/samples/documentai-toolbox-quickstart)
+
+* [PDF Splitter](pdf-splitter-python/): This project uses the Document AI API to split PDF documents.
+* [Tabular Data Extraction](extract-tables/): This project uses the Document AI API to extract tabular data from a document.
 
 ### Test Document Files
 

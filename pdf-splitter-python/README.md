@@ -1,5 +1,7 @@
 # Document AI PDF Splitter Sample
 
+> **NOTE:** This sample is deprecated. Use [Document AI Toolbox](https://cloud.google.com/document-ai/docs/samples/documentai-toolbox-split-pdf) to Split PDFs based on output from a Splitter/Classifier processor.
+
 This project uses Document AI Splitter/Classifier Processors identify split points and uses PikePDF to split PDF documents.
 
 Designed to work with the following processors:
