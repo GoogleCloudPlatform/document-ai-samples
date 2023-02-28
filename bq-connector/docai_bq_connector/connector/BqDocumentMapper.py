@@ -27,8 +27,7 @@ from docai_bq_connector.connector.BqMetadataMapper import BqMetadataMapper
 from docai_bq_connector.connector.ConversionError import ConversionError
 from docai_bq_connector.doc_ai_processing.DocumentField import DocumentField
 from docai_bq_connector.doc_ai_processing.DocumentField import DocumentRow
-from docai_bq_connector.doc_ai_processing.ProcessedDocument import \
-    ProcessedDocument
+from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.helper import clean_number
 from docai_bq_connector.helper import find
 from docai_bq_connector.helper import get_bool_value

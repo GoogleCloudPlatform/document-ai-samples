@@ -21,10 +21,8 @@ import re
 from typing import Union
 import uuid
 
-from docai_bq_connector.doc_ai_processing.DocumentOperation import \
-    DocumentOperation
-from docai_bq_connector.doc_ai_processing.ProcessedDocument import \
-    ProcessedDocument
+from docai_bq_connector.doc_ai_processing.DocumentOperation import DocumentOperation
+from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.exception.InvalidGcsUriError import InvalidGcsUriError
 from docai_bq_connector.helper.gcs_util import get_gcs_blob
 from docai_bq_connector.helper.gcs_util import write_gcs_blob
