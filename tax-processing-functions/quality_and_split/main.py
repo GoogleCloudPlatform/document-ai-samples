@@ -39,7 +39,6 @@ bucket_1040c_processed = os.environ.get("BUCKET_1040C_PROCESSED")
 bucket_1120s_processed = os.environ.get("BUCKET_1120S_PROCESSED")
 bucket_rejected = os.environ.get("BUCKET_REJECTED")
 input_bucket_name = os.environ.get("INPUT_BUCKET")
-# ?? question: doenst error but is it bad to do this if not set in cloud function variables
 file_name = os.environ.get("FILE_NAME")
 content_type = os.environ.get("CONTENT_TYPE")
 
