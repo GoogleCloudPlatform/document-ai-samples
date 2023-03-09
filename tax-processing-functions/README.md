@@ -1,9 +1,9 @@
 # Automate Parsing Tax Documents (1120-sc and 1040-c) with a Document AI Workflow
 ## Overview
-This demo contains example code and instructions that show you how to use Document AI to check the quality and format of user uploaded documents, classify the document type as either 1040sc, 1120s or other, parse the respective document types, and then upload the processed and extracted document to Cloud Storage, BigQuery, and then publish to PubSub. Furthermore this repo contains example code and instructions to show you how to use Cloud Source Repositories and Google Cloud Build to automatically deploy changes upon code check-in. For more information, see [Demo Guide](https://docs.google.com/document/d/1_O0opWbK0uDpapDiumM75z9tgW01r4p3EdRtCMI5n1g/preview?rm=demo).
+This demo contains example code and instructions that show you how to use Document AI to check the quality and format of user uploaded documents, classify the document type as either 1040sc, 1120s or other, parse the respective document types, and then upload the processed and extracted document to Cloud Storage, BigQuery, and then publish to PubSub. Furthermore this repository contains example code and instructions to show you how to use Cloud Source Repositories and Google Cloud Build to automatically deploy changes upon code check-in. For more information, see [Demo Guide](https://docs.google.com/document/d/1_O0opWbK0uDpapDiumM75z9tgW01r4p3EdRtCMI5n1g/preview?rm=demo).
 
 ## Architecture Walkthrough
-The below diagram details the workflow the code in this demo is based on. When a user uploads a document to the designated Google Cloud Storage bucket, it triggers the Cloud Function that contains the Document AI processors. First the code checks whether the uploaded file is an acceptable file type (application/pdf, image/jpg, image/png, image/gif, image/tiff, image/jpeg, image/tif, image/webp, image/bmp). If it is not an accepted file type, the document is sent to a rejected documents Cloud Storage Bucket. If it is an accepted file type, then the Document AI Quality processor determines the quality of the document. If the document quality is not above the specified threshold, then a message is pushed to a PubSub topic for user review. If it is above the quality threshold, then the Document AI Splitter/Classifier processor identifies the document types. If the documents do not match with a known form parser, they should be handled as the user sees fit. If the documents can be classified to a known form parser, they are moved to their respective input Cloud Storage Buckets. The documents are then parsed with their respective parsers (1040-C Parser or 1120S Parser) and formatted into proper JSON structure. The processed, parsed, and formatted document is copied to the specified BQ table and their respective processed GCS buckets, as well as published to a PubSub topic that can be used to respond to the user, make a calculation or IQ.
+The below diagram details the workflow the code in this demo is based on. When a user uploads a document to the designated Google Cloud Storage bucket, it triggers the Cloud Function that contains the Document AI processors. First the code checks whether the uploaded file is an [acceptable file type](https://cloud.google.com/document-ai/docs/file-types). If it is not an accepted file type, the document is sent to a rejected documents Cloud Storage Bucket. If it is an accepted file type, then the Document AI Quality processor determines the quality of the document. If the document quality is not above the specified threshold, then a message is pushed to a PubSub topic for user review. If it is above the quality threshold, then the Document AI Splitter/Classifier processor identifies the document types. If the documents do not match with a known form parser, they should be handled as the user sees fit. If the documents can be classified to a known form parser, they are moved to their respective input Cloud Storage Buckets. The documents are then parsed with their respective parsers (1040-C Parser or 1120S Parser) and formatted into proper JSON structure. The processed, parsed, and formatted document is copied to the specified BQ table and their respective processed GCS buckets, as well as published to a PubSub topic that can be used to respond to the user, make a calculation or IQ.
 
 ## Demo Architecture
 ![Demo Architecture](demo-architecture.png)
@@ -35,20 +35,20 @@ committing them to your new repository.
 1. Click 'Add repository'.
 1. Choose 'Create new repository'.
 1. Specify a name, and your project name.
-1. Follow the instructions to 'git clone' the empty repo to your workstation.
-1. Copy the files from this demo repository in [Gitlab](https://gitlab.com/caseynjustus/docai-tax-workflow-demo.git) into your new repo.
-1. Add the files to the new repo with the command:
+1. Follow the instructions to 'git clone' the empty repository to your workstation.
+1. Copy the files from this demo repository in [Gitlab](https://gitlab.com/caseynjustus/docai-tax-workflow-demo.git) into your new repository.
+1. Add the files to the new repository with the command:
     ```bash
     git add .
     ```
-1. Commit and push these files in the new repo by running the commands:
+1. Commit and push these files in the new repository by running the commands:
     ```bash
     git commit -m 'Creating a repository for Python Document AI and Cloud Build example.'
     git push origin master
     ```
 
 You can alternatively do the same using the Google Cloud SDK:
-1. Choose a name for your source repo and configure an environment variable for that name with the command:
+1. Choose a name for your source repository and configure an environment variable for that name with the command:
     ```bash
     export REPO_NAME = <YOUR_REPO_NAME>
     ```
@@ -61,11 +61,11 @@ You can alternatively do the same using the Google Cloud SDK:
      gcloud source repos clone $REPO_NAME.
      ```
 1. Copy the files from this example into the new repo.
-1. Add the files to the new repo with the command:
+1. Add the files to the new repository with the command:
     ```bash
     git add .
     ```
-1. Commit and push these files in the new repo by running the commands:
+1. Commit and push these files in the new repository by running the commands:
     ```bash
     git commit -m 'Creating repository for Python Document AI demo.'
     git push origin master
@@ -154,7 +154,7 @@ Step 3 details how to set up your local environment to run and test locally, you
 
 Based on the documents uploaded your output will change. If you successfully uploaded a 1040C document, your output should look similar to this:
 
-
+```bash
     Found content type:application/pdf
     File f1040sc--2021_filledin-test.pdf blob extracted from lending-app-doc-original.
     Entities extracted from DocAI using processor projects/619323487229/locations/us/processors/f0d623e4284f4024.
@@ -166,7 +166,7 @@ Based on the documents uploaded your output will change. If you successfully upl
     BQ upload job results:LoadJob<project=docai-project, location=US, id=xxx>
     1040sc output has been written to BQ.
     Result of publishing to PubSub topic:6943268033253657
-    
+```    
 
 
 You have now successfully run the source code locally.
@@ -240,5 +240,5 @@ The Primary benefit that comes with Cloud Build automation is that every time yo
 ## 7. Test and Run Your New Code!
 To run this new Document AI workflow you've just built, follow these instructions.
 1. [Upload a file](https://cloud.google.com/storage/docs/uploading-objects#:~:text=Drag%20and%20drop%20the%20desired,that%20appears%2C%20and%20click%20Open.) of a 1040sc or 1120sk document to your input Google Cloud Storage Bucket. See resources directory for a sample file to upload.
-1. Find the bucket for the final processed document of that type. Find the object named: 1040sc_YYYY-MM-DD_HH:MM:SS_previousfilename.pdf or 1120sk_YYYY-MM-DD_HH:MM:SS_previousfilename.pdf. 
+1. Find the bucket for the final processed document of that type. Find the object named: `1040sc_YYYY-MM-DD_HH:MM:SS_previousfilename.pdf` or `1120sk_YYYY-MM-DD_HH:MM:SS_previousfilename.pdf`. 
 1. Explore object to view the processed and formatted document.
