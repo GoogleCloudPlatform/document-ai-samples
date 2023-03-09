@@ -15,18 +15,17 @@
 
 # THIS IS JUST DEMO CODE
 
-#Import Libraries
-import os
-import json
-import ndjson
-from google.cloud import bigquery
-from google.cloud import pubsub_v1
-from google.cloud import documentai_v1 as documentai
-from google.cloud import storage
 from datetime import datetime
+import json
+# Import Libraries
+import os
+
+from google.cloud import bigquery
+from google.cloud import documentai_v1 as documentai
 from google.cloud import exceptions
-
-
+from google.cloud import pubsub_v1
+from google.cloud import storage
+import ndjson
 
 # Set Debug True/False
 DEBUG = False
@@ -54,8 +53,20 @@ uil_review_topic_name = os.environ.get("PUBSUB_UIL_REVIEW_TOPIC_NAME")
 workflow_topic_name = os.environ.get("PUBSUB_WORKFLOW_TOPIC_NAME")
 
 # Set Document AI processor variables
-accepted_file_types = ["application/pdf", "image/jpg", "image/png", "image/gif", "image/tiff", "image/jpeg", "image/tif", "image/webp", "image/bmp"]
-processor_quality = f"projects/{project_id}/locations/us/processors/{os.environ.get('PROCESSOR_ID_Q')}"
+accepted_file_types = [
+    "application/pdf",
+    "image/jpg",
+    "image/png",
+    "image/gif",
+    "image/tiff",
+    "image/jpeg",
+    "image/tif",
+    "image/webp",
+    "image/bmp",
+]
+processor_quality = (
+    f"projects/{project_id}/locations/us/processors/{os.environ.get('PROCESSOR_ID_Q')}"
+)
 processor_classification = f"projects/{project_id}/locations/us/processors/{os.environ.get('PROCESSOR_ID_CLASS')}"
 processor_1040 = f"projects/{project_id}/locations/us/processors/{os.environ.get('PROCESSOR_ID_1040')}"
 processor_1120 = f"projects/{project_id}/locations/us/processors/{os.environ.get('PROCESSOR_ID_1120')}"
@@ -76,36 +87,46 @@ def process_receipt(event, context):
     # global content_type
     input_bucket_name = event["bucket"]
     file_name = event["name"]
-    content_type = event["contentType"] # TODO: rewrite
-    print(f'Found content type:{content_type}')
-    
-    if content_type in accepted_file_types:
+    content_type = event["contentType"]  # TODO: rewrite
+    print(f"Found content type:{content_type}")
 
+    if content_type in accepted_file_types:
         # Gets file blob
         file = get_gcs_file(file_name, input_bucket_name)
-        
+
         # Extracts entities from Document AI
         extracted_doc = extract_entities(file, content_type, processor_quality)
 
         # Splitter--function, parse quality metrics
         avg_q = parse_quality_metrics(extracted_doc)  # IDQ JSON Output (Quality)
 
-        #Separate documents by quality threshold
-        if avg_q > .05:
-            #Extract document entities using classification processor
-            extracted_classifier_doc = extract_entities(file, content_type, processor_classification)
-           
+        # Separate documents by quality threshold
+        if avg_q > 0.05:
+            # Extract document entities using classification processor
+            extracted_classifier_doc = extract_entities(
+                file, content_type, processor_classification
+            )
+
             if DEBUG:
                 print(extracted_classifier_doc)  # Splitter/classifier JSON output
 
             # Parse documents
-            parse_doc_type(extracted_classifier_doc, file, file_name, content_type, workflow_topic_name, input_bucket_name) 
+            parse_doc_type(
+                extracted_classifier_doc,
+                file,
+                file_name,
+                content_type,
+                workflow_topic_name,
+                input_bucket_name,
+            )
 
         else:
             print("Fail, image qualtity is bad")
-            #Extract entities and push to pubsub for review
-            extracted_classifier_doc = extract_entities(file, content_type, processor_classification)
-            extracted_noid_doc_processed = format_entities(extracted_classifier_doc)  
+            # Extract entities and push to pubsub for review
+            extracted_classifier_doc = extract_entities(
+                file, content_type, processor_classification
+            )
+            extracted_noid_doc_processed = format_entities(extracted_classifier_doc)
             json_string = json.dumps(extracted_noid_doc_processed, sort_keys=False)
             topic_path = publisher.topic_path(project_id, uil_review_topic_name)
             publish_to_pubsub(topic_path, json_string)
@@ -125,15 +146,17 @@ def parse_quality_metrics(raw_content):
         num_pages = len(raw_content.entities)
         total = 0
         for entity in raw_content.entities:
-            if str(entity.type_) == 'quality_score':
+            if str(entity.type_) == "quality_score":
                 total += entity.confidence
-        avg_q = total/num_pages
-        print(f'Average quality in document entities: {avg_q}')
+        avg_q = total / num_pages
+        print(f"Average quality in document entities: {avg_q}")
         return avg_q
 
 
 # Parse document by type and upload to respective GCS, BQ, and Pub/Sub objects
-def parse_doc_type(raw_content, file, file_name, content_type, topic_name, input_bucket_name):
+def parse_doc_type(
+    raw_content, file, file_name, content_type, topic_name, input_bucket_name
+):
     # raw_content = raw entities extracted from Document AI processor
     # file = GCS blob file object
     # file_name = "local/path/to/file"
@@ -143,44 +166,74 @@ def parse_doc_type(raw_content, file, file_name, content_type, topic_name, input
     if raw_content:
         for entity in raw_content.entities:
             if "1040sc" in str(entity.type):
-                #move to 1040c input bucket
+                # move to 1040c input bucket
                 move_blob(input_bucket_name, bucket_1040c_input, blob_name=file_name)
 
-                #extract and format entities from document
-                extracted_1040_doc = extract_entities(file, content_type, processor_1040)  # parse 1040c doc
-                extracted_1040_doc_processed = format_entities(extracted_1040_doc)  # formatted
+                # extract and format entities from document
+                extracted_1040_doc = extract_entities(
+                    file, content_type, processor_1040
+                )  # parse 1040c doc
+                extracted_1040_doc_processed = format_entities(
+                    extracted_1040_doc
+                )  # formatted
                 json_string = json.dumps(extracted_1040_doc_processed, sort_keys=False)
 
                 # Get timestamp and upload to GCS
                 stamp = datetime.now()
                 str_date_time = stamp.strftime(ts_format)
-                upload_blob(bucket_1040c_processed, f'1040sc_{str_date_time}_{file_name}', json_string)
+                upload_blob(
+                    bucket_1040c_processed,
+                    f"1040sc_{str_date_time}_{file_name}",
+                    json_string,
+                )
 
                 # Write formatted data to BQ Table
-                write_to_bq(project_name, dataset_name, table_name, extracted_1040_doc_processed, file_name, '1040sc')
-                print("1040sc output has been written to BQ.")  
+                write_to_bq(
+                    project_name,
+                    dataset_name,
+                    table_name,
+                    extracted_1040_doc_processed,
+                    file_name,
+                    "1040sc",
+                )
+                print("1040sc output has been written to BQ.")
 
                 # Publish to pubsub
                 topic_path = publisher.topic_path(project_id, topic_name)
                 publish_to_pubsub(topic_path, json_string)
 
             elif "1120s" in str(entity.type):
-                #move to 1040c input bucket
+                # move to 1040c input bucket
                 move_blob(input_bucket_name, bucket_1120s_input, blob_name=file_name)
 
-                #extract and format entities from document
-                extracted_1120_doc = extract_entities(file, content_type, processor_1120)  # parse 1120s doc
-                extracted_1120_doc_processed = format_entities(extracted_1120_doc)  # formatted
+                # extract and format entities from document
+                extracted_1120_doc = extract_entities(
+                    file, content_type, processor_1120
+                )  # parse 1120s doc
+                extracted_1120_doc_processed = format_entities(
+                    extracted_1120_doc
+                )  # formatted
                 json_string = json.dumps(extracted_1120_doc_processed, sort_keys=False)
 
                 # Get timestamp and upload to GCS
                 stamp = datetime.now()
                 str_date_time = stamp.strftime(ts_format)
-                upload_blob(bucket_1120s_processed, f'1120sk_{str_date_time}_{file_name}', json_string)
+                upload_blob(
+                    bucket_1120s_processed,
+                    f"1120sk_{str_date_time}_{file_name}",
+                    json_string,
+                )
 
                 # Write formatted data to BQ Table
-                write_to_bq(project_name, dataset_name, table_name, extracted_1120_doc_processed, file_name, '1120ssk1')
-                print("1120s output has been written to BQ.")  
+                write_to_bq(
+                    project_name,
+                    dataset_name,
+                    table_name,
+                    extracted_1120_doc_processed,
+                    file_name,
+                    "1120ssk1",
+                )
+                print("1120s output has been written to BQ.")
 
                 # Publish to pubsub
                 topic_path = publisher.topic_path(project_id, topic_name)
@@ -188,7 +241,7 @@ def parse_doc_type(raw_content, file, file_name, content_type, topic_name, input
 
             # TODO: Add handling for type other if needed
     return
-    
+
 
 # Format extracted JSON output to a list
 def format_entities(extracted_doc):
@@ -221,15 +274,21 @@ def format_entities(extracted_doc):
 
 
 # Write processed JSON results to BigQuery table
-def write_to_bq(project_name, dataset_name, table_name, extracted_list, file_name, type):
+def write_to_bq(
+    project_name, dataset_name, table_name, extracted_list, file_name, type
+):
     # project_name = string, Google Cloud Project name
     # dataset_name = string, BQ dataset name to import to
     # table_name = string, BQ table name to import to
     # extracted_list = data in JSON list format
     # file_name = document name
     # type = document type
-    table_ref = bigquery.dataset.DatasetReference(project_name, dataset_name).table(table_name)
-    date_loaded = datetime.now().strftime(ts_format) # Create timestamp processed_date in string format
+    table_ref = bigquery.dataset.DatasetReference(project_name, dataset_name).table(
+        table_name
+    )
+    date_loaded = datetime.now().strftime(
+        ts_format
+    )  # Create timestamp processed_date in string format
 
     for item in extracted_list:
         item["doc_name"] = file_name
@@ -245,7 +304,7 @@ def write_to_bq(project_name, dataset_name, table_name, extracted_list, file_nam
     job_config = bigquery.LoadJobConfig(
         source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
         ignore_unknown_values=True,
-        write_disposition='WRITE_APPEND',
+        write_disposition="WRITE_APPEND",
         schema=[
             bigquery.SchemaField("processed_date", "STRING"),
             bigquery.SchemaField("doc_name", "STRING"),
@@ -255,7 +314,7 @@ def write_to_bq(project_name, dataset_name, table_name, extracted_list, file_nam
             bigquery.SchemaField("mention_text", "STRING"),
         ],
     )
-    job = bq_client.load_table_from_json(json_object, table_ref, job_config=job_config)     
+    job = bq_client.load_table_from_json(json_object, table_ref, job_config=job_config)
     print(f"BQ upload job results:{job.result()}")
 
 
@@ -280,7 +339,7 @@ def get_gcs_file(file_name, bucket_name):
         file_blob = gcs_file.download_as_bytes()
         print(f"File {file_name} blob extracted from {bucket_name}.")
         return file_blob
-    
+
     except exceptions.Forbidden as e:
         print(f"File {file_name} not in {bucket_name}. Error: {e}")
         raise
@@ -290,7 +349,9 @@ def get_gcs_file(file_name, bucket_name):
         raise
 
     except Exception as e:
-        print(f"File {file_name} blob extracted from {bucket_name} failed, due to {e} error")
+        print(
+            f"File {file_name} blob extracted from {bucket_name} failed, due to {e} error"
+        )
         raise
 
 
@@ -305,6 +366,7 @@ def extract_entities(file, content_type, processor):
     print(f"Entities extracted from DocAI using processor {processor}.")
     return result.document
 
+
 # Move Google Cloud Storage file in blob format to new bucket and provides the option to delete from old
 def move_blob(source_bucket_name, dest_bucket_name, blob_name):
     # source_bucket_name = string, name of source Google Cloud Storage bucket
@@ -314,19 +376,25 @@ def move_blob(source_bucket_name, dest_bucket_name, blob_name):
     dest_bucket = storage_client.get_bucket(dest_bucket_name)
     return
 
+
 # Public to pubsub topic
 def publish_to_pubsub(topic_path, message):
     # topic_path = path to topic, generated with: publisher.topic_path(project_id, topic_name)
     # message = data sent to pub/sub must be a bytestring
     future = publisher.publish(topic_path, message.encode("utf-8"))
     print(f"Result of publishing to PubSub topic:{future.result()}")
-    
+
+
 # Use for testing in local environment
 def main():
     # make sure to export testing variables in variables.sh file
-    event = {'bucket': f"{input_bucket_name}", 'name': f"{file_name}", 'contentType': f"{content_type}"}  #generic testing command
+    event = {
+        "bucket": f"{input_bucket_name}",
+        "name": f"{file_name}",
+        "contentType": f"{content_type}",
+    }  # generic testing command
     # event = {'bucket': f"{input_bucket_name}", 'name':'something', 'contentType': f"{content_type}"}  #generic testing command
-    context = ''
+    context = ""
     process_receipt(event, context)
 
 
