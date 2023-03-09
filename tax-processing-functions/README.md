@@ -2,11 +2,37 @@
 
 ## Overview
 
-This demo contains example code and instructions that show you how to use Document AI to check the quality and format of user uploaded documents, classify the document type as either 1040sc, 1120s or other, parse the respective document types, and then upload the processed and extracted document to Cloud Storage, BigQuery, and then publish to PubSub. Furthermore this repository contains example code and instructions to show you how to use Cloud Source Repositories and Google Cloud Build to automatically deploy changes upon code check-in. For more information, see [Demo Guide](https://docs.google.com/document/d/1_O0opWbK0uDpapDiumM75z9tgW01r4p3EdRtCMI5n1g/preview?rm=demo).
+This demo contains example code and instructions that show you how to use
+Document AI to check the quality and format of user uploaded documents, classify
+the document type as either 1040sc, 1120s or other, parse the respective
+document types, and then upload the processed and extracted document to Cloud
+Storage, BigQuery, and then publish to PubSub. Furthermore this repository
+contains example code and instructions to show you how to use Cloud Source
+Repositories and Google Cloud Build to automatically deploy changes upon code
+check-in. For more information, see [Demo
+Guide](https://docs.google.com/document/d/1_O0opWbK0uDpapDiumM75z9tgW01r4p3EdRtCMI5n1g/preview?rm=demo).
 
 ## Architecture Walkthrough
 
-The below diagram details the workflow the code in this demo is based on. When a user uploads a document to the designated Google Cloud Storage bucket, it triggers the Cloud Function that contains the Document AI processors. First the code checks whether the uploaded file is an [acceptable file type](https://cloud.google.com/document-ai/docs/file-types). If it is not an accepted file type, the document is sent to a rejected documents Cloud Storage Bucket. If it is an accepted file type, then the Document AI Quality processor determines the quality of the document. If the document quality is not above the specified threshold, then a message is pushed to a PubSub topic for user review. If it is above the quality threshold, then the Document AI Splitter/Classifier processor identifies the document types. If the documents do not match with a known form parser, they should be handled as the user sees fit. If the documents can be classified to a known form parser, they are moved to their respective input Cloud Storage Buckets. The documents are then parsed with their respective parsers (1040-C Parser or 1120S Parser) and formatted into proper JSON structure. The processed, parsed, and formatted document is copied to the specified BQ table and their respective processed GCS buckets, as well as published to a PubSub topic that can be used to respond to the user, make a calculation or IQ.
+The below diagram details the workflow the code in this demo is based on. When a
+user uploads a document to the designated Google Cloud Storage bucket, it
+triggers the Cloud Function that contains the Document AI processors. First the
+code checks whether the uploaded file is an [acceptable file
+type](https://cloud.google.com/document-ai/docs/file-types). If it is not an
+accepted file type, the document is sent to a rejected documents Cloud Storage
+Bucket. If it is an accepted file type, then the Document AI Quality processor
+determines the quality of the document. If the document quality is not above the
+specified threshold, then a message is pushed to a PubSub topic for user review.
+If it is above the quality threshold, then the Document AI Splitter/Classifier
+processor identifies the document types. If the documents do not match with a
+known form parser, they should be handled as the user sees fit. If the documents
+can be classified to a known form parser, they are moved to their respective
+input Cloud Storage Buckets. The documents are then parsed with their respective
+parsers (1040-C Parser or 1120S Parser) and formatted into proper JSON
+structure. The processed, parsed, and formatted document is copied to the
+specified BQ table and their respective processed GCS buckets, as well as
+published to a PubSub topic that can be used to respond to the user, make a
+calculation or IQ.
 
 ## Demo Architecture
 
@@ -43,50 +69,50 @@ committing them to your new repository.
 1. Copy the files from this demo repository into your new repository.
 1. Add the files to the new repository with the command:
 
-    ```bash
-    git add .
-    ```
+   ```bash
+   git add .
+   ```
 
 1. Commit and push these files in the new repository by running the commands:
 
-    ```bash
-    git commit -m 'Creating a repository for Python Document AI and Cloud Build example.'
-    git push origin master
-    ```
+   ```bash
+   git commit -m 'Creating a repository for Python Document AI and Cloud Build example.'
+   git push origin master
+   ```
 
 You can alternatively do the same using the Google Cloud SDK:
 
 1. Choose a name for your source repository and configure an environment variable for that name with the command:
 
-    ```bash
-    export REPO_NAME = <YOUR_REPO_NAME>
-    ```
+   ```bash
+   export REPO_NAME = <YOUR_REPO_NAME>
+   ```
 
 1. Create the repository by running the command:
 
-     ```bash
-     gcloud source repos create $REPO_NAME
-     ```
+   ```bash
+   gcloud source repos create $REPO_NAME
+   ```
 
 1. Clone the new repository to your local machine by running the command:
 
-     ```bash
-     gcloud source repos clone $REPO_NAME.
-     ```
+   ```bash
+   gcloud source repos clone $REPO_NAME.
+   ```
 
 1. Copy the files from this example into the new repository.
 1. Add the files to the new repository with the command:
 
-    ```bash
-    git add .
-    ```
+   ```bash
+   git add .
+   ```
 
 1. Commit and push these files in the new repository by running the commands:
 
-    ```bash
-    git commit -m 'Creating repository for Python Document AI demo.'
-    git push origin master
-    ```
+   ```bash
+   git commit -m 'Creating repository for Python Document AI demo.'
+   git push origin master
+   ```
 
 ## 2. Set up your Google Cloud Environment
 
@@ -94,23 +120,23 @@ You will need to set up your Google Cloud infrastructure so that you can execute
 
 1. Navigate to the Project specified in step 1.
 1. Create [Google Cloud Storage Buckets](https://cloud.google.com/storage/docs/creating-buckets). You will need:
-    - 1 Original Input Bucket: bucket that the documents are initially uploaded to, which will trigger the workflow
-    - 1 1040c input Bucket: bucket to move documents in original format to then be processed
-    - 1 1120s input Bucket: bucket to move documents in original format to then be processed
-    - 1 1040c output Bucket: bucket for the final processed 1040c documents to be copied to
-    - 1 1120s output Bucket: for the final processed 1120s documents to be copied to
-    - 1 Rejected Bucket: bucket for Rejected documents based on quality
+   - 1 Original Input Bucket: bucket that the documents are initially uploaded to, which will trigger the workflow
+   - 1 1040c input Bucket: bucket to move documents in original format to then be processed
+   - 1 1120s input Bucket: bucket to move documents in original format to then be processed
+   - 1 1040c output Bucket: bucket for the final processed 1040c documents to be copied to
+   - 1 1120s output Bucket: for the final processed 1120s documents to be copied to
+   - 1 Rejected Bucket: bucket for Rejected documents based on quality
 1. Create a [BigQuery dataset](https://cloud.google.com/bigquery/docs/datasets) and a [BigQuery table](https://cloud.google.com/bigquery/docs/tables) to write the formatted and processed documents to.
 1. Create a Pub/Sub [Topic](https://cloud.google.com/pubsub/docs/create-topic) and [Subscription](https://cloud.google.com/pubsub/docs/create-subscription) for the approved processed documents.
 1. Create a Pub/Sub [Topic](https://cloud.google.com/pubsub/docs/create-topic) and [Subscription](https://cloud.google.com/pubsub/docs/create-subscription) for the processed documents that need to undergo human review.
 1. Enable APIs needed for demo by running this script:
 
-    ```sh
-    gcloud services enable pubsub.googleapis.com logging.googleapis.com cloudbuild.googleapis.com documentai.googleapis.com storage.googleapis.com
-    ```
+   ```sh
+   gcloud services enable pubsub.googleapis.com logging.googleapis.com cloudbuild.googleapis.com documentai.googleapis.com storage.googleapis.com
+   ```
 
 1. Go to Processor Gallery and create the following processors:
-Note: - When you are viewing each processor details, take note of the processor ID. The respective processor IDs will be stored as variables later.
+   Note: - When you are viewing each processor details, take note of the processor ID. The respective processor IDs will be stored as variables later.
 
 - 1040-C Parser:
   - Click Create Processor
@@ -143,48 +169,48 @@ Step 3 details how to set up your local environment to run and test locally, you
 1. Install the [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
 1. Create a virtual environment. This only needs to be done ONE TIME for the project. Do not create more than one virtual environment for a project. In this example the virtual environment is named 'venv', but you can name it anything. Add the virtual environment to the .gitignore file so that you never check in the virtual environment to Cloud Source Repositories.
 
-    ```bash
-    python3 -m venv venv
-    ```
+   ```bash
+   python3 -m venv venv
+   ```
 
 1. Activate the virtual environment. Make sure the environment is activated whenever you try to run the code. You will see (venv) in your terminal.
 
-    ```bash
-    source venv/bin/activate
-    ```
+   ```bash
+   source venv/bin/activate
+   ```
 
 1. Authentication. Use gcloud to authenticate locally.
 
-    ```bash
-    gcloud init
-    gcloud auth application-default login
-    ```
+   ```bash
+   gcloud init
+   gcloud auth application-default login
+   ```
 
 1. Replace variable names in the variables.sh file. This will change based on how you set up your cloud environment.
 1. Source the variables to your environment.
 
-    ```bash
-    source quality_and_split/variables.sh
-    ```
+   ```bash
+   source quality_and_split/variables.sh
+   ```
 
 1. Navigate to the root of the repo:
 
-    ```bash
-    cd ./quality_and_split/
-    ```
+   ```bash
+   cd ./quality_and_split/
+   ```
 
 1. Copy and paste above export commands to save variables to your local environment
 1. Install the prerequisites (make sure step 4 is completed):
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 1. Run the code locally:
 
-    ```bash
-    python3 ./main.py
-    ```
+   ```bash
+   python3 ./main.py
+   ```
 
 Based on the documents uploaded your output will change. If you successfully uploaded a 1040C document, your output should look similar to this:
 
@@ -226,11 +252,11 @@ gcloud functions deploy function_name --runtime=python310 --entry-point=process_
 6. Under 'Runtime, build, connections and security settings', Click the Connections tab. Set the Ingress settings to 'Allow internal traffic and traffic from Cloud Load Balancing'.
 7. Click Next. Select 'Python 3.10' Runtime. Under Source code, select 'Cloud Source Repository'. For Entry point, type 'process_receipt'
 8. Under the Cloud Source repository section, input the following fields:
-    - Project ID: Your unique Project ID
-    - Repository: Your unique Repository name
-    - Branch/Tag: branch
-    - Branch name: main
-    - Directory with source code: /quality_and_split
+   - Project ID: Your unique Project ID
+   - Repository: Your unique Repository name
+   - Branch/Tag: branch
+   - Branch name: main
+   - Directory with source code: /quality_and_split
 9. Click Deploy button
 10. Go into cloudbuild.yaml file, and change the docai-demo-function argument to your function name. You can change other variables as well if you see fit.
 
@@ -245,16 +271,16 @@ should [create a Cloud Build Trigger](https://cloud.google.com/cloud-build/docs/
 1. Add description or tags as needed.
 1. Select 'Push new tag' as the Repository event to invoke the trigger
 1. Choose the cloud source repository you created in step 1. from the 'Repository' drop down.
-1. In the mandatory Tag field, type/select .*(any tag)
+1. In the mandatory Tag field, type/select .\*(any tag)
 1. Leave other defaults
-1. Choose the 'Cloud Build configuration file (yaml or json)' radio button  under 'Configuration'.
+1. Choose the 'Cloud Build configuration file (yaml or json)' radio button under 'Configuration'.
 1. Under location, select repository
-1. Type 'cloudbuild.yaml' in the Cloud Build configuration file location *.
+1. Type 'cloudbuild.yaml' in the Cloud Build configuration file location \*.
 1. Click 'Create trigger'.
 
-    See image for example:
+   See image for example:
 
-    ![Cloud Build Image](build-pic.png)
+   ![Cloud Build Image](build-pic.png)
 
 ## 6. Deploying New Versions of the Cloud Function
 
@@ -264,10 +290,10 @@ The Primary benefit that comes with Cloud Build automation is that every time yo
 1. Then tag these changes: `git tag -a v0.0.(Version number) -m "comment"`
 1. Finally, push changes:
 
-    ```bash
-    git push google v0.0.(version number)
-    git push google HEAD
-    ```
+   ```bash
+   git push google v0.0.(version number)
+   git push google HEAD
+   ```
 
 ## 7. Test and Run Your New Code
 
