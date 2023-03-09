@@ -20,7 +20,7 @@ import json
 import os
 
 from google.cloud import bigquery
-from google.cloud import documentai_v1 as documentai
+from google.cloud import documentai
 from google.cloud import exceptions
 from google.cloud import pubsub_v1
 from google.cloud import storage
