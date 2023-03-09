@@ -35,7 +35,7 @@ By using this example you will learn how to:
 You'll start by creating a new repository in Cloud Source Repositories (CSR), copying the files in this example into the CSR repository, and
 committing them to your new repository.
 
-1. Go to https://source.cloud.google.com/ .
+1. Go to [https://source.cloud.google.com/](https://source.cloud.google.com/).
 1. Click 'Add repository'.
 1. Choose 'Create new repository'.
 1. Specify a name, and your project name.
@@ -73,10 +73,7 @@ You can alternatively do the same using the Google Cloud SDK:
      ```bash
      gcloud source repos clone $REPO_NAME.
      ```
-<<<<<<< HEAD
-=======
 
->>>>>>> 5412a4b5b12163ec713e0fb41e4ab23a4fd4c162
 1. Copy the files from this example into the new repository.
 1. Add the files to the new repository with the command:
 
@@ -102,24 +99,14 @@ You will need to set up your Google Cloud infrastructure so that you can execute
     - 1 1120s input Bucket: bucket to move documents in original format to then be processed
     - 1 1040c output Bucket: bucket for the final processed 1040c documents to be copied to
     - 1 1120s output Bucket: for the final processed 1120s documents to be copied to
-<<<<<<< HEAD
-    - 1 Rejected Bucket: bucket for Rejected documents based on quality 
-1. Create a [BigQuery dataset](https://cloud.google.com/bigquery/docs/datasets) and a [BigQuery table](https://cloud.google.com/bigquery/docs/tables) to write the formatted and processed documents to.
-1. Create a Pub/Sub [Topic](https://cloud.google.com/pubsub/docs/create-topic) and [Subscription](https://cloud.google.com/pubsub/docs/create-subscription) for the approved processed documents.
-1. Create a Pub/Sub [Topic](https://cloud.google.com/pubsub/docs/create-topic) and [Subscription](https://cloud.google.com/pubsub/docs/create-subscription) for the processed documents that need to undergo human review.
-1. Enable APIs needed for demo by running this script:
-    ```
-    gcloud services enable pubsub.googleapis.com logging.googleapis.com cloudbuild.googleapis.com documentai.googleapis.com storage.googleapis.com
-=======
     - 1 Rejected Bucket: bucket for Rejected documents based on quality
-1. Create a [BigQuery dataset](https://cloud.google.com/bigquery/docs/datasets) and a [BigQuery table](https://cloud.google.com/bigquery/docs/tables) to write the formatted and processed documents to
+1. Create a [BigQuery dataset](https://cloud.google.com/bigquery/docs/datasets) and a [BigQuery table](https://cloud.google.com/bigquery/docs/tables) to write the formatted and processed documents to.
 1. Create a Pub/Sub [Topic](https://cloud.google.com/pubsub/docs/create-topic) and [Subscription](https://cloud.google.com/pubsub/docs/create-subscription) for the approved processed documents.
 1. Create a Pub/Sub [Topic](https://cloud.google.com/pubsub/docs/create-topic) and [Subscription](https://cloud.google.com/pubsub/docs/create-subscription) for the processed documents that need to undergo human review.
 1. Enable APIs needed for demo by running this script:
 
     ```sh
-    gcloud services enable pubsub.googleapis.com logging.googleapis.com cloudbuild.googleapis.com documentai.googleapis.com
->>>>>>> 5412a4b5b12163ec713e0fb41e4ab23a4fd4c162
+    gcloud services enable pubsub.googleapis.com logging.googleapis.com cloudbuild.googleapis.com documentai.googleapis.com storage.googleapis.com
     ```
 
 1. Go to Processor Gallery and create the following processors:
@@ -141,21 +128,12 @@ Note: - When you are viewing each processor details, take note of the processor 
   - Region: US
   - Click Create Processor
 - Document Quality
-<<<<<<< HEAD
-    - Click Create Processor
-    - Processor name: loan_workshop_doc_quality
-    - Region: US
-    - Click Create Processor
-
-8. Now, you must update the [`env.yaml`](./env.yaml) file with your respective GCP environment variables. This is very important, make sure not to skip this step! 
-=======
   - Click Create Processor
   - Processor name: loan_workshop_doc_quality
   - Region: US
   - Click Create Processor
->>>>>>> 5412a4b5b12163ec713e0fb41e4ab23a4fd4c162
 
-1. Now, you must update the env.yaml file with your respective GCP environment variables. This is very important, make sure not to skip this step!
+1. Now, you must update the [`env.yaml`](./env.yaml) file with your respective GCP environment variables. This is very important, make sure not to skip this step!
 
 ## 3. Set up your local environment for development and testing (optional)
 
