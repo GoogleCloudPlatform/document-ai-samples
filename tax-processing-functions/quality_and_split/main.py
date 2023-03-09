@@ -17,7 +17,6 @@
 
 from datetime import datetime
 import json
-# Import Libraries
 import os
 
 from google.cloud import bigquery
