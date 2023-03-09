@@ -196,27 +196,26 @@ def format_entities(extracted_doc):
     result_ents = []
     for entity in extracted_doc.entities:
         entity_type = str(entity.type_)
-        if entity_type == "line_item":
-            for p in entity.properties:
-                ents = {
-                    "type_": p.type_,
-                    "mention_text": p.mention_text,
-                    "confidence": p.confidence,
-                }
-                result_ents.append(ents)
+        for p in entity.properties:
             ents = {
-                "type_": entity.type_,
-                "mention_text": entity.mention_text,
-                "confidence": entity.confidence,
+                "type_": p.type_,
+                "mention_text": p.mention_text,
+                "confidence": p.confidence,
             }
-            result_ents.append(ents)
-        else:
-            ents = {
-                "type_": entity_type,
-                "mention_text": entity.mention_text,
-                "confidence": entity.confidence,
-            }
-            result_ents.append(ents)
+
+        ents = {
+            "type_": entity.type_,
+            "mention_text": entity.mention_text,
+            "confidence": entity.confidence,
+        }
+        result_ents.append(ents)
+    else:
+        ents = {
+            "type_": entity_type,
+            "mention_text": entity.mention_text,
+            "confidence": entity.confidence,
+        }
+        result_ents.append(ents)
     print("Formatted entities to a list.")
     return result_ents
 
@@ -295,7 +294,7 @@ def get_gcs_file(file_name, bucket_name):
         raise
 
 
-# Extract envitites from document using respective processor
+# Extract entites from document using respective processor
 def extract_entities(file, content_type, processor):
     # file = file object
     # content_type = type of file uploaded

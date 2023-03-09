@@ -31,12 +31,12 @@ By using this example you will learn how to:
 You'll start by creating a new repository in Cloud Source Repositories (CSR), copying the files in this example into the CSR repository, and 
 committing them to your new repository.
 
-1. Go to [https://source.cloud.google.com/](https://source.cloud.google.com/).
+1. Go to https://source.cloud.google.com/ .
 1. Click 'Add repository'.
 1. Choose 'Create new repository'.
 1. Specify a name, and your project name.
 1. Follow the instructions to 'git clone' the empty repository to your workstation.
-1. Copy the files from this demo repository in [Gitlab](https://gitlab.com/caseynjustus/docai-tax-workflow-demo.git) into your new repository.
+1. Copy the files from this demo repository into your new repository.
 1. Add the files to the new repository with the command:
     ```bash
     git add .
@@ -60,7 +60,7 @@ You can alternatively do the same using the Google Cloud SDK:
      ```bash
      gcloud source repos clone $REPO_NAME.
      ```
-1. Copy the files from this example into the new repo.
+1. Copy the files from this example into the new repository.
 1. Add the files to the new repository with the command:
     ```bash
     git add .
@@ -81,12 +81,12 @@ You will need to set up your Google Cloud infrastructure so that you can execute
     - 1 1040c output Bucket: bucket for the final processed 1040c documents to be copied to
     - 1 1120s output Bucket: for the final processed 1120s documents to be copied to
     - 1 Rejected Bucket: bucket for Rejected documents based on quality 
-1. Create a [BigQuery dataset](https://cloud.google.com/bigquery/docs/datasets) and a [BigQuery table](https://cloud.google.com/bigquery/docs/tables) to write the formatted and processed documents to
+1. Create a [BigQuery dataset](https://cloud.google.com/bigquery/docs/datasets) and a [BigQuery table](https://cloud.google.com/bigquery/docs/tables) to write the formatted and processed documents to.
 1. Create a Pub/Sub [Topic](https://cloud.google.com/pubsub/docs/create-topic) and [Subscription](https://cloud.google.com/pubsub/docs/create-subscription) for the approved processed documents.
 1. Create a Pub/Sub [Topic](https://cloud.google.com/pubsub/docs/create-topic) and [Subscription](https://cloud.google.com/pubsub/docs/create-subscription) for the processed documents that need to undergo human review.
 1. Enable APIs needed for demo by running this script:
     ```
-    gcloud services enable pubsub.googleapis.com logging.googleapis.com cloudbuild.googleapis.com documentai.googleapis.com
+    gcloud services enable pubsub.googleapis.com logging.googleapis.com cloudbuild.googleapis.com documentai.googleapis.com storage.googleapis.com
     ```
 1. Go to Processor Gallery and create the following processors:
 Note: - When you are viewing each processor details, take note of the processor ID. The respective processor ID's will be stored as variables later.
@@ -112,7 +112,7 @@ Note: - When you are viewing each processor details, take note of the processor 
     - Region: US
     - Click Create Processor
 
-8. Now, you must update the env.yaml file with your respective GCP environment variables. This is very important, make sure not to skip this step! 
+8. Now, you must update the [`env.yaml`](./env.yaml) file with your respective GCP environment variables. This is very important, make sure not to skip this step! 
 
 
 ## 3. Set up your local environment for development and testing (optional)
