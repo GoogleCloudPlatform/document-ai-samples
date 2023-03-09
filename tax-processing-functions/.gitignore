@@ -1,0 +1,6 @@
+/venv/
+/.idea/
+quality_and_split/__pycache__/
+.DS_Store
+.vscode/
+./docai_workflow.iml/

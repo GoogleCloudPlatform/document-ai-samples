@@ -1,0 +1,15 @@
+# TODO: Replace docai-demo-function with YOUR function name
+
+steps:
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args:
+  - gcloud
+  - functions
+  - deploy
+  - docai-demo-function
+  - --region=us-central1
+  - --source=./quality_and_split
+  - --trigger-bucket=lending-app-doc-original
+  - --runtime=python310
+  - --env-vars-file=env.yaml
+  - --ingress-settings=internal-and-gclb
