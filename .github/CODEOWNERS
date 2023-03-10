@@ -6,15 +6,14 @@
 
 # @GoogleCloudPlatform/ml-apis are the default owners for changes in this repo
 *     @GoogleCloudPlatform/ml-apis
-*     @yoshi-approver
 
 # @matthewayne is the default owner for PDF splitter sample changes
-/bq-connector @mservidio @yoshi-approver
-/sql-pdf-python @dojowahi @yoshi-approver
-/document_ai_warehouse/document_ai_warehouse_processing_python @HSbedi87 @yoshi-approver
-/document-json-explorer @kolban-google @yoshi-approver
-/web-app-pix2info-python @PicardParis @holtskinner @yoshi-approver
+/bq-connector @mservidio
+/sql-pdf-python @dojowahi
+/document_ai_warehouse/document_ai_warehouse_processing_python @HSbedi87
+/document-json-explorer @kolban-google
+/web-app-pix2info-python @PicardParis @holtskinner
 
 # Community owners
-/community/identity-form-autofiller-python @PicardParis @yoshi-approver
-/community/expense-parser-python @jiya-zhang @yoshi-approver
+/community/identity-form-autofiller-python @PicardParis
+/community/expense-parser-python @jiya-zhang
