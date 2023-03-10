@@ -6,24 +6,15 @@
 
 # @GoogleCloudPlatform/ml-apis are the default owners for changes in this repo
 *     @GoogleCloudPlatform/ml-apis
+*     @yoshi-approver
 
 # @matthewayne is the default owner for PDF splitter sample changes
-/pdf-splitter-python/ @holtskinner
-/web-app-demo/ @galz10 @holtskinner
-/extract-languages @holtskinner
-/extract-tables @holtskinner
-/filter-hitl-language @holtskinner
-/fraud-detection-python @holtskinner
-/tax-processing-pipeline-python @holtskinner
-/bq-connector @mservidio
-/sql-pdf-python @dojowahi
-/document_ai_warehouse/document_ai_warehouse_processing_python @HSbedi87
-/document-json-explorer @kolban-google
-/web-app-pix2info-python @PicardParis @holtskinner
+/bq-connector @mservidio @yoshi-approver
+/sql-pdf-python @dojowahi @yoshi-approver
+/document_ai_warehouse/document_ai_warehouse_processing_python @HSbedi87 @yoshi-approver
+/document-json-explorer @kolban-google @yoshi-approver
+/web-app-pix2info-python @PicardParis @holtskinner @yoshi-approver
 
 # Community owners
-/community/identity-form-autofiller-python @PicardParis
-/community/codelabs/docai-form-parser @holtskinner
-/community/codelabs/docai-ocr @holtskinner
-/community/codelabs/docai-specialized-processors @holtskinner
-/community/expense-parser-python @jiya-zhang
+/community/identity-form-autofiller-python @PicardParis @yoshi-approver
+/community/expense-parser-python @jiya-zhang @yoshi-approver
