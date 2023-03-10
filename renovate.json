@@ -25,5 +25,12 @@
       "matchCurrentVersion": "!/^0/",
       "automerge": true
     }
-  ]
+  ],
+  "pip_requirements": {
+    "fileMatch": [
+      "requirements-test.txt",
+      "constraints.txt",
+      "constraints-test.txt"
+    ]
+  }
 }
