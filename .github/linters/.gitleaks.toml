@@ -6,7 +6,7 @@ title = "gitleaks config"
 useDefault = true
 
 [allowlist]
-description = "Allowlisted files"
-files = [
-    '''package-lock\.json''', # Ignoring Node/JS manifests
+description = "global allow lists"
+paths = [
+    '''web-app-demo/Frontend/package-lock.json''',
 ]
