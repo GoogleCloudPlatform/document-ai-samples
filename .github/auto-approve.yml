@@ -12,4 +12,4 @@ rules:
   changedFiles:
   - "package\\.json$"
   - "pom\\.xml$"
-  - "requirements\\.txt"
+  - "requirements\\.txt$"
