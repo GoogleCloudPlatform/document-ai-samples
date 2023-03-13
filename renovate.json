@@ -2,21 +2,12 @@
   "extends": [
     "config:base"
   ],
+  "prConcurrentLimit": 0,
   "lockFileMaintenance": {
     "enabled": true,
     "automerge": true
   },
   "packageRules": [
-    {
-      "matchDepTypes": [
-        "devDependencies"
-      ],
-      "matchPackagePatterns": [
-        "lint",
-        "prettier"
-      ],
-      "automerge": true
-    },
     {
       "matchUpdateTypes": [
         "minor",
