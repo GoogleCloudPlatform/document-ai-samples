@@ -17,3 +17,9 @@
 # Community owners
 /community/identity-form-autofiller-python @PicardParis
 /community/expense-parser-python @jiya-zhang
+
+# Auto-Approve
+*/requirements.txt @yoshi-approver
+*/requirements-test.txt @yoshi-approver
+*/package.json @yoshi-approver
+*/pom.xml @yoshi-approver
