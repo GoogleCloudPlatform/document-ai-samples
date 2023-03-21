@@ -9,6 +9,7 @@ from google.cloud import storage
 from pathlib import Path
 from uuid import uuid4
 
+
 @functions_framework.http
 def split_document(request):
     """Triggered by Workflow.
@@ -24,33 +25,40 @@ def split_document(request):
     print(request_json)
     response = request_json
     storage_client = storage.Client()
-    input_bucket = storage_client.get_bucket(request_json['resultBucket'])
-    input_blob = input_bucket.get_blob(request_json['inputObject'])
+    input_bucket = storage_client.get_bucket(request_json["resultBucket"])
+    input_blob = input_bucket.get_blob(request_json["inputObject"])
     input_content = input_blob.download_as_bytes()
-    process_result_bucket = storage_client.get_bucket(request_json['resultBucket'])
-    process_result_blob = process_result_bucket.get_blob(request_json['resultObject'])
+    process_result_bucket = storage_client.get_bucket(request_json["resultBucket"])
+    process_result_blob = process_result_bucket.get_blob(request_json["resultObject"])
     process_result_content = process_result_blob.download_as_bytes()
     document = json.loads(process_result_content)
-    response['classifications'] = []
+    response["classifications"] = []
     with io.BytesIO(input_content) as pdf_file:
         pdf = Pdf.open(pdf_file)
-        for entity in document.get('entities',[]):
+        for entity in document.get("entities", []):
             output = Pdf.new()
-            start_page = min(page_ref['page'] for page_ref in entity['page_anchor']['page_refs'])
-            end_page = max(page_ref['page'] for page_ref in entity['page_anchor']['page_refs'])
-            for page_ref in entity['page_anchor']['page_refs']:
-              output.pages.append(pdf.pages[page_ref['page']])
+            start_page = min(
+                page_ref["page"] for page_ref in entity["page_anchor"]["page_refs"]
+            )
+            end_page = max(
+                page_ref["page"] for page_ref in entity["page_anchor"]["page_refs"]
+            )
+            for page_ref in entity["page_anchor"]["page_refs"]:
+                output.pages.append(pdf.pages[page_ref["page"]])
             file_name = f"{Path(request_json['inputObject']).stem}_{start_page:03d}-{end_page:03d}_{entity['type']}_{uuid4()}.pdf"
             split_blob_name = f"{request_json['resultPrefix']}/{file_name}"
             print(f"Blob name: {split_blob_name}")
             split_blob = process_result_bucket.blob(blob_name=split_blob_name)
             byte_io = io.BytesIO()
             output.save(byte_io)
-            split_blob.upload_from_file(byte_io, rewind=True, content_type="application/pdf")
+            split_blob.upload_from_file(
+                byte_io, rewind=True, content_type="application/pdf"
+            )
             classification = {
-              "fileName": file_name,
-              "objectName": split_blob_name,
-              "pages": end_page - start_page + 1,
-              "type": entity['type']}
-            response['classifications'].append(classification)
+                "fileName": file_name,
+                "objectName": split_blob_name,
+                "pages": end_page - start_page + 1,
+                "type": entity["type"],
+            }
+            response["classifications"].append(classification)
     return response
