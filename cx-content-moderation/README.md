@@ -6,7 +6,7 @@ This example consists of a service that mediates between a Dialogflow CX request
 
 Content Moderation webhook service calls the Content Moderation API and formats the toxicity attributes as CX Session Parameters for use in routing the CX bot.
 
-![](./public/images/ContentModeration_x_CX.png)
+![](./public/images/ContentModeration_x_CX.png "interaction diagram")
 
 
 ## Prerequisites
@@ -14,7 +14,7 @@ Content Moderation webhook service calls the Content Moderation API and formats 
 
 Create a Document AI Content Moderation Processor
 
-```
+```shell
 # enable the Document AI service
 gcloud services enable documentai.googleapis.com
 
@@ -54,7 +54,7 @@ From the App Engine or Cloud Run deployed service, a URL endpoint will be create
 
 Open the Agent in the CX console and use the simulator to test the interaction.
 
-### Optional: deploy as webpage
+### Optional: deploy as web page
 
 See the `public` directory for an example HTML page and images using Dialogflow Messenger.
 
@@ -65,7 +65,7 @@ Enable the Dialogflow Messenger integration in the Dialogflow CX agent integrati
 
 deploy locally
 
-```
+```shell
 export PROJECT_ID=$(gcloud info --format='value(config.project)')
 # if you used the one above, this is: content-moderation-processor
 export CONTENT_MODERATION_NAME=
@@ -74,13 +74,13 @@ go run *.go
 
 then test with
 
-```
+```shell
 curl localhost:8080/analyze -d @samples/samplerequest.json
 ```
 
 Or test against a deployed endpoint
 
-```
+```shell
 curl ${ENDPOINT}/analyze
   -H 'Content-Type: application/json' \
   -H "Authorization: Bearer $(gcloud auth print-access-token)" \
