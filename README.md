@@ -14,6 +14,7 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 
 * [Document AI Warehouse Processing (Python)](document_ai_warehouse/document_ai_warehouse_processing_python/): This project demonstrates how to perform common actions on Document AI Warehouse through API.
 * [BQ Connector](bq-connector/): This project uses the Document AI API to process a document, format the result and save it into a BigQuery table.
+* [Content Moderation with Dialogflow CX](cx-content-moderation): This project uses the Content Moderation processor with Dialogflow CX for toxicity routing during a conversation.
 * [Filter HITL Language](filter-hitl-language/): This project uses the languages detected by Document AI (post-HITL) to sort the `Document.json` files into separate Cloud Storage buckets.
 * [Fraud Detection](fraud-detection-python/): This project uses the Document AI Invoice Parser with EKG and Google Maps to store document Entities in BigQuery.
 * [JSON Explorer](document-json-explorer/): A React Tool to explore the Document JSON Response.
