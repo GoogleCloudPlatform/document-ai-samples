@@ -6,11 +6,9 @@ This example consists of a service that mediates between a Dialogflow CX request
 
 Content Moderation webhook service calls the Content Moderation API and formats the toxicity attributes as CX Session Parameters for use in routing the CX bot.
 
-![](./public/images/ContentModeration_x_CX.png "interaction diagram")
-
+![Interaction Diagram](./public/images/ContentModeration_x_CX.png)
 
 ## Prerequisites
-
 
 Create a Document AI Content Moderation Processor
 
@@ -25,10 +23,9 @@ docaictl processors create --type CONTENT_MODERATION_PROCESSOR content-moderatio
 
 ## Deploy service
 
-
 You can use either Cloud Run or AppEngine to deploy this containerized service.
 
-Included is an app.yaml (`app.yaml.tmpl`) template that facilitates incorporating the Content Moderation API key into an AppEngine deployment. 
+Included is an app.yaml (`app.yaml.tmpl`) template that facilitates incorporating the Content Moderation API key into an AppEngine deployment.
 
 Notable are three env variables
 
@@ -40,7 +37,6 @@ With App Engine: `gcloud app deploy`
 
 With Cloud Run: `gcloud run deploy cx-content-moderation source . --region us-central1 --no-allow-unauthenticated`
 
-
 ## Create CX Agent
 
 Create a new Dialogflow CX agent and restore the exported example agent in `agent` folder.
@@ -48,7 +44,6 @@ Create a new Dialogflow CX agent and restore the exported example agent in `agen
 ### Replace Webhook URL
 
 From the App Engine or Cloud Run deployed service, a URL endpoint will be created. Replace the webhook named `content-moderation` with the URL provided, adding `/analyze` at the end.
-
 
 ## Test with CX Simulator
 
@@ -59,7 +54,6 @@ Open the Agent in the CX console and use the simulator to test the interaction.
 See the `public` directory for an example HTML page and images using Dialogflow Messenger.
 
 Enable the Dialogflow Messenger integration in the Dialogflow CX agent integrations and replace `agent-id` attribute value with your agent ID in the `<df-messenger>` element.
-
 
 ## Local testing
 
