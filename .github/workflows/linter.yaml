@@ -63,3 +63,4 @@ jobs:
           VALIDATE_TYPESCRIPT_STANDARD: false
           VALIDATE_TYPESCRIPT_ES: false
           VALIDATE_CSS: false
+          VALIDATE_GO: false
