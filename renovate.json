@@ -19,6 +19,7 @@
   ],
   "pip_requirements": {
     "fileMatch": [
+      "requirements.txt",
       "requirements-test.txt",
       "constraints.txt",
       "constraints-test.txt"
