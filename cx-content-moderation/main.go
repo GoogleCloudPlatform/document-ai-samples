@@ -30,53 +30,28 @@ import (
 )
 
 var (
-	projectID                      string
-	logname                        string
-	contentModerationProcessorName string
-	/*
-		perspectiveKey                 string
-		language                       string
-		languageAttributes             map[string][]string
-	*/
+	projectID                      string = getProjectID()
+	contentModerationProcessorName string = envCheck("CONTENT_MODERATION_NAME", "")
+	port                           string = envCheck("PORT", "8080")
+	logname                        string = envCheck("LOGNAME", "cx-content-moderation")
 )
 
 const location = "us"
 
 func main() {
 	log.Printf("cx-content-moderation")
-	// guards for config
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-	projectID = os.Getenv("PROJECT_ID") // local
-	if projectID == "" {                // local, appengine
-		projectID = os.Getenv("GOOGLE_CLOUD_PROJECT")
-		if projectID == "" { // gcp metadata
-			var err error
-			projectID, err = metadata.ProjectID()
-			if err != nil {
-				log.Fatalf("Unable to get Google Cloud Project ID")
-			}
-		}
-	}
-	logname = os.Getenv("LOGNAME")
-	if logname == "" { // default
-		logname = "cx-content-moderation"
-	}
-	contentModerationProcessorName = os.Getenv("CONTENT_MODERATION_NAME")
+
 	if contentModerationProcessorName == "" {
-		log.Fatalf("need to provide CONTENT_MODERATION_NAME reference to display name of Content Moderation API Document Processor name")
+		log.Fatal("need to provide CONTENT_MODERATION_NAME reference to name of Content Moderation API Document Processor name")
 	}
 
 	ctx := context.Background()
 	server := ezcx.NewServer(ctx, ":"+port, log.Default())
 	server.HandleCx("/analyze", analyzeCommentHandler)
 	server.ListenAndServe(ctx)
-
 }
 
-// analyzeCommentHandler is the Dialogflow CX interface for the Perspective API
+// analyzeCommentHandler is the Dialogflow CX interface for the Content Moderation API
 func analyzeCommentHandler(res *ezcx.WebhookResponse, req *ezcx.WebhookRequest) error {
 	params := req.GetSessionParameters()
 	text := req.GetText()
@@ -95,7 +70,6 @@ func analyzeCommentHandler(res *ezcx.WebhookResponse, req *ezcx.WebhookRequest) 
 	// map the content moderation API results to a CX Session parameter
 	attributes := make(map[string]interface{})
 	for _, attribute := range resp.Document.Entities {
-		//log.Printf("%20s: %f", attribute.GetType(), attribute.GetConfidence())
 		attributes[attribute.GetType()] = attribute.GetConfidence()
 	}
 	if params == nil {
@@ -135,7 +109,6 @@ func rateToxicityContentModeration(ctx context.Context, content string) (*docume
 
 	resp, err = c.ProcessDocument(ctx, req)
 	if err != nil {
-		//log.Printf("unable to process document: %+v", err)
 		return resp, err
 	}
 
@@ -145,11 +118,31 @@ func rateToxicityContentModeration(ctx context.Context, content string) (*docume
 // apiEndpoint returns the URL of the Document AI API endpoint based upon the
 // user's choice for the Document AI API location
 func apiEndpoint() string {
-	var apiEndpoint string
-	if location == "us" {
-		apiEndpoint = "documentai.googleapis.com:443"
+	return fmt.Sprintf("%s-documentai.googleapis.com:443", location)
+}
+
+// envCheck checks for an environment variable, otherwise returns default
+func envCheck(environmentVariable, defaultVar string) string {
+	if envar, ok := os.LookupEnv(environmentVariable); !ok {
+		return defaultVar
+	} else if envar == "" {
+		return defaultVar
 	} else {
-		apiEndpoint = fmt.Sprintf("%s-documentai.googleapis.com:443", location)
+		return envar
 	}
-	return apiEndpoint
+}
+
+// getProjectID checks for a local environment variable and then GCP metadata to
+func getProjectID() string {
+	projectID := envCheck("PROJECT_ID", "")
+	if projectID == "" { // local
+		projectID = envCheck("GOOGLE_CLOUD_PROJECT", "") // appengine
+		if projectID == "" {                             // gcp metadata
+			var err error
+			if projectID, err = metadata.ProjectID(); err != nil {
+				log.Fatal("Unable to get Google Cloud Project ID", err)
+			}
+		}
+	}
+	return projectID
 }
