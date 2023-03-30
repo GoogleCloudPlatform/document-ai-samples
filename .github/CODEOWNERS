@@ -7,19 +7,20 @@
 # @GoogleCloudPlatform/ml-apis are the default owners for changes in this repo
 *     @GoogleCloudPlatform/ml-apis
 
-# @matthewayne is the default owner for PDF splitter sample changes
-/bq-connector @mservidio
-/sql-pdf-python @dojowahi
-/document_ai_warehouse/document_ai_warehouse_processing_python @HSbedi87
-/document-json-explorer @kolban-google
-/web-app-pix2info-python @PicardParis @holtskinner
+/bq-connector @mservidio @GoogleCloudPlatform/ml-apis
+/sql-pdf-python @dojowahi @GoogleCloudPlatform/ml-apis
+/document_ai_warehouse/document_ai_warehouse_processing_python @HSbedi87 @GoogleCloudPlatform/ml-apis
+/document-json-explorer @kolban-google @GoogleCloudPlatform/ml-apis
+/web-app-pix2info-python @PicardParis @holtskinner @GoogleCloudPlatform/ml-apis
+/cx-content-moderation @ghchinoy @GoogleCloudPlatform/ml-apis
 
 # Community owners
-/community/identity-form-autofiller-python @PicardParis
-/community/expense-parser-python @jiya-zhang
+/community/identity-form-autofiller-python @PicardParis @GoogleCloudPlatform/ml-apis
+/community/expense-parser-python @jiya-zhang @GoogleCloudPlatform/ml-apis
 
 # Auto-Approve
-*/requirements.txt @yoshi-approver
-*/requirements-test.txt @yoshi-approver
-*/package.json @yoshi-approver
-*/pom.xml @yoshi-approver
+**/requirements.txt @yoshi-approver @GoogleCloudPlatform/ml-apis
+**/requirements-test.txt @yoshi-approver @GoogleCloudPlatform/ml-apis
+**/package.json @yoshi-approver @GoogleCloudPlatform/ml-apis
+**/package-lock.json @yoshi-approver @GoogleCloudPlatform/ml-apis
+**/pom.xml @yoshi-approver @GoogleCloudPlatform/ml-apis
