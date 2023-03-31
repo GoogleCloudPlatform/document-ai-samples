@@ -11,9 +11,10 @@
     {
       "matchUpdateTypes": [
         "minor",
-        "patch"
+        "patch",
+        "lockFileMaintenance",
+        "bump"
       ],
-      "matchCurrentVersion": "!/^0/",
       "automerge": true
     }
   ],
