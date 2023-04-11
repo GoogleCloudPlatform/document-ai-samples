@@ -28,6 +28,7 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 
 * [Document AI Sheets Plugin](https://github.com/GoogleCloudPlatform/documentai-sheets-plugin)
 * [Document AI Intake Accelerator](https://github.com/GoogleCloudPlatform/document-intake-accelerator)
+* [Document AI AppScript/Google Drive Sample](https://github.com/googleworkspace/ml-integration-samples/blob/master/apps-script/documentai/documentai.js)
 
 ### Deprecated Samples
 
