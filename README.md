@@ -46,8 +46,6 @@ If you need Document Files to run the samples, you can access them from this pub
 You can also view sample input/output files by processor on the [Sample Output](https://cloud.google.com/document-ai/docs/output) page of the documentation.
 
 ## Codelabs
-<!-- markdownlint-disable MD033 -->
-<img src="https://www.gstatic.com/devrel-devsite/prod/vc705ce9bd51279e80f03a51aec7c6eb1f05e56e75c958618655fc719098c9888/codelabs/images/lockup.svg" alt="Codelabs Logo" width="200"/>
 
 * [Optical Character Recognition (OCR) with Document AI (Python)](https://codelabs.developers.google.com/codelabs/docai-ocr-python)
 * [Form Parsing with Document AI (Python)](https://codelabs.developers.google.com/codelabs/docai-form-parser-v1-python)
