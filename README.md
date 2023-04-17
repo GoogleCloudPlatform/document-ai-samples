@@ -1,10 +1,9 @@
-# Google Cloud Document AI Samples
+# Google Cloud [Document AI](https://cloud.google.com/document-ai) Samples
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![GitHub Super-Linter](https://github.com/GoogleCloudPlatform/document-ai-samples/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
-![Document AI](https://storage.googleapis.com/gweb-cloudblog-publish/images/gcp_docai_platform.1000064920000870.max-2000x2000.jpg)
 
-Welcome to the Google Cloud [Document AI](https://cloud.google.com/document-ai) sample repository.
+![Document AI](https://storage.googleapis.com/gweb-cloudblog-publish/images/Document_AI_2022.max-2500x2500.jpg)
 
 ## Overview
 
@@ -12,8 +11,10 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 
 ## Samples
 
+* [Apps Script & Google Drive Integration](apps-script-google-drive): Code in Google [Apps Script](https://developers.google.com/apps-script) for integration with Document AI.
 * [Document AI Warehouse Processing (Python)](document_ai_warehouse/document_ai_warehouse_processing_python/): This project demonstrates how to perform common actions on Document AI Warehouse through API.
 * [BQ Connector](bq-connector/): This project uses the Document AI API to process a document, format the result and save it into a BigQuery table.
+* [Content Moderation with Dialogflow CX](cx-content-moderation): This project uses the Content Moderation processor with Dialogflow CX for toxicity routing during a conversation.
 * [Filter HITL Language](filter-hitl-language/): This project uses the languages detected by Document AI (post-HITL) to sort the `Document.json` files into separate Cloud Storage buckets.
 * [Fraud Detection](fraud-detection-python/): This project uses the Document AI Invoice Parser with EKG and Google Maps to store document Entities in BigQuery.
 * [JSON Explorer](document-json-explorer/): A React Tool to explore the Document JSON Response.
@@ -45,8 +46,6 @@ If you need Document Files to run the samples, you can access them from this pub
 You can also view sample input/output files by processor on the [Sample Output](https://cloud.google.com/document-ai/docs/output) page of the documentation.
 
 ## Codelabs
-<!-- markdownlint-disable MD033 -->
-<img src="https://www.gstatic.com/devrel-devsite/prod/vc705ce9bd51279e80f03a51aec7c6eb1f05e56e75c958618655fc719098c9888/codelabs/images/lockup.svg" alt="Codelabs Logo" width="200"/>
 
 * [Optical Character Recognition (OCR) with Document AI (Python)](https://codelabs.developers.google.com/codelabs/docai-ocr-python)
 * [Form Parsing with Document AI (Python)](https://codelabs.developers.google.com/codelabs/docai-form-parser-v1-python)

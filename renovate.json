@@ -11,14 +11,16 @@
     {
       "matchUpdateTypes": [
         "minor",
-        "patch"
+        "patch",
+        "lockFileMaintenance",
+        "bump"
       ],
-      "matchCurrentVersion": "!/^0/",
       "automerge": true
     }
   ],
   "pip_requirements": {
     "fileMatch": [
+      "requirements.txt",
       "requirements-test.txt",
       "constraints.txt",
       "constraints-test.txt"
