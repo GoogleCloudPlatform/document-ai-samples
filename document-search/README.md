@@ -39,7 +39,7 @@ This demo illustrates how to search through a corpus of unstructrued contract do
    - `gcloud run deploy genappbuilder-demo --source .`
 
 1. Visit the deployed web page
-   - Example: 
+   - Example: https://genappbuilder-demo-lnppzg3rxa-uc.a.run.app
 
 -----
 
