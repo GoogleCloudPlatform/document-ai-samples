@@ -1,0 +1,6 @@
+typing
+
+google-api-core
+
+Flask
+gunicorn
