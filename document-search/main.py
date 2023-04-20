@@ -24,6 +24,7 @@ from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
 
+
 @app.route("/", methods=["GET"])
 def index() -> str:
     """
@@ -31,6 +32,7 @@ def index() -> str:
     """
 
     return render_template("index.html")
+
 
 @app.errorhandler(Exception)
 def handle_exception(ex: Exception):
