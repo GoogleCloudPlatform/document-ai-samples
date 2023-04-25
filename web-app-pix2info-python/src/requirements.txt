@@ -11,7 +11,7 @@ google-auth==2.17.3
 Pillow==9.5.0
 
 # https://pypi.org/project/flask
-Flask==2.2.3
+Flask==2.2.4
 
 # https://pypi.org/project/gunicorn
 gunicorn==20.1.0
