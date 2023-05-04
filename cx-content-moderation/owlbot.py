@@ -32,7 +32,6 @@ s.shell.run(
         "go",
         "mod",
         "tidy",
-        "\;",
     ],
     hide_output=False,
 )
