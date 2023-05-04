@@ -22,19 +22,21 @@
             <img class="gen-app-builder-logo" src="{{url_for('static', filename='gen-app-builder-logo.svg')}}"
                 alt="Generative AI App Builder" />
         </a>
-        <h1>Enterprise Search Demo - Contract Search</h1>
-        <a href="/finance"><p>Go to Financial Services Demo</p></a>
+        <h1>Enterprise Search Demo - Financial Services</h1>
+        <a href="/">
+            <p>Go to Contract Search</p>
+        </a>
     </section>
     <main>
         <!-- Search widget script bundle -->
         <script src="https://gen-ai-app-builder.appspot.com/preview/client"></script>
-
+        
         <!-- Search widget element is not visible by default -->
         <gen-search-widget
-            widgetConfigName="projects/908687846511/locations/global/collections/default_collection/dataStores/contract-search_1681489575228/widgetConfigs/default_search_widget_config"
+            widgetConfigName="projects/908687846511/locations/global/collections/default_collection/dataStores/unstructured-data-engine_1681237261728/widgetConfigs/default_search_widget_config"
             apiKey="AIzaSyDVYoULEvqeWJqk4Wip7qzgXwPQ6rys_iM" triggerId="searchWidgetTrigger">
         </gen-search-widget>
-
+        
         <!-- Element that opens the widget on click. It does not have to be an input -->
         <input placeholder="Search here" id="searchWidgetTrigger" />
     </main>

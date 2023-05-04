@@ -34,6 +34,15 @@ def index() -> str:
     return render_template("index.html")
 
 
+@app.route("/finance", methods=["GET"])
+def finance() -> str:
+    """
+    Web Server, Homepage
+    """
+
+    return render_template("finance.html")
+
+
 @app.errorhandler(Exception)
 def handle_exception(ex: Exception):
     """
