@@ -14,3 +14,12 @@
 
 docker:
   image: gcr.io/cloud-devrel-public-resources/owlbot-python:latest
+
+docker:
+  image: gcr.io/cloud-devrel-public-resources/owlbot-go:latest
+ 
+docker:
+  image: gcr.io/cloud-devrel-public-resources/owlbot-nodejs:latest
+
+docker:
+  image: gcr.io/cloud-devrel-public-resources/owlbot-java:latest
