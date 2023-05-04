@@ -13,7 +13,7 @@
   "dependencies": {
     "@angular/animations": "15.2.9",
     "@angular/cdk": "15.2.9",
-    "@angular/cli": "15.2.8",
+    "@angular/cli": "16.0.0",
     "@angular/common": "15.2.9",
     "@angular/compiler": "15.2.9",
     "@angular/core": "15.2.9",
@@ -30,13 +30,13 @@
     "zone.js": "0.13.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "15.2.8",
+    "@angular-devkit/build-angular": "16.0.0",
     "@angular-eslint/builder": "15.2.1",
     "@angular-eslint/eslint-plugin": "15.2.1",
     "@angular-eslint/eslint-plugin-template": "15.2.1",
     "@angular-eslint/schematics": "15.2.1",
     "@angular-eslint/template-parser": "15.2.1",
-    "@angular/cli": "15.2.8",
+    "@angular/cli": "16.0.0",
     "@angular/compiler-cli": "15.2.9",
     "@types/jasmine": "4.3.1",
     "@types/node": "18.16.3",
