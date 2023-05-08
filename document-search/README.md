@@ -1,6 +1,8 @@
-# Document Search and Synthesis - Generative AI Use Case
+# Generative AI App Builder - Enterprise Search Demo
 
 This demo illustrates how to search through a corpus of unstructrued contract documents using [Generative AI App Builder: Enterprise Search][1].
+
+Additional features include how to search the public Cloud Knowledge Graph using the [Enterprise Knowledge Graph][3] API.
 
 ## Architecture
 
@@ -8,9 +10,11 @@ This demo illustrates how to search through a corpus of unstructrued contract do
 
 - [Generative AI App Builder: Enterprise Search][1]
 - [Cloud Run][2]
+- [Enterprise Knowledge Graph][3]
 
 [1]: https://cloud.google.com/generative-ai-app-builder/docs/overview
 [2]: https://cloud.google.com/run
+[3]: https://cloud.google.com/enterprise-knowledge-graph/docs/overview
 
 ## Setup
 
@@ -30,10 +34,14 @@ This demo illustrates how to search through a corpus of unstructrued contract do
     [enable billing](https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project)
 5. Enable the Generative AI App Builder API:
    - `gcloud services enable discoveryengine.googleapis.com`
-6. Setup application default authentication, run:
+6. Enable the Enterprise Knowledge Graph API:
+   - `gcloud services enable enterpriseknowledgegraph.googleapis.com`
+7. Setup application default authentication, run:
    - `gcloud auth application-default login`
 
 ### Demo Deployment
+
+1. Update the `consts.py` file with your own `PROJECT_ID` and `LOCATION`.
 
 1. Deploy the Cloud Run app in your project.
    - `gcloud run deploy genappbuilder-demo --source .`
@@ -43,5 +51,5 @@ This demo illustrates how to search through a corpus of unstructrued contract do
 
 -----
 
-> Copyright 2022 Google LLC
-> Author: Holt Skinner
+> Copyright 2023 Google LLC
+> Author: Holt Skinner @holtskinner

@@ -1,6 +1,8 @@
 typing
 
 google-api-core
+google-cloud-enterpriseknowledgegraph
+google-cloud-discoveryengine
 
 Flask
 gunicorn

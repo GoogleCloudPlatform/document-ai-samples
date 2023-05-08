@@ -14,7 +14,7 @@ body {
     text-align: center;
 }
 
-.gen-app-builder-logo {
+.gen-app-builder-logo, .ekg-logo {
     height: 100px;
     padding-top: 80px;
     fill: currentColor;
@@ -78,7 +78,49 @@ pre code {
     white-space: pre-wrap;
 }
 
+.entity-primary-action {
+    display: flex;
+    flex-direction: row;
+}
+
+.entity-image {
+    width: 50%;
+    height: auto;
+    background-size: contain;
+}
+
+.entity-primary-action .entity-card-primary {
+    padding: 1rem;
+    width: 60%;
+}
+
 #searchWidgetTrigger {
     margin: auto;
     display: block;
+}
+
+#main-nav-bar {
+    width: 100%;
+    text-align: center;
+    margin: auto;
+    display: block;
+}
+
+a:link {
+    text-decoration: none;
+}
+
+
+a:visited {
+    text-decoration: none;
+}
+
+
+a:hover {
+    text-decoration: none;
+}
+
+
+a:active {
+    text-decoration: none;
 }

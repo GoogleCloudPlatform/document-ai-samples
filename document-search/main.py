@@ -15,32 +15,109 @@
 """Flask Web Server"""
 
 import os
+import re
 
+from consts import LOCATION
+from consts import PROJECT_ID
+from consts import VALID_LANGUAGES
+
+from ekg_utils import search_public_kg
 from flask import Flask
 from flask import render_template
-
+from flask import request
 from google.api_core.exceptions import ResourceExhausted
 from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
 
+FORM_OPTIONS = {
+    "language_list": VALID_LANGUAGES,
+    "default_language": VALID_LANGUAGES[0],
+}
+
+NAV_LINKS = [
+    {"link": "/", "name": "Contracts", "icon": "gavel"},
+    {"link": "/finance", "name": "Finance", "icon": "request_quote"},
+    {"link": "/ekg", "name": "Enterprise Knowledge Graph", "icon": "scatter_plot"},
+]
+
 
 @app.route("/", methods=["GET"])
 def index() -> str:
     """
-    Web Server, Homepage
+    Web Server, Homepage for Contract
     """
 
-    return render_template("index.html")
+    return render_template(
+        "index.html",
+        page_title="Contract Search",
+        datastore_id="contract-search_1681489575228",
+        nav_links=NAV_LINKS,
+    )
 
 
 @app.route("/finance", methods=["GET"])
 def finance() -> str:
     """
-    Web Server, Homepage
+    Web Server, Homepage for Finance
     """
 
-    return render_template("finance.html")
+    return render_template(
+        "index.html",
+        page_title="Financial Services",
+        datastore_id="unstructured-data-engine_1681237261728",
+        nav_links=NAV_LINKS,
+    )
+
+
+@app.route("/ekg", methods=["GET"])
+def ekg() -> str:
+    """
+    Web Server, Homepage for EKG
+    """
+
+    return render_template("ekg.html", nav_links=NAV_LINKS, form_options=FORM_OPTIONS)
+
+
+@app.route("/search_ekg", methods=["POST"])
+def search_ekg() -> str:
+    """
+    Handle Search EKG Request
+    """
+    search_query = request.form.get("search_query", "")
+
+    # Check if POST Request includes search query
+    if not search_query:
+        return render_template(
+            "ekg.html",
+            nav_links=NAV_LINKS,
+            form_options=FORM_OPTIONS,
+            message_error="No query provided",
+        )
+
+    languages = request.form.getlist("languages")
+    form_types = request.form.get("types", "")
+
+    types = re.split(r"[\s,]", form_types) if form_types else []
+
+    entities, request_url, raw_request, raw_response = search_public_kg(
+        project_id=PROJECT_ID,
+        location=LOCATION,
+        search_query=search_query,
+        languages=languages,
+        types=types,
+    )
+
+    return render_template(
+        "ekg.html",
+        nav_links=NAV_LINKS,
+        form_options=FORM_OPTIONS,
+        message_success=search_query,
+        entities=entities,
+        request_url=request_url,
+        raw_request=raw_request,
+        raw_response=raw_response,
+    )
 
 
 @app.errorhandler(Exception)
