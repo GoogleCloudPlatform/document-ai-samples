@@ -84,7 +84,7 @@ pre code {
 }
 
 .entity-image {
-    width: 50%;
+    width: 25%;
     height: auto;
     background-size: contain;
 }
@@ -92,6 +92,10 @@ pre code {
 .entity-primary-action .entity-card-primary {
     padding: 1rem;
     width: 60%;
+}
+
+.entity-detailed-description {
+    padding: 1rem;
 }
 
 #searchWidgetTrigger {

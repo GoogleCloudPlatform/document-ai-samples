@@ -11,7 +11,7 @@ const MDCChip = mdc.chips.MDCChip;
 
 MDCRipple.attachTo(document.querySelector('.search-button'));
 
-const queryTextField = new MDCTextField(document.querySelector('.mdc-text-field.query-field'));
+const queryTextField = new MDCTextField(document.querySelector('.query-field'));
 const typesTextField = new MDCTextField(document.querySelector('.mdc-text-field.types-field'));
 
 const select = new MDCSelect(document.querySelector('.mdc-select'));

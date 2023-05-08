@@ -22,6 +22,8 @@ from consts import PROJECT_ID
 from consts import VALID_LANGUAGES
 
 from ekg_utils import search_public_kg
+from genappbuilder_utils import search_enterprise_search
+
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -38,6 +40,11 @@ FORM_OPTIONS = {
 NAV_LINKS = [
     {"link": "/", "name": "Contracts", "icon": "gavel"},
     {"link": "/finance", "name": "Finance", "icon": "request_quote"},
+    {
+        "link": "/search",
+        "name": "Website - Custom UI",
+        "icon": "public",
+    },
     {"link": "/ekg", "name": "Enterprise Knowledge Graph", "icon": "scatter_plot"},
 ]
 
@@ -67,6 +74,51 @@ def finance() -> str:
         page_title="Financial Services",
         datastore_id="unstructured-data-engine_1681237261728",
         nav_links=NAV_LINKS,
+    )
+
+
+@app.route("/search", methods=["GET"])
+def search() -> str:
+    """
+    Web Server, Homepage for Search - Custom UI
+    """
+    return render_template(
+        "search.html", page_title="Website Search", nav_links=NAV_LINKS
+    )
+
+
+@app.route("/search_genappbuilder", methods=["POST"])
+def search_genappbuilder() -> str:
+    """
+    Handle Search Gen App Builder Request
+    """
+    search_query = request.form.get("search_query", "")
+
+    # Check if POST Request includes search query
+    if not search_query:
+        return render_template(
+            "search.html",
+            page_title="Website Search",
+            nav_links=NAV_LINKS,
+            message_error="No query provided",
+        )
+
+    results, request_url, raw_request, raw_response = search_enterprise_search(
+        project_id=PROJECT_ID,
+        location=LOCATION,
+        search_engine_id="website-search-engine_1681248733152",
+        search_query=search_query,
+    )
+
+    return render_template(
+        "search.html",
+        page_title="Website Search",
+        nav_links=NAV_LINKS,
+        message_success=search_query,
+        results=results,
+        request_url=request_url,
+        raw_request=raw_request,
+        raw_response=raw_response,
     )
 
 
@@ -136,7 +188,9 @@ def handle_exception(ex: Exception):
         message_error = str(ex)
 
     return render_template(
-        "index.html",
+        "ekg.html",
+        form_options=FORM_OPTIONS,
+        nav_links=NAV_LINKS,
         message_error=message_error,
     )
 

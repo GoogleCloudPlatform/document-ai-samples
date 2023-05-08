@@ -21,7 +21,8 @@ Additional features include how to search the public Cloud Knowledge Graph using
 - Follow steps in [Get started with Enterprise Search](https://cloud.google.com/generative-ai-app-builder/docs/try-enterprise-search) for Unstructured Data
 - Use sample data `gs://cloud-samples-data/gen-app-builder/search/CUAD_v1`
   - Data Source: [Contract Understanding Atticus Dataset (CUAD)](https://www.atticusprojectai.org/cuad)
-- Copy HTML code from `Integration > Widget` tab in Console.
+- Copy HTML code from the `Integration > Widget` tab in the Cloud Console.
+  - Make sure the API Key has been generated.
 - Deploy using Cloud Run
 
 ### Dependencies
