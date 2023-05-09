@@ -24,7 +24,7 @@ Additional features include how to search the public Cloud Knowledge Graph using
     - `gs://cloud-samples-data/gen-app-builder/search/CUAD_v1`
   - [Alphabet Earnings Reports](https://abc.xyz/investor/)
     - `gs://cloud-samples-data/gen-app-builder/search/alphabet-investor-pdfs`
-  - [Google Cloud Website](https://cloud.google.com)
+  - [Google Cloud site](https://cloud.google.com)
     - `https://cloud.google.com`
 - Copy HTML code from the `Integration > Widget` tab in the Cloud Console.
   - Make sure the API Key has been generated.
@@ -53,7 +53,7 @@ Additional features include how to search the public Cloud Knowledge Graph using
    - `gcloud run deploy genappbuilder-demo --source .`
 
 1. Visit the deployed web page
-   - Example: https://genappbuilder-demo-lnppzg3rxa-uc.a.run.app
+   - Example: [`https://genappbuilder-demo-lnppzg3rxa-uc.a.run.app`](https://genappbuilder-demo-lnppzg3rxa-uc.a.run.app)
 
 ## Usage
 
