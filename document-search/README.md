@@ -19,8 +19,13 @@ Additional features include how to search the public Cloud Knowledge Graph using
 ## Setup
 
 - Follow steps in [Get started with Enterprise Search](https://cloud.google.com/generative-ai-app-builder/docs/try-enterprise-search) for Unstructured Data
-- Use sample data `gs://cloud-samples-data/gen-app-builder/search/CUAD_v1`
-  - Data Source: [Contract Understanding Atticus Dataset (CUAD)](https://www.atticusprojectai.org/cuad)
+- Sample Data Sources:
+  - [Contract Understanding Atticus Dataset (CUAD)](https://www.atticusprojectai.org/cuad)
+    - `gs://cloud-samples-data/gen-app-builder/search/CUAD_v1`
+  - [Alphabet Earnings Reports](https://abc.xyz/investor/)
+    - `gs://cloud-samples-data/gen-app-builder/search/alphabet-investor-pdfs`
+  - [Google Cloud site](https://cloud.google.com)
+    - `https://cloud.google.com`
 - Copy HTML code from the `Integration > Widget` tab in the Cloud Console.
   - Make sure the API Key has been generated.
 - Deploy using Cloud Run
@@ -48,7 +53,16 @@ Additional features include how to search the public Cloud Knowledge Graph using
    - `gcloud run deploy genappbuilder-demo --source .`
 
 1. Visit the deployed web page
-   - Example: https://genappbuilder-demo-lnppzg3rxa-uc.a.run.app
+   - Example: [`https://genappbuilder-demo-lnppzg3rxa-uc.a.run.app`](https://genappbuilder-demo-lnppzg3rxa-uc.a.run.app)
+
+## Usage
+
+Try example queries with each search engine:
+
+- Contract - `What is the SLA?`
+- Finance - `What was Google's earnings in 2021?`
+- Web UI - `Document AI`
+- Enterprise Knowledge Graph - `Google`
 
 -----
 
