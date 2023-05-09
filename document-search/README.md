@@ -59,12 +59,17 @@ Additional features include how to search the public Cloud Knowledge Graph using
 
 Try example queries with each search engine:
 
-- Contract - `What is the SLA?`
-- Finance - `What was Google's earnings in 2021?`
-- Web UI - `Document AI`
-- Enterprise Knowledge Graph - `Google`
+- [Contract][contract] - `What is the SLA?`
+- [Finance][finance] - `What was Google's earnings in 2021?`
+- [Web Search - Custom UI][websearch] - `Document AI`
+- [Enterprise Knowledge Graph][ekg] - `Google`
 
 -----
 
 > Copyright 2023 Google LLC
 > Author: Holt Skinner @holtskinner
+
+[contract]: https://genappbuilder-demo-lnppzg3rxa-uc.a.run.app/
+[finance]: https://genappbuilder-demo-lnppzg3rxa-uc.a.run.app/finance
+[websearch]: https://genappbuilder-demo-lnppzg3rxa-uc.a.run.app/search
+[ekg]: https://genappbuilder-demo-lnppzg3rxa-uc.a.run.app/ekg
