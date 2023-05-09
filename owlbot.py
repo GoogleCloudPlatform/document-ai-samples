@@ -32,10 +32,3 @@ s.replace(
 # ----------------------------------------------------------------------------
 
 s.shell.run(["nox", "-s", "blacken"], hide_output=False)
-
-s.shell.run(["goimports", "-w", "."], hide_output=False)
-
-s.shell.run(
-    ["find", ".", "-name", "go.mod", "-execdir", "go", "mod", "tidy", r"\;"],
-    hide_output=False,
-)
