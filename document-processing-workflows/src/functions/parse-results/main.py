@@ -2,17 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import gc
-import glob
 import json
 import mimetypes
 import shutil
 import tempfile
 import base64
-import requests
-import google.auth.transport.requests
-from google import auth
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 import functions_framework
 import pypdfium2 as pdfium
@@ -38,13 +34,13 @@ def parse_results(request):
     print(request_json)
     if not request_json:
         raise ValueError("Request JSON is empty")
-    if not "inputBucket" in request_json:
+    if "inputBucket" not in request_json:
         raise ValueError("inputBucket is not included in request_json")
-    if not "inputObject" in request_json:
+    if "inputObject" not in request_json:
         raise ValueError("inputObject is not included in request_json")
-    if not "resultBucket" in request_json:
+    if "resultBucket" not in request_json:
         raise ValueError("resultBucket is not included in request_json")
-    if not "resultPrefix" in request_json:
+    if "resultPrefix" not in request_json:
         raise ValueError("resultPrefix is not included in request_json")
 
     input_bucket_name = request_json.get("inputBucket")
@@ -146,7 +142,7 @@ def parse_results(request):
 
 
 def check_entity_confidence(entities, entity_labels):
-    hitl = false
+    hitl = False
     for entity in entities:
         entity_label = [
             entity_label
@@ -190,8 +186,8 @@ def merge_sharded_results(
 ):
     shard_count = len(blobs)
     print(f"Merging {len(blobs)} sharded results")
-    merged_document = {}
-    page_image_names_per_shard = [None] * shard_count
+    merged_document: Dict = {}
+    page_image_names_per_shard: List[str] = [""] * shard_count
     text_offset = 0
     shard_index = next_shard_index = 0
     text = [""] * shard_count

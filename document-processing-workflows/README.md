@@ -37,16 +37,16 @@ Once a document is uploaded, a Google Cloud Workflow will be triggered to proces
 
 #### Slow
 
-If terraform takes a long time, you can try speeding it up by adding [the parameter `--parallelism` to `terraform apply` (default is 10)](https://developer.hashicorp.com/terraform/cli/commands/apply#parallelism-n) e.g. 
+If terraform takes a long time, you can try speeding it up by adding [the parameter `--parallelism` to `terraform apply` (default is 10)](https://developer.hashicorp.com/terraform/cli/commands/apply#parallelism-n) e.g.
 
-```
+```sh
 terraform apply --parallelism=20
 ```
 
 #### Problems during terraform init with GCS backend bucket
 
-If you use a GCS backend bucket for terraform and get an error during `terraform init` it may be due to the Application Default Credentials not being set to the right project. Replace <your-project> and run:
+If you use a GCS backend bucket for terraform and get an error during `terraform init` it may be due to the Application Default Credentials not being set to the right project. Replace `<your-project>` and run:
 
-```
+```sh
 gcloud auth application-default login --project <your-project>
 ```

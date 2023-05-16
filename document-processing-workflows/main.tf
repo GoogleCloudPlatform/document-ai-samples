@@ -10,6 +10,14 @@ terraform {
       source  = "hashicorp/google"
       version = "4.55.0"
     }
+    http = {
+      source  = "hashicorp/http"
+      version = "3.3.0"
+    }
+    archive = {
+      source  = "hashicorp/archive"
+      version = "2.3.0"
+    }
   }
 }
 
@@ -24,12 +32,12 @@ provider "google" {
 }
 
 provider "google" {
-  project      = var.project_id
-  region       = var.region
-  access_token = data.google_service_account_access_token.default.access_token
+  project                     = var.project_id
+  region                      = var.region
+  access_token                = data.google_service_account_access_token.default.access_token
+  impersonate_service_account = local.terraform_service_account
 }
 
-data "google_client_config" "default" {}
 
 locals {
   terraform_service_account = var.terraform_service_account
@@ -42,7 +50,7 @@ data "google_service_account_access_token" "default" {
   lifetime               = "1200s"
 }
 
-# enable APIs
+# Enable APIs
 
 resource "google_project_service" "iam" {
   service = "iam.googleapis.com"
@@ -100,7 +108,7 @@ resource "google_project_service" "cloudscheduler" {
   service = "cloudscheduler.googleapis.com"
 }
 
-# create service account for workflow
+# Create service account for workflow
 
 resource "google_service_account" "documentai" {
   account_id   = "documentai"
@@ -118,14 +126,14 @@ resource "google_project_iam_member" "documentai" {
     "roles/pubsub.publisher",
     "roles/cloudfunctions.viewer",
     "roles/run.invoker",
-    "roles/workflows.admin"
+    "roles/workflows.admin",
   ])
   role       = each.key
   member     = "serviceAccount:${google_service_account.documentai.email}"
   depends_on = [google_service_account.documentai, google_project_service.iam]
 }
 
-# create storage resources
+# Create storage resources
 
 resource "google_storage_bucket" "source" {
   name                        = "${var.project_id}-source"
@@ -157,6 +165,7 @@ resource "google_storage_bucket" "results" {
   location                    = var.region
   force_destroy               = true
   uniform_bucket_level_access = true
+
   dynamic "cors" {
     for_each = var.proxy_storage_requests ? [] : [1]
     content {
@@ -166,8 +175,10 @@ resource "google_storage_bucket" "results" {
       max_age_seconds = 3600
     }
   }
+
   depends_on = [google_project_service.storage]
-  // as results may stay in the bucket longer, enable autoclass by default to reduce cost
+
+  # as results may stay in the bucket longer, enable autoclass by default to reduce cost
   autoclass {
     enabled = true
   }
@@ -179,7 +190,8 @@ resource "google_storage_bucket" "failed" {
   force_destroy               = true
   uniform_bucket_level_access = true
   depends_on                  = [google_project_service.storage]
-  // as results may stay in the bucket longer, enable autoclass by default to reduce cost
+
+  # as results may stay in the bucket longer, enable autoclass by default to reduce cost
   autoclass {
     enabled = true
   }
@@ -264,7 +276,7 @@ resource "google_cloudfunctions2_function" "parse_results" {
   name        = "parse-results"
   description = "Parse processor results"
   location    = var.region
-  depends_on  = [google_project_service.cloudfunctions,google_project_service.run,google_project_service.artifactregistry]
+  depends_on  = [google_project_service.cloudfunctions, google_project_service.run, google_project_service.artifactregistry]
 
   build_config {
     runtime     = "python310"
@@ -282,7 +294,7 @@ resource "google_cloudfunctions2_function" "parse_results" {
     timeout_seconds       = 3600
     ingress_settings      = "ALLOW_INTERNAL_AND_GCLB"
     max_instance_count    = 100
-    service_account_email = google_service_account.documentai.email    
+    service_account_email = google_service_account.documentai.email
   }
 }
 
@@ -290,7 +302,7 @@ resource "google_cloudfunctions2_function" "split_document" {
   name        = "split-document"
   description = "Split documents"
   location    = var.region
-  depends_on  = [google_project_service.cloudfunctions,google_project_service.run,google_project_service.artifactregistry]
+  depends_on  = [google_project_service.cloudfunctions, google_project_service.run, google_project_service.artifactregistry]
 
   build_config {
     runtime     = "python310"
@@ -362,19 +374,19 @@ resource "google_cloud_scheduler_job" "trigger_load_documents_workflow" {
           "argument" : jsonencode(
             {
               "buckets" : {
-                "inputs" : "${google_storage_bucket.uploads.name}",
-                "processing" : "${google_storage_bucket.processing.name}",
+                "inputs" : google_storage_bucket.uploads.name,
+                "processing" : google_storage_bucket.processing.name,
                 "results" : "${var.project_id}-results-$${processorId}",
-                "failed" : "${google_storage_bucket.failed.name}",
+                "failed" : google_storage_bucket.failed.name,
               }
-              "defaultProcessorName" : "${google_document_ai_processor.processor["default"].id}"
+              "defaultProcessorName" : google_document_ai_processor.processor["default"].id
               "processors" : google_document_ai_processor.processor
               "workflows" : {
-                "batchProcessDocuments" : "${google_workflows_workflow.batch_process_documents.id}"
-                "processResult" : "${google_workflows_workflow.process_result.id}"
+                "batchProcessDocuments" : google_workflows_workflow.batch_process_documents.id
+                "processResult" : google_workflows_workflow.process_result.id
               }
               "config" : {
-                "uploadBucket" : "${google_storage_bucket.uploads.name}"
+                "uploadBucket" : google_storage_bucket.uploads.name
               }
             }
           )
@@ -394,7 +406,7 @@ resource "google_monitoring_notification_channel" "email" {
   display_name = "E-mail notification channel"
   type         = "email"
   labels = {
-    email_address = "${var.alert_notification_email}"
+    email_address = var.alert_notification_email
   }
 }
 
