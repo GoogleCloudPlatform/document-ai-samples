@@ -1,3 +1,4 @@
+# flake8: noqa: E501
 # Copyright 2023 Google LLC
 # SPDX-License-Identifier: Apache-2.0
 
@@ -89,9 +90,9 @@ def parse_results(request):
         # set resultObject to blob name in response
         response["resultObject"] = blob.name
         if (
-            not "pages" in document
+            "pages" not in document
             or len(document["pages"]) == 0
-            or not "image" in document["pages"][0]
+            or "image" not in document["pages"][0]
         ):
             # if the pages property is missing (usually for CDS) then we need to render the images from PDF output and put them in the same location as the batchProcess output
             response["pageImageNames"] = response[
@@ -119,10 +120,6 @@ def parse_results(request):
             blob.upload_from_string(
                 json.dumps(document), content_type="application/json"
             )
-    if "entities" in document:
-        entities = document["entities"]
-    else:
-        entities = []
 
     if "pages" in document:
         page_count = len(document["pages"])
@@ -196,7 +193,7 @@ def merge_sharded_results(
         content = blob.download_as_bytes()
         document = json.loads(content)
         del content
-        print(f"Extracting images to external files or render from input document")
+        print("Extracting images to external files or render from input document")
         # page_offset is the minimum of the pageNumbers of the current shard but starts at 0 - thus substracting 1
         page_offset = min(int(page["pageNumber"]) for page in document["pages"]) - 1
         if "shardInfo" in document:
