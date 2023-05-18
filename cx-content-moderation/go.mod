@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3
 	cloud.google.com/go/documentai v1.18.1
 	github.com/googlecloudplatform/ezcx v0.0.0-20230206213846-6a3a08d0b49f
-	google.golang.org/api v0.122.0
+	google.golang.org/api v0.123.0
 )
 
 require (
