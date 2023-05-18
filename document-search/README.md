@@ -60,7 +60,7 @@ Additional features include how to search the public Cloud Knowledge Graph using
 Try example queries with each search engine:
 
 - [Contract][contract] - `What is the SLA?`
-- [Finance][finance] - `What was Google's earnings in 2021?`
+- [Finance][finance] - `What was Google's revenue in 2022?`
 - [Web Search - Custom UI][websearch] - `Document AI`
 - [Enterprise Knowledge Graph][ekg] - `Google`
 
