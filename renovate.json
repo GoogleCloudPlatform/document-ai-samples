@@ -1,7 +1,9 @@
 {
+  "labels": ["automerge"],
   "extends": [
     "config:base"
   ],
+  "rebaseStalePrs": true,
   "prConcurrentLimit": 0,
   "lockFileMaintenance": {
     "enabled": true,
@@ -13,7 +15,8 @@
         "minor",
         "patch",
         "lockFileMaintenance",
-        "bump"
+        "bump",
+        "devDependencies"
       ],
       "automerge": true
     }
