@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.google.api.grpc</groupId>
             <artifactId>proto-google-cloud-contentwarehouse-v1</artifactId>
-            <version>0.13.0</version>
+            <version>0.14.0</version>
         </dependency>
     </dependencies>
 </project>
