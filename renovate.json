@@ -4,6 +4,11 @@
     "config:base"
   ],
   "rebaseStalePrs": true,
+  "postUpdateOptions": [
+    "gomodUpdateImportPaths",
+    "gomodTidy",
+    "npmDedupe"
+  ],
   "prConcurrentLimit": 0,
   "lockFileMaintenance": {
     "enabled": true,
