@@ -37,7 +37,7 @@
     "@angular-eslint/schematics": "16.0.3",
     "@angular-eslint/template-parser": "16.0.3",
     "@angular/cli": "16.0.4",
-    "@angular/compiler-cli": "16.0.5",
+    "@angular/compiler-cli": "16.0.4",
     "@types/jasmine": "4.3.2",
     "@types/node": "18.16.17",
     "@types/webpack-env": "1.18.1",
