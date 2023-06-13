@@ -114,6 +114,7 @@ def format(session):
         "isort",
         "--profile=google",
         "--fss",
+        "--known-local-folder=main",
         *LINT_PATHS,
     )
     session.run(
