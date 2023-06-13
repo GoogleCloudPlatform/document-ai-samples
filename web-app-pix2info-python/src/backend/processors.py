@@ -15,7 +15,8 @@ limitations under the License.
 """
 import re
 
-from google.cloud.documentai_v1 import DocumentProcessorServiceClient, Processor
+from google.cloud.documentai_v1 import DocumentProcessorServiceClient
+from google.cloud.documentai_v1 import Processor
 
 # Processing locations (displayed in the frontend)
 DEMO_PROCESSING_LOCATIONS = ("us", "eu")

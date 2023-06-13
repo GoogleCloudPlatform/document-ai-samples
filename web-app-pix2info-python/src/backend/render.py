@@ -13,16 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from dataclasses import dataclass
+from dataclasses import field
+from dataclasses import InitVar
+from io import BytesIO
 import os
 import statistics
-from dataclasses import InitVar, dataclass, field
-from io import BytesIO
-from typing import Any, Iterable, Iterator, MutableSequence, Sequence, TypeAlias, cast
+from typing import Any, cast, Iterable, Iterator, MutableSequence, Sequence, TypeAlias
 
-from google.cloud.documentai_v1 import BoundingPoly, Document
-from PIL import Image, ImageColor, ImageDraw, ImageFont
+from google.cloud.documentai_v1 import BoundingPoly
+from google.cloud.documentai_v1 import Document
+from PIL import Image
+from PIL import ImageColor
+from PIL import ImageDraw
+from PIL import ImageFont
 
-from .options import ImageFormat, Options
+from .options import ImageFormat
+from .options import Options
 
 Page: TypeAlias = Document.Page
 Entity: TypeAlias = Document.Entity
