@@ -64,3 +64,4 @@ jobs:
           VALIDATE_TYPESCRIPT_ES: false
           VALIDATE_CSS: false
           VALIDATE_GO: false
+          FILTER_REGEX_EXCLUDE: noxfile\.py
