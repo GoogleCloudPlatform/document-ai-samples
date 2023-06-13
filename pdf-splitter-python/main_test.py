@@ -23,9 +23,8 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from google.cloud import documentai_v1 as docai
-from pikepdf import Pdf
-
 from main import main
+from pikepdf import Pdf
 
 PROCESSOR_TYPE = "processor-type"
 
