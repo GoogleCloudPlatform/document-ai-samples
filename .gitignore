@@ -50,7 +50,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
-**/noxfile.py
+noxfile.py
 
 # Translations
 *.mo
