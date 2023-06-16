@@ -60,7 +60,7 @@ LOCATION = "YOUR_PROJECT_LOCATION"  # Format is 'us' or 'eu'
 PROCESSOR_ID = "FORM_PARSER_ID"  # Create processor in Cloud Console
 
 # The local file in your current working directory
-FILE_PATH = "form.pdf"
+FILE_PATH = "intake-form.pdf"
 # Refer to https://cloud.google.com/document-ai/docs/processors-list
 # for supported file types
 MIME_TYPE = "application/pdf"
