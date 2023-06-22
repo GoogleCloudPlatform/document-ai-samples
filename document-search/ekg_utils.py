@@ -44,7 +44,7 @@ def search_public_kg(
 
     response = client.search_public_kg(request=request)
 
-    request_url = f"https://enterpriseknowledgegraph.googleapis.com/v1/{parent}/publicKnowledgeGraphEntities:Search?query={search_query}"
+    request_url = f"https://enterpriseknowledgegraph.googleapis.com/v1/{parent}/publicKnowledgeGraphEntities:Search?query={search_query}"  # noqa: E501
 
     request_json = ekg.SearchPublicKgRequest.to_json(
         request, including_default_value_fields=False, indent=JSON_INDENT
