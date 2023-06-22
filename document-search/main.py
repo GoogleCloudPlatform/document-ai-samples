@@ -17,19 +17,19 @@
 import os
 import re
 
-from consts import CONTRACT_SEARCH_CONFIG_ID
-from consts import FINANCE_SEARCH_CONFIG_ID
-from consts import LOCATION
-from consts import PROJECT_ID
-from consts import VALID_LANGUAGES
-from consts import WEBSITE_SEARCH_ENGINE_ID
-from ekg_utils import search_public_kg
-from flask import Flask
-from flask import render_template
-from flask import request
-from genappbuilder_utils import search_enterprise_search
+from flask import Flask, render_template, request
 from google.api_core.exceptions import ResourceExhausted
 from werkzeug.exceptions import HTTPException
+
+from consts import (
+    CUSTOM_UI_DATASTORE_IDS,
+    LOCATION,
+    PROJECT_ID,
+    VALID_LANGUAGES,
+    WIDGET_CONFIGS,
+)
+from ekg_utils import search_public_kg
+from genappbuilder_utils import search_enterprise_search
 
 app = Flask(__name__)
 
@@ -39,42 +39,27 @@ FORM_OPTIONS = {
 }
 
 NAV_LINKS = [
-    {"link": "/", "name": "Contracts", "icon": "gavel"},
-    {"link": "/finance", "name": "Finance", "icon": "request_quote"},
+    {"link": "/", "name": "Gen App Builder - Widgets", "icon": "widgets"},
     {
         "link": "/search",
-        "name": "Website - Custom UI",
-        "icon": "public",
+        "name": "Gen App Builder - Custom UI",
+        "icon": "build",
     },
     {"link": "/ekg", "name": "Enterprise Knowledge Graph", "icon": "scatter_plot"},
 ]
 
 
 @app.route("/", methods=["GET"])
+@app.route("/finance", methods=["GET"])
 def index() -> str:
     """
-    Web Server, Homepage for Contract
+    Web Server, Homepage for Widgets
     """
 
     return render_template(
         "index.html",
-        page_title="Contract Search",
-        config_id=CONTRACT_SEARCH_CONFIG_ID,
         nav_links=NAV_LINKS,
-    )
-
-
-@app.route("/finance", methods=["GET"])
-def finance() -> str:
-    """
-    Web Server, Homepage for Finance
-    """
-
-    return render_template(
-        "index.html",
-        page_title="Financial Services",
-        config_id=FINANCE_SEARCH_CONFIG_ID,
-        nav_links=NAV_LINKS,
+        search_engine_options=WIDGET_CONFIGS,
     )
 
 
@@ -84,7 +69,8 @@ def search() -> str:
     Web Server, Homepage for Search - Custom UI
     """
     return render_template(
-        "search.html", page_title="Website Search", nav_links=NAV_LINKS
+        "search.html",
+        nav_links=NAV_LINKS,
     )
 
 
@@ -99,7 +85,6 @@ def search_genappbuilder() -> str:
     if not search_query:
         return render_template(
             "search.html",
-            page_title="Website Search",
             nav_links=NAV_LINKS,
             message_error="No query provided",
         )
@@ -107,7 +92,7 @@ def search_genappbuilder() -> str:
     results, request_url, raw_request, raw_response = search_enterprise_search(
         project_id=PROJECT_ID,
         location=LOCATION,
-        search_engine_id=WEBSITE_SEARCH_ENGINE_ID,
+        search_engine_id=CUSTOM_UI_DATASTORE_IDS[0]["datastore_id"],
         search_query=search_query,
     )
 
