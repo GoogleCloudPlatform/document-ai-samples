@@ -17,9 +17,12 @@
 import os
 import re
 
+from consts import CONTRACT_SEARCH_CONFIG_ID
+from consts import FINANCE_SEARCH_CONFIG_ID
 from consts import LOCATION
 from consts import PROJECT_ID
 from consts import VALID_LANGUAGES
+from consts import WEBSITE_SEARCH_ENGINE_ID
 from ekg_utils import search_public_kg
 from flask import Flask
 from flask import render_template
@@ -56,7 +59,7 @@ def index() -> str:
     return render_template(
         "index.html",
         page_title="Contract Search",
-        datastore_id="contract-search_1681489575228",
+        config_id=CONTRACT_SEARCH_CONFIG_ID,
         nav_links=NAV_LINKS,
     )
 
@@ -70,7 +73,7 @@ def finance() -> str:
     return render_template(
         "index.html",
         page_title="Financial Services",
-        datastore_id="unstructured-data-engine_1681237261728",
+        config_id=FINANCE_SEARCH_CONFIG_ID,
         nav_links=NAV_LINKS,
     )
 
@@ -104,7 +107,7 @@ def search_genappbuilder() -> str:
     results, request_url, raw_request, raw_response = search_enterprise_search(
         project_id=PROJECT_ID,
         location=LOCATION,
-        search_engine_id="website-search-engine_1681248733152",
+        search_engine_id=WEBSITE_SEARCH_ENGINE_ID,
         search_query=search_query,
     )
 
