@@ -48,15 +48,13 @@ export class AppComponent {
   backend!: string;
   processorList: any = {};
   processorSelectionList: string[] = [];
-  
-
 
   /**
    * constructor for ProcessorSelectionComponent
    * @constructor
    * @param {DataSharingServiceService} data - data sharing service
    */
-   constructor(public data: DataSharingServiceService) {}
+  constructor(public data: DataSharingServiceService) {}
 
   async ngOnInit(): Promise<void> {
     this.url = location.href.split("-");
@@ -102,12 +100,11 @@ export class AppComponent {
     );
   }
 
-
   /**
    * gets the available processors
    * @return {void}
    */
-   getAvailableProcessors() {
+  getAvailableProcessors() {
     fetch(this.backend + "api/processor/list", {
       method: "GET",
       mode: "cors",
@@ -132,6 +129,4 @@ export class AppComponent {
         this.data.changeErrorMessage(error);
       });
   }
-
-
 }

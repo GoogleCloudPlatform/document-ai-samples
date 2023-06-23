@@ -121,20 +121,37 @@ Let's start by analyzing this simple screenshot with the "Document OCR" general 
 - The "Document OCR" processor returns a structural skeleton common to all processors.
 
 ```jsonc
-{ // document
+{
+  // document
   "mime_type": "image/png",
   "text": "Willkommen!\nBienvenue !\nWelcome!\nQuestion: What is the answer to the ultimate question of life?\nAnswer: 42\n",
   "pages": [
     {
       "page_number": 1,
-      "dimension": {/*…*/},
-      "layout": {/*…*/},
-      "detected_languages": [/*…*/],
-      "blocks": [/*…*/],
-      "paragraphs": [/*…*/],
-      "lines": [/*…*/],
-      "tokens": [/*…*/],
-      "image": {/*…*/}
+      "dimension": {
+        /*…*/
+      },
+      "layout": {
+        /*…*/
+      },
+      "detected_languages": [
+        /*…*/
+      ],
+      "blocks": [
+        /*…*/
+      ],
+      "paragraphs": [
+        /*…*/
+      ],
+      "lines": [
+        /*…*/
+      ],
+      "tokens": [
+        /*…*/
+      ],
+      "image": {
+        /*…*/
+      }
     }
   ]
 }
@@ -164,7 +181,8 @@ This lets us, for example, highlight the 22 detected tokens:
 Here is the last token:
 
 ```jsonc
-{ // document.pages[0].tokens[21]
+{
+  // document.pages[0].tokens[21]
   "layout": {
     "text_anchor": {
       // "42\n" ← document.text[104:107]
@@ -174,10 +192,12 @@ Here is the last token:
     "bounding_poly": {
       // The 4 bounding box vertices, relative to the page
       // Page (top, left)..(bottom, right): (0.0, 0.0)..(1.0, 1.0)
-      "normalized_vertices": [ { "x": 0.4028, "y": 0.5352 },
-                               { "x": 0.4327, "y": 0.5352 },
-                               { "x": 0.4327, "y": 0.6056 },
-                               { "x": 0.4028, "y": 0.6056 } ]
+      "normalized_vertices": [
+        { "x": 0.4028, "y": 0.5352 },
+        { "x": 0.4327, "y": 0.5352 },
+        { "x": 0.4327, "y": 0.6056 },
+        { "x": 0.4028, "y": 0.6056 }
+      ]
     } //,…
   } //,…
 }
@@ -196,7 +216,8 @@ In our previous example, two blocks are detected (`pages[0].blocks[]`). Let's hi
 The left block is a mix of German, French, and English, while the right block is English only. Here is how the three languages are reported at the page level:
 
 ```jsonc
-{ // document.pages[0]
+{
+  // document.pages[0]
   "detected_languages": [
     { "language_code": "en", "confidence": 0.77 },
     { "language_code": "de", "confidence": 0.12 },
@@ -214,7 +235,8 @@ Now, let's highlight the five detected lines (`pages[0].lines[]`):
 Each language is also reported at the line level:
 
 ```jsonc
-{ // document.pages[0]
+{
+  // document.pages[0]
   "lines": [
     // "Willkommen!"
     { "detected_languages": [{ "language_code": "de", "confidence": 1.0 }] },
@@ -233,7 +255,8 @@ Each language is also reported at the line level:
 If needed, you can get language info at the token level too. "Question" is the same word in French and in English, and is adequately returned as an English token in this context:
 
 ```jsonc
-{ // document.pages[0].tokens[6]
+{
+  // document.pages[0].tokens[6]
   "layout": {
     "text_anchor": {
       // "Question" ← document.text[33:41]
@@ -253,7 +276,8 @@ In the screenshot, did you notice something peculiar in the left block?
 Well, punctuation rules can be different between languages. French uses a typographical space for double punctuation marks ("double" as "written in two parts", such as in `"!"`, `"?"`, `"«"`,…). Punctuation is an important part of languages that can get "lost in translation". Here, the space is preserved in the transcription of `"Bienvenue !"`. Nice touch Document AI or, should I say, touché!
 
 ```jsonc
-{ // document.pages[0].lines[1]
+{
+  // document.pages[0].lines[1]
   "layout": {
     "text_anchor": {
       "text_segments": [
@@ -280,7 +304,8 @@ This example is a mix of printed and handwritten text, where I wrote both a ques
 I am pleasantly surprised to see my own handwriting transcribed:
 
 ```jsonc
-{ // document
+{
+  // document
   "text": "Willkommen!\nBienvenue !\nWelcome!\nQuestion: What is the answer to the ultimate question of life?\nAnswer:\n42\n"
 }
 ```
@@ -292,7 +317,8 @@ I asked my family (used to writing French) to do the same. Each unique handwriti
 … and transcribed:
 
 ```jsonc
-{ // document
+{
+  // document
   "text": [
     "Willkommen!\nBienvenue !\nWelcome!\n",
     "Willkommen!\nBienvenue !\nWelcome!\n",
@@ -327,10 +353,11 @@ After grouping them in buckets, confidence scores appear to be generally high, w
 The lowest confidence score here is 57%. It corresponds to a handwritten word (token) that is both short (less context given for confidence) and not particularly legible indeed:
 
 ```jsonc
-{ // document.pages[0].tokens[71].layout
+{
+  // document.pages[0].tokens[71].layout
   "text_anchor": {
     // "42\n" ← document.text[351:354]
-    "text_segments": [ { "start_index": "351", "end_index": "354" } ]
+    "text_segments": [{ "start_index": "351", "end_index": "354" }]
   },
   // 57% ← Confidence that this token is "42"
   "confidence": 0.57
@@ -368,11 +395,12 @@ Before further analysis, Document AI considers the best reading orientation, at 
 In the results, each page has an `image` field by default. This represents the image — deskewed if needed — used by Document AI to extract information. All the page results and coordinates are relative to this image. When a page has been deskewed, a `transforms` element is present and contains the list of transformation matrices applied to the image:
 
 ```jsonc
-{ // document.page[0]
+{
+  // document.page[0]
   // The image for the page. All coordinates are relative to this image.
   "image": { "content": "…", "mime_type": "image/png", "width": 1150 /*…*/ },
   // 1 transformation matrix was applied to deskew the page
-  "transforms": [ { "rows": 2, "cols": 3 /*…*/ } ]
+  "transforms": [{ "rows": 2, "cols": 3 /*…*/ }]
 }
 ```
 
@@ -391,11 +419,12 @@ Documents don't always have all of their text in a single orientation, in which 
 Orientations are reported in the `layout` field:
 
 ```jsonc
-[ // document.pages[0].blocks
+[
+  // document.pages[0].blocks
   { "layout": { "orientation": "PAGE_RIGHT" } }, // → 90° clockwise
-  { "layout": { "orientation": "PAGE_UP" } },    // ↑ Natural orientation
-  { "layout": { "orientation": "PAGE_LEFT" } },  // ← 90° counterclockwise
-  { "layout": { "orientation": "PAGE_DOWN" } }   // ↓ 180° from upright
+  { "layout": { "orientation": "PAGE_UP" } }, // ↑ Natural orientation
+  { "layout": { "orientation": "PAGE_LEFT" } }, // ← 90° counterclockwise
+  { "layout": { "orientation": "PAGE_DOWN" } } // ↓ 180° from upright
 ]
 ```
 
@@ -416,7 +445,8 @@ Documents can also be dirty or stained. With the same sample, this keeps working
 In both cases, the exact same text is correctly detected:
 
 ```jsonc
-{ // document
+{
+  // document
   "text": "Coffee\nCoffee is a brewed beverage made from particular beans. Arthur Dent made himself some coffee on the\nThursday of Earth's destruction; this behaviour was most unusual, as he usually drank tea.\n"
 }
 ```
@@ -434,20 +464,39 @@ In this example, printed and handwritten text is detected as seen before:
 In addition, the form parser returns a list of `form_fields`:
 
 ```jsonc
-{ // document
+{
+  // document
   "text": "My name:\nDEEP THOUGHT\nYour question: What is the answer to the ultimate question?\nMy answer:\n42\n",
   "pages": [
     {
       "page_number": 1,
-      "dimension": {/*…*/},
-      "layout": {/*…*/},
-      "detected_languages": [/*…*/],
-      "blocks": [/*…*/],
-      "paragraphs": [/*…*/],
-      "lines": [/*…*/],
-      "tokens": [/*…*/],
-      "form_fields": [/* NEW */],
-      "image": {/*…*/}
+      "dimension": {
+        /*…*/
+      },
+      "layout": {
+        /*…*/
+      },
+      "detected_languages": [
+        /*…*/
+      ],
+      "blocks": [
+        /*…*/
+      ],
+      "paragraphs": [
+        /*…*/
+      ],
+      "lines": [
+        /*…*/
+      ],
+      "tokens": [
+        /*…*/
+      ],
+      "form_fields": [
+        /* NEW */
+      ],
+      "image": {
+        /*…*/
+      }
     }
   ]
 }
@@ -456,22 +505,56 @@ In addition, the form parser returns a list of `form_fields`:
 Here is how the detected key-value pairs are returned:
 
 ```jsonc
-{ // document.pages[0]
+{
+  // document.pages[0]
   "form_fields": [
-    { // "My name:\n"
-      "field_name":  { "text_anchor": {/*…*/}, "confidence": 0.96 /*,…*/ },
+    {
+      // "My name:\n"
+      "field_name": {
+        "text_anchor": {
+          /*…*/
+        },
+        "confidence": 0.96 /*,…*/
+      },
       // "DEEP THOUGHT\n"
-      "field_value": { "text_anchor": {/*…*/}, "confidence": 0.96 /*,…*/ }
+      "field_value": {
+        "text_anchor": {
+          /*…*/
+        },
+        "confidence": 0.96 /*,…*/
+      }
     },
-    { // "Your question: "
-      "field_name":  { "text_anchor": {/*…*/}, "confidence": 0.98 /*,…*/ },
+    {
+      // "Your question: "
+      "field_name": {
+        "text_anchor": {
+          /*…*/
+        },
+        "confidence": 0.98 /*,…*/
+      },
       // "What is the answer to the ultimate question?\n"
-      "field_value": { "text_anchor": {/*…*/}, "confidence": 0.98 /*,…*/ }
+      "field_value": {
+        "text_anchor": {
+          /*…*/
+        },
+        "confidence": 0.98 /*,…*/
+      }
     },
-    { // "My answer:\n"
-      "field_name":  { "text_anchor": {/*…*/}, "confidence": 0.76 /*,…*/ },
+    {
+      // "My answer:\n"
+      "field_name": {
+        "text_anchor": {
+          /*…*/
+        },
+        "confidence": 0.76 /*,…*/
+      },
       // "42\n"
-      "field_value": { "text_anchor": {/*…*/}, "confidence": 0.76 /*,…*/ }
+      "field_value": {
+        "text_anchor": {
+          /*…*/
+        },
+        "confidence": 0.76 /*,…*/
+      }
     }
   ]
 }
@@ -494,16 +577,27 @@ This example is a French exam with affirmations that should be checked when exac
 When a checkbox is detected, the form field contains an additional `value_type` field, which value is either `unfilled_checkbox` or `filled_checkbox`:
 
 ```jsonc
-{ // document.pages[0]
+{
+  // document.pages[0]
   "form_fields": [
-    { // [ ] Les cyclines se lient aux CDK…
-      "field_name": {/*…*/},
-      "field_value": {/*…*/},
+    {
+      // [ ] Les cyclines se lient aux CDK…
+      "field_name": {
+        /*…*/
+      },
+      "field_value": {
+        /*…*/
+      },
       "value_type": "unfilled_checkbox"
     },
-    { // [x] Les mutations peuvent être provoquées…
-      "field_name": {/*…*/},
-      "field_value": {/*…*/},
+    {
+      // [x] Les mutations peuvent être provoquées…
+      "field_name": {
+        /*…*/
+      },
+      "field_value": {
+        /*…*/
+      },
       "value_type": "filled_checkbox"
     } //,…
   ]
@@ -531,34 +625,54 @@ In this other example, some cells are filled with text while others are blank. T
 When tables are detected, the form parser returns a list of `tables` with their rows and cells. Here is how the table is returned:
 
 ```jsonc
-{ // document.pages[0]
-  "tables": [{
-      "layout": {/*…*/},
-      "header_rows": [{
-        // | ALPHA |       |     |     | EPSILON |     | ETA |       |
-        "cells": [/*…*/]
-      }],
-      "body_rows": [{
-        // |       | KAPPA |     | MU  |         | XI  |     | PI    |
-        "cells": [/*…*/]
+{
+  // document.pages[0]
+  "tables": [
+    {
+      "layout": {
+        /*…*/
       },
-      {
-        // | RHO   |       | TAU |     | PHI     |     |     | OMEGA |
-        "cells": [/*…*/]
-      }]
-  }]
+      "header_rows": [
+        {
+          // | ALPHA |       |     |     | EPSILON |     | ETA |       |
+          "cells": [
+            /*…*/
+          ]
+        }
+      ],
+      "body_rows": [
+        {
+          // |       | KAPPA |     | MU  |         | XI  |     | PI    |
+          "cells": [
+            /*…*/
+          ]
+        },
+        {
+          // | RHO   |       | TAU |     | PHI     |     |     | OMEGA |
+          "cells": [
+            /*…*/
+          ]
+        }
+      ]
+    }
+  ]
 }
 ```
 
 And here is the first cell:
 
 ```jsonc
-{ // document.pages[0].tables[0].header_rows[0].cells[0]
+{
+  // document.pages[0].tables[0].header_rows[0].cells[0]
   "layout": {
     // ALPHA\n
-    "text_anchor": {/*…*/},
+    "text_anchor": {
+      /*…*/
+    },
     "confidence": 0.9979,
-    "bounding_poly": {/*…*/},
+    "bounding_poly": {
+      /*…*/
+    },
     "orientation": "PAGE_UP"
   },
   "row_span": 1,
@@ -578,22 +692,31 @@ Specialized processors focus on domain-specific documents and extract **entities
 For example, procurement processors typically detect the `total_amount` and `currency` entities:
 
 ```jsonc
-{ // document
+{
+  // document
   "entities": [
     {
-      "text_anchor": {/*…*/},
+      "text_anchor": {
+        /*…*/
+      },
       "type_": "total_amount",
       "mention_text": "15",
       "confidence": 0.96,
-      "page_anchor": {/*…*/},
+      "page_anchor": {
+        /*…*/
+      },
       "id": "0"
     },
     {
-      "text_anchor": {/*…*/},
+      "text_anchor": {
+        /*…*/
+      },
       "type_": "currency",
       "mention_text": "USD",
       "confidence": 0.95,
-      "page_anchor": {/*…*/},
+      "page_anchor": {
+        /*…*/
+      },
       "id": "1"
     }
   ]
@@ -620,28 +743,41 @@ A few remarks:
 Procurement documents often list parts of the data in tabular layouts. Here, they're returned as many `line_item/*` entities. When the entities are detected as part of a hierarchical structure, the results are nested in the `properties` field of a parent entity, providing an additional level of information. Here's an excerpt:
 
 ```jsonc
-{ // document.entities[7]
-  "text_anchor": {/*…*/},
+{
+  // document.entities[7]
+  "text_anchor": {
+    /*…*/
+  },
   "type_": "line_item",
   "mention_text": "*BANANE BIO 1.99",
   "confidence": 1.0,
-  "page_anchor": {/*…*/},
+  "page_anchor": {
+    /*…*/
+  },
   "id": "9",
   "properties": [
     {
-      "text_anchor": {/*…*/},
+      "text_anchor": {
+        /*…*/
+      },
       "type_": "line_item/description",
       "mention_text": "*BANANE BIO",
       "confidence": 0.54613465,
-      "page_anchor": {/*…*/},
+      "page_anchor": {
+        /*…*/
+      },
       "id": "10"
     },
     {
-      "text_anchor": {/*…*/},
+      "text_anchor": {
+        /*…*/
+      },
       "type_": "line_item/amount",
       "mention_text": "1.99",
       "confidence": 0.36692643,
-      "page_anchor": {/*…*/},
+      "page_anchor": {
+        /*…*/
+      },
       "id": "11"
     }
   ]
@@ -661,7 +797,8 @@ Let's check it with this other receipt:
 First, the receipt currency is returned with its standard code under `normalized_value`:
 
 ```jsonc
-{ // document.entities[0]
+{
+  // document.entities[0]
   "type_": "currency",
   "mention_text": "€",
   "normalized_value": {
@@ -673,7 +810,8 @@ First, the receipt currency is returned with its standard code under `normalized
 Then, the receipt is dated `11/12/2022`. But is it Nov. 12 or Dec. 11? Document AI uses the context of the document (a French receipt) and provides a normalized value that removes all ambiguity:
 
 ```jsonc
-{ // document.entities[1]
+{
+  // document.entities[1]
   "type_": "receipt_date",
   "mention_text": "11/12/2022",
   "normalized_value": {
@@ -690,7 +828,8 @@ Then, the receipt is dated `11/12/2022`. But is it Nov. 12 or Dec. 11? Document 
 Likewise, the receipt contains a purchase time, written in a non-standard way. The result also includes a canonical value that avoids any interpretation:
 
 ```jsonc
-{ // document.entities[5]
+{
+  // document.entities[5]
   "type_": "purchase_time",
   "mention_text": "12h42\n",
   "normalized_value": {
@@ -730,7 +869,8 @@ Document AI leverages this knowledge graph to normalize and enrich entities.
 First, the supplier is correctly detected and normalized with its usual name:
 
 ```jsonc
-{ // document.entities[6]
+{
+  // document.entities[6]
   "type_": "supplier_name",
   "normalized_value": {
     "text": "Maison de Jeanne d'Arc"
@@ -741,7 +881,8 @@ First, the supplier is correctly detected and normalized with its usual name:
 Then, the supplier city is also returned:
 
 ```jsonc
-{ // document.entities[8]
+{
+  // document.entities[8]
   "type_": "supplier_city",
   "normalized_value": {
     "text": "Orléans"
@@ -754,7 +895,8 @@ Note: Joan of Arc spent some time in Orléans in 1429, as she led the liberation
 And finally, the complete and canonical supplier address is also part of the results, closing our case here:
 
 ```jsonc
-{ // document.entities[7]
+{
+  // document.entities[7]
   "type_": "supplier_address",
   "normalized_value": {
     "text": "3 Pl. du Général de Gaulle\n45000 Orléans\nFrance"
@@ -809,10 +951,13 @@ Note: I didn't have an invoice with barcodes at hand, so I used a (slightly anon
 Barcodes are returned, at the page level, like this:
 
 ```jsonc
-{ // document.pages[0]
+{
+  // document.pages[0]
   "detected_barcodes": [
     {
-      "layout": {/*…*/},
+      "layout": {
+        /*…*/
+      },
       "barcode": {
         "format_": "CODE_39",
         "value_format": "TEXT",
@@ -857,7 +1002,8 @@ Some additional remarks:
 Here's how the image quality scores are returned at the page level:
 
 ```jsonc
-{ // document.pages[0]
+{
+  // document.pages[0]
   "image_quality_scores": {
     "quality_score": 0.53,
     "detected_defects": [
@@ -881,7 +1027,8 @@ First, this can help detect whether documents look like IDs. This preceding exam
 Here are the corresponding entities:
 
 ```jsonc
-{ // document
+{
+  // document
   "entities": [
     {
       "type_": "fraud_signals_is_identity_document",
@@ -910,7 +1057,8 @@ The preceding passport example does get detected as an ID but also triggers usef
 The results include evidences that #1 it's a specimen, #2 which can be found online:
 
 ```jsonc
-{ // document
+{
+  // document
   "entities": [
     {
       "type_": "fraud_signals_is_identity_document",

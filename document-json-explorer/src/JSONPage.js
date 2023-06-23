@@ -13,9 +13,9 @@
 # limitations under the License.
 */
 //import { useState, useEffect, useRef } from 'react';
-import { Box, Card } from '@mui/material';
-import NoData from './NoData';
-import PropTypes from 'prop-types';
+import { Box, Card } from "@mui/material";
+import NoData from "./NoData";
+import PropTypes from "prop-types";
 
 /**
  * props
@@ -23,23 +23,20 @@ import PropTypes from 'prop-types';
  */
 
 function JSONPage(props) {
-
   if (props.data === null) {
-    return <NoData></NoData>
+    return <NoData></NoData>;
   }
   return (
     <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
-      <Card variant='outlined' sx={{ margin: "4px", height: "inherit" }}>
-        {
-          <pre>{JSON.stringify(props.data, null, 2)}</pre>
-        }
+      <Card variant="outlined" sx={{ margin: "4px", height: "inherit" }}>
+        {<pre>{JSON.stringify(props.data, null, 2)}</pre>}
       </Card>
     </Box>
-  )
+  );
 } // JSONPage
 
 JSONPage.propTypes = {
-  'data': PropTypes.object.isRequired
-}
+  data: PropTypes.object.isRequired,
+};
 
-export default JSONPage
+export default JSONPage;

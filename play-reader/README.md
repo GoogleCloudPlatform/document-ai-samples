@@ -10,8 +10,8 @@ This is a sample application that uses the Text-to-Speech API to read the dialog
 ## Instructions
 
 1. Install [FFmpeg](https://ffmpeg.org/)
-    - `brew install ffmpeg` on macOS
+   - `brew install ffmpeg` on macOS
 1. Install Python Libraries
-    - `pip install -r requirements.txt`
+   - `pip install -r requirements.txt`
 1. Run Script
-    - `python play_reader.py -i The3LittlePigs.txt`
+   - `python play_reader.py -i The3LittlePigs.txt`

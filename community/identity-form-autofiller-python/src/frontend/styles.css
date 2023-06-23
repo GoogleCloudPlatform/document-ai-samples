@@ -1,12 +1,12 @@
 :root {
-    --text-color: #3C4043;
-    --card-border-color: #BDC1C6;
-    --form-bg-color: #E8EAED;
-    --drop-zone-active: #C4E2CC;
-    --sl-tooltip-background-color: #80868B;
-    --caption-font-family: "Google Sans", "Roboto", Arial, Helvetica, sans-serif;
-    --text-font-family: "Roboto", Arial, Helvetica, sans-serif;
-    --mono-font-family: "Roboto Mono", "Cascadia Code", monospace;
+    --text-color: #3c4043;
+    --card-border-color: #bdc1c6;
+    --form-bg-color: #e8eaed;
+    --drop-zone-active: #c4e2cc;
+    --sl-tooltip-background-color: #80868b;
+    --caption-font-family: 'Google Sans', 'Roboto', Arial, Helvetica, sans-serif;
+    --text-font-family: 'Roboto', Arial, Helvetica, sans-serif;
+    --mono-font-family: 'Roboto Mono', 'Cascadia Code', monospace;
 }
 
 html {
@@ -54,7 +54,7 @@ sl-input::part(form-control-input) {
 }
 
 sl-select::part(display-label),
-sl-select>sl-menu-item::part(base),
+sl-select > sl-menu-item::part(base),
 sl-input::part(input) {
     font-family: var(--mono-font-family);
     font-size: var(--sl-font-size-small);
@@ -68,14 +68,14 @@ span.label-on-left {
 }
 
 .label-on-left::part(form-control-label),
-span.label-on-left>span {
+span.label-on-left > span {
     flex: 0 0 auto;
     width: 12ch;
     text-align: right;
 }
 
 .label-on-left::part(form-control-input),
-span.label-on-left>sl-avatar {
+span.label-on-left > sl-avatar {
     flex: 1 1 auto;
 }
 
@@ -107,7 +107,7 @@ sl-tooltip {
     --hide-delay: 0ms;
 }
 
-sl-tooltip>img {
+sl-tooltip > img {
     max-width: 100%;
     max-height: 100%;
     margin-top: 4px;

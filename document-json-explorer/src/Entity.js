@@ -12,10 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 */
-import InfoIcon from '@mui/icons-material/Info';
-import React, { useEffect } from 'react';
-import { CardHeader, Card, CardContent, IconButton, Typography } from '@mui/material';
-import PropTypes from 'prop-types';
+import InfoIcon from "@mui/icons-material/Info";
+import React, { useEffect } from "react";
+import {
+  CardHeader,
+  Card,
+  CardContent,
+  IconButton,
+  Typography,
+} from "@mui/material";
+import PropTypes from "prop-types";
 
 /**
  * Display an Entity card for a given entity.
@@ -26,7 +32,6 @@ import PropTypes from 'prop-types';
  * * onInfoClick - A callback invoked when the Info icon is clicked.
  */
 function Entity(props) {
-
   const cardRef = React.createRef(); // Create a ref for the containing card so that we can scroll it into view
 
   function onClick() {
@@ -50,12 +55,15 @@ function Entity(props) {
   //
   let hilight = false;
   if (props.hilight) {
-    if (typeof props.hilight === "string" && props.hilight === props.entity.id) {
+    if (
+      typeof props.hilight === "string" &&
+      props.hilight === props.entity.id
+    ) {
       hilight = true;
     } else if (typeof props.hilight === "boolean") {
       hilight = props.hilight;
     } else {
-      hilight = props.entity.id === props.hilight.id
+      hilight = props.entity.id === props.hilight.id;
     }
   }
 
@@ -65,21 +73,28 @@ function Entity(props) {
     if (hilight) {
       cardRef.current.scrollIntoView();
     }
-  })
+  });
 
   return (
-    <Card ref={cardRef} variant="outlined" style={{ backgroundColor: hilight ? "lightgray" : "white", margin: "4px" }} onClick={onClick}>
+    <Card
+      ref={cardRef}
+      variant="outlined"
+      style={{
+        backgroundColor: hilight ? "lightgray" : "white",
+        margin: "4px",
+      }}
+      onClick={onClick}
+    >
       <CardHeader
         title={props.entity.type}
-        action={props.onInfoClick &&
-          <IconButton
-            color="primary"
-            size="small"
-            onClick={onInfoClick}>
-            <InfoIcon />
-          </IconButton>
-        }>
-      </CardHeader>
+        action={
+          props.onInfoClick && (
+            <IconButton color="primary" size="small" onClick={onInfoClick}>
+              <InfoIcon />
+            </IconButton>
+          )
+        }
+      ></CardHeader>
       <CardContent>
         <Typography variant="body1">
           Text: {props.entity.mentionText}
@@ -88,14 +103,14 @@ function Entity(props) {
         </Typography>
       </CardContent>
     </Card>
-  )
+  );
 } // Entity
 
 Entity.propTypes = {
-  'onInfoClick': PropTypes.func.isRequired,
-  'onClick': PropTypes.func.isRequired,
-  'hilight': PropTypes.object,
-  'entity': PropTypes.object.isRequired
-}
+  onInfoClick: PropTypes.func.isRequired,
+  onClick: PropTypes.func.isRequired,
+  hilight: PropTypes.object,
+  entity: PropTypes.object.isRequired,
+};
 
-export default Entity
+export default Entity;

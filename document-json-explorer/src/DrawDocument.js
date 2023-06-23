@@ -15,19 +15,19 @@
 
 /**
  * Draw the document.
- * 
+ *
  * Draw the document that is supplied by the imageData property.  The size of the image is
  * supplied by the imageSize property which is a {width, height}.
- * 
+ *
  * In addition to drawing the image, the entities supplied in the entities property are
  * drawn as overlays on the image.
- * 
+ *
  * From an implementation standpoint, we use the ReactSVGPanZoom module to act as a container for
  * the SVG.  This adds a wealth of goodies including pan and zoom.  Contained within we create
  * an SVG container that contains an SVG image use to display the document image.  We have a
  * helper React component called EntityHilight that draws a hilight around each of the entities
  * in the SVG.
- * 
+ *
  * Possibly one of the trickiest things in this module is handling sizing of the SVG and the image.
  * We have two primary tricks.  The first is that a <Box> surrounds the whole thing.  We take
  * a reference of thise box and use a hook called useEffect() which is called after the DOM
@@ -36,15 +36,20 @@
  * rendered we set the size of the SVG to be (10,10) and saved that in state.  This is very
  * small.  When the DOM initiall renders and THEN we know the final size of the container, we
  * change the SVG size to fill the container.  This re-renders and now we are at full size.
- * 
+ *
  * DocAIView is the primary consumer of this component.
  */
-import { Box } from '@mui/material';
-import EntityHilight from './EntityHilight';
-import { useRef, useState, useEffect } from 'react';
-import { INITIAL_VALUE, ReactSVGPanZoom, TOOL_NONE, POSITION_NONE } from 'react-svg-pan-zoom';
-import { imageScale } from "./utils"
-import PropTypes from 'prop-types';
+import { Box } from "@mui/material";
+import EntityHilight from "./EntityHilight";
+import { useRef, useState, useEffect } from "react";
+import {
+  INITIAL_VALUE,
+  ReactSVGPanZoom,
+  TOOL_NONE,
+  POSITION_NONE,
+} from "react-svg-pan-zoom";
+import { imageScale } from "./utils";
+import PropTypes from "prop-types";
 
 /**
  * Props:
@@ -54,7 +59,6 @@ import PropTypes from 'prop-types';
  * * hilight - The entity to hilight
  * * entities - The set of entities to display
  */
-
 
 /**
  * A debounce wrapper that calls the passed in function after a specified number
@@ -67,25 +71,24 @@ import PropTypes from 'prop-types';
  * @returns N/A
  */
 
-let timer
+let timer;
 function debounce(fn, ms) {
-  return _ => {
-    clearTimeout(timer)
-    timer = setTimeout(_ => {
-      timer = null
-      fn.apply(this, arguments)
-    }, ms)
+  return (_) => {
+    clearTimeout(timer);
+    timer = setTimeout((_) => {
+      timer = null;
+      fn.apply(this, arguments);
+    }, ms);
   };
 }
 
 function DrawDocument(props) {
-  const minSize = {width: 10, height: 10}
+  const minSize = { width: 10, height: 10 };
   const viewerRef = useRef(null);
   const ref1 = useRef(null);
-  const [tool, setTool] = useState(TOOL_NONE)
-  const [value, setValue] = useState(INITIAL_VALUE)
-  const [svgContainerSize, setSvgContainerSize] = useState(minSize)
-
+  const [tool, setTool] = useState(TOOL_NONE);
+  const [value, setValue] = useState(INITIAL_VALUE);
+  const [svgContainerSize, setSvgContainerSize] = useState(minSize);
 
   // When the Dom has rendered, fit the SVG to viewer.
   useEffect(() => {
@@ -96,22 +99,25 @@ function DrawDocument(props) {
 
   // Handle a calculation of the container size.
   useEffect(() => {
-
     if (ref1.current) {
       const br = ref1.current.getBoundingClientRect();
-      const w = ref1.current.offsetWidth
-      const h = ref1.current.offsetHeight
-      console.log(`useEffect: NewSize:: ${w}x${h}, currentSize: ${svgContainerSize.width}x${svgContainerSize.height} ${JSON.stringify(br)}`)
+      const w = ref1.current.offsetWidth;
+      const h = ref1.current.offsetHeight;
+      console.log(
+        `useEffect: NewSize:: ${w}x${h}, currentSize: ${
+          svgContainerSize.width
+        }x${svgContainerSize.height} ${JSON.stringify(br)}`
+      );
       if (w !== svgContainerSize.width || h !== svgContainerSize.height) {
-        setSvgContainerSize({ width: w, height: h })
+        setSvgContainerSize({ width: w, height: h });
       }
     }
-  }, [svgContainerSize.width, svgContainerSize.height])
+  }, [svgContainerSize.width, svgContainerSize.height]);
 
   // Handle a window resize.
   useEffect(() => {
     //console.log("Resize handler added!")
-    
+
     const debouncedHandleResize = debounce(function handleResize() {
       /*
       if (ref1.current) {
@@ -123,27 +129,26 @@ function DrawDocument(props) {
       //setRefreshState(refreshState+1)
 
       //console.log(`Setting the size to ${minSize.width}x${minSize.height}`)
-      setSvgContainerSize(minSize) // The window has resized.  Set the Svg size to something small that will force a resize.
-    }, 1000)
+      setSvgContainerSize(minSize); // The window has resized.  Set the Svg size to something small that will force a resize.
+    }, 1000);
 
     //console.log("Adding window resize handler")
-    window.addEventListener('resize', debouncedHandleResize)
+    window.addEventListener("resize", debouncedHandleResize);
 
     return () => {
       //console.log("Removing window resize handler")
-      window.removeEventListener('resize', debouncedHandleResize)
-    }
-  }, [minSize])
-
+      window.removeEventListener("resize", debouncedHandleResize);
+    };
+  }, [minSize]);
 
   /**
    * Invoked when an entity on the SVG is cliecked.
    * @param {*} entity The entity that was clicked.
-   * @param {*} evt 
+   * @param {*} evt
    */
   function entityClick(entity, evt) {
     if (props.entityOnClick) {
-      props.entityOnClick(entity)
+      props.entityOnClick(entity);
     }
   }
   // Determine the optimal size of the image
@@ -156,51 +161,83 @@ function DrawDocument(props) {
    * But what of the width?  It should be 600 x whatever we scaled the height.  The height scalled from 800->100.
    * This is a multiplier of (viewHeight/imageHeight)
    */
-  const imageSize = imageScale(svgContainerSize, props.imageSize)
-  const imageSizeSmaller = {width: Math.max(imageSize.width-10,0), height: Math.max(imageSize.height-10,0), x: imageSize.x +5, y: imageSize.y +5}
+  const imageSize = imageScale(svgContainerSize, props.imageSize);
+  const imageSizeSmaller = {
+    width: Math.max(imageSize.width - 10, 0),
+    height: Math.max(imageSize.height - 10, 0),
+    x: imageSize.x + 5,
+    y: imageSize.y + 5,
+  };
   return (
-    <Box ref={ref1} style={{ flexGrow: 1, flexShrink: 1, width: "100%", height: "100%", backgroundColor: "purple", overflow: "hidden" }}>
+    <Box
+      ref={ref1}
+      style={{
+        flexGrow: 1,
+        flexShrink: 1,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "purple",
+        overflow: "hidden",
+      }}
+    >
       <ReactSVGPanZoom
         ref={viewerRef}
         miniatureProps={{ position: POSITION_NONE }}
         SVGBackground="none"
         detectAutoPan={false}
-        width={svgContainerSize.width} height={svgContainerSize.height}
-        tool={tool} onChangeTool={setTool}
-        value={value} onChangeValue={setValue}
-        onClick={event => console.log('click', event.x, event.y, event.originalEvent)}
+        width={svgContainerSize.width}
+        height={svgContainerSize.height}
+        tool={tool}
+        onChangeTool={setTool}
+        value={value}
+        onChangeValue={setValue}
+        onClick={(event) =>
+          console.log("click", event.x, event.y, event.originalEvent)
+        }
       >
-        <svg xmlns="http://www.w3.org/2000/svg"
-          width={imageSize.width} height={imageSize.height}
-          style={{ borderColor: "lightgrey", borderStyle: "solid", "borderWidth": "1px" }}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width={imageSize.width}
+          height={imageSize.height}
+          style={{
+            borderColor: "lightgrey",
+            borderStyle: "solid",
+            borderWidth: "1px",
+          }}
+        >
           <image
-            width={imageSizeSmaller.width} height={imageSizeSmaller.height}
-            x={imageSizeSmaller.x} y={imageSizeSmaller.y}
+            width={imageSizeSmaller.width}
+            height={imageSizeSmaller.height}
+            x={imageSizeSmaller.x}
+            y={imageSizeSmaller.y}
             href={`data:image/png;base64,${props.imageData}`}
           />
           {
             // Draw an entity (an SVG Polygon) hilighter for each of the entities that we find.
-            props.entities.map(entity => {
-              return <EntityHilight
-                key={entity.id}
-                imageSize={imageSizeSmaller}
-                entity={entity}
-                onClick={entityClick}
-                hilight={props.hilight} />
+            props.entities.map((entity) => {
+              return (
+                <EntityHilight
+                  key={entity.id}
+                  imageSize={imageSizeSmaller}
+                  entity={entity}
+                  onClick={entityClick}
+                  hilight={props.hilight}
+                />
+              );
             })
           }
         </svg>
       </ReactSVGPanZoom>
     </Box>
-  )
+  );
 } // DrawDocument
 
 DrawDocument.propTypes = {
-  'imageData': PropTypes.string.isRequired,
-  'imageSize': PropTypes.object.isRequired,
-  'entityOnClick': PropTypes.func,
-  'hilight': PropTypes.object,
-  'entities': PropTypes.array,
-}
+  imageData: PropTypes.string.isRequired,
+  imageSize: PropTypes.object.isRequired,
+  entityOnClick: PropTypes.func,
+  hilight: PropTypes.object,
+  entities: PropTypes.array,
+};
 
-export default DrawDocument
+export default DrawDocument;
