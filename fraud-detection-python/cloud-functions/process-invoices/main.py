@@ -1,4 +1,4 @@
-# type: ignore[1]
+# mypy: disable-error-code="1"
 """
 Sends Invoices to Document AI API
 Saves Extracted Info to BigQuery
