@@ -41,7 +41,7 @@ For an example use case, the application is equipped to process an individual US
 3. Install the prerequisites:
    - `pip install -r requirements.txt`
 4. Run `gcloud init`, create a new project, and
-    [enable billing](https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project)
+   [enable billing](https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project)
 5. Enable the Document AI API:
    - `gcloud services enable documentai.googleapis.com`
 6. Setup application default authentication, run:
@@ -54,12 +54,12 @@ For an example use case, the application is equipped to process an individual US
 1. Create a `config.yaml` with the following format
 
    ```yaml
-    docai_processor_location: us # Document AI Processor Location (us OR eu)
-    docai_project_id: YOUR_PROJECT_ID # Project ID for Document AI Processors
-    firestore:
-        collection: tax_documents # Set with your preferred Firestore Collection Name
-        project_id: YOUR_PROJECT_ID # Project ID for Firestore Database
-    docai_active_processors:
+   docai_processor_location: us # Document AI Processor Location (us OR eu)
+   docai_project_id: YOUR_PROJECT_ID # Project ID for Document AI Processors
+   firestore:
+     collection: tax_documents # Set with your preferred Firestore Collection Name
+     project_id: YOUR_PROJECT_ID # Project ID for Firestore Database
+   docai_active_processors:
    ```
 
 2. Run setup scripts to create the processors and Cloud Run app in your project.
@@ -67,22 +67,22 @@ For an example use case, the application is equipped to process an individual US
    - `gcloud run deploy tax-demo --source .`
 3. Visit the deployed web page
 4. Upload Sample Documents
-    - Currently supports the following Document Types (2020 Editions)
-        - `W-2`
-        - `1099-DIV`
-        - `1099-INT`
-        - `1099-MISC`
-        - `1099-NEC`
+   - Currently supports the following Document Types (2020 Editions)
+     - `W-2`
+     - `1099-DIV`
+     - `1099-INT`
+     - `1099-MISC`
+     - `1099-NEC`
 5. Click "Upload" Button, wait for processing to complete
 6. Click "View Saved Data" to see the tax calculation output
-    - This output is designed to match up with the 2020 `1040` US Tax Return Form
+   - This output is designed to match up with the 2020 `1040` US Tax Return Form
 
 ![Header](img/Header.png)
 ![Example Output](img/ExampleOutput.png)
 
 > **WARNING: This is NOT financial advice, for educational purposes only!**
 
------
+---
 
 > Copyright 2022 Google LLC
 > Author: Holt Skinner

@@ -55,7 +55,7 @@ export class BaseLayerComponent implements OnInit, DoCheck {
    * @return {void}
    */
   async ngOnInit() {
-    //Initialized 
+    //Initialized
   }
 
   /**

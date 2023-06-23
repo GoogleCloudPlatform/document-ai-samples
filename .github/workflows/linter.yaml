@@ -44,6 +44,13 @@ jobs:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
 
+      # Super Linter doesn't support Jupyter notebooks
+      - name: Convert notebooks to Python
+        run: find . -type f -name "*.ipynb" -exec jupyter nbconvert --to python --TemplateExporter.exclude_markdown=true {} \;
+
+      - name: Convert notebooks to Markdown
+        run: find . -type f -name "*.ipynb" -exec jupyter nbconvert --to markdown --TemplateExporter.exclude_code_cell=true {} \;
+
       ################################
       # Run Linter against code base #
       ################################
@@ -56,7 +63,7 @@ jobs:
           JAVASCRIPT_DEFAULT_STYLE: prettier
           LOG_LEVEL: WARN
           SHELLCHECK_OPTS: -e SC1091 -e 2086
-          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_ALL_CODEBASE: true
           VALIDATE_ENV: false
           VALIDATE_NATURAL_LANGUAGE: false
           VALIDATE_PYTHON_BLACK: false

@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 'latest'
+          node-version: "latest"
       - name: Install dependencies
         run: npm install
       - name: Install Angular CLI
@@ -37,8 +37,8 @@ jobs:
       run:
         working-directory: ./web-app-demo/Backend
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: "read"
+      id-token: "write"
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python
@@ -50,7 +50,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Export Google Application Credentials
-        run:
-          export GOOGLE_APPLICATION_CREDENTIALS="CREDENTIALS"
+        run: export GOOGLE_APPLICATION_CREDENTIALS="CREDENTIALS"
       - name: Run unit tests
         run: python api/helper_test.py

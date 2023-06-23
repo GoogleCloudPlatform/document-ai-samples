@@ -1,22 +1,22 @@
 :root {
-    --text-color: #3C4043;
-    --card-border-color: #BDC1C6;
-    --form-bg-color: #F1F3F4;
-    --drop-zone-active: #C4E2CC;
-    --title-font-family: "Google Sans", "Roboto", sans-serif;
-    --text-font-family: "Roboto", sans-serif;
-    --mono-font-family: "Roboto Mono", "Cascadia Code", monospace;
-    --sl-color-primary-50: #F7FAFE;
-    --sl-color-primary-100: #E3EDFD;
-    --sl-color-primary-200: #E8F0FE;
-    --sl-color-primary-300: #D2E3FC;
-    --sl-color-primary-400: #AECBFA;
-    --sl-color-primary-500: #8AB4F8;
-    --sl-color-primary-600: #669DF6;
-    --sl-color-primary-700: #4285F4;
-    --sl-color-primary-800: #1A73E8;
-    --sl-color-primary-900: #1967D2;
-    --sl-color-primary-950: #185ABC;
+    --text-color: #3c4043;
+    --card-border-color: #bdc1c6;
+    --form-bg-color: #f1f3f4;
+    --drop-zone-active: #c4e2cc;
+    --title-font-family: 'Google Sans', 'Roboto', sans-serif;
+    --text-font-family: 'Roboto', sans-serif;
+    --mono-font-family: 'Roboto Mono', 'Cascadia Code', monospace;
+    --sl-color-primary-50: #f7fafe;
+    --sl-color-primary-100: #e3edfd;
+    --sl-color-primary-200: #e8f0fe;
+    --sl-color-primary-300: #d2e3fc;
+    --sl-color-primary-400: #aecbfa;
+    --sl-color-primary-500: #8ab4f8;
+    --sl-color-primary-600: #669df6;
+    --sl-color-primary-700: #4285f4;
+    --sl-color-primary-800: #1a73e8;
+    --sl-color-primary-900: #1967d2;
+    --sl-color-primary-950: #185abc;
 }
 
 html {
@@ -92,7 +92,7 @@ sl-textarea::part(textarea) {
     line-height: 2;
 }
 
-#document>span {
+#document > span {
     display: block;
 }
 
@@ -115,7 +115,6 @@ sl-tree {
 }
 
 @media only screen and (min-width: 460px) {
-
     sl-select::part(form-control),
     sl-textarea::part(form-control),
     #document {
@@ -126,7 +125,7 @@ sl-tree {
 
     sl-select::part(form-control-label),
     sl-textarea::part(form-control-label),
-    #document>span {
+    #document > span {
         flex: 0 0 auto;
         width: 8ch;
         text-align: right;
@@ -134,11 +133,11 @@ sl-tree {
 
     sl-select::part(form-control-input),
     sl-textarea::part(form-control-input),
-    #document>sl-button-group {
+    #document > sl-button-group {
         flex: 1 1 auto;
     }
 
-    #document>span {
+    #document > span {
         display: inline;
     }
 }

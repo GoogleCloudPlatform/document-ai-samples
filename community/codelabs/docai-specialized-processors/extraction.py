@@ -1,4 +1,4 @@
-# type: ignore[1]
+# mypy: disable-error-code="1"
 """
 Sends a request to a Document AI Specialized Parser Processor
 """

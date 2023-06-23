@@ -1,9 +1,11 @@
 # Document AI BigQuery Connector
 
 ## Overview
+
 The DocAI BQ Connector is a helper library that invokes the DocAI processing library, and formats the response for saving directly into BigQuery. The implementation should work on any processor that returns entities. Support for form processors has not been verified.
 
 ## Parsing Methodologies
+
 There are currently three parsing methodologies supported. The parsing methodology is supplied via argument --parsing_methodology.
 
 - entities: The entities in the response from DocAI will be iterated and the content field will be extracted and cast based on the supplied BQ table schema. The result will form a json dictionary for insert into BQ.
@@ -11,17 +13,18 @@ There are currently three parsing methodologies supported. The parsing methodolo
 - normalized_values: The entities in the response will be iterated, and the normalized_value property will be used depending on the field type corresponding to the column in the corresponding BQ table schema.
 
 ## Handling HITL Output
+
 The library is capable of handling the results of a HITL review operation. It uses a BigQuery table called `doc_reference` to keep track of metadata for every processed document.
 When a HITL result file is found, it uses the doc_reference table to match the results to the originally processed document and add the HITL results as a new row in the destination BigQuery table with the same metadata as the original document.
 
 In order to process HITL Output, set the `--operation_id` parameter to the HITL operation ID and the `--bucket_name` and `--file_name` parameters to point to the JSON file containing the HITL operation results.
 
-
 ## Setup
+
 1. Install Python requirements
-    ```commandline
-    pip install -r ./docai_bq_connector/requirements.txt
-    ```
+   ```commandline
+   pip install -r ./docai_bq_connector/requirements.txt
+   ```
 2. Create doc_reference BigQuery table. This table is used by docai_bq_connector to keep track of documents processed and to match up results of HITL reviews back to the original document
 
    ```commandline
@@ -31,6 +34,7 @@ In order to process HITL Output, set the `--operation_id` parameter to the HITL 
    ```
 
 ## Usage
+
 ```shell
 usage: main.py [-h] [--bucket_name BUCKET_NAME] [--file_name FILE_NAME]
                [--content_type CONTENT_TYPE]

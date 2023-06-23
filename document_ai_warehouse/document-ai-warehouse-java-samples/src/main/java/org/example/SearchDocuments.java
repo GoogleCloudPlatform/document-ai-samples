@@ -24,9 +24,7 @@ import com.google.cloud.contentwarehouse.v1.SearchDocumentsRequest;
 import com.google.cloud.contentwarehouse.v1.SearchDocumentsResponse;
 import com.google.cloud.contentwarehouse.v1.UserInfo;
 
-/**
- * Sample that searches documents.
- */
+/** Sample that searches documents. */
 public class SearchDocuments {
   private String projectNumber;
   private String location;
@@ -44,9 +42,7 @@ public class SearchDocuments {
     this.userId = userIdValue;
   }
 
-  /**
-   * Sample that searches documents.
-   */
+  /** Sample that searches documents. */
   public void searchDocuments(String query) {
     try {
       try (DocumentServiceClient documentServiceClient = DocumentServiceClient.create()) {

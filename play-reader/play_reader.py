@@ -48,7 +48,7 @@ def list_voices_by_gender(
 
 
 def print_gender_map(gender_to_voices: Dict[str, List]):
-    print(f"Gender\t| Voice Name")
+    print("Gender\t| Voice Name")
     for gender, voices in gender_to_voices.items():
         for voice in voices:
             print(f"{gender}\t| {voice}")
@@ -84,7 +84,7 @@ def create_character_map(
 
 
 def print_character_map(character_to_voice: Dict[str, Tuple]):
-    print(f"Character\t| Voice Name")
+    print("Character\t| Voice Name")
     for name, voice in character_to_voice.items():
         print(f"{name}\t| {voice}")
     print("\n")
