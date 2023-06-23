@@ -2,7 +2,7 @@
 
 This is a sample application that uses the Text-to-Speech API to read the dialogue of a play generated with [Bard](https://blog.google/technology/ai/try-bard) with each character having a distinct voice.
 
-**Incomplete/Work in Progress**
+**NOTE:** - Incomplete/Work in Progress
 
 - Plans
   - Incorporate PDF parsing with Document AI
