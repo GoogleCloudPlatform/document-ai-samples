@@ -65,6 +65,7 @@ jobs:
           SHELLCHECK_OPTS: -e SC1091 -e 2086
           VALIDATE_ALL_CODEBASE: true
           VALIDATE_ENV: false
+          VALIDATE_NATURAL_LANGUAGE: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_ISORT: false
           VALIDATE_TYPESCRIPT_STANDARD: false
