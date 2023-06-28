@@ -1,22 +1,22 @@
 [
-    {
-      "mode": "NULLABLE",
-      "name": "doc_name",
-      "type": "STRING"
-    },
-    {
-      "mode": "NULLABLE",
-      "name": "confidence",
-      "type": "FLOAT"
-    },
-    {
-      "mode": "NULLABLE",
-      "name": "type_",
-      "type": "STRING"
-    },
-    {
-      "mode": "NULLABLE",
-      "name": "mention_text",
-      "type": "STRING"
-    }
+  {
+    "mode": "NULLABLE",
+    "name": "doc_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "confidence",
+    "type": "FLOAT"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "type_",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "mention_text",
+    "type": "STRING"
+  }
 ]

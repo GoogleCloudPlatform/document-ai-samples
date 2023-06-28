@@ -1,93 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <title>Document AI - Identity Form Autofiller</title>
+        <meta
+            name="description"
+            content="Demo for Document AI Identity Processors"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="shortcut icon" href="favicon.ico" />
+        <!-- Web Components by Shoelace: https://shoelace.style -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.83/dist/themes/light.css"
+        />
+        <script
+            type="module"
+            src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.83/dist/shoelace.js"
+        ></script>
+        <link rel="stylesheet" href="styles.css" />
+        <script src="scripts.js" defer></script>
+    </head>
 
-<head>
-    <title>Document AI - Identity Form Autofiller</title>
-    <meta name="description" content="Demo for Document AI Identity Processors">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="favicon.ico">
-    <!-- Web Components by Shoelace: https://shoelace.style -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.83/dist/themes/light.css">
-    <script type="module"
-        src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.83/dist/shoelace.js"></script>
-    <link rel="stylesheet" href="styles.css">
-    <script src="scripts.js" defer></script>
-</head>
-
-<body>
-    <h1>Document AI - Identity Form Autofiller</h1>
-    <sl-card>
-        <div slot="header">Settings</div>
-        <sl-select hoist id="user-location" label="1. Processing Location"></sl-select>
-        <sl-select hoist id="user-processor" label="2. ID Processor"></sl-select>
-        <div class="label">3. Document</div>
-        <sl-button-group>
-            <sl-button id="photo1" size="large">
+    <body>
+        <h1>Document AI - Identity Form Autofiller</h1>
+        <sl-card>
+            <div slot="header">Settings</div>
+            <sl-select
+                hoist
+                id="user-location"
+                label="1. Processing Location"
+            ></sl-select>
+            <sl-select
+                hoist
+                id="user-processor"
+                label="2. ID Processor"
+            ></sl-select>
+            <div class="label">3. Document</div>
+            <sl-button-group>
+                <sl-button id="photo1" size="large">
+                    <sl-icon slot="prefix" name="camera"></sl-icon>Photo
+                </sl-button>
+                <sl-dropdown id="photos" placement="bottom-end">
+                    <sl-button slot="trigger" size="large" caret>
+                        <sl-visually-hidden
+                            >Additional pages</sl-visually-hidden
+                        >
+                    </sl-button>
+                    <sl-menu>
+                        <sl-menu-item id="photo2">
+                            <sl-icon slot="prefix" name="camera"></sl-icon>Photo
+                            2
+                        </sl-menu-item>
+                    </sl-menu>
+                </sl-dropdown>
+                <sl-dropdown>
+                    <sl-button slot="trigger" size="large" caret>
+                        <sl-icon
+                            slot="prefix"
+                            name="file-earmark-arrow-down"
+                        ></sl-icon
+                        >Sample
+                    </sl-button>
+                    <sl-menu id="samples"></sl-menu>
+                </sl-dropdown>
+                <sl-button id="upload" size="large">
+                    <sl-icon
+                        slot="prefix"
+                        name="file-earmark-arrow-up"
+                    ></sl-icon
+                    >Files
+                </sl-button>
+            </sl-button-group>
+        </sl-card>
+        <sl-card>
+            <div slot="header">Identity Document</div>
+            <sl-tooltip id="tooltip1" disabled placement="right-end">
+                <img slot="content" id="zoom1" />
+                <sl-avatar class="doc-avatar" id="avatar1" shape="rounded">
+                    <sl-icon slot="icon" name="image"></sl-icon>
+                </sl-avatar>
+            </sl-tooltip>
+            <sl-tooltip id="tooltip2" disabled placement="right-end">
+                <img slot="content" id="zoom2" />
+                <sl-avatar class="doc-avatar" id="avatar2" shape="rounded">
+                    <sl-icon slot="icon" name="image"></sl-icon>
+                </sl-avatar>
+            </sl-tooltip>
+            <sl-button-group>
+                <sl-button id="process" size="large">
+                    <sl-icon slot="prefix" name="cpu"></sl-icon>Process
+                </sl-button>
+                <sl-button id="reset" size="large">
+                    <sl-icon slot="prefix" name="x-circle"></sl-icon>Reset
+                </sl-button>
+            </sl-button-group>
+        </sl-card>
+        <sl-card id="form-card">
+            <div slot="header">
+                Identity Form
+                <span id="form-options" hidden>
+                    <sl-checkbox id="show-confidence">Confidence</sl-checkbox>
+                    &nbsp;
+                    <sl-checkbox id="show-page-numbers">Page#</sl-checkbox>
+                    &nbsp;
+                    <sl-checkbox id="show-normalized-values"
+                        >Normalized</sl-checkbox
+                    >
+                </span>
+            </div>
+            <div id="user-form"></div>
+        </sl-card>
+        <sl-dialog id="dialog" label="Focus on the ID document (at any angle)">
+            <video id="video" playsinline></video>
+            <sl-button id="snapshot" slot="footer" size="large">
                 <sl-icon slot="prefix" name="camera"></sl-icon>Photo
             </sl-button>
-            <sl-dropdown id="photos" placement="bottom-end">
-                <sl-button slot="trigger" size="large" caret>
-                    <sl-visually-hidden>Additional pages</sl-visually-hidden>
-                </sl-button>
-                <sl-menu>
-                    <sl-menu-item id="photo2">
-                        <sl-icon slot="prefix" name="camera"></sl-icon>Photo 2
-                    </sl-menu-item>
-                </sl-menu>
-            </sl-dropdown>
-            <sl-dropdown>
-                <sl-button slot="trigger" size="large" caret>
-                    <sl-icon slot="prefix" name="file-earmark-arrow-down"></sl-icon>Sample
-                </sl-button>
-                <sl-menu id="samples"></sl-menu>
-            </sl-dropdown>
-            <sl-button id="upload" size="large">
-                <sl-icon slot="prefix" name="file-earmark-arrow-up"></sl-icon>Files
-            </sl-button>
-        </sl-button-group>
-    </sl-card>
-    <sl-card>
-        <div slot="header">Identity Document</div>
-        <sl-tooltip id="tooltip1" disabled placement="right-end">
-            <img slot="content" id="zoom1">
-            <sl-avatar class="doc-avatar" id="avatar1" shape="rounded">
-                <sl-icon slot="icon" name="image"></sl-icon>
-            </sl-avatar>
-        </sl-tooltip>
-        <sl-tooltip id="tooltip2" disabled placement="right-end">
-            <img slot="content" id="zoom2">
-            <sl-avatar class="doc-avatar" id="avatar2" shape="rounded">
-                <sl-icon slot="icon" name="image"></sl-icon>
-            </sl-avatar>
-        </sl-tooltip>
-        <sl-button-group>
-            <sl-button id="process" size="large">
-                <sl-icon slot="prefix" name="cpu"></sl-icon>Process
-            </sl-button>
-            <sl-button id="reset" size="large">
-                <sl-icon slot="prefix" name="x-circle"></sl-icon>Reset
-            </sl-button>
-        </sl-button-group>
-    </sl-card>
-    <sl-card id="form-card">
-        <div slot="header">Identity Form
-            <span id="form-options" hidden>
-                <sl-checkbox id="show-confidence">Confidence</sl-checkbox>
-                &nbsp;
-                <sl-checkbox id="show-page-numbers">Page#</sl-checkbox>
-                &nbsp;
-                <sl-checkbox id="show-normalized-values">Normalized</sl-checkbox>
-            </span>
-        </div>
-        <div id="user-form"></div>
-    </sl-card>
-    <sl-dialog id="dialog" label="Focus on the ID document (at any angle)">
-        <video id="video" playsinline></video>
-        <sl-button id="snapshot" slot="footer" size="large">
-            <sl-icon slot="prefix" name="camera"></sl-icon>Photo
-        </sl-button>
-    </sl-dialog>
-</body>
-
+        </sl-dialog>
+    </body>
 </html>

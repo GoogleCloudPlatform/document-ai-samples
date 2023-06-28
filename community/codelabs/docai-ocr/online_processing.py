@@ -1,9 +1,9 @@
-# type: ignore[1]
+# mypy: disable-error-code="1"
 """
 Makes a Online Processing Request to Document AI
 """
 from google.api_core.client_options import ClientOptions
-from google.cloud import documentai_v1 as documentai
+from google.cloud import documentai
 
 PROJECT_ID = "YOUR_PROJECT_ID"
 LOCATION = "YOUR_PROJECT_LOCATION"  # Format is 'us' or 'eu'
@@ -23,7 +23,7 @@ docai_client = documentai.DocumentProcessorServiceClient(
 # The full resource name of the processor, e.g.:
 # projects/project-id/locations/location/processor/processor-id
 # You must create new processors in the Cloud Console first
-RESOURCE_NAME = docai_client.processor_path(PROJECT_ID, LOCATION, PROCESSOR_ID)
+name = docai_client.processor_path(PROJECT_ID, LOCATION, PROCESSOR_ID)
 
 # Read the file into memory
 with open(FILE_PATH, "rb") as image:
@@ -33,7 +33,7 @@ with open(FILE_PATH, "rb") as image:
 raw_document = documentai.RawDocument(content=image_content, mime_type=MIME_TYPE)
 
 # Configure the process request
-request = documentai.ProcessRequest(name=RESOURCE_NAME, raw_document=raw_document)
+request = documentai.ProcessRequest(name=name, raw_document=raw_document)
 
 # Use the Document AI client to process the sample form
 result = docai_client.process_document(request=request)
