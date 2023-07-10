@@ -1,31 +1,42 @@
-/*
-# Copyright 2022, Google, Inc.
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-*/
-import { useState } from 'react';
-import { AppBar, Input, Toolbar, Box as Card, Button, Typography, Tab, Tabs, Divider, IconButton } from '@mui/material';
-import Details from './Details';
-import JSONPage from './JSONPage';
-import DocAIView from './DocAIView';
-import AboutDialog from './About';
-import HelpIcon from '@mui/icons-material/Help';
+/**
+ * Copyright 2023 Google LLC
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { useState } from "react";
+import {
+  AppBar,
+  Input,
+  Toolbar,
+  Box as Card,
+  Button,
+  Typography,
+  Tab,
+  Tabs,
+  Divider,
+  IconButton,
+} from "@mui/material";
+import Details from "./Details";
+import JSONPage from "./JSONPage";
+import DocAIView from "./DocAIView";
+import AboutDialog from "./About";
+import HelpIcon from "@mui/icons-material/Help";
 //import PropTypes from 'prop-types';
 
 /**
  * props:
  * - None
- * @param {*} props 
- * @returns 
+ * @param {*} props
+ * @returns
  */
 function DocAITopLevel(props) {
   const [tabValue, setTabValue] = useState(0);
@@ -34,7 +45,7 @@ function DocAITopLevel(props) {
 
   function tabChange(event, newValue) {
     setTabValue(newValue);
-  };
+  }
 
   function loadJson(event) {
     //debugger;
@@ -54,13 +65,12 @@ function DocAITopLevel(props) {
           setData(newData.document);
         } else {
           setData(newData);
-        }        
-      }
-      catch (e) {
-        console.log(`ERROR: ${e}`)
+        }
+      } catch (e) {
+        console.log(`ERROR: ${e}`);
         setData(null);
       }
-    }
+    };
     fileReader.readAsBinaryString(event.target.files[0]); // When the file has been read, the onload() will be invoked.
   }
   return (
@@ -75,8 +85,10 @@ function DocAITopLevel(props) {
               style={{ display: "none" }}
               accept=".json"
               id="contained-button-file"
-              multiple type="file"
-              onChange={loadJson} />
+              multiple
+              type="file"
+              onChange={loadJson}
+            />
             <Button color="inherit" component="span">
               Load JSON
             </Button>
@@ -92,27 +104,25 @@ function DocAITopLevel(props) {
         <Tab label="Details" />
       </Tabs>
       <Divider />
-      <Card variant='outlined' sx={{ flexGrow: 1, flexShrink: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-        {
-          tabValue === 0 && <DocAIView data={data} />
-        }
-        {
-          tabValue === 1 &&
-          <JSONPage data={data} />
-        }
-        {
-          tabValue === 2 &&
-          <Details data={data} />
-        }
+      <Card
+        variant="outlined"
+        sx={{
+          flexGrow: 1,
+          flexShrink: 1,
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {tabValue === 0 && <DocAIView data={data} />}
+        {tabValue === 1 && <JSONPage data={data} />}
+        {tabValue === 2 && <Details data={data} />}
       </Card>
-      <AboutDialog open={aboutOpen} close={() => setAboutOpen(false)}/>
+      <AboutDialog open={aboutOpen} close={() => setAboutOpen(false)} />
     </Card>
-
-  )
+  );
 } // DocAITopLevel
 
+DocAITopLevel.propTypes = {};
 
-DocAITopLevel.propTypes = {
-}
-
-export default DocAITopLevel
+export default DocAITopLevel;

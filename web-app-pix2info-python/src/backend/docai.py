@@ -13,29 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import logging
 from io import BytesIO
+import logging
 from mimetypes import guess_type
 from pathlib import Path
-from typing import Any, BinaryIO, Mapping, Sequence, TypeAlias, cast
+from typing import Any, BinaryIO, cast, Mapping, Sequence, TypeAlias
 
-from google.cloud.documentai_v1 import (
-    Document,
-    DocumentProcessorServiceClient,
-    Processor,
-    ProcessRequest,
-    RawDocument,
-)
+from google.cloud.documentai_v1 import Document
+from google.cloud.documentai_v1 import DocumentProcessorServiceClient
+from google.cloud.documentai_v1 import Processor
+from google.cloud.documentai_v1 import ProcessRequest
+from google.cloud.documentai_v1 import RawDocument
 from google.protobuf.json_format import MessageToJson  # type: ignore
 
-from .processors import (
-    DEMO_PROCESSING_LOCATIONS,
-    DEMO_PROCESSOR_TYPES,
-    SAMPLE_PROCESSING_LOCATION,
-    decode_processor_info,
-    encode_processor_info,
-)
-from .render import tiff_container_for_images, will_render_entity
+from .processors import decode_processor_info
+from .processors import DEMO_PROCESSING_LOCATIONS
+from .processors import DEMO_PROCESSOR_TYPES
+from .processors import encode_processor_info
+from .processors import SAMPLE_PROCESSING_LOCATION
+from .render import tiff_container_for_images
+from .render import will_render_entity
 
 DocumentStream: TypeAlias = BytesIO
 MimeType: TypeAlias = str

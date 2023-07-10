@@ -24,9 +24,7 @@ import com.google.cloud.contentwarehouse.v1.LocationName;
 import com.google.cloud.contentwarehouse.v1.PropertyDefinition;
 import com.google.cloud.contentwarehouse.v1.TextTypeOptions;
 
-/**
- * Sample application that creates a Document AI Warehouse Schema.
- */
+/** Sample application that creates a Document AI Warehouse Schema. */
 public class CreateSchema {
   private String projectNumber;
   private String location;

@@ -29,9 +29,9 @@ Included is an app.yaml (`app.yaml.tmpl`) template that facilitates incorporatin
 
 Notable are three env variables
 
-* `PROJECT_ID` or `GOOGLE_CLOUD_PROJECT` - AppEngine supplies these by default
-* `LOGNAME` for logging, defaults to `contentmoderation-x-cx`
-* `CONTENT_MODERATION_NAME` this should refer to the Content Moderation Processor name (in the format of in the form of `projects/PROJECT_ID/locations/LOCATION/processors/PROCESSOR_ID`)
+- `PROJECT_ID` or `GOOGLE_CLOUD_PROJECT` - AppEngine supplies these by default
+- `LOGNAME` for logging, defaults to `contentmoderation-x-cx`
+- `CONTENT_MODERATION_NAME` this should refer to the Content Moderation Processor name (in the format of in the form of `projects/PROJECT_ID/locations/LOCATION/processors/PROCESSOR_ID`)
 
 With App Engine: `gcloud app deploy`
 

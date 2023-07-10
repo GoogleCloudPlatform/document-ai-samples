@@ -1,7 +1,8 @@
 {
-  "extends": [
-    "config:base"
-  ],
+  "labels": ["automerge"],
+  "extends": ["config:base"],
+  "rebaseStalePrs": true,
+  "postUpdateOptions": ["gomodUpdateImportPaths", "gomodTidy", "npmDedupe"],
   "prConcurrentLimit": 0,
   "lockFileMaintenance": {
     "enabled": true,
@@ -13,9 +14,18 @@
         "minor",
         "patch",
         "lockFileMaintenance",
-        "bump"
+        "bump",
+        "devDependencies"
       ],
       "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "extends": ["schedule:monthly"]
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "extends": ["schedule:quarterly"]
     }
   ],
   "pip_requirements": {
@@ -25,5 +35,8 @@
       "constraints.txt",
       "constraints-test.txt"
     ]
+  },
+  "vulnerabilityAlerts": {
+    "schedule": ["at any time"]
   }
 }

@@ -20,9 +20,7 @@ import com.google.cloud.contentwarehouse.v1.DocumentSchema;
 import com.google.cloud.contentwarehouse.v1.DocumentSchemaServiceClient;
 import com.google.cloud.contentwarehouse.v1.LocationName;
 
-/**
- * A sample application that lists schemas.
- */
+/** A sample application that lists schemas. */
 public class ListSchema {
   private String projectNumber;
   private String location;
@@ -45,7 +43,8 @@ public class ListSchema {
                 LocationName.of(projectNumber, location));
         System.out.println("display name    name");
         System.out.println(
-            "--------------- ------------------------------------------------------------------------");
+            "---------------"
+                + " ------------------------------------------------------------------------");
         for (DocumentSchema currentSchema : response.iterateAll()) {
           System.out.printf(
               "%-15.15s %s\n", currentSchema.getDisplayName(), currentSchema.getName());

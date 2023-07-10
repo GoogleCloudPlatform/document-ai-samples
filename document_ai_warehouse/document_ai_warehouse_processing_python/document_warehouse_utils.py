@@ -222,11 +222,11 @@ class DocumentWarehouseUtils:
             return False, "mime_type is empty"
 
         mime_to_dw_mime_enum = {
-            "application/pdf": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PDF,
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_DOCX,
+            "application/pdf": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PDF,  # noqa: E501
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_DOCX,  # noqa: E501
             "text/plain": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_TEXT,
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PPTX,
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_XLSX,
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PPTX,  # noqa: E501
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_XLSX,  # noqa: E501
         }
         if mime_type.lower() in mime_to_dw_mime_enum:
             document.raw_document_file_type = mime_to_dw_mime_enum[mime_type.lower()]
@@ -266,10 +266,10 @@ class DocumentWarehouseUtils:
         metadata_properties: List[contentwarehouse_v1.Property] = [],
         reference_id: str = "",
         docai_property_name: str = "document_ai_entities",
-        raw_document_path: str = None,
-        mime_type: str = None,
-        raw_inline_bytes: str = None,
-        document_text: str = None,
+        raw_document_path: Optional[str] = None,
+        mime_type: Optional[str] = None,
+        raw_inline_bytes: Optional[str] = None,
+        document_text: Optional[str] = None,
         append_docai_entities_to_doc_properties: bool = False,
         docai_document: Optional[docai.Document] = None,
     ) -> contentwarehouse_v1.Document:

@@ -3,6 +3,7 @@ Makes a Batch Processing Request to Document AI
 """
 
 import re
+from typing import Optional
 
 from google.api_core.client_options import ClientOptions
 from google.api_core.exceptions import InternalServerError
@@ -31,9 +32,9 @@ def batch_process_documents(
     processor_id: str,
     gcs_input_uri: str,
     gcs_output_uri: str,
-    processor_version_id: str = None,
-    input_mime_type: str = None,
-    field_mask: str = None,
+    processor_version_id: Optional[str] = None,
+    input_mime_type: Optional[str] = None,
+    field_mask: Optional[str] = None,
     timeout: int = 400,
 ):
     # You must set the api_endpoint if you use a location other than "us".

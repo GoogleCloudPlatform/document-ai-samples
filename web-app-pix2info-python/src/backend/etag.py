@@ -15,7 +15,8 @@ limitations under the License.
 """
 import os
 
-from flask import current_app, request
+from flask import current_app
+from flask import request
 from flask.wrappers import Response
 
 # Flask cache management for static files deployed in Buildpacks images
