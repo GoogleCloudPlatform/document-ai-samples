@@ -4,4 +4,4 @@ Flask-RESTful==0.3.10
 google-cloud-documentai==2.15.0
 google-auth==2.19.1
 pylint==2.17.4
-gunicorn==20.1.0
+gunicorn==21.0.1
