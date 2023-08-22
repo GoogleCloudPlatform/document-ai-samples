@@ -215,33 +215,6 @@ resource "google_document_ai_processor" "processor" {
   depends_on   = [google_project_service.documentai]
 }
 
-# trigger update_processor_dataset_and_schema for each processor which has training enabled
-data "http" "trigger_" {
-  for_each = { for k, v in var.processors : k => v if v.train_type != "none" }
-  url      = "https://workflowexecutions.googleapis.com/v1/${google_workflows_workflow.update_processor_dataset_and_schema.id}/executions"
-  method   = "POST"
-  request_body = jsonencode(
-    {
-      "argument" : jsonencode(
-        {
-          "processor" : google_document_ai_processor.processor[each.key]
-          "gcsUriPrefix" : "${google_storage_bucket.datasets.url}/${each.key}"
-          "documentSchema" : each.value.documentSchema
-        }
-      )
-  })
-
-  # Optional request headers
-  request_headers = {
-    Accept        = "application/json"
-    Content-Type  = "application/json"
-    Authorization = "Bearer ${data.google_service_account_access_token.default.access_token}"
-  }
-
-  depends_on = [
-    google_workflows_workflow.update_processor_dataset_and_schema, google_document_ai_processor.processor
-  ]
-}
 
 # Cloud Functions Configuration
 
