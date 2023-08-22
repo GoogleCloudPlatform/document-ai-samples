@@ -1,0 +1,4 @@
+# Function dependencies, for example:
+# package>=version
+google-cloud-storage>=2.3.0
+pikepdf>=5.1.2

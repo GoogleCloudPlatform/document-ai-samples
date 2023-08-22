@@ -15,6 +15,7 @@
 /web-app-pix2info-python @PicardParis @holtskinner @GoogleCloudPlatform/ml-apis
 /cx-content-moderation @ghchinoy @GoogleCloudPlatform/ml-apis
 /form-parser-cde @HSbedi87 @GoogleCloudPlatform/ml-apis
+/document-processing-workflows @ffeldhaus @GoogleCloudPlatform/ml-apis
 
 # Community owners
 /community/identity-form-autofiller-python @PicardParis @GoogleCloudPlatform/ml-apis

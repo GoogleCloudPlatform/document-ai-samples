@@ -1,0 +1,179 @@
+# Copyright 2023 Google LLC
+# SPDX-License-Identifier: Apache-2.0
+
+main:
+  # Batch process documents and trigger further processing of results.
+  #
+  # Args:
+  #     processor: Map of processor information containing at least name and type. See https://cloud.google.com/workflows/docs/reference/googleapis/documentai/v1/Overview#GoogleCloudDocumentaiV1Processor
+  #     documents: Documents list, each document has to be a map with gcsUri and mimeType. Example: [{"gcsUri":"gs://bucket/object","mimeType":"application/pdf"}]
+  #     outputGcsUri: Uri of GCS location to store processing results (e.g. gs://bucket/prefix)
+  #     failedDocumentsBucket: The name of the bucket where failed or invalid documents will be stored in.
+  #     processors: Map containing processor display name mapped to full processor details inclduing processor name
+  #       type: (Required) The type of processor.
+  #       displayName: (Required) The display name. Must be unique.
+  #       id: an identifier for the resource with format projects/{{project}}/locations/{{location}}/processors/{{name}}
+  #     workflows: Map containing workflow display name to full workflow name mappings with these mandatory workflows:
+  #       processResult: name of the workflow to process the document processing result.
+  #     config: custom configuration for processors
+  #
+  params: [args]
+  steps:
+    - initialize_variables:
+        assign:
+          - emptyMap: {}
+          - processor: ${args.processor}
+          - deleteProcessor: false
+    - create_and_use_temporary_form_parser_if_no_default_processor_version_exists:
+        switch:
+          - condition: ${default(map.get(processor,"defaultProcessorVersion"),"") == ""}
+            steps:
+              - create_temporary_form_parser:
+                  try:
+                    call: googleapis.documentai.v1.projects.locations.processors.create
+                    args:
+                      parent: ${"projects/" + text.split(processor.name,"/")[1] + "/location/" + text.split(processor.name,"/")[3]}
+                      location: ${text.split(processor.name,"/")[3]}
+                      body:
+                        type: "FORM_PARSER_PROCESSOR"
+                        displayName: ${sys.get_env("GOOGLE_CLOUD_WORKFLOW_EXECUTION_ID")}
+                        kmsKeyName: ${processor.kmsKeyName}
+                    result: formParserProcessor
+                  retry: ${http.default_retry_non_idempotent}                  
+              - assign_form_parser_to_processor:
+                  assign:
+                    - processor: formParserProcessor
+                    - deleteProcessor: true
+    # batch process documents with given processor
+    - batch_process_documents:
+        try:
+          call: googleapis.documentai.v1.projects.locations.processors.batchProcess
+          args:
+            connector_params:
+              timeout: 3600
+              polling_policy:
+                initial_delay: 60
+                multiplier: 1
+            name: ${processor.name}
+            location: ${text.split(processor.name,"/")[3]}
+            body:
+              inputDocuments:
+                gcsDocuments:
+                  documents: ${args.documents}
+              documentOutputConfig:
+                gcsOutputConfig:
+                  gcsUri: ${args.outputGcsUri}
+          result: batch_process_documents_result
+        retry:
+          predicate: ${http.default_retry_predicate_non_idempotent}
+          max_retries: 10
+          backoff:
+              initial_delay: 1
+              max_delay: 600
+              multiplier: 3
+        except:
+          as: e
+          steps:
+            - assign_batch_process_documents_result:
+                assign:
+                  - batch_process_documents_result: ${default(map.get(e,"operation"),emptyMap)}
+            - log_exception_batch_process_documents:
+                call: sys.log
+                args:
+                  severity: "CRITICAL"
+                  data: ${e}   
+    - delete_temporary_form_parser_processor:
+        switch:
+          - condition: ${deleteProcessor}
+            steps:
+                - delete_temporary_form_parser:
+                    try:
+                      call: googleapis.documentai.v1.projects.locations.processors.delete
+                      args:
+                        name: ${processor.name}
+                        location: ${text.split(processor.name,"/")[3]}
+                    retry: ${http.default_retry_non_idempotent}
+    - check_individual_process_statuses:
+        for:
+          value: processStatus
+          in: ${default(map.get(default(map.get(batch_process_documents_result,"metadata"),emptyMap),"individualProcessStatuses"),[])}
+          steps:
+            - assign_input_bucket_and_object:
+                assign:
+                  - inputBucket: ${text.split(processStatus.inputGcsSource,"/")[2]}
+                  - inputObject: ${text.substring(processStatus.inputGcsSource,len(inputBucket) + 6,len(processStatus.inputGcsSource))}
+            - check_status:
+                switch:
+                  - condition: ${"outputGcsDestination" in processStatus}
+                    steps:
+                      - assign_output_bucket_and_prefix:
+                          assign:
+                            - resultBucket: ${text.split(processStatus.outputGcsDestination,"/")[2]}
+                            - resultPrefix: ${text.substring(processStatus.outputGcsDestination,len(resultBucket) + 6,len(processStatus.outputGcsDestination))}
+                      - invoke_process_results:
+                          try:
+                            call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+                            args:
+                              project_id: ${text.split(args.workflows["processResult"],"/")[1]}
+                              location: ${text.split(args.workflows["processResult"],"/")[3]}
+                              workflow_id: ${text.split(args.workflows["processResult"],"/")[5]}
+                              argument:
+                                processor: ${processor}
+                                inputBucket: ${inputBucket}
+                                inputObject: ${inputObject}
+                                resultBucket: ${resultBucket}
+                                resultPrefix: ${resultPrefix}
+                                processors: ${args.processors}
+                                workflows: ${args.workflows}
+                                config: ${args.config}
+                              connector_params:
+                                skip_polling: True
+                          retry: ${http.default_retry_non_idempotent}
+                          except:
+                            as: e
+                            steps:
+                              - log_exception_invoke_batch_processing:
+                                  call: sys.log
+                                  args:
+                                    severity: "CRITICAL"
+                                    data: ${e}
+                  - condition: true
+                    steps:
+                      - log_failed_document:
+                          call: sys.log
+                          args:
+                            severity: "ERROR"
+                            text: ${"Document " + inputObject + " failed with error message " + processStatus.status.message}
+                      - copy_document_to_failed_bucket:
+                          try:
+                            call: googleapis.storage.v1.objects.rewrite
+                            args:
+                              sourceBucket: ${inputBucket}
+                              sourceObject: ${text.url_encode(inputObject)}
+                              destinationBucket: ${args.failedDocumentsBucket}
+                              destinationObject: ${text.url_encode(inputObject)}
+                          retry: ${http.default_retry_non_idempotent}
+                          except:
+                            as: e
+                            steps:
+                              - log_exception_copy_document_to_failed_bucket:
+                                  call: sys.log
+                                  args:
+                                    severity: "CRITICAL"
+                                    data: ${e}
+                      # remove document from the process bucket
+                      - remove_document_from_process_bucket:
+                          try:
+                            call: googleapis.storage.v1.objects.delete
+                            args:
+                              bucket: ${inputBucket}
+                              object: ${text.url_encode(inputObject)}
+                          retry: ${http.default_retry_non_idempotent}
+                          except:
+                            as: e
+                            steps:
+                              - log_exception_remove_document_from_process_bucket:
+                                  call: sys.log
+                                  args:
+                                    severity: "ERROR"
+                                    data: ${e}
