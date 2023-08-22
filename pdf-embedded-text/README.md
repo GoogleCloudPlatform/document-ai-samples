@@ -1,10 +1,12 @@
 # OCR with PDF Embedded Text
 
+[Document AI - Document OCR](https://cloud.google.com/document-ai/docs/document-ocr)
+
 From [Release Notes](https://cloud.google.com/document-ai/docs/release-notes#December_19_2022)
 
 The Document AI OCR Processor has the following new features:
 
-- The OCR Processor now supports extracting embedded text from digital PDFs in public preview. A fallback to the optical OCR model is automatically triggered to extract text in the regions when the PDF being processed contains non-digital text. To opt into this feature, set [`process_options.ocr_config.enable_native_pdf_parsing=true`](https://cloud.google.com/document-ai/docs/reference/rest/v1beta3/ProcessOptions#OcrConfig) in your API request to the OCR Processor.
+- The OCR Processor now supports extracting embedded text from digital PDFs in public preview. A fallback to the optical OCR model is automatically triggered to extract text in the regions when the PDF being processed contains non-digital text. To opt into this feature, set [`process_options.ocr_config.enable_native_pdf_parsing=true`](https://cloud.google.com/document-ai/docs/reference/rest/v1/ProcessOptions#OcrConfig) in your API request to the OCR Processor.
 
 Known issues with the digital PDF feature of the Document AI OCR Processor:
 
