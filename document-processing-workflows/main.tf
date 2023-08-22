@@ -216,7 +216,7 @@ resource "google_document_ai_processor" "processor" {
 }
 
 # trigger update_processor_dataset_and_schema for each processor which has training enabled
-data "http" {
+data "http" "trigger_" {
   for_each = { for k, v in var.processors : k => v if v.train_type != "none" }
   url      = "https://workflowexecutions.googleapis.com/v1/${google_workflows_workflow.update_processor_dataset_and_schema.id}/executions"
   method   = "POST"
