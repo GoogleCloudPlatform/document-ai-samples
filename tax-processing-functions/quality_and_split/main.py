@@ -390,8 +390,7 @@ def main():
         "bucket": f"{input_bucket_name}",
         "name": f"{file_name}",
         "contentType": f"{content_type}",
-    }  # generic testing command
-    # event = {'bucket': f"{input_bucket_name}", 'name':'something', 'contentType': f"{content_type}"}  #generic testing command
+    }
     context = ""
     process_receipt(event, context)
 

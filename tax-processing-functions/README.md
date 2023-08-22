@@ -61,7 +61,7 @@ By using this example you will learn how to:
 You'll start by creating a new repository in Cloud Source Repositories (CSR), copying the files in this example into the CSR repository, and
 committing them to your new repository.
 
-1. Go to https://source.cloud.google.com/
+1. Go to [https://source.cloud.google.com/](https://source.cloud.google.com/)
 1. Click 'Add repository'.
 1. Choose 'Create new repository'.
 1. Specify a name, and your project name.

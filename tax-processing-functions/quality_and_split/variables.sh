@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # TODO: for local testing. Replace variable names with your environment variables
 export GCP_PROJECT="<GCP PROJECT ID>"
 export INPUT_BUCKET="<ORIGINAL INPUT BUCKET>"
