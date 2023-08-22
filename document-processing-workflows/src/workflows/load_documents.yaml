@@ -1,0 +1,269 @@
+# Copyright 2023 Google LLC
+# SPDX-License-Identifier: Apache-2.0
+
+main:
+  # List documents in an input bucket. 
+  # Extract processor to use for processing from processor metadata or fall back to default processor. 
+  # Move documents to the processingGcsBucket. 
+  # Trigger process_documents workflow for every processor.
+  #
+  # Args:
+  #     buckets: Map of buckets with the following entries:
+  #       inputs: The name of the bucket containing input documents (e.g. inputs-bucket).
+  #       processing: The name of the bucket where documents will be stored during processing.
+  #       results: The name of the bucket to write results to (e.g. results-bucket). If the name contains the string ${processorId} it will be replaced with the processor ID (e.g. results-bucket-${processorId} -> results-bucket-fa657bfb32ec6e4c).
+  #       failed: The name of the bucket where failed or invalid documents will be stored in.
+  #     defaultProcessorName: The default processor name (e.g. projects/{project}/locations/{location}/processors/{processor}) to use if no processor is specified in the object metadata. The name may contain a specific processor version (e.g projects/{project}/locations/{location}/processors/{processor}/processorVersions/{processorVersion}).
+  #     processors: Map containing processor display name mapped to full processor details inclduing processor name
+  #       type: (Required) The type of processor.
+  #       displayName: (Required) The display name. Must be unique.
+  #       id: an identifier for the resource with format projects/{{project}}/locations/{{location}}/processors/{{name}}
+  #     workflows: Map containing workflow display name to full workflow name mappings with these mandatory workflows:
+  #       batchProcessDocuments: name of the workflow to batch process documents
+  #       processResult: name of the workflow to process the document processing result.
+  #     config: custom configuration for processors
+  #
+  params: [args]
+  steps:
+    # create or update a lock file in the input GCS bucket, this will fail if the file exists and has a temporary hold
+    - insert_lock:
+        try:
+          call: googleapis.storage.v1.objects.insert
+          args:
+            bucket: ${args.buckets.inputs}
+            name: ${".lock_" + sys.get_env("GOOGLE_CLOUD_WORKFLOW_ID")}
+        except:
+          as: e
+          steps:
+            - end_workflow:
+                next: end
+    # add temporary hold on the lock file to prevent parallel execution of this workflow
+    - set_temporary_hold_on_lock:
+        call: googleapis.storage.v1.objects.patch
+        args:
+          bucket: ${args.buckets.inputs}
+          object: ${".lock_" + sys.get_env("GOOGLE_CLOUD_WORKFLOW_ID")}
+          body: {"temporaryHold":"true"}
+    # load documents in a try/except block to ensure that the lock is deleted regardless of success or failure
+    - load_documents:
+        steps:
+          - initialize_variables:
+              assign:
+                - emptyMap: {}
+                - documents: []
+                - documentsByProcessorName: {}
+                - executionStart: ${sys.now()}
+                - listObjectsResult: {}
+                # https://cloud.google.com/document-ai/docs/file-types
+                - supportedMimeTypes : ["application/pdf", "image/gif", "image/tiff", "image/jpeg", "image/png", "image/bmp", "image/webp"]  
+                # https://cloud.google.com/document-ai/quotas#content_limits  
+                - maxBatchSize: 50      
+          # check for new documents by listing objects in the input bucket
+          - list_objects:
+              try:
+                call: googleapis.storage.v1.objects.list
+                args:
+                  bucket: ${args.buckets.inputs}
+                  pageToken: ${default(map.get(listObjectsResult,"nextPageToken"),"")}
+                result: listObjectsResult
+              retry: ${http.default_retry}
+          # filter for objects with create date older than now to ensure that the worklfow does not infinitely pick up new objects
+          - filter_and_move_objects:
+              for:
+                value: object
+                in: ${listObjectsResult.items}
+                steps:
+                  - filter_and_move_object:
+                      switch:
+                        # skip objects where the creation time is newer than the workflow execution to prevent the workflow running very long. These will be picked up by the next workflow execution.
+                        - condition: ${time.parse(object.timeCreated) > executionStart}
+                          next: continue
+                        # skip the bucket lock
+                        - condition: ${object.name == ".lock_" + sys.get_env("GOOGLE_CLOUD_WORKFLOW_ID")}
+                          next: continue
+                        # move documents not meeting the batch processing limits to the failed bucket
+                        - condition: ${not (map.get(object,"contentType") in supportedMimeTypes)}
+                          steps:
+                            - log_failed_document:
+                                call: sys.log
+                                args:
+                                  severity: "ERROR"
+                                  text: ${"Document " + object.name + " with content type " + object.contentType + " cannot be processed by Document AI"}
+                            - copy_document_to_failed_bucket:
+                                try:
+                                  call: googleapis.storage.v1.objects.rewrite
+                                  args:
+                                    sourceBucket: ${object.bucket}
+                                    sourceObject: ${text.url_encode(object.name)}
+                                    destinationBucket: ${args.buckets.failed}
+                                    destinationObject: ${text.url_encode(object.name)}
+                                retry: ${http.default_retry_non_idempotent}
+                                except:
+                                  as: e
+                                  steps:
+                                    - log_exception_copy_document_to_failed_bucket:
+                                        call: sys.log
+                                        args:
+                                          severity: "ERROR"
+                                          data: ${e}
+                                        next: continue
+                        # process all other documents
+                        - condition: true
+                          steps:
+                            # copy the document to the processing bucket
+                            - copy_document_to_processing_bucket:
+                                try:
+                                  call: googleapis.storage.v1.objects.rewrite
+                                  args:
+                                    sourceBucket: ${object.bucket}
+                                    sourceObject: ${text.url_encode(object.name)}
+                                    destinationBucket: ${args.buckets.processing}
+                                    destinationObject: ${text.url_encode(object.name)}
+                                retry: ${http.default_retry_non_idempotent}
+                                except:
+                                  as: e
+                                  steps:
+                                    - log_exception_copy_document_to_processing_bucket:
+                                        call: sys.log
+                                        args:
+                                          severity: "ERROR"
+                                          data: ${e}
+                                        next: continue
+                            # assign document to the processor indicated by the object metadata or to the default porcessor
+                            - assign_document_to_processor:
+                                assign:
+                                  # extract object metadata
+                                  - metadata: ${default(map.get(object,"metadata"),emptyMap)}
+                                  # lookup processorName in object metadata, fallback to type in object metadata and lookup type as displayName from args.processors, fallback to defaultProcessorName
+                                  - processorName: ${default(map.get(metadata,"processorName"),default(map.get(default(map.get(args.processors,default(map.get(metadata,"processorDisplayName"),"")),emptyMap),"id"),args.defaultProcessorName))}
+                                  - documentProcessingUrl: ${"gs://" + args.buckets.processing + "/" + object.name}
+                                  - document:
+                                      gcsUri: ${documentProcessingUrl}
+                                      mimeType: ${object.contentType}
+                                  - documentsByProcessorName:
+                                      ${processorName}: ${list.concat(default(map.get(documentsByProcessorName,processorName),[]),document)}
+          # if the object listing contained a nextPageToken then the listing contained more results and listing needs to be continued
+          - continue_list_documents_if_next_page_token:
+              switch:
+                - condition: ${"nextPageToken" in listObjectsResult}
+                  next: list_objects
+          # if all objects returned by the object listing are processed, the documents need to be batched and then batch processed when a batch is full
+          - iterate_over_processors:
+              for:
+                value: processorName
+                in: ${keys(documentsByProcessorName)}
+                steps:
+                  - get_processor:
+                      try:
+                        call: googleapis.documentai.v1.projects.locations.processors.get
+                        args:
+                          name: ${processorName}
+                          location: ${text.split(processorName,"/")[3]}
+                        result: processor
+                      retry: ${http.default_retry_non_idempotent}
+                      except:
+                        as: e
+                        steps:
+                          - log_exception_get_processor:
+                              call: sys.log
+                              args:
+                                severity: "ERROR"
+                                data: ${e}
+                          - continue_with_next_processor:
+                              next: continue
+                  - iterate_over_documents:
+                      for:
+                        value: document
+                        index: i
+                        in: ${documentsByProcessorName[processorName]}
+                        steps:                            
+                          - add_document:
+                              assign:
+                                - processorId: ${text.split(processorName,"/")[5]}
+                                - documents: ${list.concat(documents,documentsByProcessorName[processorName][i])}
+                                - removeDocumentsFromBucket: "input"
+                          - check_batch_size:
+                              switch:
+                                # if the number of documents reached the maxBatchSize or if it was the last document in the iteration then the batch processing needs to be invoked
+                                - condition: ${(len(documents) == maxBatchSize) or (i == len(documentsByProcessorName[processorName]) - 1)}
+                                  steps:
+                                    # invoke batch processing workflow for the current batch
+                                    - invoke_batch_processing_workflow:
+                                        try:
+                                          call: googleapis.workflowexecutions.v1.projects.locations.workflows.executions.run
+                                          args:
+                                            project_id: ${text.split(args.workflows["batchProcessDocuments"],"/")[1]}
+                                            location: ${text.split(args.workflows["batchProcessDocuments"],"/")[3]}
+                                            workflow_id: ${text.split(args.workflows["batchProcessDocuments"],"/")[5]}
+                                            argument:
+                                              processor: ${processor}
+                                              documents: ${documents}
+                                              outputGcsUri: ${"gs://" + text.replace_all(args.buckets.results,"${processorId}",processorId)}
+                                              failedDocumentsBucket: ${args.buckets.failed}
+                                              processors: ${args.processors}
+                                              workflows: ${args.workflows}
+                                              config: ${args.config}
+                                            connector_params:
+                                              skip_polling: True
+                                          result: batch_processing_workflow_result
+                                        retry: ${http.default_retry_non_idempotent}
+                                        except:
+                                          as: e
+                                          steps:
+                                            - log_exception_invoke_batch_processing:
+                                                call: sys.log
+                                                args:
+                                                  severity: "CRITICAL"
+                                                  data: ${e}
+                                            - set_remove_documents_to_processing_bucket:
+                                                assign:
+                                                  - removeDocumentsFromBucket: "processing"
+                                    # for each document of the batch, remove it from input bucket if workflow triggering was succesfull or remove from processing bucket
+                                    - iterate_through_documents_in_batch_and_remove_documents_from_input_or_processing_bucket:
+                                        for:
+                                          value: documentToRemove
+                                          in: ${documents}
+                                          steps:
+                                            - assign_bucket_to_delete_documents_from_and_object_name:
+                                                assign:
+                                                  - bucketToDeleteFrom: ${if(removeDocumentsFromBucket == "input",args.buckets.inputs,text.split(documentToRemove.gcsUri,"/")[2])}
+                                                  - objectNameToDelete: ${text.substring(documentToRemove.gcsUri,len(text.split(documentToRemove.gcsUri,"/")[2]) + 6,len(documentToRemove.gcsUri))}
+                                            # remove document from the input bucket so that it won't get processed again by this workflow or from process bucket if workflow invocation failed
+                                            - remove_document_from_bucket:
+                                                try:
+                                                  call: googleapis.storage.v1.objects.delete
+                                                  args:
+                                                    bucket: ${bucketToDeleteFrom}
+                                                    object: ${text.url_encode(objectNameToDelete)}
+                                                retry: ${http.default_retry_non_idempotent}
+                                                except:
+                                                  as: e
+                                                  steps:
+                                                    - log_exception_remove_document_from_input_bucket:
+                                                        call: sys.log
+                                                        args:
+                                                          severity: "CRITICAL"
+                                                          data: ${e}
+                                                    - rethrow_exception:
+                                                        raise: ${e}
+                                    # reset documents to start a new batch
+                                    - reset_documents:
+                                        assign:
+                                          - documents: []
+    # always release the lock on the bucket to allow further workflows to continue
+    - release_lock:
+        try:
+          call: googleapis.storage.v1.objects.patch
+          args:
+            bucket: ${args.buckets.inputs}
+            object: ${".lock_" + sys.get_env("GOOGLE_CLOUD_WORKFLOW_ID")}
+            body: {"temporaryHold":"false"}
+        retry: ${http.default_retry_non_idempotent}
+        except:
+          as: e
+          steps:
+            - log_exception_release_lock:
+                call: sys.log
+                args:
+                  severity: "CRITICAL"
+                  data: ${e}
