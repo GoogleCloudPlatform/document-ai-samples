@@ -64,7 +64,7 @@ You can also view sample input/output files by processor on the [Sample Output](
 
 ## Contributing
 
-Contributions welcome! See the [Contributing Guide](https://github.com/GoogleCloudPlatform/document-ai-samples/blob/main/.github/CONTRIBUTING.md).
+Contributions welcome! See the [Contributing Guide](CONTRIBUTING.md).
 
 ## Getting help
 

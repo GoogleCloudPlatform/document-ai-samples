@@ -19,7 +19,7 @@ again.
 
 All submissions, including submissions by project members, require review. We
 use GitHub pull requests for this purpose. Consult
-[GitHub Help](https://help.GitHub.com/articles/about-pull-requests/) for more
+[GitHub Help](https://help.github.com/articles/about-pull-requests/) for more
 information on using pull requests.
 
 ## Community Guidelines
@@ -44,14 +44,22 @@ Samples repeatedly failing to meet this criteria will be moved or removed.
 
 The purpose of these expectations are to ensure quality, up to date code for
 others. If you need help keeping your sample in line with these expectations
-please reach out to the `@GoogleCloudPlatform/ml-apis`.
+please reach out to the `@GoogleCloudPlatform/document-ai-samples-contributors`.
 
 ### How to add a new sample
 
 If you would like to add a new sample to this repository please follow these
 instructions. If your sample is large, complex, or you would like feedback
 before adding a sample to this repository please open a issue with your question or
-request and assign it to `@GoogleCloudPlatform/ml-apis`
+request and assign it to `@GoogleCloudPlatform/document-ai-samples-contributors`
+
+- General process for GitHub contributions:
+
+  1. **Fork the official repository.** This will create a copy of the official repository in your own account.
+  2. **Sync the branches.** This will ensure that your copy of the repository is up-to-date with the latest changes from the official repository.
+  3. **Work on your forked repository's dev branch.** This is where you will make your changes to the code.
+  4. **Commit your updates on your forked repository's dev branch.** This will save your changes to your copy of the repository.
+  5. **Submit a pull request to the official repository's main branch.** This will request that your changes be merged into the official repository.
 
 1. Determine the name for your sample.
 
@@ -66,13 +74,13 @@ request and assign it to `@GoogleCloudPlatform/ml-apis`
    - If the sample is primarily one language the name for your sample must
      end in `-language-name` e.g. `-nodejs`, `-python`, etc.
 
-1. Create a new folder in the root of the repository or in the community folders
+2. Create a new folder in the root of the repository or in the community folders
 
    To add a new samples to this repository you must add a new folder to either the
    root of the repository or in the `community` folder. The name of the folder must
    correspond to the name of your sample.
 
-1. Create a README.md for your sample
+3. Create a README.md for your sample
 
    Each sample must have its own README.md file in the root of the sample
    folder. This sample must include:
@@ -83,29 +91,31 @@ request and assign it to `@GoogleCloudPlatform/ml-apis`
    - [Community samples only] Add the following disclaimer to your sample's
      README.md file:
 
-     ```text
+     ```md
      ## Disclaimer
      This community sample is not officially maintained by Google.
      ```
 
-   - Detail instructions on how to run tests (if present)
+   - Detailed instructions on how to run tests (if present)
 
-1. Update the repository's README with a link to your sample
+4. Update the repository's `README` with a link to your sample
 
    Edit the repository's README.md file to with the name of your sample, a link to
    the sample repository and a brief description. If your sample is in the
    `community` folder add your sample's name, link and description to the
    "Community" section of the repository's README.md.
 
-1. Format and lint your code
+5. Format and lint your code
 
-   This repository uses a tool from GitHub called [super-linter](https://GitHub.com/GitHub/super-linter) that
+   This repository uses a tool from GitHub called [super-linter](https://github.com/super-linter/super-linter) that
    formats and lints code in multiple languages. This helps ensure consistency and prevents common issues.
 
-   For Python, use [black](https://GitHub.com/psf/black) to format your code.
-   Linting checks with flake8, isort, pylint, and mypy will also be performed.
+   On pull requests, an automated tool called Owlbot will run to format your code.
+   If your pull request is made from a forked copy of the repository, you will need to manually add the label `owlbot:run` for the automation to run.
 
-1. [non-community samples only] Setup testing and GitHub Actions
+   Refer to [Code Quality Checks](#code-quality-checks) for information about the formatting and linting tools.
+
+6. [non-community samples only] Setup testing and GitHub Actions
 
    This step is not required for samples located in the `community` folder. All
    samples in the root of the repository must have tests and those tests must be
@@ -117,7 +127,7 @@ request and assign it to `@GoogleCloudPlatform/ml-apis`
       with the `.yaml` file extension. For example:
       `.GitHub/workflows/pdf-splitter-python.yaml`
 
-   1. Configure when your tests run
+   2. Configure when your tests run
 
       Use GitHub Action's triggers to run your tests on a pull request for the
       `main` branch and use `path` config to scope your tests to run only on
@@ -134,10 +144,10 @@ request and assign it to `@GoogleCloudPlatform/ml-apis`
       ```
 
       See
-      [GitHub's Actions trigger documentation](https://docs.GitHub.com/en/actions/using-workflows/triggering-a-workflow)
+      [GitHub's Actions trigger documentation](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow)
       for more information.
 
-   1. Connect your tests to GitHub Actions Use GitHub Actions' `jobs` feature
+   3. Connect your tests to GitHub Actions Use GitHub Actions' `jobs` feature
       to define a test environment and run your tests. For example:
 
       ```yaml
@@ -175,10 +185,10 @@ request and assign it to `@GoogleCloudPlatform/ml-apis`
       ```
 
       See
-      [GitHub's Actions job documentation](https://docs.GitHub.com/en/actions/using-jobs/using-jobs-in-a-workflow)
+      [GitHub's Actions job documentation](https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow)
       for more information.
 
-1. Add a code owners entry for your sample
+7. Add a code owners entry for your sample
 
    Add an entry in the `.GitHub/CODEOWNERS` file (`community/CODEOWNERS` for
    community samples) for your sample folder and add the GitHub usernames of
@@ -190,24 +200,35 @@ request and assign it to `@GoogleCloudPlatform/ml-apis`
    /pdf-splitter-python/ @matthewayne
    ```
 
-1. Start a review for your sample
+8. Start a review for your sample
 
    1. Before submitting for review, create your Pull Request as a draft so that the linter can run before alerting reviewers.
 
-   [Create a pull request](https://docs.GitHub.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request)
+   [Create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request)
    and add
-   [@GoogleCloudPlatform/ml-apis](https://GitHub.com/orgs/GoogleCloudPlatform/teams/ml-apis)
-   as a reviewer
+   [@GoogleCloudPlatform/document-ai-samples-contributors](https://github.com/orgs/GoogleCloudPlatform/teams/document-ai-samples-contributors)
+   as a reviewer.
 
 ### Code Quality Checks
 
 All code samples in this project are checked for formatting and style, to ensure a consistent experience.
-To test prior to submitting a pull request, you can follow these steps for Python.
 
-From a command-line terminal, install the code analysis tools:
+#### Python
+
+For Python, use [black](https://github.com/psf/black) to format your code.
+Use flake8, isort, pylint, and mypy for linting.
+
+To run the formatter locally, install [Python 3.8](https://www.python.org/downloads/release/python-380/) if it's not already installed, then go to the top directory of the repository and run:
+
+```sh
+pip3 install --user -U nox
+nox -s blacken
+```
+
+For linting, run the following commands:
 
 ```shell
-pip3 install --user -U black black[jupyter] flake8 isort pyupgrade
+pip3 install --user -U flake8 pyupgrade
 ```
 
 You'll likely need to add the directory where these were installed to your PATH:
@@ -227,9 +248,6 @@ automatically fix any issues. If the fixes can't be performed automatically,
 then you will need to manually address them before submitting your PR.
 
 ```shell
-black "$sample" --line-length=88
 pyupgrade "$sample"
-isort "$sample" --profile google
-nbqa isort "$sample" --profile google
 flake8 "$sample" --extend-ignore=W391,E501,F821,E402,F404,W503,E203,E722,W293,W291
 ```
