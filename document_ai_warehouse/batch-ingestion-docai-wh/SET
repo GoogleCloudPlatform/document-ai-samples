@@ -32,6 +32,7 @@ export SA_DOCAI="service-${DOCAI_PROJECT_NUMBER}@gcp-sa-prod-dai-core.iam.gservi
 ######################################################################
 export DATA_PROJECT_ID=${DATA_PROJECT_ID:-$PROJECT_ID}             # Project ID of the GCP Project in which GCS bucket is located for data to be loaded into the DW.
 
+export DEBUG=true #For STDOUT output of logging
 
 # Additional parameters
 echo "PROJECT_ID=$PROJECT_ID"
