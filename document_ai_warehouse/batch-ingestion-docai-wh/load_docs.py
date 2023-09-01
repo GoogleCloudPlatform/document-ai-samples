@@ -8,7 +8,7 @@ import json
 from typing import List
 from google.cloud import contentwarehouse_v1
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../common/src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../common/src'))
 from common.utils.helper import is_date
 from config import API_LOCATION, PROCESSOR_ID, \
   GCS_OUTPUT_BUCKET, DOCAI_PROJECT_NUMBER, DOCAI_WH_PROJECT_NUMBER, \
