@@ -24,7 +24,7 @@ jobs:
         with:
           go-version: "^1.20"
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Build code
         # Use find to build all modules. '-execdir ... ;' doesn't set an exit code
         # based on command results. So, create a file if a build fails and check
@@ -45,7 +45,7 @@ jobs:
         with:
           go-version: "^1.20"
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install goimports
         run: go install golang.org/x/tools/cmd/goimports@latest
       - run: goimports -w .
@@ -73,7 +73,7 @@ jobs:
         with:
           go-version: "^1.20"
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: go vet
         # Use find to build all modules. '-execdir ... ;' doesn't set an exit code
         # based on command results. So, create a file if a build fails and check
@@ -94,5 +94,5 @@ jobs:
         with:
           go-version: "^1.20"
       - name: Check code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - run: go test -v
