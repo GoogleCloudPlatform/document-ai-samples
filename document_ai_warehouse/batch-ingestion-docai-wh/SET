@@ -17,7 +17,7 @@ export SA_EMAIL=${SA_NAME}@${DOCAI_WH_PROJECT_ID}.iam.gserviceaccount.com
 export KEY_NAME=${DOCAI_WH_PROJECT_ID}_${SA_NAME}.json
 export KEY_PATH=${DIR}/${KEY_NAME}
 export CALLER_USER=${SA_EMAIL}
-
+export GOOGLE_APPLICATION_CREDENTIALS=${KEY_PATH}
 
 ######################################################################
 # DOCAI Project - GCP Project with DocAI Processor used for document parsing
@@ -33,6 +33,9 @@ export SA_DOCAI="service-${DOCAI_PROJECT_NUMBER}@gcp-sa-prod-dai-core.iam.gservi
 export DATA_PROJECT_ID=${DATA_PROJECT_ID:-$PROJECT_ID}             # Project ID of the GCP Project in which GCS bucket is located for data to be loaded into the DW.
 
 export DEBUG=true #For STDOUT output of logging
+
+# PYTHON PATH
+#export PYTHONPATH="${DIR}/../common/src"
 
 # Additional parameters
 echo "PROJECT_ID=$PROJECT_ID"

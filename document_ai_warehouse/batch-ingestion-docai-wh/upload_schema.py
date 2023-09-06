@@ -7,18 +7,18 @@ def get_args():
   args_parser = argparse.ArgumentParser(
       formatter_class=argparse.RawTextHelpFormatter,
       description="""
-      Script to generate draft DocaiWH document schema using Docai output.
+      Script to upload ddocument schema into Docai WH.
       """,
       epilog="""
       Examples:
 
-      python upload_schema.py -f=gs://my-folder/parser_name.json [-o]]
+      python upload_schema.py -f=gs://my-folder/schema_name.json [-o]
       """)
 
   args_parser.add_argument('-f', dest="schema_path",
                            help="Path to document schema json file.", required=True)
   args_parser.add_argument('-o', '--overwrite', dest="overwrite",
-                           help="Overwrite files if already exist.",
+                           help="Overwrite schema if already exists.",
                            action='store_true', default=False)
   return args_parser
 

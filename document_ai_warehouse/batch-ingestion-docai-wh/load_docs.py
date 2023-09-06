@@ -121,19 +121,28 @@ def main(root_name: str):
     document_ai_output = docai_output_list[f_uri]
     if f_uri in files_to_parse:
       keys = get_key_value_pairs(document_ai_output)
+      create_new_schema = False
 
       if schema_id:
         document_schema_id = schema_id
       else:
+
         if processor.display_name in document_schemas:
           document_schema_id = document_schemas[processor.display_name]
+          schema = dw_utils.get_document_schema(document_schema_id)
+          if schema and len(keys) != 0 and len(schema.property_definitions) == 0 and options:
+            create_new_schema = True
         else:
-          schema_path = create_mapping_schema(processor.display_name, keys, options)
-          document_schema_id = create_document_schema(schema_path)
-          created_schemas.add(document_schema_id)
+          create_new_schema = True
+
+      if create_new_schema:
+        schema_path = create_mapping_schema(processor.display_name, keys, options)
+        document_schema_id = create_document_schema(schema_path, True)
+        created_schemas.add(document_schema_id)
 
       (parent_id, reference_id) = files_to_parse[f_uri]
       schema = dw_utils.get_document_schema(document_schema_id)
+
       metadata_properties = get_metadata_properties(keys, schema)
       try:
         upload_document_gcs(f_uri, document_schema_id, parent_id, reference_id,
@@ -157,14 +166,14 @@ def main(root_name: str):
 
 
 def get_type(value: str):
-  if type(value) == bool:
+  if type(value) == bool or str(value) == "":
     return "text_type_options" # bool Not Supported
   if is_date(value):
     return "date_time_type_options"
-  # if is_valid_float(value):
-  #   return "float_type_options"
-  # if is_valid_int(value):
-  #   return "integer_type_options"
+  if is_valid_int(value):
+    return "integer_type_options"
+  if is_valid_float(value):
+    return "float_type_options"
 
   return "text_type_options"
 
@@ -336,7 +345,7 @@ def get_args():
       epilog="""
       Examples:
 
-      python docai_wa_loaddocs.py -d=gs://my-folder [-n=UM_Guidelines]]
+      python load_docs.py -d=gs://my-folder [-n=UM_Guidelines]]
       """)
 
   args_parser.add_argument('-d', dest="dir_uri",
@@ -350,8 +359,8 @@ def get_args():
                            help="Flatten the directory structure.",
                            action='store_true', default=False)
   args_parser.add_argument('--options', dest="options",
-                           help="Fill in document properties using schema options.",
-                           action='store_true', default=False)
+                           help=" When set (by default), will automatically fill in document properties using schema options.",
+                           action='store_true', default=True)
   args_parser.add_argument('-n', dest="root_name",
                            help="Name of the root folder inside DW where "
                                 "documents will be loaded. When skipped, will use the same name of the folder being loaded from.")
