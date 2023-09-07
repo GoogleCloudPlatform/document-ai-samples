@@ -135,7 +135,7 @@ python load_docs.py -d gs://${PROJECT_ID}-data/invoices -n invoices2  --overwrit
 
 Below you will see more details explained and more options available.~~~~
 
-## Elaborated Flow
+## Detailed Instructions
 ### Setup
 #### Set env Variables
 In the simplest case, you will need to create only one GCP Project `PROJECT_ID` to host following resources: 
