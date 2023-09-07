@@ -13,6 +13,7 @@ The repository contains samples and [Community Samples](https://github.com/Googl
 
 - [Apps Script & Google Drive Integration](apps-script-google-drive): Code in Google [Apps Script](https://developers.google.com/apps-script) for integration with Document AI.
 - [Document AI Warehouse Processing (Python)](document_ai_warehouse/document_ai_warehouse_processing_python/): This project demonstrates how to perform common actions on Document AI Warehouse through API.
+- [Document AI Warehouse Batch Ingestion via script](document_ai_warehouse/batch-ingestion-docai-wh/): This project is a helper utility to do batch ingestion of the documents into the Document AI Warehouse.
 - [BQ Connector](bq-connector/): This project uses the Document AI API to process a document, format the result and save it into a BigQuery table.
 - [Content Moderation with Dialogflow CX](cx-content-moderation): This project uses the Content Moderation processor with Dialogflow CX for toxicity routing during a conversation.
 - [Filter HITL Language](filter-hitl-language/): This project uses the languages detected by Document AI (post-HITL) to sort the `Document.json` files into separate Cloud Storage buckets.
