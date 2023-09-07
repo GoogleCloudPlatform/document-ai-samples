@@ -229,6 +229,7 @@ python generate_schema.py -f gs://${DATA_PROJECT_ID}-data/invoices/Invoice1.pdf 
 ````
 
 Sample output:
+
 ```shell
 batch_extraction - Calling Processor API for 1 document(s) batch_extraction - Calling DocAI API for 1 document(s)  using inv processor type=INVOICE_PROCESSOR, path=projects/978098347395/locations/us/processors/18849599a3ece785
 batch_extraction - Waiting for operation projects/978098347395/locations/us/operations/6041130884555864540 to complete...
