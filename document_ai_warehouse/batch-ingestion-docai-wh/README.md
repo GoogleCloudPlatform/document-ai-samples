@@ -188,7 +188,6 @@ gcloud org-policies reset constraints/iam.allowedPolicyMemberDomains --project=$
 * The setup step takes care of the required access permissions and roles (user must have owner rights to the projects and be able to modify org policy and add IAM permissions).
 * Service Account Key is generated in the current directory, which is used in the execution step. 
 * Whenever setup is changed, env variables need to be updated and script below needs to be run again.
-* 
 ```shell
 ./setup_docai_wh.sh
 ```
