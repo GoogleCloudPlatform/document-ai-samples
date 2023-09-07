@@ -27,7 +27,7 @@ fi
 
 export PROJECT_ID=$DOCAI_WH_PROJECT_ID
 
-pip install -r requirements.txt  | tee -a "$LOG"
+#pip install -r requirements.txt  | tee -a "$LOG"
 
 #gcloud auth application-default login
 
