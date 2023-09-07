@@ -28,7 +28,7 @@ def get_args():
     args_parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
         description="""
-      Script to Generate and save locally document schema for DocAI Warehouse based on the DocAI output.
+      Script to Generate and save locally document schema for Document AI Warehouse based on the Document AI output.
       """,
         epilog="""
       Examples:
@@ -40,7 +40,7 @@ def get_args():
     args_parser.add_argument(
         "-f",
         dest="uri",
-        help="Path to gs file uri used for DocAI parsing for schema extraction.",
+        help="Path to gs file uri used for Document AI parsing for schema extraction.",
         required=True,
     )
     args_parser.add_argument(

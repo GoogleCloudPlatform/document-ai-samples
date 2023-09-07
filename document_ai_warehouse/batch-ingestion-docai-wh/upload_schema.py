@@ -8,7 +8,7 @@ def get_args():
     args_parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
         description="""
-      Script to upload ddocument schema into Docai WH.
+      Script to upload document schema into Docai WH.
       """,
         epilog="""
       Examples:

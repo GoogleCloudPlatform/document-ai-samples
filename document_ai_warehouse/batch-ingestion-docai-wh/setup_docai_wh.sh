@@ -50,7 +50,7 @@ if gcloud iam service-accounts list --project $PROJECT_ID | grep -q $SA_NAME; th
 else
   echo "Creating Service Account ... "  | tee -a "$LOG"
   gcloud iam service-accounts create $SA_NAME \
-          --description="Service Account for calling DocAI API and Document Warehouse API" \
+          --description="Service Account for calling Document AI API and Document Warehouse API" \
           --display-name="docai-utility-sa"  | tee -a "$LOG"
 fi
 
@@ -79,7 +79,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 
 
 
-echo "Creating DocAI output bucket  ${DOCAI_OUTPUT_BUCKET}" | tee -a "$LOG"
+echo "Creating Document AI output bucket  ${DOCAI_OUTPUT_BUCKET}" | tee -a "$LOG"
 gsutil ls "gs://${DOCAI_OUTPUT_BUCKET}" 2> /dev/null
 RETURN=$?
 if [[ $RETURN -gt 0 ]]; then
@@ -94,7 +94,7 @@ gcloud projects add-iam-policy-binding $DOCAI_WH_PROJECT_ID --member="serviceAcc
 gcloud projects add-iam-policy-binding $DOCAI_WH_PROJECT_ID --member="serviceAccount:${SA_EMAIL}"  --role="roles/contentwarehouse.admin"  | tee -a "$LOG"
 gcloud projects add-iam-policy-binding $DOCAI_WH_PROJECT_ID --member="serviceAccount:${SA_EMAIL}"  --role="roles/documentai.viewer"  | tee -a "$LOG"
 
-# Give Access to DocAI service account to access input bucket
+# Give Access to Document AI service account to access input bucket
 if [ "$DATA_PROJECT_ID" != "$DOCAI_WH_PROJECT_ID" ]; then
     gcloud projects add-iam-policy-binding "$DATA_PROJECT_ID" --member="serviceAccount:${SA_EMAIL}"  --role="roles/storage.objectViewer"  | tee -a "$LOG"
     gcloud projects add-iam-policy-binding "$DATA_PROJECT_ID" --member="serviceAccount:${SA_DOCAI}"  --role="roles/storage.objectViewer" | tee -a "$LOG"

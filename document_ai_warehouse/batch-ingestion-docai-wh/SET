@@ -2,13 +2,13 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 ######################################################################
-# DOCAI WH Project - GCP Project in which DocAI WH has been provisioned
+# DOCAI WH Project - GCP Project in which Document AI WH has been provisioned
 ######################################################################
 export DOCAI_WH_PROJECT_ID=${DOCAI_WH_PROJECT_ID:-$PROJECT_ID}
 export DOCAI_WH_PROJECT_NUMBER=$(gcloud projects describe  "${DOCAI_WH_PROJECT_ID}" --format='get(projectNumber)')
 export SA_DOCAI_WH="service-${DOCAI_WH_PROJECT_NUMBER}@gcp-sa-cloud-cw.iam.gserviceaccount.com"
 gcloud config set project $DOCAI_WH_PROJECT_ID
-export DOCAI_OUTPUT_BUCKET="$DOCAI_WH_PROJECT_ID-docai-output"  # Bucket for the DocAI output
+export DOCAI_OUTPUT_BUCKET="$DOCAI_WH_PROJECT_ID-docai-output"  # Bucket for the Document AI output
 export PROJECT_ID=${PROJECT_ID:-$DOCAI_WH_PROJECT_ID}
 
 # Service Account to execute script, created inside DOCAI WH Project
@@ -20,7 +20,7 @@ export CALLER_USER=${SA_EMAIL}
 export GOOGLE_APPLICATION_CREDENTIALS=${KEY_PATH}
 
 ######################################################################
-# DOCAI Project - GCP Project with DocAI Processor used for document parsing
+# DOCAI Project - GCP Project with Document AI Processor used for document parsing
 ######################################################################
 export DOCAI_PROJECT_ID=${DOCAI_PROJECT_ID:-$PROJECT_ID}
 export DOCAI_PROJECT_NUMBER=$(gcloud projects describe  "${DOCAI_PROJECT_ID}" --format='get(projectNumber)')
