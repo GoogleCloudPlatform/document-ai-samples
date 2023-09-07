@@ -304,7 +304,7 @@ Example:
 python delete_schema.py -s 661g7c10s8h7g -s 0d1jot5tqljsg -sn my_invoice
 ```
 ## Troubleshooting
-### Error 403 IAM_PERMISSION_DENIED Permission Denied
+### Error 403 `IAM_PERMISSION_DENIED` Permission Denied
 
 ```403 Permission 'contentwarehouse.documentSchemas.list' denied on resource '//contentwarehouse.googleapis.com/projects/35407211402/locations/us' (or it may not exist). [reason: "IAM_PERMISSION_DENIED"```
 
