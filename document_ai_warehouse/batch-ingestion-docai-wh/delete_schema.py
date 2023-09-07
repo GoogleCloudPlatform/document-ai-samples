@@ -1,5 +1,7 @@
 import argparse
-from load_docs import delete_schema, delete_schema_by_name
+
+from load_docs import delete_schema
+from load_docs import delete_schema_by_name
 
 
 def get_args():

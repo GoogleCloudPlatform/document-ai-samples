@@ -1,4 +1,5 @@
 import argparse
+
 from load_docs import create_document_schema
 
 

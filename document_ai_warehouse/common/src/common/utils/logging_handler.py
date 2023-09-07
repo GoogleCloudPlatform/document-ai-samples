@@ -18,6 +18,7 @@ import os
 """class and methods for logs handling."""
 
 import logging
+
 import google.cloud.logging_v2
 
 logging_client = google.cloud.logging_v2.Client()

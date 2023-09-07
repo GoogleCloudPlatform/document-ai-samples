@@ -15,17 +15,15 @@ limitations under the License.
 """
 import json
 import traceback
-from typing import Any
-from typing import Dict
-from typing import List
-
-import pandas as pd
-import proto
-from google.cloud import contentwarehouse_v1
-from google.type import datetime_pb2
+from typing import Any, Dict, List
 
 from common.utils.document_ai_utils import get_key_values_dic
 from common.utils.logging_handler import Logger
+from google.cloud import contentwarehouse_v1
+from google.type import datetime_pb2
+import pandas as pd
+import proto
+
 from .document_warehouse_utils import DocumentWarehouseUtils
 
 
@@ -88,7 +86,6 @@ def extract_entities_as_properties(
                 print(str(e))
 
     return properties
-
 
 
 def get_metadata_properties(key_values, schema) -> List[contentwarehouse_v1.Property]:

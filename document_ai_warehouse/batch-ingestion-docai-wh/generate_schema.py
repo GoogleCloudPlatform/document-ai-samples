@@ -1,14 +1,16 @@
 import argparse
 import os
 import sys
-from google.cloud import storage
 
+from config import API_LOCATION
+from config import DOCAI_PROJECT_NUMBER
+from config import GCS_OUTPUT_BUCKET
+from config import PROCESSOR_ID
+from google.cloud import storage
 import load_docs
-from config import API_LOCATION, PROCESSOR_ID, GCS_OUTPUT_BUCKET, DOCAI_PROJECT_NUMBER
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../common/src"))
 from common.utils.document_ai_utils import DocumentaiUtils
-
 
 storage_client = storage.Client()
 

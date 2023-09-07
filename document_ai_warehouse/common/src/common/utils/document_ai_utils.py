@@ -1,19 +1,17 @@
 import json
 import re
-from typing import Dict
-from typing import List
-
-from google.cloud import documentai_v1
-from google.api_core.client_options import ClientOptions
-from common.utils.storage_utils import read_binary_object, split_uri_2_bucket_prefix
-from common.utils.logging_handler import Logger
-from google.cloud import documentai_v1 as documentai
 import time
+from typing import Any, Dict, List
 
-from google.cloud import storage
+from common.utils.logging_handler import Logger
+from common.utils.storage_utils import read_binary_object
+from common.utils.storage_utils import split_uri_2_bucket_prefix
+from google.api_core.client_options import ClientOptions
 from google.api_core.exceptions import InternalServerError
 from google.api_core.exceptions import RetryError
-from typing import Any
+from google.cloud import documentai_v1
+from google.cloud import documentai_v1 as documentai
+from google.cloud import storage
 
 PDF_MIME_TYPE = "application/pdf"
 

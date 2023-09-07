@@ -2,13 +2,14 @@
 # Copyright 2023 Google LLC
 # SPDX-License-Identifier: Apache-2.0
 
-import json
-import functions_framework
 import io
-from pikepdf import Pdf
-from google.cloud import storage
+import json
 from pathlib import Path
 from uuid import uuid4
+
+import functions_framework
+from google.cloud import storage
+from pikepdf import Pdf
 
 
 @functions_framework.http

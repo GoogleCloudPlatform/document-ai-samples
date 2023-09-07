@@ -1,33 +1,30 @@
 import argparse
+import json
 import os
 import sys
 import time
-from google.api_core.exceptions import NotFound
-from google.cloud import storage
-import json
 from typing import List
+
+from google.api_core.exceptions import NotFound
 from google.cloud import contentwarehouse_v1
+from google.cloud import storage
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../common/src"))
-from common.utils.helper import is_date
-from config import (
-    API_LOCATION,
-    PROCESSOR_ID,
-    GCS_OUTPUT_BUCKET,
-    DOCAI_PROJECT_NUMBER,
-    DOCAI_WH_PROJECT_NUMBER,
-    FOLDER_SCHEMA_PATH,
-    CALLER_USER,
-)
-
-from common.utils.logging_handler import Logger
-from common.utils.document_warehouse_utils import DocumentWarehouseUtils
-from common.utils.docai_warehouse_helper import (
-    get_metadata_properties,
-    get_key_value_pairs,
-)
+from common.utils import helper
+from common.utils import storage_utils
+from common.utils.docai_warehouse_helper import get_key_value_pairs
+from common.utils.docai_warehouse_helper import get_metadata_properties
 from common.utils.document_ai_utils import DocumentaiUtils
-from common.utils import storage_utils, helper
+from common.utils.document_warehouse_utils import DocumentWarehouseUtils
+from common.utils.helper import is_date
+from common.utils.logging_handler import Logger
+from config import API_LOCATION
+from config import CALLER_USER
+from config import DOCAI_PROJECT_NUMBER
+from config import DOCAI_WH_PROJECT_NUMBER
+from config import FOLDER_SCHEMA_PATH
+from config import GCS_OUTPUT_BUCKET
+from config import PROCESSOR_ID
 
 assert PROCESSOR_ID, "PROCESSOR_ID not set"
 assert GCS_OUTPUT_BUCKET, "GCS_OUTPUT_BUCKET not set"
@@ -98,9 +95,7 @@ def main(folder_name: str, schema_name: str = None):
                     if not d.endswith(".pdf"):
                         processed_dirs.add(d)
                         if reference_id not in created_folders:
-                            create_folder(
-                                folder_schema_id, d, reference_id
-                            )
+                            create_folder(folder_schema_id, d, reference_id)
                             created_folders.append(reference_id)
 
                         parent = dw_utils.get_document(
@@ -147,7 +142,6 @@ def main(folder_name: str, schema_name: str = None):
             if schema_id:
                 document_schema_id = schema_id
             else:
-
                 if schema_name in document_schemas:
                     document_schema_id = document_schemas[schema_name]
                     schema = dw_utils.get_document_schema(document_schema_id)
@@ -245,7 +239,7 @@ def create_mapping_schema(display_name, names, options=True):
     }
 
     if options:
-        for (name, value) in names:
+        for name, value in names:
             definition = {
                 "name": name,
                 "display_name": name,
