@@ -166,23 +166,23 @@ def get_args():
     args_parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
         description="""
-      Script with multiple commands options to batch_ingest documents, generate schema, 
-      upload schema or delete schema using Document AI Warehouse. 
+      Script with multiple commands options to batch_ingest documents, generate schema,
+      upload schema or delete schema using Document AI Warehouse.
       """,
         epilog="""
       Examples:
 
       Batch ingestion of files inside GCS directory:
-      > python main.py batch_ingest -d=gs://my-folder -p PROCESSOR_ID [-n=UM_Guidelines] [-sn=schema_name] [--overwrite] 
+      > python main.py batch_ingest -d=gs://my-folder -p PROCESSOR_ID [-n=UM_Guidelines] [-sn=schema_name] [--overwrite]
 
-      Generate document schema based on the Document AI output:      
+      Generate document schema based on the Document AI output:
       > python main.py get_schema -f=gs://my-folder/my-form.pdf -p PROCESSOR_ID [-sn=schema_name]
 
       Upload document schema into Document AI WH:
       > python main.py upload_schema -f=gs://my-folder/schema_name.json [-o]
 
       Delete document schema from Document AI WH:
-      > python main.py delete_schema -ss=schema_id1 -ss=schena_id2 -sns=schema_name1 -sns=schema_name2     
+      > python main.py delete_schema -ss=schema_id1 -ss=schena_id2 -sns=schema_name1 -sns=schema_name2
       """,
     )
 

@@ -14,12 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import os
+import logging
+import google.cloud.logging_v2
 
 """class and methods for logs handling."""
-
-import logging
-
-import google.cloud.logging_v2
 
 logging_client = google.cloud.logging_v2.Client()
 logging_client.get_default_handler()

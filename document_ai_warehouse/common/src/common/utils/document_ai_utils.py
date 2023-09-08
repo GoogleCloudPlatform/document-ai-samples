@@ -23,12 +23,12 @@ class DocumentaiUtils:
         self.api_location = api_location
         self.document_ai_client = None
 
-    def get_docai_client(self) -> documentai_v1.DocumentProcessorServiceClient:
+    def get_docai_client(self) -> documentai.DocumentProcessorServiceClient:
         if not self.document_ai_client:
             client_options = ClientOptions(
                 api_endpoint=f"{self.api_location}-documentai.googleapis.com"
             )
-            self.document_ai_client = documentai_v1.DocumentProcessorServiceClient(
+            self.document_ai_client = documentai.DocumentProcessorServiceClient(
                 client_options=client_options
             )
         return self.document_ai_client
@@ -37,7 +37,7 @@ class DocumentaiUtils:
         client = self.get_docai_client()
         return client.common_location_path(self.project_number, self.api_location)
 
-    def get_processor(self, processor_id):
+    def get_processor(self, processor_id: str):
         # Initialize client if not initialized yet
         client = self.get_docai_client()
 
@@ -46,7 +46,7 @@ class DocumentaiUtils:
             self.project_number, self.api_location, processor_id
         )
         # Initialize request argument(s)
-        request = documentai_v1.GetProcessorRequest(
+        request = documentai.GetProcessorRequest(
             name=processor_name,
         )
 
@@ -58,8 +58,8 @@ class DocumentaiUtils:
         processor_id: str,
         bucket_name: str,
         file_path: str,
-        mime_type="application/pdf",
-    ):
+        mime_type: str = "application/pdf",
+    ) -> documentai.Document:
         client = self.get_docai_client()
         parent = self.get_parent()
 
@@ -67,10 +67,10 @@ class DocumentaiUtils:
 
         document_content = read_binary_object(bucket_name, file_path)
 
-        document = documentai_v1.RawDocument(
+        document = documentai.RawDocument(
             content=document_content, mime_type=mime_type
         )
-        request = documentai_v1.ProcessRequest(
+        request = documentai.ProcessRequest(
             raw_document=document, name=processor_name
         )
 
@@ -188,7 +188,8 @@ class DocumentaiUtils:
             matches = re.match(r"gs://(.*?)/(.*)", process.output_gcs_destination)
             if not matches:
                 Logger.error(
-                    f"batch_extraction - Could not parse output GCS destination:[{process.output_gcs_destination}] for {input_gcs_source}"
+                    f"batch_extraction - Could not parse output GCS destination:"
+                    f"[{process.output_gcs_destination}] for {input_gcs_source}"
                 )
                 Logger.error(f"batch_extraction - {process.status}")
                 continue

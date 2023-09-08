@@ -20,9 +20,10 @@ fi
 # DOCAI WH Project - GCP Project in which Document AI WH has been provisioned
 ######################################################################
 export DOCAI_WH_PROJECT_ID=${DOCAI_WH_PROJECT_ID:-$PROJECT_ID}
-export DOCAI_WH_PROJECT_NUMBER=$(gcloud projects describe  "${DOCAI_WH_PROJECT_ID}" --format='get(projectNumber)')
+DOCAI_WH_PROJECT_NUMBER=$(gcloud projects describe  "${DOCAI_WH_PROJECT_ID}" --format='get(projectNumber)')
+export DOCAI_WH_PROJECT_NUMBER
 export SA_DOCAI_WH="service-${DOCAI_WH_PROJECT_NUMBER}@gcp-sa-cloud-cw.iam.gserviceaccount.com"
-gcloud config set project $DOCAI_WH_PROJECT_ID
+gcloud config set project "$DOCAI_WH_PROJECT_ID"
 export DOCAI_OUTPUT_BUCKET="$DOCAI_WH_PROJECT_ID-docai-output"  # Bucket for the Document AI output
 export PROJECT_ID=${PROJECT_ID:-$DOCAI_WH_PROJECT_ID}
 
@@ -38,7 +39,8 @@ export GOOGLE_APPLICATION_CREDENTIALS=${KEY_PATH}
 # DOCAI Project - GCP Project with Document AI Processor used for document parsing
 ######################################################################
 export DOCAI_PROJECT_ID=${DOCAI_PROJECT_ID:-$PROJECT_ID}
-export DOCAI_PROJECT_NUMBER=$(gcloud projects describe  "${DOCAI_PROJECT_ID}" --format='get(projectNumber)')
+DOCAI_PROJECT_NUMBER=$(gcloud projects describe  "${DOCAI_PROJECT_ID}" --format='get(projectNumber)')
+export DOCAI_PROJECT_NUMBER
 export SA_DOCAI="service-${DOCAI_PROJECT_NUMBER}@gcp-sa-prod-dai-core.iam.gserviceaccount.com"
 
 

@@ -1,29 +1,28 @@
 # Guide to Batch Upload Documents into the Document AI Warehouse
-
 <!-- TOC -->
-
-- [Guide to Batch Upload Documents into the Document AI Warehouse](#guide-to-batch-upload-documents-into-the-document-ai-warehouse)
-  - [Introduction](#introduction)
-    - [Use Cases](#use-cases)
-    - [Limitations](#limitations)
-  - [Prerequisites](#prerequisites)
-    - [Prepare Python Environment](#prepare-python-environment)
-    - [Provision Document AI Warehouse](#provision-document-ai-warehouse)
-  - [Quickstart Example](#quickstart-example)
-  - [Elaborated Flow](#elaborated-flow)
-    - [Setup](#setup)
-      - [Set env Variables](#set-env-variables)
-      - [Prepare GCS Bucket with Data](#prepare-gcs-bucket-with-data)
-      - [Create Processor](#create-processor)
-      - [Cross-Org Access (Only when required)](#cross-org-access--only-when-required-)
-    - [Provision Infrastructure and Set Access Rights](#provision-infrastructure-and-set-access-rights)
-    - [Execution](#execution)
-      - [Generate Draft Document Schema](#generate-draft-document-schema)
-      - [Upload Document Schema](#upload-document-schema)
-      - [Batch Document Ingestion](#batch-document-ingestion)
-      - [Delete Document Schema](#delete-document-schema)
-  - [Troubleshooting](#troubleshooting) \* [Error 403 IAM_PERMISSION_DENIED Permission Denied](#error-403-iampermissiondenied-permission-denied)
-  <!-- TOC -->
+* [Guide to Batch Upload Documents into the Document AI Warehouse](#guide-to-batch-upload-documents-into-the-document-ai-warehouse)
+  * [Introduction](#introduction)
+    * [Use Cases](#use-cases)
+    * [Limitations](#limitations)
+  * [Prerequisites](#prerequisites)
+    * [Prepare Python Environment](#prepare-python-environment)
+    * [Provision Document AI Warehouse](#provision-document-ai-warehouse)
+  * [Quickstart Example](#quickstart-example)
+  * [Detailed Instructions](#detailed-instructions)
+    * [Setup](#setup)
+      * [Set env Variables](#set-env-variables)
+      * [Prepare GCS Bucket with Data](#prepare-gcs-bucket-with-data)
+      * [Create Processor](#create-processor)
+      * [Cross-Org Access (Only when required)](#cross-org-access--only-when-required-)
+    * [Provision Infrastructure and Set Access Rights](#provision-infrastructure-and-set-access-rights)
+    * [Execution](#execution)
+      * [Generate Draft Document Schema](#generate-draft-document-schema)
+      * [Upload Document Schema](#upload-document-schema)
+      * [Batch Document Ingestion](#batch-document-ingestion)
+      * [Delete Document Schema](#delete-document-schema)
+  * [Troubleshooting](#troubleshooting)
+    * [Error 403 `IAM_PERMISSION_DENIED` Permission Denied](#error-403-iampermissiondenied-permission-denied)
+<!-- TOC -->
 
 ## Introduction
 
@@ -219,9 +218,9 @@ gcloud org-policies reset constraints/iam.allowedPolicyMemberDomains --project=$
 
 For the processors other than OCR (since the schema will always be empty without any properties for the documents coming from the OCR parser), it is recommended to first follow these easy steps:
 
-- [Generate document schema](#generate-draft-document-schema-using-docai-output-of-the-cde-processor)
+- [Generate Draft Document Schema](#generate-draft-document-schema)
 - Manually inspect schema and verify types options
-- [Upload document schema](#upload-document-schema-to-docai-wh)
+- [Upload Document Schema](#upload-document-schema)
 
 Otherwise, schema will be generated on the fly without option to modify/edit with the best effort to guess the field types based on the Document AI output. Which is not always correct.
 
