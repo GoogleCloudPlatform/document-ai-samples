@@ -39,7 +39,7 @@ error_files = []
 created_schemas = set()
 
 
-def get_schema(args):
+def get_schema(args: argparse.Namespace):
     file_uri = args.file_path
     schema_name = args.schema_name
     processor_id = args.processor_id
@@ -71,12 +71,13 @@ def get_schema(args):
         schema_path = create_mapping_schema(schema_name, keys)
         print(f"Generated {schema_path} with document schema for {file_uri}")
 
-def upload_schema(args):
+
+def upload_schema(args: argparse.Namespace):
     schema_path = args.file_path
     overwrite = args.overwrite
 
     if not schema_path:
-        Logger.error(f"Path to schema to be uploaded is not provided")
+        Logger.error("Path to the schema file was not provided")
         return
 
     Logger.info(
@@ -85,18 +86,19 @@ def upload_schema(args):
     create_document_schema(schema_path, overwrite)
 
 
-def delete_schema(args):
+def delete_schema(args: argparse.Namespace):
     schema_ids = args.schema_ids
     schema_names = args.schema_names
 
     if len(schema_ids) > 0:
         for schema_id in schema_ids:
-            delete_schema(schema_id)
+            delete_schema_by_id(schema_id)
     if len(schema_names) > 0:
         for schema_name in schema_names:
             delete_schema_by_name(schema_name)
 
-def batch_ingest(args):
+
+def batch_ingest(args: argparse.Namespace):
     dir_uri = args.dir_uri
     folder_name = args.root_name
     schema_id = args.schema_id
@@ -164,7 +166,7 @@ def main():
     func(args)
 
 
-def get_args():
+def get_args() -> argparse.Namespace:
     # Read command line arguments
     args_parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
@@ -409,7 +411,7 @@ def is_valid_int(string: str):
     return string.isdigit()
 
 
-def create_mapping_schema(display_name: str, names, options: bool=True):
+def create_mapping_schema(display_name: str, names, options: bool = True):
     mapping_dic = {
         "display_name": display_name,
         "property_definitions": [],
@@ -543,7 +545,7 @@ def get_document_schemas():
     return schemas
 
 
-def create_document_schema(schema_path:str, overwrite_schema: bool=False):
+def create_document_schema(schema_path: str, overwrite_schema: bool = False):
     document_schema = storage_utils.read_file(schema_path, mode="r")
     display_name = json.loads(document_schema).get("display_name")
     for ds in dw_utils.list_document_schemas():
@@ -574,7 +576,7 @@ def create_document_schema(schema_path:str, overwrite_schema: bool=False):
     return document_schema_id
 
 
-def delete_schema(schema_id: str):
+def delete_schema_by_id(schema_id: str):
     try:
         Logger.info(f"Removing schema with schema_id={schema_id}")
         dw_utils.delete_document_schema(schema_id)
