@@ -54,11 +54,11 @@ class DocumentaiUtils:
         return self.document_ai_client.get_processor(request=request)
 
     def process_file_from_gcs(
-        self,
-        processor_id: str,
-        bucket_name: str,
-        file_path: str,
-        mime_type: str = "application/pdf",
+            self,
+            processor_id: str,
+            bucket_name: str,
+            file_path: str,
+            mime_type: str = "application/pdf",
     ) -> documentai.Document:
         client = self.get_docai_client()
         parent = self.get_parent()
@@ -103,11 +103,11 @@ class DocumentaiUtils:
         return fields
 
     def batch_extraction(
-        self,
-        processor_id: str,
-        input_uris: List[str],
-        gcs_output_bucket: str,
-        timeout=600,
+            self,
+            processor_id: str,
+            input_uris: List[str],
+            gcs_output_bucket: str,
+            timeout=600,
     ):
         if len(input_uris) == 0:
             return []
@@ -176,7 +176,7 @@ class DocumentaiUtils:
                 f"batch_extraction - Batch Process Failed: {metadata.state_message}"
             )
 
-        documents: Dict[str, Any] = {}   # Contains per processed document, keys are path to original document
+        documents: Dict[str, Any] = {}  # Contains per processed document, keys are path to original document
 
         # One process per Input Document
         for process in metadata.individual_process_statuses:
@@ -258,9 +258,9 @@ def merge_json_files(files):
 
 # Handling Nested labels for CDE processor
 def get_key_values_dic(
-    entity: documentai.Document.Entity,
-    document_entities: Dict[str, Any],
-    parent_key: Optional[str] = None,
+        entity: documentai.Document.Entity,
+        document_entities: Dict[str, Any],
+        parent_key: Optional[str] = None,
 ) -> None:
     # Fields detected. For a full list of fields for each processor see
     # the processor documentation:
@@ -272,8 +272,8 @@ def get_key_values_dic(
 
     if normalized_value:
         if (
-            isinstance(normalized_value, dict)
-            and "booleanValue" in normalized_value.keys()
+                isinstance(normalized_value, dict)
+                and "booleanValue" in normalized_value.keys()
         ):
             normalized_value = normalized_value.get("booleanValue")
         else:
@@ -291,6 +291,7 @@ def get_key_values_dic(
     else:
         key = entity_key
         new_entity_value = (
+            entity_key,
             normalized_value
             if normalized_value is not None
             else entity.get("mentionText"),

@@ -15,7 +15,7 @@ limitations under the License.
 """
 import json
 import traceback
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from common.utils.document_ai_utils import get_key_values_dic
 from common.utils.logging_handler import Logger
@@ -27,24 +27,18 @@ import proto
 from .document_warehouse_utils import DocumentWarehouseUtils
 
 
-def get_key_value_pairs(document_ai_output) -> list[tuple[str | Any, Any]]:
+def get_key_value_pairs(document_ai_output) -> List[Tuple]:
     json_string = proto.Message.to_json(document_ai_output)
     data = json.loads(json_string)
     document_entities: Dict[str, Any] = {}
     for entity in data.get("entities"):
         get_key_values_dic(entity, document_entities)
 
-    names = []
+    names: List[tuple, tuple] = []
     for key in document_entities.keys():
         for val in document_entities[key]:
-            if len(val) == 2:  # Flat Labels
-                key_name = key
-                key_value = val[0]
-            elif len(val) == 3:  # Nested Labels
-                key_name = val[0]
-                key_value = val[1]
-            else:
-                continue
+            key_name = val[0]
+            key_value = val[1]
 
             if key_name not in [x[0] for x in names]:  # Filter duplicates
                 names.append((key_name, key_value))
