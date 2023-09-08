@@ -9,8 +9,7 @@ from common.utils.storage_utils import split_uri_2_bucket_prefix
 from google.api_core.client_options import ClientOptions
 from google.api_core.exceptions import InternalServerError
 from google.api_core.exceptions import RetryError
-from google.cloud import documentai_v1
-from google.cloud import documentai_v1 as documentai
+from google.cloud import documentai
 from google.cloud import storage
 
 PDF_MIME_TYPE = "application/pdf"
