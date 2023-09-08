@@ -1,15 +1,15 @@
 import json
 import re
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from common.utils.logging_handler import Logger
 from common.utils.storage_utils import read_binary_object
-from common.utils.storage_utils import split_uri_2_bucket_prefix
+from common.utils.helper import split_uri_2_bucket_prefix
 from google.api_core.client_options import ClientOptions
 from google.api_core.exceptions import InternalServerError
 from google.api_core.exceptions import RetryError
-from google.cloud import documentai
+from google.cloud import documentai_v1 as documentai
 from google.cloud import storage
 
 PDF_MIME_TYPE = "application/pdf"
@@ -176,9 +176,7 @@ class DocumentaiUtils:
                 f"batch_extraction - Batch Process Failed: {metadata.state_message}"
             )
 
-        documents = (
-            {}
-        )  # Contains per processed document, keys are path to original document
+        documents: Dict[str, Any] = {}   # Contains per processed document, keys are path to original document
 
         # One process per Input Document
         for process in metadata.individual_process_statuses:
@@ -262,7 +260,7 @@ def merge_json_files(files):
 def get_key_values_dic(
     entity: documentai.Document.Entity,
     document_entities: Dict[str, Any],
-    parent_key: str = None,
+    parent_key: Optional[str] = None,
 ) -> None:
     # Fields detected. For a full list of fields for each processor see
     # the processor documentation:

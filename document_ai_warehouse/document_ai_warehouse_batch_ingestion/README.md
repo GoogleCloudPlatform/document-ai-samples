@@ -13,7 +13,7 @@
       * [Set env Variables](#set-env-variables)
       * [Prepare GCS Bucket with Data](#prepare-gcs-bucket-with-data)
       * [Create Processor](#create-processor)
-      * [Cross-Org Access (Only when required)](#cross-org-access--only-when-required-)
+      * [Cross-Org Access - Only when required](#cross-org-access---only-when-required)
     * [Provision Infrastructure and Set Access Rights](#provision-infrastructure-and-set-access-rights)
     * [Execution](#execution)
       * [Generate Draft Document Schema](#generate-draft-document-schema)
@@ -21,7 +21,6 @@
       * [Batch Document Ingestion](#batch-document-ingestion)
       * [Delete Document Schema](#delete-document-schema)
   * [Troubleshooting](#troubleshooting)
-    * [Error 403 `IAM_PERMISSION_DENIED` Permission Denied](#error-403-iampermissiondenied-permission-denied)
 <!-- TOC -->
 
 ## Introduction
@@ -191,7 +190,7 @@ export DOCAI_PROJECT_ID=     # Project ID of the GCP Project with Document AI Pr
 - Create a processor to parse the documents, such as an OCR processor (to extract text data) or CDE processor (trained for the custom forms) or use one of the pre-trained processors, such as Invoice parser.
 - Note down Processor ID.
 
-#### Cross-Org Access (Only when required)
+#### Cross-Org Access - Only when required
 
 In case if your projects are under different organizations, you need to make sure that [domain restriction domain](https://cloud.google.com/resource-manager/docs/organization-policy/restricting-domains) is disabled,
 by [setting the organization policy](https://cloud.google.com/resource-manager/docs/organization-policy/restricting-domains#setting_the_organization_policy).

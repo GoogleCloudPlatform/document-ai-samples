@@ -15,7 +15,7 @@ limitations under the License.
 """
 import json
 import traceback
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from common.utils.document_ai_utils import get_key_values_dic
 from common.utils.logging_handler import Logger
@@ -27,7 +27,7 @@ import proto
 from .document_warehouse_utils import DocumentWarehouseUtils
 
 
-def get_key_value_pairs(document_ai_output):
+def get_key_value_pairs(document_ai_output) -> list[tuple[str | Any, Any]]:
     json_string = proto.Message.to_json(document_ai_output)
     data = json.loads(json_string)
     document_entities: Dict[str, Any] = {}
@@ -53,7 +53,7 @@ def get_key_value_pairs(document_ai_output):
 
 def extract_entities_as_properties(
     document_schema: contentwarehouse_v1.DocumentSchema,
-    entities: Dict[str, List[any]],
+    entities: Dict[str, List[Any]],
     key_names: Dict[str, str],
 ):
     properties = []

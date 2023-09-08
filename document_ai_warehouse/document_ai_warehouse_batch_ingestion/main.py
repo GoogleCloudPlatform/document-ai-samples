@@ -2,7 +2,7 @@ import argparse
 import json
 import os
 import time
-from typing import List
+from typing import List, Dict, Any
 from config import API_LOCATION
 from config import CALLER_USER
 from config import DOCAI_PROJECT_NUMBER
@@ -254,9 +254,18 @@ def get_args():
     return args_parser
 
 
-def proces_documents(files_to_parse, schema_id: str, schema_name: str, processor_id: str, options: bool):
+def proces_documents(
+        files_to_parse: Dict[str, Any],
+        schema_id: str,
+        schema_name: str,
+        processor_id: str,
+        options: bool
+):
     created_schemas = set()
     document_id_list = []
+
+    if len(files_to_parse) == 0:
+        return created_schemas, document_id_list
 
     docai_output_list = docai_utils.batch_extraction(
         processor_id, list(files_to_parse.keys()), GCS_OUTPUT_BUCKET
@@ -300,20 +309,22 @@ def proces_documents(files_to_parse, schema_id: str, schema_name: str, processor
             schema = dw_utils.get_document_schema(document_schema_id)
 
             metadata_properties = get_metadata_properties(keys, schema)
-            try:
-                document_id = upload_document_gcs(
-                    f_uri,
-                    document_schema_id,
-                    parent_id,
-                    reference_id,
-                    document_ai_output,
-                    metadata_properties,
-                )
-                document_id_list.append(document_id)
-            except Exception as ex:
-                Logger.error(f"Failed to upload {f_uri} - {ex}")
 
-        return created_schemas, document_id_list
+            if document_schema_id:
+                try:
+                    document_id = upload_document_gcs(
+                        f_uri,
+                        document_schema_id,
+                        parent_id,
+                        reference_id,
+                        document_ai_output,
+                        metadata_properties,
+                    )
+                    document_id_list.append(document_id)
+                except Exception as ex:
+                    Logger.error(f"Failed to upload {f_uri} - {ex}")
+
+    return created_schemas, document_id_list
 
 
 def prepare_file_structure(
