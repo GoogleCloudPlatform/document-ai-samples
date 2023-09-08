@@ -27,14 +27,14 @@ import proto
 from .document_warehouse_utils import DocumentWarehouseUtils
 
 
-def get_key_value_pairs(document_ai_output) -> List[Tuple]:
+def get_key_value_pairs(document_ai_output):
     json_string = proto.Message.to_json(document_ai_output)
     data = json.loads(json_string)
     document_entities: Dict[str, Any] = {}
     for entity in data.get("entities"):
         get_key_values_dic(entity, document_entities)
 
-    names: List[tuple, tuple] = []
+    names: List[Tuple[str, str]] = []
     for key in document_entities.keys():
         for val in document_entities[key]:
             key_name = val[0]
