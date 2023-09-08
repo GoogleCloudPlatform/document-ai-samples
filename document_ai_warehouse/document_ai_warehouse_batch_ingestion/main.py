@@ -30,13 +30,6 @@ docai_utils = DocumentaiUtils(
 )
 
 storage_client = storage.Client()
-document_id_list = []
-created_folders = []
-files_to_parse = {}
-processed_files = []
-processed_dirs = set()
-error_files = []
-created_schemas = set()
 
 
 def get_schema(args: argparse.Namespace):
@@ -127,8 +120,10 @@ def batch_ingest(args: argparse.Namespace):
 
     initial_start_time = time.time()
 
-    prepare_file_structure(dir_uri, folder_name, overwrite, flatten)
-    proces_documents(schema_id, schema_name, processor_id, options)
+    created_folders, files_to_parse, processed_files, processed_dirs, error_files = \
+        prepare_file_structure(dir_uri, folder_name, overwrite, flatten)
+
+    created_schemas, document_id_list = proces_documents(files_to_parse, schema_id, schema_name, processor_id, options)
 
     process_time = time.time() - initial_start_time
     time_elapsed = round(process_time)
@@ -155,7 +150,7 @@ def batch_ingest(args: argparse.Namespace):
 FUNCTION_MAP = {'batch_ingest' : batch_ingest,
                 'get_schema' : get_schema,
                 'upload_schema': upload_schema,
-                'delete_schema': upload_schema,
+                'delete_schema': delete_schema,
                 }
 
 
@@ -166,7 +161,7 @@ def main():
     func(args)
 
 
-def get_args() -> argparse.Namespace:
+def get_args():
     # Read command line arguments
     args_parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
@@ -259,7 +254,10 @@ def get_args() -> argparse.Namespace:
     return args_parser
 
 
-def proces_documents(schema_id: str, schema_name: str, processor_id: str, options: bool):
+def proces_documents(files_to_parse, schema_id: str, schema_name: str, processor_id: str, options: bool):
+    created_schemas = set()
+    document_id_list = []
+
     docai_output_list = docai_utils.batch_extraction(
         processor_id, list(files_to_parse.keys()), GCS_OUTPUT_BUCKET
     )
@@ -303,7 +301,7 @@ def proces_documents(schema_id: str, schema_name: str, processor_id: str, option
 
             metadata_properties = get_metadata_properties(keys, schema)
             try:
-                upload_document_gcs(
+                document_id = upload_document_gcs(
                     f_uri,
                     document_schema_id,
                     parent_id,
@@ -311,16 +309,26 @@ def proces_documents(schema_id: str, schema_name: str, processor_id: str, option
                     document_ai_output,
                     metadata_properties,
                 )
+                document_id_list.append(document_id)
             except Exception as ex:
                 Logger.error(f"Failed to upload {f_uri} - {ex}")
+
+        return created_schemas, document_id_list
 
 
 def prepare_file_structure(
     dir_uri: str,
     folder_name: str,
     overwrite: bool,
-    flatten: bool
+    flatten: bool,
 ):
+
+    created_folders = []
+    files_to_parse = {}
+    processed_files = []
+    processed_dirs = set()
+    error_files = []
+
     folder_schema_id = create_folder_schema(FOLDER_SCHEMA_PATH)
 
     bucket_name, prefix = helper.split_uri_2_bucket_prefix(dir_uri)
@@ -380,6 +388,8 @@ def prepare_file_structure(
         except Exception as ex:
             Logger.error(f"Exception {ex} while handling {filename}")
             error_files.append(filename)
+
+    return created_folders, files_to_parse, processed_files, processed_dirs, error_files
 
 
 def get_type(value: str):
@@ -485,8 +495,6 @@ def upload_document_gcs(
 
     if create_document_response:
         document_id = create_document_response.document.name.split("/")[-1]
-        document_id_list.append(document_id)
-
         dw_utils.link_document_to_folder(
             document_id=document_id,
             folder_document_id=folder_id,
