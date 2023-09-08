@@ -121,7 +121,7 @@ source SET
 5. Generate Document Schema using sample invoice. Generated schema will be of the same name as the invoice parser you created:
 
 ```shell
-python generate_schema.py -f gs://${PROJECT_ID}-data/invoices/Invoice1.pdf -sn my_invoice
+python main.py get_schema -f gs://${PROJECT_ID}-data/invoices/Invoice1.pdf -sn my_invoice
 ```
 
 6. Open up the `schema_files/my_invoice.json` file to get familiar with the structure. For this example, schema generated is correct, but it is not always a case.
@@ -129,13 +129,13 @@ python generate_schema.py -f gs://${PROJECT_ID}-data/invoices/Invoice1.pdf -sn m
 7. Upload generated schema:
 
 ```shell
-python upload_schema.py -f schema_files/my_invoice.json
+python main.py upload_schema -f schema_files/my_invoice.json
 ```
 
 8. Do the batch upload using the created and verified schema:
 
 ```shell
-python load_docs.py -d gs://${PROJECT_ID}-data/invoices -n invoices -sn my_invoice
+python main.py batch_ingest -d gs://${PROJECT_ID}-data/invoices -n invoices -sn my_invoice
 ```
 
 9. Since for this demo schema is correctly generated out-of-the box, we could also have skipped steps 5-7.
@@ -147,7 +147,7 @@ python load_docs.py -d gs://${PROJECT_ID}-data/invoices -n invoices -sn my_invoi
 python load_docs.py -d gs://${PROJECT_ID}-data/invoices -n invoices2  --overwrite
 ```
 
-Below you will see more details explained and more options available.~~~~
+Below you will see more details explained and more options available.
 
 ## Detailed Instructions
 
@@ -231,28 +231,27 @@ Otherwise, schema will be generated on the fly without option to modify/edit wit
 - The schema should be manually verified for the correctness of property types and then uploaded to document Warehouse in the following step below.
 - `display_name` of the generated document schema corresponds to the display name of the processor. However, this value could be overwritten.
 - For the seamless batch upload step, it is easiest not to overwrite schema display name and leave it fall back to the default behaviour.
-
+- You can either set environment variable PROCESSOR_ID or provide Processor ID as an input parameter (`-p PROCESSOR_ID`):
 > NB! `PATH_TO_PDF` must be inside the `DATA_PROJECT_ID`
 > Processor `PROCESSOR_ID` must be inside the `DOCAI_PROJECT_ID`
 
 ```shell
-export PROCESSOR_ID=<PROCESSOR_ID>
 source SET
-python generate_schema.py -f gs://<PATH-TO-PDF> [-sn schema_display_name]
+python main.py get_schema -f gs://<PATH-TO-PDF> [-sn schema_display_name] -p <PROCESSOR_ID>
 ```
 
 Parameters:
 
 ```shell
--f -  Path to the GCS uri PDF for entity extraction used with PROCESSOR_ID, so that entities are used to generate the document schema.
+-f  -  Path to the GCS uri PDF for entity extraction used with PROCESSOR_ID, so that entities are used to generate the document schema.
 -sn -  (optional) When specified, schema display name. Otherwise will use processor display name.
+-p  - processor ID sued by the Document AI.
 ```
 
 Example to generate schema for the fake invoice with assigned schema display_name:
 
 ```shell
-export PROCESSOR_ID=<INVOICE_PROCESSOR_ID>
-python generate_schema.py -f gs://${DATA_PROJECT_ID}-data/invoices/Invoice1.pdf -sn my_invoice
+python main.py get_schema -f gs://${DATA_PROJECT_ID}-data/invoices/Invoice1.pdf -sn my_invoice -p <INVOICE_PROCESSOR_ID>
 ```
 
 Sample output:
@@ -275,7 +274,7 @@ Please note, that overwriting with `-o` option is not possible, if there are alr
 
 ```shell
 source SET
-python upload_schema.py -f schema_files/<PROCESSOR_NAME>.json
+python main.py upload_schema -f schema_files/<schema_name>.json
 ```
 
 Parameters:
@@ -288,7 +287,7 @@ Parameters:
 Example:
 
 ```shell
-python upload_schema.py -f schema_files/my_invoice.json
+python main.py upload_schema -f schema_files/my_invoice.json
 ```
 
 Sample output:
@@ -302,19 +301,20 @@ create_document_schema - Created document schema with display_name = my_invoice 
 - Out-of-the box when uploading documents, script will try to use schema with the display name same as the display name of the created user processor. If such schema does not exist, it will generate one.
 - If user has provided either schema_id (`-s`) - it will use the existing schema_id when uploading the documents.
 - If user has provided schema_name (`-sn`) option, script will first check if such schema exists, and if not, will generate one.
+- You can either set environment variable PROCESSOR_ID or provide Processor ID as an input parameter (`-p PROCESSOR_ID`):
 
 ```shell
-export PROCESSOR_ID=<PROCESSOR_ID>
 source SET
-python load_docs.py -d gs://<PATH-TO-DIR> [-n <NAME-OF-THE-ROOT-FOLDER>][-s schema_id] [-sn schema_display_name] [--flatten]  [-o]
+python main.py batch_ingest -d gs://<PATH-TO-DIR> [-p <PROCESSOR_ID>] [-n <NAME-OF-THE-ROOT-FOLDER>] [-s schema_id] [-sn schema_display_name] [--flatten] [-o]
 ```
 
 Parameters:
 
 ```shell
--d -  Path to the GCS storage folder, containing data with PDF documents to be loaded. All original structure of sub-folders will be preserved.
--n -  (optional) `Name` of the root folder inside DW to upload the documents/folders. When omitted, will the name of the folder/bucket being loaded from.
--s -  (optional) Existing `Schema_id` to be used when uploading the document. By default application relies on the processor.display_name and searches for schema with that name.
+-d  -  Path to the GCS storage folder, containing data with PDF documents to be loaded. All original structure of sub-folders will be preserved.
+-p  - (optional) processor ID used by the Document AI. When not provided will check for env variable PROCESSOR_ID. 
+-n  -  (optional) `Name` of the root folder inside DW to upload the documents/folders. When omitted, will the name of the folder/bucket being loaded from.
+-s  -  (optional) Existing `Schema_id` to be used when uploading the document. By default application relies on the processor.display_name and searches for schema with that name.
 -sn - (optional) Schema `display_name` either existing one to be used, or the new one to be created. By default application will rely on the `processor.display_name`.
 -o, --overwrite -  (optional) When set, will overwrite files if already exist. By default, will skip files based on the file path and file name.
 --options - (optional) - When set (by default), will automatically fill in document properties using schema options.
@@ -326,7 +326,7 @@ Example: Batch Upload with invoices (will generate/use existing schema with the 
 ```shell
 export PROCESSOR_ID=<INVOICE_PROCESSOR_ID>
 source SET
-python load_docs.py -d gs://${DATA_PROJECT_ID}-data/invoices -n invoices
+python main.py batch_ingest -d gs://${DATA_PROJECT_ID}-data/invoices -n invoices
 ```
 
 #### Delete Document Schema
@@ -334,15 +334,15 @@ python load_docs.py -d gs://${DATA_PROJECT_ID}-data/invoices -n invoices
 A simple utility to delete schema either by id or by display_name:
 
 ```shell
-export PROCESSOR_ID=<INVOICE_PROCESSOR_ID>
+export PROCESSOR_ID=<INVOICE_PROCESSOR_ID>~~~~
 source SET
-python delete_schema.py [-s <schema_id>] [-sn schema_name]
+python main.py delete_schema [-ss <schema_id>] [-sns schema_name]
 ```
 
 Example:
 
 ```shell
-python delete_schema.py -s 661g7c10s8h7g -s 0d1jot5tqljsg -sn my_invoice
+python main.py delete_schema -ss 661g7c10s8h7g -ss 0d1jot5tqljsg -sns my_invoice1 -sns my_invoice2
 ```
 
 ## Troubleshooting

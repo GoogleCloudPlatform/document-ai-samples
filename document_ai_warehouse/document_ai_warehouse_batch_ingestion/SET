@@ -1,6 +1,21 @@
 #!/usr/bin/env bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+if [ -z "${PROJECT_ID}" ] &&  [ -z "${DOCAI_WH_PROJECT_ID}" ]; then
+  echo "Please set either PROJECT_ID or DOCAI_WH_PROJECT_ID and retry."
+  return
+fi
+
+if [ -z "${PROJECT_ID}" ] &&  [ -z "${DOCAI_PROJECT_ID}" ]; then
+  echo "Please set either PROJECT_ID or DOCAI_PROJECT_ID and retry."
+  return
+fi
+
+if [ -z "${PROJECT_ID}" ] &&  [ -z "${DATA_PROJECT_ID}" ]; then
+  echo "Please set either PROJECT_ID or DATA_PROJECT_ID and retry."
+  return
+fi
+
 ######################################################################
 # DOCAI WH Project - GCP Project in which Document AI WH has been provisioned
 ######################################################################
@@ -35,7 +50,7 @@ export DATA_PROJECT_ID=${DATA_PROJECT_ID:-$PROJECT_ID}             # Project ID 
 export DEBUG=true #For STDOUT output of logging
 
 # PYTHON PATH
-#export PYTHONPATH="${DIR}/../common/src"
+export PYTHONPATH="${DIR}/../common/src"
 
 # Additional parameters
 echo "PROJECT_ID=$PROJECT_ID"
