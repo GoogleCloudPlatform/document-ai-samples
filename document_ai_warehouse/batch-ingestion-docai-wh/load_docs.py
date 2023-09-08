@@ -302,7 +302,7 @@ def upload_document_gcs(
         f"create_document_response={create_document_response}"
     )  # Verify that the properties have been set correctly
 
-    if create_document_response is not None:
+    if create_document_response:
         document_id = create_document_response.document.name.split("/")[-1]
         document_id_list.append(document_id)
 
