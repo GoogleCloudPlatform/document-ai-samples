@@ -15,7 +15,7 @@ limitations under the License.
 """
 import json
 import traceback
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 from common.utils.document_ai_utils import get_key_values_dic
 from common.utils.logging_handler import Logger

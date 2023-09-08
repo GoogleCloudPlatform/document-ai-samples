@@ -2,7 +2,7 @@ import argparse
 import json
 import os
 import time
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Set
 from config import API_LOCATION
 from config import CALLER_USER
 from config import DOCAI_PROJECT_NUMBER
@@ -261,8 +261,8 @@ def proces_documents(
         processor_id: str,
         options: bool
 ):
-    created_schemas = set()
-    document_id_list = []
+    created_schemas: Set[str] = set()
+    document_id_list: List[str] = []
 
     if len(files_to_parse) == 0:
         return created_schemas, document_id_list
