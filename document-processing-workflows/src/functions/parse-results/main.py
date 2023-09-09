@@ -2,21 +2,21 @@
 # Copyright 2023 Google LLC
 # SPDX-License-Identifier: Apache-2.0
 
+import base64
 import gc
 import json
 import mimetypes
+from pathlib import Path
 import shutil
 import tempfile
-import base64
-from pathlib import Path
 from typing import Dict, List
 
+from flask import jsonify
 import functions_framework
-import pypdfium2 as pdfium
+from google.cloud import storage
 from PIL import Image
 import psutil
-from flask import jsonify
-from google.cloud import storage
+import pypdfium2 as pdfium
 
 
 @functions_framework.http
