@@ -123,8 +123,7 @@ def batch_ingest(args: argparse.Namespace) -> None:
     created_folders, files_to_parse, processed_files, processed_dirs, error_files = \
         prepare_file_structure(dir_uri, folder_name, overwrite, flatten)
 
-    created_schemas, document_id_list = proces_documents(files_to_parse, schema_id, schema_name, processor_id,
-                                                           options)
+    created_schemas, document_id_list = proces_documents(files_to_parse, schema_id, schema_name, processor_id, options)
 
     process_time = time.time() - initial_start_time
     time_elapsed = round(process_time)
