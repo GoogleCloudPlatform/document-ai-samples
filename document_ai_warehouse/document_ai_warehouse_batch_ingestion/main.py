@@ -79,7 +79,7 @@ def upload_schema(args: argparse.Namespace):
     create_document_schema(schema_path, overwrite)
 
 
-def delete_schema(args: argparse.Namespace):
+def delete_schema(args: argparse.Namespace) -> None:
     schema_ids = args.schema_ids
     schema_names = args.schema_names
 
@@ -91,7 +91,7 @@ def delete_schema(args: argparse.Namespace):
             delete_schema_by_name(schema_name)
 
 
-def batch_ingest(args: argparse.Namespace):
+def batch_ingest(args: argparse.Namespace) -> None:
     dir_uri = args.dir_uri
     folder_name = args.root_name
     schema_id = args.schema_id
@@ -147,8 +147,8 @@ def batch_ingest(args: argparse.Namespace):
         )
 
 
-FUNCTION_MAP = {'batch_ingest' : batch_ingest,
-                'get_schema' : get_schema,
+FUNCTION_MAP = {'batch_ingest': batch_ingest,
+                'get_schema': get_schema,
                 'upload_schema': upload_schema,
                 'delete_schema': delete_schema,
                 }
@@ -433,7 +433,7 @@ def is_valid_int(string: str) -> bool:
     return string.isdigit()
 
 
-def create_mapping_schema(display_name: str, names, options: bool = True):
+def create_mapping_schema(display_name: str, names, options: bool = True) -> str:
     mapping_dic = {
         "display_name": display_name,
         "property_definitions": [],
