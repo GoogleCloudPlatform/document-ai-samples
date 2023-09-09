@@ -123,7 +123,8 @@ def batch_ingest(args: argparse.Namespace) -> None:
     created_folders, files_to_parse, processed_files, processed_dirs, error_files = \
         prepare_file_structure(dir_uri, folder_name, overwrite, flatten)
 
-    created_schemas, document_id_list = proces_documents(files_to_parse, schema_id, schema_name, processor_id, options)
+    created_schemas, document_id_list = proces_documents(files_to_parse, schema_id, schema_name, processor_id,
+                                                           options)
 
     process_time = time.time() - initial_start_time
     time_elapsed = round(process_time)
@@ -434,6 +435,7 @@ def is_valid_int(string: str) -> bool:
 
 
 def create_mapping_schema(display_name: str, names, options: bool = True) -> str:
+    properties: List[Dict[str, Any]] = []
     mapping_dic = {
         "display_name": display_name,
         "property_definitions": [],
@@ -456,7 +458,9 @@ def create_mapping_schema(display_name: str, names, options: bool = True) -> str
             v_type = get_type(value)
             if v_type:
                 definition[v_type] = {}
-            mapping_dic["property_definitions"].append(definition)
+            properties.append(definition)
+
+        mapping_dic["property_definitions"] = properties
 
     file_path = os.path.join(
         os.path.dirname(__file__), "schema_files", f"{display_name}.json"
