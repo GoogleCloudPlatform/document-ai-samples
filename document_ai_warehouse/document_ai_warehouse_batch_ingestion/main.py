@@ -2,7 +2,7 @@ import argparse
 import json
 import os
 import time
-from typing import List, Dict, Any, Set
+from typing import List, Dict, Any, Set, Tuple, Optional
 from config import API_LOCATION
 from config import CALLER_USER
 from config import DOCAI_PROJECT_NUMBER
@@ -260,7 +260,7 @@ def proces_documents(
         schema_name: str,
         processor_id: str,
         options: bool
-):
+) -> Tuple[Set[str], List[str]]:
     created_schemas: Set[str] = set()
     document_id_list: List[str] = []
 
@@ -320,7 +320,8 @@ def proces_documents(
                         document_ai_output,
                         metadata_properties,
                     )
-                    document_id_list.append(document_id)
+                    if document_id:
+                        document_id_list.append(document_id)
                 except Exception as ex:
                     Logger.error(f"Failed to upload {f_uri} - {ex}")
 
@@ -403,7 +404,7 @@ def prepare_file_structure(
     return created_folders, files_to_parse, processed_files, processed_dirs, error_files
 
 
-def get_type(value: str):
+def get_type(value: str) -> str:
     if type(value) == bool or str(value) == "":
         return "text_type_options"  # bool Not Supported
     if is_date(value):
@@ -416,7 +417,7 @@ def get_type(value: str):
     return "text_type_options"
 
 
-def is_valid_float(string: str):
+def is_valid_float(string: str) -> bool:
     try:
         float(string)
         return True
@@ -424,11 +425,11 @@ def is_valid_float(string: str):
         return False
 
 
-def is_valid_bool(string: str):
+def is_valid_bool(string: str) -> bool:
     return string.lower() in ["true", "false"]
 
 
-def is_valid_int(string: str):
+def is_valid_int(string: str) -> bool:
     return string.isdigit()
 
 
@@ -475,7 +476,7 @@ def document_exists(reference_id: str) -> bool:
         return False
 
 
-def delete_document(reference_id: str):
+def delete_document(reference_id: str) -> None:
     Logger.info(f"delete_document reference_id={reference_id}")
     reference_path = f"referenceId/{reference_id}"
     dw_utils.delete_document(document_id=reference_path, caller_user_id=CALLER_USER)
@@ -488,7 +489,7 @@ def upload_document_gcs(
     reference_id: str,
     document_ai_output,
     metadata_properties: List[contentwarehouse_v1.Property],
-):
+) -> Optional[str]:
     create_document_response = dw_utils.create_document(
         display_name=os.path.basename(file_uri),
         mime_type="application/pdf",
@@ -517,8 +518,10 @@ def upload_document_gcs(
         )
         return document_id
 
+    return None
 
-def create_folder_schema(schema_path: str):
+
+def create_folder_schema(schema_path: str) -> str:
     folder_schema = storage_utils.read_file(schema_path, mode="r")
     display_name = json.loads(folder_schema).get("display_name")
 
@@ -535,7 +538,7 @@ def create_folder_schema(schema_path: str):
     return folder_schema_id
 
 
-def create_folder(folder_schema_id: str, display_name: str, reference_id: str):
+def create_folder(folder_schema_id: str, display_name: str, reference_id: str) -> Optional[str]:
     reference_path = f"referenceId/{reference_id}"
     try:
         document = dw_utils.get_document(reference_path, CALLER_USER)
@@ -554,9 +557,10 @@ def create_folder(folder_schema_id: str, display_name: str, reference_id: str):
         if create_folder_response is not None:
             folder_id = create_folder_response.document.name.split("/")[-1]
             return folder_id
+    return None
 
 
-def get_document_schemas():
+def get_document_schemas() -> Dict[str, Any]:
     schemas = {}
     for ds in dw_utils.list_document_schemas():
         if ds.display_name not in schemas:
@@ -564,7 +568,7 @@ def get_document_schemas():
     return schemas
 
 
-def create_document_schema(schema_path: str, overwrite_schema: bool = False):
+def create_document_schema(schema_path: str, overwrite_schema: bool = False) -> str:
     document_schema = storage_utils.read_file(schema_path, mode="r")
     display_name = json.loads(document_schema).get("display_name")
     for ds in dw_utils.list_document_schemas():
@@ -595,7 +599,7 @@ def create_document_schema(schema_path: str, overwrite_schema: bool = False):
     return document_schema_id
 
 
-def delete_schema_by_id(schema_id: str):
+def delete_schema_by_id(schema_id: str) -> None:
     try:
         Logger.info(f"Removing schema with schema_id={schema_id}")
         dw_utils.delete_document_schema(schema_id)
@@ -603,7 +607,7 @@ def delete_schema_by_id(schema_id: str):
         Logger.warning(f"Could not replace schema due to error {ex}")
 
 
-def delete_schema_by_name(display_name: str):
+def delete_schema_by_name(display_name: str) -> None:
     Logger.info(f"Deleting schema with display_name={display_name}")
     for ds in dw_utils.list_document_schemas():
         if ds.display_name == display_name and not ds.document_is_folder:
