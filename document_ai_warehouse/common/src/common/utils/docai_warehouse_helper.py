@@ -30,7 +30,7 @@ from .document_warehouse_utils import DocumentWarehouseUtils
 def get_key_value_pairs(document_ai_output):
     json_string = proto.Message.to_json(document_ai_output)
     data = json.loads(json_string)
-    document_entities: Dict[str, Any] = {}
+    document_entities: Dict[str, List[Any]] = {}
     for entity in data.get("entities"):
         get_key_values_dic(entity, document_entities)
 

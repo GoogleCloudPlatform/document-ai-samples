@@ -51,7 +51,7 @@ class DocumentaiUtils:
         )
 
         # Make the request
-        return self.document_ai_client.get_processor(request=request)
+        return client.get_processor(request=request)
 
     def process_file_from_gcs(
             self,
@@ -259,7 +259,7 @@ def merge_json_files(files):
 # Handling Nested labels for CDE processor
 def get_key_values_dic(
         entity: documentai.Document.Entity,
-        document_entities: Dict[str, Any],
+        document_entities: Dict[str, List[Any]],
         parent_key: Optional[str] = None,
 ) -> None:
     # Fields detected. For a full list of fields for each processor see
@@ -308,4 +308,5 @@ def get_key_values_dic(
         for prop in entity.get("properties", []):
             get_key_values_dic(prop, document_entities, entity_key)
     else:
-        existing_entity.append(new_entity_value)
+        if existing_entity:
+            existing_entity.append(new_entity_value)
