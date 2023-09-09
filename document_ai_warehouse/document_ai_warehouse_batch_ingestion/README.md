@@ -86,7 +86,7 @@ For the Quick start demo you will be using single GCP project, Document AI Wareh
 1. Set env variable:
 
 ```shell
-export PROJECT_ID=
+export PROJECT_ID="<insert here>"
 ```
 
 2. Upload sample data:
@@ -101,7 +101,7 @@ gsutil -m cp -r sample_data/invoices/*  gs://${PROJECT_ID}-data/invoices/
 Set processor ID:
 
 ```shell
-export PROCESSOR_ID=
+export PROCESSOR_ID="<insert here>"
 ```
 
 4. Run the setup to create all required infrastructure:
@@ -168,12 +168,12 @@ However, in some cases you want to keep everything in different projects or mayb
 based on the situation, set the env variables accordingly:
 
 ```shell
-export PROJECT_ID=     # This is the default ID for all Projects if you want to have all in the same project
+export PROJECT_ID="<insert here>"     # This is the default ID for all Projects if you want to have all in the same project
 
 # Otherwise, manually setup the following:
-export DOCAI_WH_PROJECT_ID=  # Project ID of the GCP Project in which Document AI Warehouse has been provisioned
-export DATA_PROJECT_ID=      # Project ID with GCS Data to be Loaded
-export DOCAI_PROJECT_ID=     # Project ID of the GCP Project with Document AI Processor used for document parsing
+export DOCAI_WH_PROJECT_ID="<insert here>"  # Project ID of the GCP Project in which Document AI Warehouse has been provisioned
+export DATA_PROJECT_ID= "<insert here>"     # Project ID with GCS Data to be Loaded
+export DOCAI_PROJECT_ID="<insert here>"     # Project ID of the GCP Project with Document AI Processor used for document parsing
 ```
 
 #### Prepare GCS Bucket with Data
@@ -332,7 +332,7 @@ python main.py batch_ingest -d gs://${DATA_PROJECT_ID}-data/invoices -n invoices
 A simple utility to delete schema either by id or by display_name:
 
 ```shell
-export PROCESSOR_ID=<INVOICE_PROCESSOR_ID>~~~~
+export PROCESSOR_ID=<INVOICE_PROCESSOR_ID>
 source SET
 python main.py delete_schema [-ss <schema_id>] [-sns schema_name]
 ```
