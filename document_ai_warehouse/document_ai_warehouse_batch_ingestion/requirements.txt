@@ -3,6 +3,6 @@ google-cloud-documentai==2.16.1
 google-cloud-storage
 google-cloud-contentwarehouse==0.5.1
 fireo==1.4.1
-google-cloud-bigquery==2.20.0
+google-cloud-bigquery==3.11.4
 pandas
 google-cloud-documentai-toolbox
