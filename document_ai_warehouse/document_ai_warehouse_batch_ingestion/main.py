@@ -2,7 +2,16 @@ import argparse
 import json
 import os
 import time
-from typing import List, Dict, Any, Set, Tuple, Optional
+from typing import Any, Dict, List, Optional, Set, Tuple
+
+from common.utils import helper
+from common.utils import storage_utils
+from common.utils.docai_warehouse_helper import get_key_value_pairs
+from common.utils.docai_warehouse_helper import get_metadata_properties
+from common.utils.document_ai_utils import DocumentaiUtils
+from common.utils.document_warehouse_utils import DocumentWarehouseUtils
+from common.utils.helper import is_date
+from common.utils.logging_handler import Logger
 from config import API_LOCATION
 from config import CALLER_USER
 from config import DOCAI_PROJECT_NUMBER
@@ -13,14 +22,6 @@ from config import PROCESSOR_ID
 from google.api_core.exceptions import NotFound
 from google.cloud import contentwarehouse_v1
 from google.cloud import storage
-from common.utils import helper
-from common.utils import storage_utils
-from common.utils.docai_warehouse_helper import get_key_value_pairs
-from common.utils.docai_warehouse_helper import get_metadata_properties
-from common.utils.document_ai_utils import DocumentaiUtils
-from common.utils.document_warehouse_utils import DocumentWarehouseUtils
-from common.utils.helper import is_date
-from common.utils.logging_handler import Logger
 
 dw_utils = DocumentWarehouseUtils(
     project_number=DOCAI_WH_PROJECT_NUMBER, api_location=API_LOCATION

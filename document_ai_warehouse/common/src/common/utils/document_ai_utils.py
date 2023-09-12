@@ -3,9 +3,9 @@ import re
 import time
 from typing import Any, Dict, List, Optional
 
+from common.utils.helper import split_uri_2_bucket_prefix
 from common.utils.logging_handler import Logger
 from common.utils.storage_utils import read_binary_object
-from common.utils.helper import split_uri_2_bucket_prefix
 from google.api_core.client_options import ClientOptions
 from google.api_core.exceptions import InternalServerError
 from google.api_core.exceptions import RetryError
