@@ -45,8 +45,10 @@ def get_schema(args: argparse.Namespace):
         f"CALLER_USER={CALLER_USER}"
     )
 
-    assert processor_id, "processor_id is not set as PROCESSOR_ID env variable and " \
-                         "is not provided as an input parameter (-p)"
+    assert processor_id, (
+        "processor_id is not set as PROCESSOR_ID env variable and "
+        "is not provided as an input parameter (-p)"
+    )
     assert GCS_OUTPUT_BUCKET, "GCS_OUTPUT_BUCKET not set"
     assert DOCAI_PROJECT_NUMBER, "DOCAI_PROJECT_NUMBER not set"
 
@@ -112,18 +114,27 @@ def batch_ingest(args: argparse.Namespace) -> None:
         f"CALLER_USER={CALLER_USER}"
     )
 
-    assert processor_id, "processor_id is not set as PROCESSOR_ID env variable and " \
-                         "is not provided as an input parameter (-p)"
+    assert processor_id, (
+        "processor_id is not set as PROCESSOR_ID env variable and "
+        "is not provided as an input parameter (-p)"
+    )
     assert GCS_OUTPUT_BUCKET, "GCS_OUTPUT_BUCKET not set"
     assert DOCAI_PROJECT_NUMBER, "DOCAI_PROJECT_NUMBER not set"
     assert DOCAI_WH_PROJECT_NUMBER, "DOCAI_WH_PROJECT_NUMBER not set"
 
     initial_start_time = time.time()
 
-    created_folders, files_to_parse, processed_files, processed_dirs, error_files = \
-        prepare_file_structure(dir_uri, folder_name, overwrite, flatten)
+    (
+        created_folders,
+        files_to_parse,
+        processed_files,
+        processed_dirs,
+        error_files,
+    ) = prepare_file_structure(dir_uri, folder_name, overwrite, flatten)
 
-    created_schemas, document_id_list = proces_documents(files_to_parse, schema_id, schema_name, processor_id, options)
+    created_schemas, document_id_list = proces_documents(
+        files_to_parse, schema_id, schema_name, processor_id, options
+    )
 
     process_time = time.time() - initial_start_time
     time_elapsed = round(process_time)
@@ -147,11 +158,12 @@ def batch_ingest(args: argparse.Namespace) -> None:
         )
 
 
-FUNCTION_MAP = {'batch_ingest': batch_ingest,
-                'get_schema': get_schema,
-                'upload_schema': upload_schema,
-                'delete_schema': delete_schema,
-                }
+FUNCTION_MAP = {
+    "batch_ingest": batch_ingest,
+    "get_schema": get_schema,
+    "upload_schema": upload_schema,
+    "delete_schema": delete_schema,
+}
 
 
 def main():
@@ -186,19 +198,17 @@ def get_args():
       """,
     )
 
-    args_parser.add_argument('command', choices=FUNCTION_MAP.keys())
+    args_parser.add_argument("command", choices=FUNCTION_MAP.keys())
     args_parser.add_argument(
         "-d",
         dest="dir_uri",
         help="Path to gs directory uri, containing data with PDF documents to be loaded. "
-             "All original structure of sub-folders will be preserved.",
+        "All original structure of sub-folders will be preserved.",
     )
     args_parser.add_argument(
         "-s", dest="schema_id", help="Optional existing schema_id."
     )
-    args_parser.add_argument(
-        "-p", dest="processor_id", help="Processor_ID."
-    )
+    args_parser.add_argument("-p", dest="processor_id", help="Processor_ID.")
     args_parser.add_argument(
         "-sn",
         dest="schema_name",
@@ -235,7 +245,7 @@ def get_args():
         "-n",
         dest="root_name",
         help="Name of the root folder inside DW for batch ingestion."
-             " When skipped, will use the same name of the folder being loaded from.",
+        " When skipped, will use the same name of the folder being loaded from.",
     )
     args_parser.add_argument(
         "-sns",
@@ -255,11 +265,11 @@ def get_args():
 
 
 def proces_documents(
-        files_to_parse: Dict[str, Any],
-        schema_id: str,
-        schema_name: str,
-        processor_id: str,
-        options: bool
+    files_to_parse: Dict[str, Any],
+    schema_id: str,
+    schema_name: str,
+    processor_id: str,
+    options: bool,
 ) -> Tuple[Set[str], List[str]]:
     created_schemas: Set[str] = set()
     document_id_list: List[str] = []
@@ -334,7 +344,6 @@ def prepare_file_structure(
     overwrite: bool,
     flatten: bool,
 ):
-
     created_folders = []
     files_to_parse = {}
     processed_files = []
@@ -541,7 +550,9 @@ def create_folder_schema(schema_path: str) -> str:
     return folder_schema_id
 
 
-def create_folder(folder_schema_id: str, display_name: str, reference_id: str) -> Optional[str]:
+def create_folder(
+    folder_schema_id: str, display_name: str, reference_id: str
+) -> Optional[str]:
     reference_path = f"referenceId/{reference_id}"
     try:
         document = dw_utils.get_document(reference_path, CALLER_USER)

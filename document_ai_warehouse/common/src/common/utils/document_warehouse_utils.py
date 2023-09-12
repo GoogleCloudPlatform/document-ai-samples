@@ -248,13 +248,10 @@ class DocumentWarehouseUtils:
 
         mime_to_dw_mime_enum = {
             "application/pdf": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PDF,
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-                document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_DOCX,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_DOCX,
             "text/plain": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_TEXT,
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-                document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PPTX,
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-                document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_XLSX,
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_PPTX,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": document.raw_document_file_type.RAW_DOCUMENT_FILE_TYPE_XLSX,
         }
         if mime_type.lower() in mime_to_dw_mime_enum:
             document.raw_document_file_type = mime_to_dw_mime_enum[mime_type.lower()]

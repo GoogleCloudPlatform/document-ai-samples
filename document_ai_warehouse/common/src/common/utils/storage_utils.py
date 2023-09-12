@@ -22,7 +22,12 @@ def file_exists(bucket_name: str, file_name: str):
     return stats
 
 
-def write_gcs_blob(bucket_name: str, file_name: str, content_as_str: str, content_type: str = "text/plain"):
+def write_gcs_blob(
+    bucket_name: str,
+    file_name: str,
+    content_as_str: str,
+    content_type: str = "text/plain",
+):
     bucket = storage_client.get_bucket(bucket_name)
     gcs_file = bucket.blob(file_name)
     gcs_file.upload_from_string(content_as_str, content_type=content_type)
