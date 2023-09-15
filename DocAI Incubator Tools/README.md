@@ -46,6 +46,51 @@ Based on the experience of the team members, best practices for various processo
        The updated json will have the line item entities added based on finding of header keywords given as input .
        Gcs output folder will have the updated jsons.
 
+5. **File name:** HITL Visualization Tool (External).pdf
+   
+   This Document uses HITL updated Json and will Visualize the document with HITL updated entities (bounding boxes) and other entities    with colour variation
+
+   Input :   HITL Parsed jsons in a GCS folder
+             
+  
+   Expected output:
+       Excel file with image of document appended with bounding boxes for the entities updated in HITL and other entities with colour         variation and also a dot diagram which visualizes parent to child entity relation.
+   
+6. **File name:** HITL REJECTED DOCUMENTS TRACKING [External].pdf
+   
+   This Document gives the HITL rejected documents with a reason for rejection in csv file and also saves the rejected documents in a GCS folder given
+
+   Input :  LRO numbers in list
+             GCS folder to save the rejected documents             
+  
+   Expected output:
+       Csv file which has document name and reason for rejection and files saved in GCS path
+
+7. **File name:** PRE - POST HITL PARSER AND OCR ISSUE IDENTIFIER (External).pdf
+   
+   This Document guides to find out the Parser performance and OCR issues by comparing pre and post HITL jsons
+
+   Input :  Pre HITL jsons in a GCS folder
+            Post HITL jsons in a GCS folder            
+  
+   Expected output:
+       A detailed comparision between pre and post HITL jsons with OCR and Parser issues highlighted and Entity wise issues are also provided in a seperate analysis folder.
+
+8. **File name:** Document AI Parser Result Merger(External).pdf
+   
+   This Tool will combine various parser outputs into a single json file, the parser results provided can be of same document different parsers or different documents and different parsers.
+   
+   Input :  GCS folder which contains multiple parser output files to combine into single json           
+            GCS folder to save the merged jsons
+   Expected output:
+       Merged parser output will be saved in the GCS folder.
+
+
+   
+
+
+
+   
 
 
    
