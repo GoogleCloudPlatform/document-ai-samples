@@ -4,7 +4,7 @@ Incubator team supports Doc AI clients in providing assistance on bugs,technical
 GCP Doc AI experienced team members also suggests the best practices to get best out of the product for the given business case.
 
 **Tools**
-This Folder will have various documents and code snippets which is made for the benefit of customer.
+This Folder will have various documents and code snippets which is made for the benefit of Doc AI users.
 
   
 1.  **File name:** DocAI PAI Best Practices Guide v1.0 - External.pdf
