@@ -85,6 +85,7 @@ gcloud run deploy $SERVICE \
 ```
 
 Notes:
+
 - For more details, see the `gcloud run deploy` [options](https://cloud.google.com/sdk/gcloud/reference/run/deploy).
 - Deploying from source requires an Artifact Registry repository to store the build artifacts. By using the `--quiet` flag, you skip prompt confirmations and a default repository named `cloud-run-source-deploy` will automatically be created.
 
@@ -98,7 +99,7 @@ OK Building and deploying new service... Done.
   OK Uploading sources...
   OK Building Container... Logs are available at […].
   OK Creating Revision...
-  OK Routing traffic...   
+  OK Routing traffic...
   OK Setting IAM Policy...
 Done.
 Service [SERVICE] revision [SERVICE-REVISION] has been deployed and is serving 100 percent of traffic.
@@ -181,8 +182,8 @@ This gives an output like the following:
 ```text
 …
 File upload done.
-Updating service [default]...done.     
-Setting traffic split for service [default]...done.   
+Updating service [default]...done.
+Setting traffic split for service [default]...done.
 Deployed service [default] to [https://PROJECT_ID.REGIONID.r.appspot.com]
 ```
 

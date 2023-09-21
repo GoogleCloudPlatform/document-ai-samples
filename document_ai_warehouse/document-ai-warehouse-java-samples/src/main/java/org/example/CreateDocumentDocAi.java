@@ -33,9 +33,7 @@ import com.google.cloud.documentai.v1.RawDocument;
 import com.google.protobuf.ByteString;
 import java.io.FileInputStream;
 
-/**
- * Sample that creates a document in Document AI Warehouse.
- */
+/** Sample that creates a document in Document AI Warehouse. */
 public class CreateDocumentDocAi {
   private String projectNumber;
   private String location;
@@ -54,10 +52,9 @@ public class CreateDocumentDocAi {
   }
 
   /**
-   * Create a document. This method performs the work to make a request to
-   * Document AI Warehouse to create (ingest) a new document. It is
-   * expected that the schema will have at least two properties called
-   * `payee` and `payer`.
+   * Create a document. This method performs the work to make a request to Document AI Warehouse to
+   * create (ingest) a new document. It is expected that the schema will have at least two
+   * properties called `payee` and `payer`.
    *
    * @param schemaName The Document AI Warehouse identity of the schema.
    * @param docAiDocument The result of performing a Doc AI parse.
@@ -68,8 +65,7 @@ public class CreateDocumentDocAi {
       com.google.cloud.documentai.v1.Document docAiDocument,
       ByteString fileData) {
     try {
-      try (DocumentServiceClient documentServiceClient =
-             DocumentServiceClient.create()) {
+      try (DocumentServiceClient documentServiceClient = DocumentServiceClient.create()) {
         Document document =
             Document.newBuilder()
                 .setDisplayName("Invoice 1")
@@ -77,21 +73,18 @@ public class CreateDocumentDocAi {
                 .setDocumentSchemaName(schemaName)
                 .setCloudAiDocument(docAiDocument)
                 .setInlineRawDocument(fileData)
-                .setRawDocumentFileType(
-                  RawDocumentFileType.RAW_DOCUMENT_FILE_TYPE_PDF)
+                .setRawDocumentFileType(RawDocumentFileType.RAW_DOCUMENT_FILE_TYPE_PDF)
                 .setTextExtractionDisabled(true)
                 .addProperties(
                     Property.newBuilder()
                         .setName("payee")
                         .setTextValues(
-                            TextArray.newBuilder()
-                              .addValues("Developer Company").build())
+                            TextArray.newBuilder().addValues("Developer Company").build())
                         .build())
                 .addProperties(
                     Property.newBuilder()
                         .setName("payer")
-                        .setTextValues(TextArray.newBuilder()
-                          .addValues("Buyer Company").build())
+                        .setTextValues(TextArray.newBuilder().addValues("Buyer Company").build())
                         .build())
                 .build();
 
@@ -133,11 +126,9 @@ public class CreateDocumentDocAi {
       try (DocumentProcessorServiceClient documentProcessorServiceClient =
           DocumentProcessorServiceClient.create()) {
         RawDocument rawDocument =
-            RawDocument.newBuilder().setContent(fileData)
-              .setMimeType("application/pdf").build();
+            RawDocument.newBuilder().setContent(fileData).setMimeType("application/pdf").build();
         ProcessRequest processRequest =
-            ProcessRequest.newBuilder()
-              .setName(processorName).setRawDocument(rawDocument).build();
+            ProcessRequest.newBuilder().setName(processorName).setRawDocument(rawDocument).build();
         ProcessResponse response = documentProcessorServiceClient.processDocument(processRequest);
         return response.getDocument();
       }

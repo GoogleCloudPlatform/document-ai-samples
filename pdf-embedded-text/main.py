@@ -1,7 +1,7 @@
-from typing import Sequence
+from typing import Optional, Sequence
 
 from google.api_core.client_options import ClientOptions
-from google.cloud import documentai_v1beta3 as documentai
+from google.cloud import documentai
 
 
 def process_document_ocr_sample(
@@ -11,8 +11,17 @@ def process_document_ocr_sample(
     processor_version: str,
     file_path: str,
     mime_type: str,
-    enable_native_pdf_parsing: bool,
 ) -> None:
+    # Optional: Additional configurations for Document OCR Processor.
+    # For more information: https://cloud.google.com/document-ai/docs/document-ocr
+    process_options = documentai.ProcessOptions(
+        ocr_config=documentai.OcrConfig(
+            compute_style_info=True,
+            enable_native_pdf_parsing=True,
+            enable_image_quality_scores=True,
+            enable_symbol=True,
+        )
+    )
     # Online processing request to Document AI
     document = process_document(
         project_id,
@@ -21,11 +30,8 @@ def process_document_ocr_sample(
         processor_version,
         file_path,
         mime_type,
-        enable_native_pdf_parsing,
+        process_options=process_options,
     )
-
-    # For a full list of Document object attributes, please reference this page:
-    # https://cloud.google.com/python/docs/reference/documentai/latest/google.cloud.documentai_v1.types.Document
 
     text = document.text
     print(f"Full document text: {text}\n")
@@ -35,58 +41,20 @@ def process_document_ocr_sample(
         print(f"Page {page.page_number}:")
         print_page_dimensions(page.dimension)
         print_detected_langauges(page.detected_languages)
-        print_paragraphs(page.paragraphs, text)
+
         print_blocks(page.blocks, text)
+        print_paragraphs(page.paragraphs, text)
         print_lines(page.lines, text)
         print_tokens(page.tokens, text)
 
-        # Currently supported in version pretrained-ocr-v1.1-2022-09-12
+        if page.symbols:
+            print_symbols(page.symbols, text)
+
         if page.image_quality_scores:
             print_image_quality_scores(page.image_quality_scores)
 
-
-def process_document(
-    project_id: str,
-    location: str,
-    processor_id: str,
-    processor_version: str,
-    file_path: str,
-    mime_type: str,
-    enable_native_pdf_parsing: bool,
-) -> documentai.Document:
-    # You must set the api_endpoint if you use a location other than 'us'.
-    opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
-
-    client = documentai.DocumentProcessorServiceClient(client_options=opts)
-
-    # The full resource name of the processor version
-    # e.g. projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}
-    # You must create processors before running sample code.
-    name = client.processor_version_path(
-        project_id, location, processor_id, processor_version
-    )
-
-    # Read the file into memory
-    with open(file_path, "rb") as image:
-        image_content = image.read()
-
-    # Load Binary Data into Document AI RawDocument Object
-    raw_document = documentai.RawDocument(content=image_content, mime_type=mime_type)
-
-    process_options = documentai.ProcessOptions(
-        ocr_config=documentai.OcrConfig(
-            enable_native_pdf_parsing=enable_native_pdf_parsing
-        )
-    )
-
-    # Configure the process request
-    request = documentai.ProcessRequest(
-        name=name, raw_document=raw_document, process_options=process_options
-    )
-
-    result = client.process_document(request=request)
-
-    return result.document
+    if document.text_styles:
+        print_styles(document.text_styles, text)
 
 
 def print_page_dimensions(dimension: documentai.Document.Page.Dimension) -> None:
@@ -99,8 +67,15 @@ def print_detected_langauges(
 ) -> None:
     print("    Detected languages:")
     for lang in detected_languages:
-        code = lang.language_code
-        print(f"        {code} ({lang.confidence:.1%} confidence)")
+        print(f"        {lang.language_code} ({lang.confidence:.1%} confidence)")
+
+
+def print_blocks(blocks: Sequence[documentai.Document.Page.Block], text: str) -> None:
+    print(f"    {len(blocks)} blocks detected:")
+    first_block_text = layout_to_text(blocks[0].layout, text)
+    print(f"        First text block: {repr(first_block_text)}")
+    last_block_text = layout_to_text(blocks[-1].layout, text)
+    print(f"        Last text block: {repr(last_block_text)}")
 
 
 def print_paragraphs(
@@ -111,14 +86,6 @@ def print_paragraphs(
     print(f"        First paragraph text: {repr(first_paragraph_text)}")
     last_paragraph_text = layout_to_text(paragraphs[-1].layout, text)
     print(f"        Last paragraph text: {repr(last_paragraph_text)}")
-
-
-def print_blocks(blocks: Sequence[documentai.Document.Page.Block], text: str) -> None:
-    print(f"    {len(blocks)} blocks detected:")
-    first_block_text = layout_to_text(blocks[0].layout, text)
-    print(f"        First text block: {repr(first_block_text)}")
-    last_block_text = layout_to_text(blocks[-1].layout, text)
-    print(f"        Last text block: {repr(last_block_text)}")
 
 
 def print_lines(lines: Sequence[documentai.Document.Page.Line], text: str) -> None:
@@ -141,6 +108,16 @@ def print_tokens(tokens: Sequence[documentai.Document.Page.Token], text: str) ->
     print(f"        Last token break type: {repr(last_token_break_type)}")
 
 
+def print_symbols(
+    symbols: Sequence[documentai.Document.Page.Symbol], text: str
+) -> None:
+    print(f"    {len(symbols)} symbols detected:")
+    first_symbol_text = layout_to_text(symbols[0].layout, text)
+    print(f"        First symbol text: {repr(first_symbol_text)}")
+    last_symbol_text = layout_to_text(symbols[-1].layout, text)
+    print(f"        Last symbol text: {repr(last_symbol_text)}")
+
+
 def print_image_quality_scores(
     image_quality_scores: documentai.Document.Page.ImageQualityScores,
 ) -> None:
@@ -151,20 +128,73 @@ def print_image_quality_scores(
         print(f"        {detected_defect.type_}: {detected_defect.confidence:.1%}")
 
 
+def print_styles(styles: Sequence[documentai.Document.Style], text: str) -> None:
+    print(f"    {len(styles)} styles detected:")
+    first_style_text = layout_to_text(styles[0].layout, text)
+    print(f"        First style text: {repr(first_style_text)}")
+    print(f"           Color: {styles[0].color}")
+    print(f"           Background Color: {styles[0].background_color}")
+    print(f"           Font Weight: {styles[0].font_weight}")
+    print(f"           Text Style: {styles[0].text_style}")
+    print(f"           Text Decoration: {styles[0].text_decoration}")
+    print(f"           Font Size: {styles[0].font_size.size}{styles[0].font_size.unit}")
+    print(f"           Font Family: {styles[0].font_family}")
+
+
+def process_document(
+    project_id: str,
+    location: str,
+    processor_id: str,
+    processor_version: str,
+    file_path: str,
+    mime_type: str,
+    process_options: Optional[documentai.ProcessOptions] = None,
+) -> documentai.Document:
+    # You must set the `api_endpoint` if you use a location other than "us".
+    client = documentai.DocumentProcessorServiceClient(
+        client_options=ClientOptions(
+            api_endpoint=f"{location}-documentai.googleapis.com"
+        )
+    )
+
+    # The full resource name of the processor version, e.g.:
+    # `projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`
+    # You must create a processor before running this sample.
+    name = client.processor_version_path(
+        project_id, location, processor_id, processor_version
+    )
+
+    # Read the file into memory
+    with open(file_path, "rb") as image:
+        image_content = image.read()
+
+    # Configure the process request
+    request = documentai.ProcessRequest(
+        name=name,
+        raw_document=documentai.RawDocument(content=image_content, mime_type=mime_type),
+        # Only supported for Document OCR processor
+        process_options=process_options,
+    )
+
+    result = client.process_document(request=request)
+
+    # For a full list of `Document` object attributes, reference this page:
+    # https://cloud.google.com/document-ai/docs/reference/rest/v1/Document
+    return result.document
+
+
 def layout_to_text(layout: documentai.Document.Page.Layout, text: str) -> str:
     """
     Document AI identifies text in different parts of the document by their
-    offsets in the entirety of the document's text. This function converts
+    offsets in the entirety of the document"s text. This function converts
     offsets to a string.
     """
-    response = ""
     # If a text segment spans several lines, it will
     # be stored in different text segments.
-    for segment in layout.text_anchor.text_segments:
-        start_index = int(segment.start_index)
-        end_index = int(segment.end_index)
-        response += text[start_index:end_index]
-    return response
+    return "".join(
+        text[int(segment.start_index) : int(segment.end_index)]
+        for segment in layout.text_anchor.text_segments
+    )
 
 
 # TODO(developer): Edit these variables before running the sample.
@@ -174,7 +204,6 @@ processor_id = "YOUR_PROCESSOR_ID"  # Create processor before running sample
 processor_version = "pretrained-ocr-v1.2-2022-11-10"
 file_path = "DeclarationOfIndependence-Cursive.pdf"
 mime_type = "application/pdf"  # Refer to https://cloud.google.com/document-ai/docs/file-types for supported file types
-enable_native_pdf_parsing = True
 
 process_document_ocr_sample(
     project_id=project_id,
@@ -183,5 +212,4 @@ process_document_ocr_sample(
     processor_version=processor_version,
     file_path=file_path,
     mime_type=mime_type,
-    enable_native_pdf_parsing=enable_native_pdf_parsing,
 )

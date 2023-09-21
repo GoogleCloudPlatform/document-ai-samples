@@ -27,13 +27,12 @@ from docai_bq_connector.connector.BqDocumentMapper import BqDocumentMapper
 from docai_bq_connector.connector.BqMetadataMapper import BqMetadataMapper
 from docai_bq_connector.connector.BqMetadataMapper import BqMetadataMappingInfo
 from docai_bq_connector.doc_ai_processing.DocumentState import DocumentState
-from docai_bq_connector.doc_ai_processing.ProcessedDocument import \
-    ProcessedDocument
+from docai_bq_connector.doc_ai_processing.ProcessedDocument import ProcessedDocument
 from docai_bq_connector.doc_ai_processing.Processor import Processor
-from docai_bq_connector.exception.DocReferenceException import \
-    DocAlreadyProcessedError
-from docai_bq_connector.exception.DocReferenceException import \
-    InitialDocRecordNotFoundError
+from docai_bq_connector.exception.DocReferenceException import DocAlreadyProcessedError
+from docai_bq_connector.exception.DocReferenceException import (
+    InitialDocRecordNotFoundError,
+)
 from docai_bq_connector.exception.TableNotFoundError import TableNotFoundError
 
 

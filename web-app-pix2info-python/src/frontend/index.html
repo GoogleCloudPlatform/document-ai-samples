@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Document AI demo - From pixels to information</title>
+        <meta
+            name="description"
+            content="Prototyping demo for document understanding with Google Cloud Document AI"
+        />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link rel="shortcut icon" href="favicon.ico" />
+        <!-- Web Components by Shoelace: https://shoelace.style -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0/dist/themes/light.css"
+        />
+        <script
+            type="module"
+            src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0/dist/shoelace.js"
+        ></script>
+        <link rel="stylesheet" href="styles.css" />
+        <script src="scripts.js" defer></script>
+    </head>
+
+    <body>
+        <h1>Document AI &mdash; From pixels to information</h1>
+        <sl-card>
+            <div slot="header">Input</div>
+            <sl-select hoist id="location" label="Location"></sl-select>
+            <sl-select hoist id="processor" label="Processor"></sl-select>
+            <span id="document"
+                ><span>Document</span>
+                <sl-button-group label="Document">
+                    <sl-button id="camera">
+                        <sl-icon slot="prefix" name="camera"></sl-icon>Camera
+                    </sl-button>
+                    <sl-button id="files">
+                        <sl-icon
+                            slot="prefix"
+                            name="file-earmark-arrow-up"
+                        ></sl-icon
+                        >File(s)
+                    </sl-button>
+                    <sl-dropdown>
+                        <sl-button slot="trigger" caret>
+                            <sl-icon
+                                slot="prefix"
+                                name="file-earmark-arrow-down"
+                            ></sl-icon
+                            >Sample
+                        </sl-button>
+                        <sl-menu id="samples"></sl-menu>
+                    </sl-dropdown>
+                </sl-button-group>
+            </span>
+        </sl-card>
+        <sl-card id="output-card">
+            <div slot="header">
+                Output
+                <sl-dropdown>
+                    <sl-icon
+                        slot="trigger"
+                        name="three-dots-vertical"
+                    ></sl-icon>
+                    <sl-menu id="options">
+                        <sl-menu-label>Source code</sl-menu-label>
+                        <sl-menu-item id="source-code"
+                            >View on GitHub
+                            <sl-icon
+                                slot="prefix"
+                                name="box-arrow-up-right"
+                            ></sl-icon
+                        ></sl-menu-item>
+                        <sl-divider></sl-divider>
+                        <sl-menu-label>Download</sl-menu-label>
+                        <sl-menu-item id="download-docai-json"
+                            >Document AI JSON
+                            <sl-icon
+                                slot="prefix"
+                                name="file-earmark-arrow-down"
+                            ></sl-icon>
+                        </sl-menu-item>
+                        <sl-menu-item id="download-output-image"
+                            >Output image
+                            <sl-icon
+                                slot="prefix"
+                                name="file-earmark-arrow-down"
+                            ></sl-icon>
+                        </sl-menu-item>
+                        <sl-divider></sl-divider>
+                        <sl-menu-label>Output options</sl-menu-label>
+                        <sl-menu-item value="animated" type="checkbox"
+                            >Animated
+                            <sl-icon slot="prefix" name="film"></sl-icon>
+                        </sl-menu-item>
+                        <sl-menu-item value="cropped" type="checkbox"
+                            >Cropped to text
+                            <sl-icon slot="prefix" name="crop"></sl-icon>
+                        </sl-menu-item>
+                        <sl-menu-item value="confidence" type="checkbox"
+                            >Confidence
+                            <sl-icon slot="prefix" name="percent"></sl-icon>
+                        </sl-menu-item>
+                        <sl-menu-item value="normalized" type="checkbox" checked
+                            >Normalized values
+                            <sl-icon slot="prefix" name="rulers"></sl-icon>
+                        </sl-menu-item>
+                        <sl-divider></sl-divider>
+                        <sl-menu-label>Output format</sl-menu-label>
+                    </sl-menu>
+                </sl-dropdown>
+            </div>
+            <sl-tab-group placement="end">
+                <sl-tab slot="nav" panel="page">Page</sl-tab>
+                <sl-tab slot="nav" panel="text">Text</sl-tab>
+                <sl-tab slot="nav" panel="document">Doc.</sl-tab>
+                <sl-tab-panel name="page">
+                    <sl-select hoist id="page" label="Page"></sl-select>
+                    <sl-select
+                        hoist
+                        id="overlay"
+                        label="Overlay"
+                        value="no-info"
+                    >
+                        <sl-option value="no-info">-None-</sl-option>
+                        <sl-option value="blocks">Blocks (0)</sl-option>
+                        <sl-option value="paragraphs">Paragraphs (0)</sl-option>
+                        <sl-option value="lines">Lines (0)</sl-option>
+                        <sl-option value="tokens">Tokens (0)</sl-option>
+                        <sl-option value="tables">Tables (0)</sl-option>
+                        <sl-option value="barcodes">Barcodes (0)</sl-option>
+                        <sl-option value="fields">Form fields (0)</sl-option>
+                        <sl-option value="entities">Entities (0)</sl-option>
+                    </sl-select>
+                    <img id="output-image" alt="output image" />
+                </sl-tab-panel>
+                <sl-tab-panel name="text">
+                    <sl-textarea
+                        id="document-text"
+                        placeholder="document.text"
+                        rows="6"
+                        readonly
+                    ></sl-textarea>
+                </sl-tab-panel>
+                <sl-tab-panel name="document">
+                    <sl-tree id="document-tree"></sl-tree>
+                </sl-tab-panel>
+            </sl-tab-group>
+        </sl-card>
+        <sl-dialog id="dialog" label="Focus on the document (at any angle)">
+            <video id="video" playsinline></video>
+            <sl-button id="snapshot" slot="footer" size="large">
+                <sl-icon slot="prefix" name="camera"></sl-icon>Snapshot
+            </sl-button>
+        </sl-dialog>
+    </body>
+</html>

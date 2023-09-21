@@ -1,0 +1,42 @@
+<html lang="en">
+  <head>
+    <title>Content Moderation x CX</title>
+    <link rel="shortcut icon" href="images/dialogflow-cx.png" />
+    <link rel="apple-touch-icon" href="images/dialogflow-cx.png" />
+    <style type="text/css">
+      .backscreen {
+        position: relative;
+      }
+      .backscreen:before {
+        content: "";
+        background: url(images/dialogflow-cx-512-color.png) no-repeat center
+          center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        height: 100%;
+        width: 100%;
+        z-index: -1;
+        display: block;
+        opacity: 0.33;
+      }
+      df-messenger {
+        font-family: "myriad-pro", "Gill Sans", "Gill Sans MT", Calibri,
+          sans-serif;
+      }
+    </style>
+  </head>
+  <body class="backscreen">
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger-cx/bootstrap.js?v=1"></script>
+    <df-messenger
+      df-cx="true"
+      location="us-central1"
+      chat-title="Content Moderation x CX"
+      agent-id="7d36bdf5-1835-4eec-9e28-eb7981fb62a4"
+      language-code="en"
+      intent="WELCOME"
+      chat-icon="images/document-ai-32-shaded.png"
+    ></df-messenger>
+  </body>
+</html>

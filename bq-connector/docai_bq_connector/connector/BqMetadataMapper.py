@@ -18,7 +18,7 @@
 #
 
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 # Indicates the metadata types that can be mapped - Informational only
 metadata_to_map = {
@@ -51,7 +51,7 @@ class BqMetadataMappingInfo:
     def __init__(
         self,
         bq_column_name: str,
-        metadata_value: Any = None,
+        metadata_value: Optional[Any] = None,
         skip_map: bool = False,
     ):
         """

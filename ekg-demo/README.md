@@ -21,7 +21,7 @@ This demo illustrates how to search the public Cloud Knowledge Graph using the [
 3. Install the prerequisites:
    - `pip install -r requirements.txt`
 4. Run `gcloud init`, create a new project, and
-    [enable billing](https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project)
+   [enable billing](https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project)
 5. Enable the EKG API:
    - `gcloud services enable enterpriseknowledgegraph.googleapis.com`
 6. Setup application default authentication, run:
@@ -32,11 +32,12 @@ This demo illustrates how to search the public Cloud Knowledge Graph using the [
 1. Update the `consts.py` file with your own `PROJECT_ID` and `LOCATION`.
 
 2. Deploy the Cloud Run app in your project.
+
    - `gcloud run deploy ekg-demo --source .`
 
 3. Visit the deployed web page
 
------
+---
 
 > Copyright 2022 Google LLC
 > Author: Holt Skinner

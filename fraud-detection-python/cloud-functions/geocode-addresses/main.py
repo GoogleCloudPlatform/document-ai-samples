@@ -1,4 +1,4 @@
-# type: ignore[1]
+# mypy: disable-error-code="1"
 """
 Sends address data from Invoices to Geocode API and writes to BigQuery
 """

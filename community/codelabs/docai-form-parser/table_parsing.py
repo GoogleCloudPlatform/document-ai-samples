@@ -1,4 +1,4 @@
-# type: ignore[1]
+# mypy: disable-error-code="1"
 """
 Uses Document AI online processing to call a form parser processor
 Extracts the tables and data in the document.

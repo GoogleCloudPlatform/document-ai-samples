@@ -1,0 +1,1487 @@
+{
+    "uri": "",
+    "mime_type": "image/png",
+    "text": "Willkommen!\nBienvenue !\nWelcome!\nQuestion: What is the answer to the ultimate question of life?\nAnswer: 42\n",
+    "pages": [
+        {
+            "page_number": 1,
+            "dimension": {
+                "width": 936.0,
+                "height": 213.0,
+                "unit": "pixels"
+            },
+            "layout": {
+                "text_anchor": {
+                    "text_segments": [
+                        {
+                            "end_index": "107"
+                        }
+                    ]
+                },
+                "confidence": 0.98634976,
+                "bounding_poly": {
+                    "vertices": [
+                        {},
+                        {
+                            "x": 936
+                        },
+                        {
+                            "x": 936,
+                            "y": 213
+                        },
+                        {
+                            "y": 213
+                        }
+                    ],
+                    "normalized_vertices": [
+                        {},
+                        {
+                            "x": 1.0
+                        },
+                        {
+                            "x": 1.0,
+                            "y": 1.0
+                        },
+                        {
+                            "y": 1.0
+                        }
+                    ]
+                },
+                "orientation": "PAGE_UP"
+            },
+            "detected_languages": [
+                {
+                    "language_code": "en",
+                    "confidence": 0.76776016
+                },
+                {
+                    "language_code": "de",
+                    "confidence": 0.12063345
+                },
+                {
+                    "language_code": "fr",
+                    "confidence": 0.11160638
+                }
+            ],
+            "blocks": [
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "end_index": "33"
+                                }
+                            ]
+                        },
+                        "confidence": 0.98407644,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.23474178
+                                },
+                                {
+                                    "x": 0.22008547,
+                                    "y": 0.23474178
+                                },
+                                {
+                                    "x": 0.22008547,
+                                    "y": 0.7370892
+                                },
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.7370892
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    }
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "33",
+                                    "end_index": "107"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9886231,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.9732906,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.9732906,
+                                    "y": 0.6056338
+                                },
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.6056338
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    }
+                }
+            ],
+            "paragraphs": [
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "end_index": "12"
+                                }
+                            ]
+                        },
+                        "confidence": 0.97432595,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.23474178
+                                },
+                                {
+                                    "x": 0.22008547,
+                                    "y": 0.23474178
+                                },
+                                {
+                                    "x": 0.22008547,
+                                    "y": 0.3286385
+                                },
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.3286385
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    }
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "12",
+                                    "end_index": "24"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9915582,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.036324788,
+                                    "y": 0.43661973
+                                },
+                                {
+                                    "x": 0.19871795,
+                                    "y": 0.43661973
+                                },
+                                {
+                                    "x": 0.19871795,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.036324788,
+                                    "y": 0.53521127
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    }
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "24",
+                                    "end_index": "33"
+                                }
+                            ]
+                        },
+                        "confidence": 0.98813117,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.63380283
+                                },
+                                {
+                                    "x": 0.17521368,
+                                    "y": 0.63849765
+                                },
+                                {
+                                    "x": 0.17521368,
+                                    "y": 0.7370892
+                                },
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.73239434
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    }
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "33",
+                                    "end_index": "96"
+                                }
+                            ]
+                        },
+                        "confidence": 0.99046594,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.9732906,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.9732906,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    }
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "96",
+                                    "end_index": "107"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9779754,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.43269232,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.43269232,
+                                    "y": 0.6056338
+                                },
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.6056338
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    }
+                }
+            ],
+            "lines": [
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "end_index": "12"
+                                }
+                            ]
+                        },
+                        "confidence": 0.97432595,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.23474178
+                                },
+                                {
+                                    "x": 0.22008547,
+                                    "y": 0.23474178
+                                },
+                                {
+                                    "x": 0.22008547,
+                                    "y": 0.3286385
+                                },
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.3286385
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "de",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "12",
+                                    "end_index": "24"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9915582,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.036324788,
+                                    "y": 0.43661973
+                                },
+                                {
+                                    "x": 0.19871795,
+                                    "y": 0.43661973
+                                },
+                                {
+                                    "x": 0.19871795,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.036324788,
+                                    "y": 0.53521127
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "fr",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "24",
+                                    "end_index": "33"
+                                }
+                            ]
+                        },
+                        "confidence": 0.98813117,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.63380283
+                                },
+                                {
+                                    "x": 0.17521368,
+                                    "y": 0.63849765
+                                },
+                                {
+                                    "x": 0.17521368,
+                                    "y": 0.7370892
+                                },
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.73239434
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "33",
+                                    "end_index": "96"
+                                }
+                            ]
+                        },
+                        "confidence": 0.99046594,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.9732906,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.9732906,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "96",
+                                    "end_index": "107"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9779754,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.43269232,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.43269232,
+                                    "y": 0.6056338
+                                },
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.6056338
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                }
+            ],
+            "tokens": [
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "end_index": "10"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9732163,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.23474178
+                                },
+                                {
+                                    "x": 0.20833333,
+                                    "y": 0.23474178
+                                },
+                                {
+                                    "x": 0.20833333,
+                                    "y": 0.3286385
+                                },
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.3286385
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "de",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "10",
+                                    "end_index": "12"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9854228,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.21153846,
+                                    "y": 0.23474178
+                                },
+                                {
+                                    "x": 0.22008547,
+                                    "y": 0.23474178
+                                },
+                                {
+                                    "x": 0.22008547,
+                                    "y": 0.3286385
+                                },
+                                {
+                                    "x": 0.21153846,
+                                    "y": 0.3286385
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "WIDE_SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "de",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "12",
+                                    "end_index": "22"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9934908,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.036324788,
+                                    "y": 0.43661973
+                                },
+                                {
+                                    "x": 0.1826923,
+                                    "y": 0.43661973
+                                },
+                                {
+                                    "x": 0.1826923,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.036324788,
+                                    "y": 0.53521127
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "fr",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "22",
+                                    "end_index": "24"
+                                }
+                            ]
+                        },
+                        "confidence": 0.97416455,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.19123931,
+                                    "y": 0.43661973
+                                },
+                                {
+                                    "x": 0.19871795,
+                                    "y": 0.43661973
+                                },
+                                {
+                                    "x": 0.19871795,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.19123931,
+                                    "y": 0.53521127
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "WIDE_SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "fr",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "24",
+                                    "end_index": "31"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9899707,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.63380283
+                                },
+                                {
+                                    "x": 0.16346154,
+                                    "y": 0.63849765
+                                },
+                                {
+                                    "x": 0.16346154,
+                                    "y": 0.7370892
+                                },
+                                {
+                                    "x": 0.034188036,
+                                    "y": 0.73239434
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "31",
+                                    "end_index": "33"
+                                }
+                            ]
+                        },
+                        "confidence": 0.97525465,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.16773504,
+                                    "y": 0.63849765
+                                },
+                                {
+                                    "x": 0.17521368,
+                                    "y": 0.63849765
+                                },
+                                {
+                                    "x": 0.17521368,
+                                    "y": 0.73239434
+                                },
+                                {
+                                    "x": 0.16773504,
+                                    "y": 0.73239434
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "WIDE_SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "33",
+                                    "end_index": "41"
+                                }
+                            ]
+                        },
+                        "confidence": 0.99091417,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.3888889,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.3888889,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "41",
+                                    "end_index": "43"
+                                }
+                            ]
+                        },
+                        "confidence": 0.97746617,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.39209402,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.3974359,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.3974359,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.39209402,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "43",
+                                    "end_index": "48"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9660254,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.4027778,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.46153846,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.46153846,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.4027778,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "48",
+                                    "end_index": "51"
+                                }
+                            ]
+                        },
+                        "confidence": 0.990245,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.4679487,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.48504272,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.48504272,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.4679487,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "51",
+                                    "end_index": "55"
+                                }
+                            ]
+                        },
+                        "confidence": 0.99153364,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.49252138,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.5277778,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.5277778,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.49252138,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "55",
+                                    "end_index": "62"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9933402,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.5352564,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.61752135,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.61752135,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.5352564,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "62",
+                                    "end_index": "65"
+                                }
+                            ]
+                        },
+                        "confidence": 0.99385965,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.62286323,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.64529914,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.64529914,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.62286323,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "65",
+                                    "end_index": "69"
+                                }
+                            ]
+                        },
+                        "confidence": 0.99419874,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.650641,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.6858974,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.6858974,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.650641,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "69",
+                                    "end_index": "78"
+                                }
+                            ]
+                        },
+                        "confidence": 0.99364716,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.6944444,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.7852564,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.7852564,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.6944444,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "78",
+                                    "end_index": "87"
+                                }
+                            ]
+                        },
+                        "confidence": 0.99493605,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.79273504,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.8888889,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.8888889,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.79273504,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "87",
+                                    "end_index": "90"
+                                }
+                            ]
+                        },
+                        "confidence": 0.98757315,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.89636755,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.9220086,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.9220086,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.89636755,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "90",
+                                    "end_index": "94"
+                                }
+                            ]
+                        },
+                        "confidence": 0.99549925,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.92628205,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.9604701,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.9604701,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.92628205,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "94",
+                                    "end_index": "96"
+                                }
+                            ]
+                        },
+                        "confidence": 0.98409,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.96260685,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.9732906,
+                                    "y": 0.33333334
+                                },
+                                {
+                                    "x": 0.9732906,
+                                    "y": 0.43192488
+                                },
+                                {
+                                    "x": 0.96260685,
+                                    "y": 0.43192488
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "WIDE_SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "96",
+                                    "end_index": "102"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9824811,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.37393162,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.37393162,
+                                    "y": 0.6056338
+                                },
+                                {
+                                    "x": 0.28739315,
+                                    "y": 0.6056338
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "102",
+                                    "end_index": "104"
+                                }
+                            ]
+                        },
+                        "confidence": 0.9274883,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.37393162,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.3792735,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.3792735,
+                                    "y": 0.6056338
+                                },
+                                {
+                                    "x": 0.37393162,
+                                    "y": 0.6056338
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                },
+                {
+                    "layout": {
+                        "text_anchor": {
+                            "text_segments": [
+                                {
+                                    "start_index": "104",
+                                    "end_index": "107"
+                                }
+                            ]
+                        },
+                        "confidence": 0.98970187,
+                        "bounding_poly": {
+                            "normalized_vertices": [
+                                {
+                                    "x": 0.4027778,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.43269232,
+                                    "y": 0.53521127
+                                },
+                                {
+                                    "x": 0.43269232,
+                                    "y": 0.6056338
+                                },
+                                {
+                                    "x": 0.4027778,
+                                    "y": 0.6056338
+                                }
+                            ]
+                        },
+                        "orientation": "PAGE_UP"
+                    },
+                    "detected_break": {
+                        "type_": "WIDE_SPACE"
+                    },
+                    "detected_languages": [
+                        {
+                            "language_code": "en",
+                            "confidence": 1.0
+                        }
+                    ]
+                }
+            ],
+            "image": {
+                "content": "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",
+                "mime_type": "image/png",
+                "width": 936,
+                "height": 213
+            },
+            "image_quality_scores": {
+                "quality_score": 0.9314152,
+                "detected_defects": [
+                    {
+                        "type_": "quality/defect_document_cutoff",
+                        "confidence": 1.0
+                    },
+                    {
+                        "type_": "quality/defect_glare",
+                        "confidence": 0.6929666
+                    },
+                    {
+                        "type_": "quality/defect_text_cutoff",
+                        "confidence": 0.5
+                    }
+                ]
+            }
+        }
+    ],
+    "entities": [
+        {
+            "type_": "quality_score",
+            "confidence": 0.9314152,
+            "page_anchor": {
+                "page_refs": [{}]
+            },
+            "properties": [
+                {
+                    "type_": "quality/defect_document_cutoff",
+                    "confidence": 1.0
+                },
+                {
+                    "type_": "quality/defect_glare",
+                    "confidence": 0.6929666
+                },
+                {
+                    "type_": "quality/defect_text_cutoff",
+                    "confidence": 0.5
+                }
+            ]
+        }
+    ]
+}

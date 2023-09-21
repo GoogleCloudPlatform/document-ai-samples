@@ -31,17 +31,11 @@ import java.io.FileInputStream;
 
 /** Sample that illustrates creating a document in Document AI Warehouse. */
 public class CreateDocument {
-  /**
-   * The project number associated with Document AI Warehouse.
-   */
+  /** The project number associated with Document AI Warehouse. */
   private String projectNumber;
-  /**
-   * The location where Document AI Warehouse can be found.
-   */
+  /** The location where Document AI Warehouse can be found. */
   private String location;
-  /**
-   * The userid used for ACLs.
-   */
+  /** The userid used for ACLs. */
   private String userId;
 
   /**
@@ -72,58 +66,55 @@ public class CreateDocument {
   }
 
   /**
-   * Create a document. This method performs the work to make a request to
-   * Document AI Warehouse to create (ingest) a new document. It is expected
-   * that the schema will have at least two properties called `payee`
-   * and `payer`.
+   * Create a document. This method performs the work to make a request to Document AI Warehouse to
+   * create (ingest) a new document. It is expected that the schema will have at least two
+   * properties called `payee` and `payer`.
    *
    * @param fileData The document data to be loaded into Document AI Warehouse.
    * @param schemaName The Document AI Warehouse identity of the schema.
    */
-  public void createDocument(final String schemaName,
-                             final ByteString fileData) {
+  public void createDocument(final String schemaName, final ByteString fileData) {
     try {
-      try (DocumentServiceClient documentServiceClient =
-             DocumentServiceClient.create()) {
+      try (DocumentServiceClient documentServiceClient = DocumentServiceClient.create()) {
         Document document =
             Document.newBuilder()
-            .setDisplayName("Invoice 1")
-            .setTitle("My Invoice 1")
-            .setDocumentSchemaName(schemaName)
-            .setInlineRawDocument(fileData)
-            .setRawDocumentFileType(RawDocumentFileType.RAW_DOCUMENT_FILE_TYPE_PDF)
-            .setTextExtractionDisabled(true)
-            .addProperties(
-              Property.newBuilder()
-                .setName("payee")
-                .setTextValues(
-                  TextArray.newBuilder()
-                    .addValues("Developer Company").build())
-                .build())
-            .addProperties(
-              Property.newBuilder()
-                .setName("payer")
-                .setTextValues(TextArray.newBuilder()
-                  .addValues("Buyer Company").build())
-                .build())
-            .build();
+                .setDisplayName("Invoice 1")
+                .setTitle("My Invoice 1")
+                .setDocumentSchemaName(schemaName)
+                .setInlineRawDocument(fileData)
+                .setRawDocumentFileType(RawDocumentFileType.RAW_DOCUMENT_FILE_TYPE_PDF)
+                .setTextExtractionDisabled(true)
+                .addProperties(
+                    Property.newBuilder()
+                        .setName("payee")
+                        .setTextValues(
+                            TextArray.newBuilder().addValues("Developer Company").build())
+                        .build())
+                .addProperties(
+                    Property.newBuilder()
+                        .setName("payer")
+                        .setTextValues(TextArray.newBuilder().addValues("Buyer Company").build())
+                        .build())
+                .build();
 
         RequestMetadata requestMetadata =
             RequestMetadata.newBuilder()
-            .setUserInfo(UserInfo.newBuilder().setId(userId).build())
-            .build();
+                .setUserInfo(UserInfo.newBuilder().setId(userId).build())
+                .build();
 
         CreateDocumentRequest createDocumentRequest =
             CreateDocumentRequest.newBuilder()
-            .setDocument(document)
-            .setParent(LocationName.of(projectNumber, location).toString())
-            .setRequestMetadata(requestMetadata)
-            .build();
+                .setDocument(document)
+                .setParent(LocationName.of(projectNumber, location).toString())
+                .setRequestMetadata(requestMetadata)
+                .build();
 
-        CreateDocumentResponse createDocumentResponse = documentServiceClient.createDocument(createDocumentRequest);
+        CreateDocumentResponse createDocumentResponse =
+            documentServiceClient.createDocument(createDocumentRequest);
 
         System.out.println("name");
-        System.out.println("-------------------------------------------------------------------------");
+        System.out.println(
+            "-------------------------------------------------------------------------");
         System.out.println(createDocumentResponse.getDocument().getName());
       }
     } catch (Exception e) {

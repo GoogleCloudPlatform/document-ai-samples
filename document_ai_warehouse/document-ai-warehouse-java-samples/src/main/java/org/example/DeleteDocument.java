@@ -21,9 +21,7 @@ import com.google.cloud.contentwarehouse.v1.DocumentServiceClient;
 import com.google.cloud.contentwarehouse.v1.RequestMetadata;
 import com.google.cloud.contentwarehouse.v1.UserInfo;
 
-/**
- * Sample application that deletes a document from Document AI Warehouse.
- */
+/** Sample application that deletes a document from Document AI Warehouse. */
 public class DeleteDocument {
   private String userId;
 
