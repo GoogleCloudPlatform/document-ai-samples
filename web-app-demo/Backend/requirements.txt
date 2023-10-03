@@ -1,7 +1,7 @@
-Flask==2.3.2
+Flask==3.0.0
 Flask-Cors==4.0.0
 Flask-RESTful==0.3.10
 google-cloud-documentai==2.15.0
 google-auth==2.19.1
-pylint==2.17.4
+pylint==3.0.0
 gunicorn==21.0.1
