@@ -1,4 +1,4 @@
-## Overview
+# Overview
 This utility is tailored to process Form parser JSON files, which are initially parsed using a processor. These files, sourced from the GCS bucket, are transformed from a key/value structure into entities. Once transformed, the tool saves them back into the GCS bucket in JSON format.
 
 ## Configuration

@@ -1,4 +1,4 @@
-## Introduction
+# Introduction
 Our primary objective is to seamlessly automate the process of pinpointing documents that underperform, in order to facilitate their uptraining. A document's performance is quantified based on its count of missed crucial fields. This script operates according to the following specifications:
 
 ## Input Specifications

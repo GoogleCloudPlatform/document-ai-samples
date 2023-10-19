@@ -1,5 +1,4 @@
-
-## Purpose of the Script
+# Purpose of the Script
 This Python script are designed to streamline the labeling process of JSON files by identifying and removing empty bounding boxes. Specifically, the script eliminates bounding boxes (or entities) that lack `mentionText` or `textAnchors`, thus enhancing the accuracy of the labeling data.
 
 ## Inputs

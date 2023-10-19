@@ -1,4 +1,4 @@
-## Purpose of the Script
+# Purpose of the Script
 
 This tool is specifically designed to compare Pre-HITL JSON files (those parsed from a processor) and Post-HITL JSON files (those updated via HITL) sourced from a GCS bucket. The differences between the JSON files are presented in an Excel sheet, complete with images that feature bounding boxes.
 
