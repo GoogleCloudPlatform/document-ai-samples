@@ -66,7 +66,7 @@ def check_create_bucket(bucket_name):
     try:
         bucket = storage_client.get_bucket(bucket_name)
         print(f"Bucket {bucket_name} already exists.")
-    except:
+    except Exception:
         bucket = storage_client.create_bucket(bucket_name)
         print(f"Bucket {bucket_name} created.")
 
@@ -82,7 +82,9 @@ def bucket_delete(bucket_name):
         bucket_name (str): The name of the bucket to be deleted.
 
     Returns:
-        None. If the bucket exists, it will be deleted. If it doesn't exist or an error occurs, the function will silently pass.
+        None. If the bucket exists, it will be deleted. 
+        If it doesn't exist or an error occurs, 
+        the function will silently pass.
     """
 
     print("Deleting bucket:", bucket_name)
@@ -92,7 +94,7 @@ def bucket_delete(bucket_name):
     try:
         bucket = storage_client.get_bucket(bucket_name)
         bucket.delete(force=True)
-    except:
+    except Exception:
         pass
 
 
@@ -127,8 +129,12 @@ def matching_files_two_buckets(bucket_1, bucket_2):
 
     Returns:
         tuple: A tuple containing two dictionaries:
-            1. matched_files_dict: Dictionary with filenames from bucket_1 as keys and corresponding similar filenames from bucket_2 as values.
-            2. non_matched_files_dict: Dictionary with filenames from bucket_1 as keys and a message indicating no similar file was found in bucket_2 as values.
+            1. matched_files_dict: Dictionary with filenames from 
+            bucket_1 as keys and corresponding similar filenames 
+            from bucket_2 as values.
+            2. non_matched_files_dict: Dictionary with filenames from 
+            bucket_1 as keys and a message indicating no similar file 
+            was found in bucket_2 as values.
     """
 
     bucket_1_blobs = list_blobs(bucket_1)
@@ -234,7 +240,7 @@ def JsonToDataframe(data):
 
                         try:
                             page = subentity.page_anchor.page_refs[0].page
-                        except:
+                        except Exception:
                             page = 0
                         bbox = [
                             round(min(x_1), 8),
@@ -248,7 +254,7 @@ def JsonToDataframe(data):
                             bbox,
                             page,
                         ]
-                    except:
+                    except Exception:
                         continue
 
             except Exception as e:
@@ -265,7 +271,7 @@ def JsonToDataframe(data):
                     y_1 = [xy.y for xy in coordinates_xy]
                     try:
                         page = entity.page_anchor.page_refs[0].page
-                    except:
+                    except Exception:
                         page = 0
 
                     bbox = [
@@ -647,7 +653,8 @@ def get_document_schema(location, project_number, processor_id, processor_versio
     client = documentai.DocumentProcessorServiceClient(client_options=opts)
 
     # Construct the request.
-    name = f"projects/{project_number}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}"
+    name = f"projects/{project_number}/locations/{location}/processors/\
+    {processor_id}/processorVersions/{processor_version_id}"
     request = documentai.GetProcessorVersionRequest(name=name)
 
     # Fetch the processor version details.
