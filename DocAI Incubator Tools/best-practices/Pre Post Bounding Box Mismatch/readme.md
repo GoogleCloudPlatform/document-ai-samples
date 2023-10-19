@@ -4,13 +4,13 @@ This tool is a comparison utility script designed to detect two primary issues: 
 
 ## Issues Defined
 
-- **Parser issue:** 
+- **Parser issue:**
   Identified when the bounding box fails to encompass the entire text region, resulting in incomplete text capture. When users access the HITL worker UI, they adjust the bounding box to cover the entire text region and save their changes. This script highlights such discrepancies.
 
-- **OCR issue:** 
+- **OCR issue:**
   Recognized when the bounding box does cover the entire text region, but the resultant text is not captured fully. These cases are flagged by the script.
 
-## Inputs 
+## Inputs
 
 - **project_id:** Provide the specific project ID.
   

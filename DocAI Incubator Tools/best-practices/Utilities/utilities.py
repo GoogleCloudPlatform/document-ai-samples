@@ -82,8 +82,8 @@ def bucket_delete(bucket_name):
         bucket_name (str): The name of the bucket to be deleted.
 
     Returns:
-        None. If the bucket exists, it will be deleted. 
-        If it doesn't exist or an error occurs, 
+        None. If the bucket exists, it will be deleted.
+        If it doesn't exist or an error occurs,
         the function will silently pass.
     """
 
@@ -129,11 +129,11 @@ def matching_files_two_buckets(bucket_1, bucket_2):
 
     Returns:
         tuple: A tuple containing two dictionaries:
-            1. matched_files_dict: Dictionary with filenames from 
-            bucket_1 as keys and corresponding similar filenames 
+            1. matched_files_dict: Dictionary with filenames from
+            bucket_1 as keys and corresponding similar filenames
             from bucket_2 as values.
-            2. non_matched_files_dict: Dictionary with filenames from 
-            bucket_1 as keys and a message indicating no similar file 
+            2. non_matched_files_dict: Dictionary with filenames from
+            bucket_1 as keys and a message indicating no similar file
             was found in bucket_2 as values.
     """
 
