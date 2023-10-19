@@ -235,18 +235,18 @@ def JsonToDataframe(data):
                     try:
                         bound_poly = subentity.page_anchor.page_refs
                         coordinates_xy = bound_poly[0].bounding_poly.normalized_vertices
-                        x_1 = [xy.x for xy in coordinates_xy]
-                        y_1 = [xy.y for xy in coordinates_xy]
+                        x1 = [xy.x for xy in coordinates_xy]
+                        y1 = [xy.y for xy in coordinates_xy]
 
                         try:
                             page = subentity.page_anchor.page_refs[0].page
                         except Exception:
                             page = 0
                         bbox = [
-                            round(min(x_1), 8),
-                            round(min(y_1), 8),
-                            round(max(x_1), 8),
-                            round(max(y_1), 8),
+                            round(min(x1), 8),
+                            round(min(y1), 8),
+                            round(max(x1), 8),
+                            round(max(y1), 8),
                         ]
                         df.loc[len(df.index)] = [
                             subentity.type_,
