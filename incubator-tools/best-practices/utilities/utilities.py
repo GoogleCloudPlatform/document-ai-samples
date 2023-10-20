@@ -583,32 +583,18 @@ def compare_pre_hitl_and_post_hitl_output(file1, file2):
     match_array = []
     for i in range(0, len(df_compare)):
         match_string = ""
-        if (
-            df_compare.iloc[i]["Pre_HITL_Output"] == "Entity not found."
-            and df_compare.iloc[i]["Post_HITL_Output"] == "Entity not found."
-        ):
+        not_found_string = "Entity not found."
+        pre_output = df_compare.iloc[i]["Pre_HITL_Output"]
+        post_output = df_compare.iloc[i]["Post_HITL_Output"]
+        
+        if pre_output == not_found_string and post_output == not_found_string:
             match_string = "TN"
-        elif (
-            df_compare.iloc[i]["Pre_HITL_Output"] != "Entity not found."
-            and df_compare.iloc[i]["Post_HITL_Output"] == "Entity not found."
-        ):
+        elif pre_output != not_found_string and post_output == not_found_string:
             match_string = "FN"
-        elif (
-            df_compare.iloc[i]["Pre_HITL_Output"] == "Entity not found."
-            and df_compare.iloc[i]["Post_HITL_Output"] != "Entity not found."
-        ):
+        elif pre_output == not_found_string and post_output != not_found_string:
             match_string = "FP"
-        elif (
-            df_compare.iloc[i]["Pre_HITL_Output"] != "Entity not found."
-            and df_compare.iloc[i]["Post_HITL_Output"] != "Entity not found."
-        ):
-            if (
-                df_compare.iloc[i]["Pre_HITL_Output"]
-                == df_compare.iloc[i]["Post_HITL_Output"]
-            ):
-                match_string = "TP"
-            else:
-                match_string = "FP"
+        elif pre_output != not_found_string and post_output != not_found_string:
+            match_string = "TP" if pre_output == post_output else "FP"
         else:
             match_string = "Something went Wrong."
 
