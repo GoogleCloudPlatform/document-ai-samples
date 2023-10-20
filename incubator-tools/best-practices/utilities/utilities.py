@@ -638,13 +638,13 @@ def get_document_schema(location, project_number, processor_id, processor_versio
     # Initialize the DocumentAI client.
     client = documentai.DocumentProcessorServiceClient(client_options=opts)
 
-    # Construct the request.
-    name = f"projects/{project_number}/locations/{location}/processors/\
-    {processor_id}/processorVersions/{processor_version_id}"
-    request = documentai.GetProcessorVersionRequest(name=name)
-
+    # The full resource name of the processor version
+    # e.g.: projects/project_id/locations/location/processors/processor_id/processorVersions/processor_version_id
+    name = client.processor_version_path(
+        project_id, location, processor_id, processor_version_id
+    )
     # Fetch the processor version details.
-    response = client.get_processor_version(request=request)
+    response = client.get_processor_version(name=name)
 
     # Extract and return the document schema.
     return response.document_schema
