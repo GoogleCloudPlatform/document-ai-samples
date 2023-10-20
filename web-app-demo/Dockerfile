@@ -1,4 +1,4 @@
-FROM node:20-slim
+FROM node:21-slim
 
 ENV APP_HOME /app
 WORKDIR $APP_HOME
