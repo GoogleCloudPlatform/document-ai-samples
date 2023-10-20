@@ -422,7 +422,7 @@ def find_match(
     return matched_index
 
 
-def bb_intersection_over_union(box1: List[float], box2: List[float]) -> float:
+def bb_intersection_over_union(box1: Any, box2: List[float]) -> float:
     """
     Calculates the Intersection Over Union (IOU) between two bounding boxes.
 
@@ -675,7 +675,7 @@ def get_document_schema(
     return response.document_schema
 
 
-def create_pdf_bytes_from_json(gt_json: dict) -> bytes:
+def create_pdf_bytes_from_json(gt_json: dict) -> Tuple[bytes, List[Any]]:
     """
     Create PDF bytes from the image content of the ground truth JSON,
     which will be used for the processing of files.
@@ -695,7 +695,7 @@ def create_pdf_bytes_from_json(gt_json: dict) -> bytes:
 
     def create_pdf_from_images(
         images: Sequence[Image.Image],
-    ) -> Tuple[bytes, List[Any]]:
+    ) -> bytes:
         """Creates a PDF from a sequence of images.
 
         The PDF will contain 1 page per image, in the same order.
