@@ -628,11 +628,8 @@ def get_document_schema(location, project_number, processor_id, processor_versio
         schema = get_document_schema("eu", "123456", "processor123", "version123")
     """
     # Choose the endpoint based on the provided location.
-    opts = {}
-    if location == "eu":
-        opts = {"api_endpoint": "eu-documentai.googleapis.com"}
-    else:
-        opts = {"api_endpoint": "us-documentai.googleapis.com"}
+    # You must set the `api_endpoint` if you use a location other than "us".
+    opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
 
     # Initialize the DocumentAI client.
     client = documentai.DocumentProcessorServiceClient(client_options=opts)
