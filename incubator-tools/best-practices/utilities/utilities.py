@@ -63,7 +63,8 @@ def check_create_bucket(bucket_name: str) -> storage.bucket.Bucket:
         bucket_name (str): The name of the bucket to check or create.
 
     Returns:
-        google.cloud.storage.bucket.Bucket: The bucket object corresponding to the provided bucket name.
+        google.cloud.storage.bucket.Bucket:
+        The bucket object corresponding to the provided bucket name.
     """
 
     storage_client = storage.Client()
@@ -172,7 +173,8 @@ def documentai_json_proto_downloader(
     bucket_name: str, blob_name_with_prefix_path: str
 ) -> Any:
     """
-    Downloads a file from a specified Google Cloud Storage bucket and converts it into a DocumentAI Document proto.
+    Downloads a file from a specified Google Cloud Storage bucket
+    and converts it into a DocumentAI Document proto.
 
     Args:
         bucket_name (str): The name of the GCS bucket from which to download the file.
@@ -216,7 +218,9 @@ def copy_blob(
     source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
 
 
-def get_entity_metadata(df: pd.DataFrame, entity: "DocAI Entity") -> pd.DataFrame:
+def get_entity_metadata(
+    df: pd.DataFrame, entity: documentai.Document.Entity
+) -> pd.DataFrame:
     """
     Parse the entity to extract bounding boxes,
     entity type, text and page number.
@@ -361,7 +365,8 @@ def remove_row(df: pd.DataFrame, entity: Any) -> pd.DataFrame:
         entity (str): The entity value that should be used to identify rows to be removed.
 
     Returns:
-        pandas.DataFrame: A DataFrame with rows removed where the "type_" column matches the specified entity.
+        pandas.DataFrame: A DataFrame with rows removed where the "type_" column
+        matches the specified entity.
     """
 
     return df[df["type_"] != entity]
@@ -378,13 +383,16 @@ def find_match(
     Args:
         entity_file1 (list): A list containing entity details from the first file.
                              It should have the format [type_, mention_text, bbox, ...].
-        df_file2 (pandas.DataFrame): The input DataFrame containing entity details from the second file.
+        df_file2 (pandas.DataFrame): The input DataFrame containing entity details
+        from the second file.
 
     Returns:
-        int or None: The index of the matching entity from `df_file2` if found, otherwise None.
+        int or None: The index of the matching entity from `df_file2` if found,
+        otherwise None.
 
     Note:
-        The function assumes the existence of a function `bb_intersection_over_union` that computes the IOU.
+        The function assumes the existence of a function `bb_intersection_over_union`
+        that computes the IOU.
     """
     import operator
 
@@ -655,7 +663,8 @@ def get_document_schema(
     client = documentai.DocumentProcessorServiceClient(client_options=opts)
 
     # The full resource name of the processor version
-    # e.g.: projects/project_num/locations/location/processors/processor_id/processorVersions/processor_version_id
+    # e.g.: projects/project_num/locations/location/processors/
+    # processor_id/processorVersions/processor_version_id
     name = client.processor_version_path(
         project_number, location, processor_id, processor_version_id
     )
@@ -684,7 +693,9 @@ def create_pdf_bytes_from_json(gt_json: dict) -> bytes:
             image.load()
         return image
 
-    def create_pdf_from_images(images: Sequence[Image.Image]) -> bytes:
+    def create_pdf_from_images(
+        images: Sequence[Image.Image],
+    ) -> Tuple[bytes, List[Any]]:
         """Creates a PDF from a sequence of images.
 
         The PDF will contain 1 page per image, in the same order.
