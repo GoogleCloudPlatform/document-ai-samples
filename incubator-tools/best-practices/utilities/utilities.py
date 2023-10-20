@@ -179,8 +179,7 @@ def documentai_json_proto_downloader(bucket_name, blob_name_with_prefix_path):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(blob_name_with_prefix_path)
 
-    contents = blob.download_as_string()
-    doc = documentai.Document.from_json(contents.decode())
+    doc = documentai.Document.from_json(blob.download_as_bytes())
 
     return doc
 
