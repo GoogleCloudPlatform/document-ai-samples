@@ -687,11 +687,8 @@ def create_pdf_bytes_from_json(gt_json):
             )
             return pdf_file.getvalue()
 
-    doc = documentai.Document
-    document = doc.from_json(json.dumps(gt_json))
-    synthesized_images = []
-    for i in range(len(document.pages)):
-        synthesized_images.append(decode_image(document.pages[i].image.content))
+    document = documentai.Document.from_json(json.dumps(gt_json))
+    synthesized_images = [decode_image(page.image.content) for page in doc.pages]
     pdf_bytes = create_pdf_from_images(synthesized_images)
 
     return pdf_bytes, synthesized_images
