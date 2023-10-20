@@ -2,22 +2,26 @@
 import difflib
 import io
 import json
-from typing import Sequence
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
+from google.api_core.client_options import ClientOptions
 from google.cloud import documentai_v1beta3 as documentai
 from google.cloud import storage
+from google.cloud.exceptions import Conflict
+from google.cloud.exceptions import NotFound
+from pandas import DataFrame
 import pandas as pd
 from PIL import Image
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
-def file_names(GS_File_path):
+def file_names(gs_file_path: str) -> Tuple[List[str], Dict[str, str]]:
     """
     Retrieves the list of files from a given Google Cloud Storage path.
 
     Args:
-        GS_File_path (str): The Google Cloud Storage path in the format
+        gs_file_path (str): The Google Cloud Storage path in the format
         "gs://<bucket-name>/<folder-path>/".
 
     Returns:
@@ -27,7 +31,7 @@ def file_names(GS_File_path):
             their respective full paths in the bucket as values.
     """
 
-    bucket = GS_File_path.split("/")[2]
+    bucket = gs_file_path.split("/")[2]
     file_names_list = []
     file_dict = {}
 
@@ -37,7 +41,7 @@ def file_names(GS_File_path):
     filenames = [
         filename.name
         for filename in list(
-            source_bucket.list_blobs(prefix=(("/").join(GS_File_path.split("/")[3:])))
+            source_bucket.list_blobs(prefix=(("/").join(gs_file_path.split("/")[3:])))
         )
     ]
 
@@ -50,7 +54,7 @@ def file_names(GS_File_path):
     return file_names_list, file_dict
 
 
-def check_create_bucket(bucket_name):
+def check_create_bucket(bucket_name: str) -> storage.bucket.Bucket:
     """
     Checks if a specified Google Cloud Storage bucket exists. If not, it creates one.
     Primarily used for creating a temporary bucket to store processed files.
@@ -66,14 +70,14 @@ def check_create_bucket(bucket_name):
     try:
         bucket = storage_client.get_bucket(bucket_name)
         print(f"Bucket {bucket_name} already exists.")
-    except Exception:
+    except NotFound:
         bucket = storage_client.create_bucket(bucket_name)
         print(f"Bucket {bucket_name} created.")
 
     return bucket
 
 
-def bucket_delete(bucket_name):
+def bucket_delete(bucket_name: str) -> None:
     """
     Deletes a specified Google Cloud Storage bucket.
     Primarily used for deleting temporary buckets after their purpose is served.
@@ -88,17 +92,16 @@ def bucket_delete(bucket_name):
     """
 
     print("Deleting bucket:", bucket_name)
-    from google.cloud import storage
 
     storage_client = storage.Client()
     try:
         bucket = storage_client.get_bucket(bucket_name)
         bucket.delete(force=True)
-    except Exception:
+    except (NotFound, Conflict):
         pass
 
 
-def list_blobs(bucket_name):
+def list_blobs(bucket_name: str) -> List[str]:
     """
     Retrieves a list of filenames (blobs) from a specified Google Cloud Storage bucket.
 
@@ -119,7 +122,9 @@ def list_blobs(bucket_name):
     return blob_list
 
 
-def matching_files_two_buckets(bucket_1, bucket_2):
+def matching_files_two_buckets(
+    bucket_1: str, bucket_2: str
+) -> Tuple[Dict[str, str], Dict[str, str]]:
     """
     Compares the files from two Google Cloud Storage buckets to find files with similar names.
 
@@ -163,7 +168,9 @@ def matching_files_two_buckets(bucket_1, bucket_2):
     return matched_files_dict, non_matched_files_dict
 
 
-def documentai_json_proto_downloader(bucket_name, blob_name_with_prefix_path):
+def documentai_json_proto_downloader(
+    bucket_name: str, blob_name_with_prefix_path: str
+) -> Any:
     """
     Downloads a file from a specified Google Cloud Storage bucket and converts it into a DocumentAI Document proto.
 
@@ -184,7 +191,12 @@ def documentai_json_proto_downloader(bucket_name, blob_name_with_prefix_path):
     return doc
 
 
-def copy_blob(bucket_name, blob_name, destination_bucket_name, destination_blob_name):
+def copy_blob(
+    bucket_name: str,
+    blob_name: str,
+    destination_bucket_name: str,
+    destination_blob_name: str,
+) -> None:
     """
     Copies a blob (file/object) from one GCP storage bucket to another.
 
@@ -204,7 +216,48 @@ def copy_blob(bucket_name, blob_name, destination_bucket_name, destination_blob_
     source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
 
 
-def JsonToDataframe(data):
+def get_entity_metadata(df: pd.DataFrame, entity: "DocAI Entity") -> pd.DataFrame:
+    """
+    Parse the entity to extract bounding boxes,
+    entity type, text and page number.
+
+    Args:
+        entity: Document AI entity object
+
+    Returns:
+        pandas.DataFrame: A DataFrame representation of the JSON with columns ['type_', 'mention_text', 'bbox', 'page'].
+                          'type_' column indicates the type of entity.
+                          'mention_text' column contains the text of the entity or its property.
+                          'bbox' column contains bounding box coordinates.
+                          'page' column indicates the page number where the entity is found.
+    """
+
+    bbox = []
+    bound_poly = entity.page_anchor.page_refs
+    coordinates_xy = bound_poly[0].bounding_poly.normalized_vertices
+    x1 = [xy.x for xy in coordinates_xy]
+    y1 = [xy.y for xy in coordinates_xy]
+
+    try:
+        page = entity.page_anchor.page_refs[0].page
+    except IndexError:
+        page = 0
+    bbox = [
+        round(min(x1), 8),
+        round(min(y1), 8),
+        round(max(x1), 8),
+        round(max(y1), 8),
+    ]
+    df.loc[len(df.index)] = [
+        entity.type_,
+        entity.mention_text,
+        bbox,
+        page,
+    ]
+    return df
+
+
+def json_to_dataframe(data: documentai.Document) -> pd.DataFrame:
     """
     Converts a loaded DocumentAI proto JSON into a pandas DataFrame.
 
@@ -230,72 +283,31 @@ def JsonToDataframe(data):
             try:
                 for subentity in entity.properties:
                     has_properties = True  # Mark that we found properties
-                    bbox = []
                     try:
-                        bound_poly = subentity.page_anchor.page_refs
-                        coordinates_xy = bound_poly[0].bounding_poly.normalized_vertices
-                        x1 = [xy.x for xy in coordinates_xy]
-                        y1 = [xy.y for xy in coordinates_xy]
-
-                        try:
-                            page = subentity.page_anchor.page_refs[0].page
-                        except Exception:
-                            page = 0
-                        bbox = [
-                            round(min(x1), 8),
-                            round(min(y1), 8),
-                            round(max(x1), 8),
-                            round(max(y1), 8),
-                        ]
-                        df.loc[len(df.index)] = [
-                            subentity.type_,
-                            subentity.mention_text,
-                            bbox,
-                            page,
-                        ]
-                    except Exception:
+                        df = get_entity_metadata(df, subentity)
+                    except (AttributeError, Exception) as e:
+                        print(e)
                         continue
 
-            except Exception as e:
-                print(e)
+            except (AttributeError, Exception) as e:
+                print(f"Exception encountered: {e}")
                 continue
 
             # If no properties were found for the entity, add it to the dataframe
             if not has_properties:
                 try:
-                    bbox = []
-                    bound_poly = entity.page_anchor.page_refs
-                    coordinates_xy = bound_poly[0].bounding_poly.normalized_vertices
-                    x_1 = [xy.x for xy in coordinates_xy]
-                    y_1 = [xy.y for xy in coordinates_xy]
-                    try:
-                        page = entity.page_anchor.page_refs[0].page
-                    except Exception:
-                        page = 0
-
-                    bbox = [
-                        round(min(x_1), 8),
-                        round(min(y_1), 8),
-                        round(max(x_1), 8),
-                        round(max(y_1), 8),
-                    ]
-                    df.loc[len(df.index)] = [
-                        entity.type_,
-                        entity.mention_text,
-                        bbox,
-                        page,
-                    ]
-                except Exception as e:
-                    print(e)
+                    df = get_entity_metadata(df, entity)
+                except (AttributeError, Exception) as e:
+                    print(f"Exception encountered: {e}")
                     continue
 
         return df
-    except Exception as e:
-        print(e)
+    except (AttributeError, Exception) as e:
+        print(f"Exception encountered: {e}")
         return df
 
 
-def blob_downloader(bucket_name, blob_name):
+def blob_downloader(bucket_name: str, blob_name: str) -> Dict:
     """
     Downloads a JSON file from a specified Google Cloud Storage bucket
     and loads it as a Python dictionary.
@@ -315,13 +327,13 @@ def blob_downloader(bucket_name, blob_name):
     return json.loads(contents.decode())
 
 
-def bbox_maker(boundingPoly):
+def bbox_maker(bounding_poly: List[Dict[str, float]]) -> List[float]:
     """
     Converts a bounding polygon (list of coordinates) into a bounding box represented by
     the minimum and maximum x and y values.
 
     Args:
-        boundingPoly (list of dicts): A list of coordinates where each coordinate is a dictionary
+        bounding_poly (list of dicts): A list of coordinates where each coordinate is a dictionary
                                       with "x" and "y" keys. Example: [{"x": 0.5, "y": 0.5}, ...]
 
     Returns:
@@ -331,7 +343,7 @@ def bbox_maker(boundingPoly):
     x_list = []
     y_list = []
 
-    for i in boundingPoly:
+    for i in bounding_poly:
         x_list.append(i["x"])
         y_list.append(i["y"])
 
@@ -340,7 +352,7 @@ def bbox_maker(boundingPoly):
     return bbox
 
 
-def RemoveRow(df, entity):
+def remove_row(df: pd.DataFrame, entity: Any) -> pd.DataFrame:
     """
     Removes rows from a DataFrame where the "type_" column matches the specified entity.
 
@@ -355,7 +367,9 @@ def RemoveRow(df, entity):
     return df[df["type_"] != entity]
 
 
-def FindMatch(entity_file1, df_file2):
+def find_match(
+    entity_file1: List[Union[str, List[float]]], df_file2: pd.DataFrame
+) -> Optional[int]:
     """
     Identifies a matching entity from a DataFrame (`df_file2`)
     based on the Intersection Over Union (IOU)
@@ -370,7 +384,7 @@ def FindMatch(entity_file1, df_file2):
         int or None: The index of the matching entity from `df_file2` if found, otherwise None.
 
     Note:
-        The function assumes the existence of a function `BBIntersectionOverUnion` that computes the IOU.
+        The function assumes the existence of a function `bb_intersection_over_union` that computes the IOU.
     """
     import operator
 
@@ -387,7 +401,7 @@ def FindMatch(entity_file1, df_file2):
     index_iou_pairs = []
     for index, entity_file2 in df_file2.iterrows():
         if entity_file2["bbox"]:
-            iou = BBIntersectionOverUnion(bbox_file1, entity_file2["bbox"])
+            iou = bb_intersection_over_union(bbox_file1, entity_file2["bbox"])
             index_iou_pairs.append((index, iou))
 
     # Choose entity with highest IOU, IOU should be at least > 0.2
@@ -400,7 +414,7 @@ def FindMatch(entity_file1, df_file2):
     return matched_index
 
 
-def BBIntersectionOverUnion(box1, box2):
+def bb_intersection_over_union(box1: List[float], box2: List[float]) -> float:
     """
     Calculates the Intersection Over Union (IOU) between two bounding boxes.
 
@@ -417,7 +431,7 @@ def BBIntersectionOverUnion(box1, box2):
     Example:
         box1 = [0.1, 0.1, 0.6, 0.6]
         box2 = [0.5, 0.5, 1.0, 1.0]
-        iou = BBIntersectionOverUnion(box1, box2)
+        iou = bb_intersection_over_union(box1, box2)
     """
 
     # Determine the coordinates of the intersection rectangle
@@ -443,7 +457,7 @@ def BBIntersectionOverUnion(box1, box2):
     return iou
 
 
-def GetMatchRatio(values):
+def get_match_ratio(values: List[str]) -> float:
     """
     Calculates the similarity ratio between two strings using SequenceMatcher.
 
@@ -457,7 +471,7 @@ def GetMatchRatio(values):
 
     Example:
         values = ["Name1", "apple", "Name2", "apples"]
-        ratio = GetMatchRatio(values)
+        ratio = get_match_ratio(values)
     """
     file1_value = values[1]
     file2_value = values[2]
@@ -467,18 +481,22 @@ def GetMatchRatio(values):
     return difflib.SequenceMatcher(a=file1_value, b=file2_value).ratio()
 
 
-def compare_pre_hitl_and_post_hitl_output(file1, file2):
-    """Compares the entities between two files and returns
-    the results in a dataframe.
+def compare_pre_hitl_and_post_hitl_output(
+    file1: Any, file2: Any
+) -> Tuple[DataFrame, float]:
+    """
+    Compares the entities between two files and returns the results in a DataFrame.
 
     Args:
-        file1, file2: DocumentAI Object of Json
+        file1 (Any): DocumentAI Object of Json from the first file.
+        file2 (Any): DocumentAI Object of Json from the second file.
 
     Returns:
-        Dataframe based on the comparison
+        Tuple[DataFrame, float]: A tuple where the first element is a DataFrame based on the comparison,
+                                and the second element is a float representing the score.
     """
-    df_file1 = JsonToDataframe(file1)
-    df_file2 = JsonToDataframe(file2)
+    df_file1 = json_to_dataframe(file1)
+    df_file2 = json_to_dataframe(file2)
     file1_entities = [entity[0] for entity in df_file1.values]
     file2_entities = [entity[0] for entity in df_file2.values]
 
@@ -519,8 +537,8 @@ def compare_pre_hitl_and_post_hitl_output(file1, file2):
             page2,
         ]
         # common entities are removed from df_file1 and df_file2
-        df_file1 = RemoveRow(df_file1, entity)
-        df_file2 = RemoveRow(df_file2, entity)
+        df_file1 = remove_row(df_file1, entity)
+        df_file2 = remove_row(df_file2, entity)
 
     # remaining entities are matched comparing the area of IOU across them
     mention_text2 = pd.Series(dtype=str)
@@ -530,7 +548,7 @@ def compare_pre_hitl_and_post_hitl_output(file1, file2):
     page_2 = pd.Series(dtype=object)
 
     for index, row in enumerate(df_file1.values):
-        matched_index = FindMatch(row, df_file2)
+        matched_index = find_match(row, df_file2)
         if matched_index is not None:
             mention_text2.loc[index] = df_file2.loc[matched_index][1]
             bbox2.loc[index] = df_file2.loc[matched_index][2]
@@ -585,7 +603,7 @@ def compare_pre_hitl_and_post_hitl_output(file1, file2):
         not_found_string = "Entity not found."
         pre_output = df_compare.iloc[i]["Pre_HITL_Output"]
         post_output = df_compare.iloc[i]["Post_HITL_Output"]
-        
+
         if pre_output == not_found_string and post_output == not_found_string:
             match_string = "TN"
         elif pre_output != not_found_string and post_output == not_found_string:
@@ -601,7 +619,7 @@ def compare_pre_hitl_and_post_hitl_output(file1, file2):
 
     df_compare["Match"] = match_array
 
-    df_compare["Fuzzy Ratio"] = df_compare.apply(GetMatchRatio, axis=1)
+    df_compare["Fuzzy Ratio"] = df_compare.apply(get_match_ratio, axis=1)
     if list(df_compare.index):
         score = df_compare["Fuzzy Ratio"].sum() / len(df_compare.index)
     else:
@@ -611,7 +629,9 @@ def compare_pre_hitl_and_post_hitl_output(file1, file2):
     return df_compare, score
 
 
-def get_document_schema(location, project_number, processor_id, processor_version_id):
+def get_document_schema(
+    location: str, project_number: str, processor_id: str, processor_version_id: str
+) -> Any:
     """
     Fetches the document schema of a specific processor version from Google Cloud DocumentAI.
 
@@ -635,9 +655,9 @@ def get_document_schema(location, project_number, processor_id, processor_versio
     client = documentai.DocumentProcessorServiceClient(client_options=opts)
 
     # The full resource name of the processor version
-    # e.g.: projects/project_id/locations/location/processors/processor_id/processorVersions/processor_version_id
+    # e.g.: projects/project_num/locations/location/processors/processor_id/processorVersions/processor_version_id
     name = client.processor_version_path(
-        project_id, location, processor_id, processor_version_id
+        project_number, location, processor_id, processor_version_id
     )
     # Fetch the processor version details.
     response = client.get_processor_version(name=name)
@@ -646,11 +666,17 @@ def get_document_schema(location, project_number, processor_id, processor_versio
     return response.document_schema
 
 
-def create_pdf_bytes_from_json(gt_json):
-    """This Function will create pdf bytes from the image
-    content of the ground truth JSONS which will be used for processing of files
-    args: gs path of json file
-    output : pdf bytes"""
+def create_pdf_bytes_from_json(gt_json: dict) -> bytes:
+    """
+    Create PDF bytes from the image content of the ground truth JSON,
+    which will be used for the processing of files.
+
+    Args:
+        gt_json (dict): The input JSON data containing image content.
+
+    Returns:
+        bytes: The output PDF in byte format.
+    """
 
     def decode_image(image_bytes: bytes) -> Image.Image:
         with io.BytesIO(image_bytes) as image_file:
@@ -684,14 +710,18 @@ def create_pdf_bytes_from_json(gt_json):
             return pdf_file.getvalue()
 
     document = documentai.Document.from_json(json.dumps(gt_json))
-    synthesized_images = [decode_image(page.image.content) for page in doc.pages]
+    synthesized_images = [decode_image(page.image.content) for page in document.pages]
     pdf_bytes = create_pdf_from_images(synthesized_images)
 
     return pdf_bytes, synthesized_images
 
 
 def process_document_sample(
-    project_id: str, location: str, processor_id: str, pdf_bytes: bytes, processor_version: str
+    project_id: str,
+    location: str,
+    processor_id: str,
+    pdf_bytes: bytes,
+    processor_version: str,
 ):
     """This function is used to process the files using pdf bytes and provides the processed file"""
     # You must set the `api_endpoint` if you use a location other than "us".
@@ -699,16 +729,16 @@ def process_document_sample(
     client = documentai.DocumentProcessorServiceClient(client_options=opts)
 
     name = client.processor_version_path(
-        project_id, location, processor_id, processor_version_id
+        project_id, location, processor_id, processor_version
     )
-    
-    raw_document = documentai.RawDocument(content=pdf_bytes, mime_type="application/pdf")
+
+    raw_document = documentai.RawDocument(
+        content=pdf_bytes, mime_type="application/pdf"
+    )
 
     # Configure the process request
     request = documentai.ProcessRequest(
-        name=name,
-        raw_document=raw_document,
-        skip_human_review=False
+        name=name, raw_document=raw_document, skip_human_review=False
     )
 
     # Recognizes text entities in the PDF document
