@@ -695,30 +695,25 @@ def create_pdf_bytes_from_json(gt_json):
 
 
 def process_document_sample(
-    project_id: str, location: str, processor_id: str, pdf_bytes, processor_version: str
+    project_id: str, location: str, processor_id: str, pdf_bytes: bytes, processor_version: str
 ):
     """This function is used to process the files using pdf bytes and provides the processed file"""
-    # fs=gcsfs.GCSFileSystem(project=project_name)
-    # You must set the api_endpoint if you use a location other than 'us', e.g.:
-    opts = {}
-    if location == "eu":
-        opts = {"api_endpoint": "eu-documentai.googleapis.com"}
-    else:
-        opts = {"api_endpoint": "us-documentai.googleapis.com"}
-
+    # You must set the `api_endpoint` if you use a location other than "us".
+    opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
     client = documentai.DocumentProcessorServiceClient(client_options=opts)
-    name = f"projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version}"
 
-    # Read the file into memory
-    image_content = pdf_bytes
-    # Find the mime_type of the file
-
-    # temp_info=fs.info(file_path)
-    # mime_type=temp_info['contentType']
-    document = {"content": image_content, "mime_type": "application/pdf"}
+    name = client.processor_version_path(
+        project_id, location, processor_id, processor_version_id
+    )
+    
+    raw_document = documentai.RawDocument(content=pdf_bytes, mime_type="application/pdf")
 
     # Configure the process request
-    request = {"name": name, "raw_document": document, "skip_human_review": False}
+    request = documentai.ProcessRequest(
+        name=name,
+        raw_document=raw_document,
+        skip_human_review=False
+    )
 
     # Recognizes text entities in the PDF document
     result = client.process_document(request=request)
