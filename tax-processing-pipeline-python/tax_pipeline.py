@@ -192,9 +192,7 @@ def get_personal_info(forms: List[Dict]) -> Tuple[str, str, str]:
     """
     # pylint: disable=line-too-long
 
-    full_name = ""
-    ssn = ""
-    address = ""
+    full_name, ssn, address = "", "", ""
 
     for form in forms:
         if full_name and ssn and address:
