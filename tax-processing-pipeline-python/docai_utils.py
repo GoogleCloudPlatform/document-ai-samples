@@ -14,7 +14,7 @@
 
 """Document AI Utility Functions"""
 
-from typing import Dict, List, Tuple, Optional, Sequence
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from consts import CLASSIFIER_PROCESSOR_TYPES
 from consts import DEFAULT_MIME_TYPE
