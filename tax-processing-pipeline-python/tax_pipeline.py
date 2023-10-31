@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# mypy: disable-error-code="1"
+# type: ignore
 """Tax Processing Functions"""
 
 from decimal import Decimal
