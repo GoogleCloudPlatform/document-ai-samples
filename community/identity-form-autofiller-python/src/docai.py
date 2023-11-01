@@ -139,7 +139,7 @@ def processor_from_frontend_proc_info(proc_info: str) -> ProcessorInfo | None:
     proc_info = b64decode(proc_info.encode()).decode()
     PATTERN = (
         r"(?P<type>[A-Z0-9_]+)\|"
-        r"https://(?P<endpoint>[a-z0-9-]*documentai.googleapis.com)/v([0-9])+/"
+        r"https://(?P<endpoint>[a-z0-9-]*documentai\.googleapis.com)/v([0-9])+/"
         r"projects/(?P<project>[0-9]+)/"
         r"locations/(?P<location>[a-z0-9-]+)/"
         r"processors/(?P<id>[a-z0-9]+):process"

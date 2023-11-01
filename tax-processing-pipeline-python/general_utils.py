@@ -38,8 +38,4 @@ def invert_dictionary_with_array(dictionary: dict):
     Inverts a dictionary with arrays as values
     e.g. {key: [value1, value2]} -> {value1: key, value2: key}
     """
-    inv_map = {}
-    for key, array in dictionary.items():
-        for value in array:
-            inv_map[value] = key
-    return inv_map
+    return {value: key for key, values in dictionary.items() for value in values}
