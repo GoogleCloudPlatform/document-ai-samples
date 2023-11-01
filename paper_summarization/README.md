@@ -1,4 +1,6 @@
-# (WIP) Scientific Paper Summarization using Document AI and Vertex AI
+# Scientific Paper Summarization using Document AI and Vertex AI
+
+DEPRECATED: Go to [github.com/GoogleCloudPlatform/generative-ai/language/use-cases/document-summarization](https://github.com/GoogleCloudPlatform/generative-ai/tree/main/language/use-cases/document-summarization)
 
 ## Training Data
 
