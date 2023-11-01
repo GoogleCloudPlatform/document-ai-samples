@@ -13,14 +13,16 @@
 # limitations under the License.
 
 """Initialize Document AI Processors and Config File"""
+from typing import Dict
 
 from consts import CONFIG
 from consts import CONFIG_FILE_PATH
 from consts import DOCAI_PROCESSOR_LOCATION
 from consts import DOCAI_PROJECT_ID
-from docai_processors import create_processor
-from docai_processors import fetch_processor_types
-from docai_processors import get_processor_id
+from docai_utils import create_processor
+from docai_utils import fetch_processor_types
+from docai_utils import get_processor_id
+from docai_utils import list_processors
 from general_utils import write_yaml
 from google.api_core.exceptions import GoogleAPICallError
 
@@ -43,16 +45,33 @@ TAX_DEMO_PROCESSORS = set(
 ACCESS_REQUEST_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc_6s8jsHLZWWE0aSX0bdmk24XDoPiE_oq5enDApLcp1VKJ-Q/viewform?gxids=7826"  # noqa: E501
 
 
+def write_to_config(created_processors):
+    # Write Processor IDs to Config File
+    CONFIG.update({PROCESSOR_CONFIG_FIELD: created_processors})
+    write_yaml(CONFIG_FILE_PATH, CONFIG)
+
+
 def setup():
     """
     Run Initialization Steps
     """
+    created_processors: Dict[str, str] = {}
+
+    # Check if processors exist
+    created_processors = {
+        processor.type_: get_processor_id(processor.name)
+        for processor in list_processors(DOCAI_PROJECT_ID, DOCAI_PROCESSOR_LOCATION)
+        if PROCESSOR_NAME_PREFIX in processor.display_name
+    }
+
+    if created_processors:
+        write_to_config(created_processors)
+        return
+
     # List Available Processor Types
     available_processor_types = fetch_processor_types(
         DOCAI_PROJECT_ID, DOCAI_PROCESSOR_LOCATION
     )
-
-    created_processors = {}
 
     # Create Processors
     for processor_type in available_processor_types:
@@ -96,9 +115,7 @@ def setup():
 
         print(f"Created {display_name}: {processor_id}\n")
 
-    # Write Processor IDs to Config File
-    CONFIG.update({PROCESSOR_CONFIG_FIELD: created_processors})
-    write_yaml(CONFIG_FILE_PATH, CONFIG)
+    write_to_config(created_processors)
 
 
 if __name__ == "__main__":
