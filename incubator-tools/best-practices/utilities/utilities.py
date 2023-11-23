@@ -2,6 +2,8 @@
 import difflib
 import io
 import json
+import operator
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from google.api_core.client_options import ClientOptions
@@ -12,7 +14,6 @@ from google.cloud.exceptions import NotFound
 from pandas import DataFrame
 import pandas as pd
 from PIL import Image
-
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
@@ -45,7 +46,7 @@ def file_names(gs_file_path: str) -> Tuple[List[str], Dict[str, str]]:
         )
     ]
 
-    for i in range(len(filenames)):
+    for i,_ in enumerate(filenames):
         x = filenames[i].split("/")[-1]
         if x:
             file_names_list.append(x)
@@ -160,7 +161,7 @@ def matching_files_two_buckets(
                 non_matched_files_dict[i] = "No parsed output available"
 
     for i in matched_files_dict:
-        if i in non_matched_files_dict.keys():
+        if i in non_matched_files_dict:
             del non_matched_files_dict[i]
 
     print("matched_files_dict =", matched_files_dict)
@@ -171,7 +172,7 @@ def matching_files_two_buckets(
 
 def documentai_json_proto_downloader(
     bucket_name: str, blob_name_with_prefix_path: str
-) -> Any:
+) -> documentai.Document:
     """
     Downloads a file from a specified Google Cloud Storage bucket
     and converts it into a DocumentAI Document proto.
@@ -229,7 +230,8 @@ def get_entity_metadata(
         entity: Document AI entity object
 
     Returns:
-        pandas.DataFrame: A DataFrame representation of the JSON with columns ['type_', 'mention_text', 'bbox', 'page'].
+        pandas.DataFrame: A DataFrame representation of the JSON with columns 
+                          ['type_', 'mention_text', 'bbox', 'page'].
                           'type_' column indicates the type of entity.
                           'mention_text' column contains the text of the entity or its property.
                           'bbox' column contains bounding box coordinates.
@@ -269,7 +271,8 @@ def json_to_dataframe(data: documentai.Document) -> pd.DataFrame:
         data (json object): A loaded DocumentAI Document proto JSON.
 
     Returns:
-        pandas.DataFrame: A DataFrame representation of the JSON with columns ['type_', 'mention_text', 'bbox', 'page'].
+        pandas.DataFrame: A DataFrame representation of the JSON with columns 
+                          ['type_', 'mention_text', 'bbox', 'page'].
                           'type_' column indicates the type of entity.
                           'mention_text' column contains the text of the entity or its property.
                           'bbox' column contains bounding box coordinates.
@@ -394,7 +397,6 @@ def find_match(
         The function assumes the existence of a function `bb_intersection_over_union`
         that computes the IOU.
     """
-    import operator
 
     bbox_file1 = entity_file1[2]
 
@@ -471,7 +473,7 @@ def get_match_ratio(values: List[str]) -> float:
 
     Args:
         values (list[str]): A list containing four elements.
-                            The second (index 1) and fourth (index 3) are the strings to be compared.
+                            The second(index 1) and fourth(index 3) are the strings to be compared.
 
     Returns:
         float: A ratio representing the similarity between the two strings.
@@ -500,8 +502,9 @@ def compare_pre_hitl_and_post_hitl_output(
         file2 (Any): DocumentAI Object of Json from the second file.
 
     Returns:
-        Tuple[DataFrame, float]: A tuple where the first element is a DataFrame based on the comparison,
-                                and the second element is a float representing the score.
+        Tuple[DataFrame, float]: A tuple where the first element is a DataFrame based on the 
+                                 comparison,and the second element is a float representing
+                                 the score.
     """
     df_file1 = json_to_dataframe(file1)
     df_file2 = json_to_dataframe(file2)
@@ -756,3 +759,15 @@ def process_document_sample(
     result = client.process_document(request=request)
 
     return result
+
+def store_document_as_json(document, bucket_name: str, file_name: str):
+    """
+    Store Document json in cloud storage.
+    """
+
+    storage_client = storage.Client()
+    process_result_bucket = storage_client.get_bucket(bucket_name)
+    document_blob = storage.Blob(name=str(Path(file_name)),
+                                 bucket=process_result_bucket)
+    document_blob.upload_from_string(document,
+                                     content_type="application/json")
