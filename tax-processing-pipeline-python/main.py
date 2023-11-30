@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# mypy: disable-error-code="1"
+# type: ignore
 """Flask Web Server"""
 
 import os
@@ -121,7 +121,7 @@ def save_files_to_temp_directory(files, temp_dir) -> List[Tuple[str, str]]:
     Save files to temporary directory
     Returns a list of tuples containing file paths and mimetypes
     """
-    uploaded_filenames = []
+    uploaded_filenames: List[Tuple[str, str]] = []
     for file in files:
         if not file or file.filename == "":
             print("Skipping corrupt file")

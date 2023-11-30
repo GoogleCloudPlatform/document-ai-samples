@@ -14,7 +14,7 @@
 
 """Document AI Utility Functions"""
 
-from typing import Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from consts import CLASSIFIER_PROCESSOR_TYPES
 from consts import DEFAULT_MIME_TYPE
@@ -35,54 +35,55 @@ documentai_client = documentai.DocumentProcessorServiceClient(
 )
 
 
-def process_document_bytes(
+def process_document(
     project_id: str,
     location: str,
     processor_id: str,
-    file_content: bytes,
+    file_content: Optional[bytes] = None,
+    inline_document: Optional[documentai.Document] = None,
     mime_type: str = DEFAULT_MIME_TYPE,
 ) -> documentai.Document:
     """
     Processes a document using the Document AI API.
     Takes in bytes from file reading, instead of a file path
     """
-
     # The full resource name of the processor, e.g.:
     # projects/project-id/locations/location/processor/processor-id
     # You must create new processors in the Cloud Console first
     resource_name = documentai_client.processor_path(project_id, location, processor_id)
 
-    # Load Binary Data into Document AI RawDocument Object
-    raw_document = documentai.RawDocument(content=file_content, mime_type=mime_type)
-
     # Configure the process request
-    request = documentai.ProcessRequest(name=resource_name, raw_document=raw_document)
+    request = documentai.ProcessRequest(name=resource_name)
 
+    if file_content:
+        # Load Binary Data into Document AI RawDocument Object
+        request.raw_document = documentai.RawDocument(
+            content=file_content, mime_type=mime_type
+        )
+    elif inline_document:
+        request.inline_document = inline_document
+    else:
+        return None
     # Use the Document AI client to process the sample form
     result = documentai_client.process_document(request=request)
-
     return result.document
 
 
-def extract_document_entities(document: documentai.Document) -> dict:
+def extract_document_entities(document: documentai.Document) -> Dict[str, str]:
     """
     Get all entities from a document and output as a dictionary
     Format: entity.type_: entity.mention_text OR entity.normalized_value.text
     """
-    document_entities = {}
-    for entity in document.entities:
-        # Fields detected. For a full list of fields for each processor see
-        # the processor documentation:
-        # https://cloud.google.com/document-ai/docs/processors-list
-
-        key = entity.type_
-        # Use EKG Enriched Data if available
-        normalized_value = getattr(entity, "normalized_value", None)
-        value = normalized_value.text if normalized_value else entity.mention_text
-
-        document_entities[key] = value
-
-    return document_entities
+    # For a full list of fields for each processor see
+    # the processor documentation:
+    # https://cloud.google.com/document-ai/docs/processors-list
+    # Use EKG Enriched Data if available
+    return {
+        entity.type_: entity.normalized_value.text
+        if hasattr(entity, "normalized_value")
+        else entity.mention_text
+        for entity in document.entities
+    }
 
 
 def select_processor_from_classification(
@@ -103,7 +104,7 @@ def select_processor_from_classification(
     return processor_type, processor_id
 
 
-def classify_document_bytes(file_content: bytes, mime_type: str) -> str:
+def classify_document(file_content: bytes, mime_type: str) -> str:
     """
     Classify a single document with all available specialized processors
     """
@@ -112,16 +113,16 @@ def classify_document_bytes(file_content: bytes, mime_type: str) -> str:
     for classifier_processor_type in CLASSIFIER_PROCESSOR_TYPES:
         # Get Specific Processor ID for this Classifier Type
         classifier_processor_id = DOCAI_ACTIVE_PROCESSORS.get(classifier_processor_type)
-        if classifier_processor_id is None:
+        if not classifier_processor_id:
             continue
 
         # Classify Document
-        classification_document_proto = process_document_bytes(
+        classification_document_proto = process_document(
             DOCAI_PROJECT_ID,
             DOCAI_PROCESSOR_LOCATION,
             classifier_processor_id,
-            file_content,
-            mime_type,
+            file_content=file_content,
+            mime_type=mime_type,
         )
         # Translate Classification Output to Processor Type
         document_classification = classification_document_proto.entities[0].type_
@@ -132,3 +133,46 @@ def classify_document_bytes(file_content: bytes, mime_type: str) -> str:
             continue
 
     return document_classification
+
+
+def get_processor_id(path: str):
+    """
+    Extract Processor ID (Hexadecimal Number) from full processor path
+    """
+    return documentai_client.parse_processor_path(path)["processor"]
+
+
+def fetch_processor_types(
+    project_id: str, location: str
+) -> Sequence[documentai.ProcessorType]:
+    """
+    Returns a list of processor types enabled for the given project.
+    """
+    response = documentai_client.fetch_processor_types(
+        parent=documentai_client.common_location_path(project_id, location)
+    )
+    return response.processor_types
+
+
+def create_processor(
+    project_id: str, location: str, display_name: str, processor_type: str
+) -> documentai.Processor:
+    """
+    Creates a new processor.
+    """
+    processor_info = documentai.Processor(
+        display_name=display_name, type_=processor_type
+    )
+    return documentai_client.create_processor(
+        parent=documentai_client.common_location_path(project_id, location),
+        processor=processor_info,
+    )
+
+
+def list_processors(project_id: str, location: str) -> List[documentai.Processor]:
+    """Lists existing processors."""
+    return list(
+        documentai_client.list_processors(
+            parent=documentai_client.common_location_path(project_id, location),
+        )
+    )
