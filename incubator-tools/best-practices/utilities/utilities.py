@@ -1,3 +1,7 @@
+"""This script offers a suite of utility functions designed to simplify
+and streamline operations associated with Google Cloud Storage (GCS) and
+Google Cloud's DocumentAI."""
+
 # Import the libraries
 import difflib
 import io
@@ -14,6 +18,7 @@ from google.cloud.exceptions import NotFound
 from pandas import DataFrame
 import pandas as pd
 from PIL import Image
+
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
@@ -46,7 +51,7 @@ def file_names(gs_file_path: str) -> Tuple[List[str], Dict[str, str]]:
         )
     ]
 
-    for i,_ in enumerate(filenames):
+    for i, _ in enumerate(filenames):
         x = filenames[i].split("/")[-1]
         if x:
             file_names_list.append(x)
@@ -230,7 +235,7 @@ def get_entity_metadata(
         entity: Document AI entity object
 
     Returns:
-        pandas.DataFrame: A DataFrame representation of the JSON with columns 
+        pandas.DataFrame: A DataFrame representation of the JSON with columns
                           ['type_', 'mention_text', 'bbox', 'page'].
                           'type_' column indicates the type of entity.
                           'mention_text' column contains the text of the entity or its property.
@@ -271,7 +276,7 @@ def json_to_dataframe(data: documentai.Document) -> pd.DataFrame:
         data (json object): A loaded DocumentAI Document proto JSON.
 
     Returns:
-        pandas.DataFrame: A DataFrame representation of the JSON with columns 
+        pandas.DataFrame: A DataFrame representation of the JSON with columns
                           ['type_', 'mention_text', 'bbox', 'page'].
                           'type_' column indicates the type of entity.
                           'mention_text' column contains the text of the entity or its property.
@@ -502,9 +507,9 @@ def compare_pre_hitl_and_post_hitl_output(
         file2 (Any): DocumentAI Object of Json from the second file.
 
     Returns:
-        Tuple[DataFrame, float]: A tuple where the first element is a DataFrame based on the 
-                                 comparison,and the second element is a float representing
-                                 the score.
+        Tuple[DataFrame, float]: A tuple where the first element is a DataFrame based on the
+                                comparison,and the second element is a float representing
+                                the score.
     """
     df_file1 = json_to_dataframe(file1)
     df_file2 = json_to_dataframe(file2)
@@ -760,6 +765,7 @@ def process_document_sample(
 
     return result
 
+
 def store_document_as_json(document, bucket_name: str, file_name: str):
     """
     Store Document json in cloud storage.
@@ -767,7 +773,7 @@ def store_document_as_json(document, bucket_name: str, file_name: str):
 
     storage_client = storage.Client()
     process_result_bucket = storage_client.get_bucket(bucket_name)
-    document_blob = storage.Blob(name=str(Path(file_name)),
-                                 bucket=process_result_bucket)
-    document_blob.upload_from_string(document,
-                                     content_type="application/json")
+    document_blob = storage.Blob(
+        name=str(Path(file_name)), bucket=process_result_bucket
+    )
+    document_blob.upload_from_string(document, content_type="application/json")
