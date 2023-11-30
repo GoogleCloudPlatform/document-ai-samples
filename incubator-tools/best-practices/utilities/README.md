@@ -22,6 +22,12 @@ To utilize these utilities, ensure the appropriate packages are installed and yo
 
 ## Usage
 
+Download incubator-tools utilities module into your script of notebook:
+
+```python
+!wget https://raw.githubusercontent.com/GoogleCloudPlatform/document-ai-samples/main/incubator-tools/best-practices/utilities/utilities.py
+```
+
 To use the functions, simply import `utilities.py` into your script or notebook:
 
 ```python
