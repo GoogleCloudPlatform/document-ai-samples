@@ -21,7 +21,7 @@ The Tool shows clear differences between the two schemas with color coding.
     `C` - Contract Parser
         This input is not case sensitive.
 
-# Output Details
+## Output Details
 The color coding is defined to show the clear difference between two schemas:  
 * Green→<img src="./images/green.png" width=20 height=7> </img>→ Both the schema entities are perfectly matching.  
 * Yellow→<img src="./images/yellow.png" width=20 height=7> </img>→The entities are in only one schema (exists in base schema or untrained schema).  

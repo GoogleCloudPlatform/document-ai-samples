@@ -6,7 +6,7 @@ The script is tailored to capture account numbers beginning with "5" or "05", co
 **NOTE:** If any other number is of the same pattern as of “customer_account_number”, then that also be tagged.
 
 ## Input Details
-**input_path**: GCS Input Path. It should contain DocAI processed output json files. 
+**input_path**: GCS Input Path. It should contain DocAI processed output json files.
 **output_path**: GCS Output Path. The post-processed json files stored in this path.
 
 **NOTE**: GCS path must ends-with trailing-slash (`/`)
