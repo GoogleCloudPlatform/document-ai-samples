@@ -20,7 +20,7 @@ jobs:
         working-directory: ./cx-content-moderation
     steps:
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: "^1.20"
       - name: Checkout code
@@ -41,7 +41,7 @@ jobs:
         working-directory: ./cx-content-moderation
     steps:
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: "^1.20"
       - name: Checkout code
@@ -69,7 +69,7 @@ jobs:
         working-directory: ./cx-content-moderation
     steps:
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: "^1.20"
       - name: Checkout code
@@ -90,7 +90,7 @@ jobs:
         working-directory: ./cx-content-moderation
     steps:
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: "^1.20"
       - name: Check code
