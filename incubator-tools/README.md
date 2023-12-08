@@ -10,7 +10,6 @@ Folder contains various tools which is made for the benefit of Doc AI users.
     * [child_entity_tag_using_header](./child_entity_tag_using_header)
     * [date_entities_annotation_tool](./date_entities_annotation_tool)
     * [docai_processor_migration](./docai_processor_migration)
-    * [docai_processor_types](./docai_processor_types)
     * [label_migration_child_to_parent](./label_migration_child_to_parent)
     * [line_item_comparision](./line_item_comparision)
     * [line_item_improver](./line_item_improver)
