@@ -9,8 +9,8 @@ The `utilities.py` script offers a suite of utility functions designed to simpli
 3. **File Listings**: Retrieve a list of all files (blobs) within a specified GCS bucket.
 4. **File Matching**: Compare files between two GCS buckets to identify similar filenames.
 5. **Document Conversion**: Download a file from GCS and convert it into a DocumentAI Document proto.
-6. **Blob Operations**: Easily copy blobs (files or objects) from one GCS bucket to another.
-and several other functions.
+6. **Blob Operations**: Easily copy blobs (files or objects) from one GCS bucket to another and several other functions.
+7. **Upload Blobs**: To upload json files to GCS Path
 
 ## Dependencies
 
@@ -22,6 +22,12 @@ To utilize these utilities, ensure the appropriate packages are installed and yo
 
 ## Usage
 
+Download incubator-tools utilities module into your script of notebook:
+
+```python
+!wget https://raw.githubusercontent.com/GoogleCloudPlatform/document-ai-samples/main/incubator-tools/best-practices/utilities/utilities.py
+```
+
 To use the functions, simply import `utilities.py` into your script or notebook:
 
 ```python
@@ -30,4 +36,3 @@ import utilities
 
 ## Note
 For detailed functionality and parameters of each function, kindly refer to the docstrings within utilities.py.
-

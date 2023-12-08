@@ -1,0 +1,27 @@
+,line_GT,line_PP,id_GT,id_PP,type_GT,type_PP,mentionText_GT,mentionText_PP,Match
+0,0_GT,0_GT,10,10,line_item/description,line_item/description,Service Fee,Service Fee,TP
+0,0_GT,0_GT,11,11,line_item/quantity,line_item/quantity,1,1,TP
+0,0_GT,0_GT,12,12,line_item/unit_price,line_item/unit_price,200.00,200.00,TP
+0,0_GT,0_GT,13,13,line_item/amount,line_item/amount,200.00,200.00,TP
+0,1_GT,1_GT,15,15,line_item/description,line_item/description,"Labor: 5 hours at $75/hr
+New client discount","Labor: 5 hours at $75/hr
+New client discount",TP
+0,1_GT,1_GT,16,16,line_item/quantity,line_item/quantity,5,5,TP
+0,1_GT,1_GT,17,17,line_item/unit_price,line_item/unit_price,75.00,75.00,TP
+0,1_GT,1_GT,18,18,line_item/unit_price,line_item/unit_price,50.00,50.00,TP
+0,1_GT,1_GT,19,19,line_item/amount,line_item/amount,375.00,375.00,TP
+0,1_GT,1_GT,20,20,line_item/amount,line_item/amount,50.00,50.00,TP
+0,billing-invoice-template-0.json,-,Accuracy,-,GT,/,post-processed,-,1.0
+0,0_GT,0_GT,10,10,line_item/description,line_item/description,Service Fee,Service Fee,TP
+0,0_GT,0_GT,11,11,line_item/quantity,line_item/quantity,1,1,TP
+0,0_GT,0_GT,12,12,line_item/unit_price,line_item/unit_price,200.00,200.00,TP
+0,0_GT,0_GT,13,13,line_item/amount,line_item/amount,200.00,200.00,TP
+0,1_GT,1_GT,15,15,line_item/description,line_item/description,"Labor: 5 hours at $75/hr
+New client discount","Labor: 5 hours at $75/hr
+New client discount",TP
+0,1_GT,1_GT,16,16,line_item/quantity,line_item/quantity,5,5,TP
+0,1_GT,1_GT,17,17,line_item/unit_price,line_item/unit_price,75.00,75.00,TP
+0,1_GT,1_GT,18,18,line_item/unit_price,line_item/unit_price,50.00,50.00,TP
+0,1_GT,1_GT,19,19,line_item/amount,line_item/amount,375.00,375.00,TP
+0,1_GT,1_GT,20,20,line_item/amount,line_item/amount,50.00,50.00,TP
+0,billing-invoice-template-0.json,-,Accuracy,-,GT,/,parsed,-,1.0
