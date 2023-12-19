@@ -1,16 +1,16 @@
-## Purpose and Description
+# Purpose and Description
 
-The objective of this tool is to get the confidence score of individual tokens and then compare it with the text segments of the entities. By doing this, the tool aims to identify the minimum OCR confidence among these comparisons. 
+The objective of this tool is to get the confidence score of individual tokens and then compare it with the text segments of the entities. By doing this, the tool aims to identify the minimum OCR confidence among these comparisons.
 The tool associates the lowest confidence value with the respective entity. This resulting confidence value is stored as the "ocr_confidence_score." Every entity, including both parent and child entities, it possess its own OCR confidence score.
 
 
-# Input Details
- * **source_bucket_name**: GCS bucket name which contians input files
- * **source_folder_path**: GCS folder containing jsons
- * **destination_bucket_name**: GCS bucket name which stores output files
- * **destination_folder_path**: GCS folder to store processed json files
- 
-# Output Details
+## Input Details
+* **source_bucket_name**: GCS bucket name which contians input files
+* **source_folder_path**: GCS folder containing jsons
+* **destination_bucket_name**: GCS bucket name which stores output files
+* **destination_folder_path**: GCS folder to store processed json files
+
+## Output Details
 
 <img src="./Images/ocr_confidence_output_1.png" width=800 height=400>
 <br>

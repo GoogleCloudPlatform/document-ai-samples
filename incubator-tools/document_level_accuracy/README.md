@@ -1,7 +1,7 @@
 # Objective
-This tool uses annotated docs (JSON files) from GCS bucket as input and then runs the same (image) files through the designated version of the processor. Comparison of Annotated json files and processed json files should be provided  in a CSV file with difference and Document level accuracy stats. 
+This tool uses annotated docs (JSON files) from GCS bucket as input and then runs the same (image) files through the designated version of the processor. Comparison of Annotated json files and processed json files should be provided  in a CSV file with difference and Document level accuracy stats.
 
-# Input Details
+## Input Details
 Enter the input details with necessary information as outlined below:
 
 * **project_id**: Provide the project ID of your Google Cloud project.
@@ -14,7 +14,7 @@ Enter the input details with necessary information as outlined below:
 
 **NOTE**: If the critical_entities parameter is provided as an empty list then the tool will compare all the entities.
 
-# Output Details
+## Output Details
 The CSV file should have all the details of mismatch as shown below with Document level accuracy in ‘YES’ or ‘NO’.
 In the comparison, if all the entities in annotated jsons and processed json are matching 100%  then the Document level accuracy is shown as YES else NO.
 
