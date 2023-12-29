@@ -10,13 +10,12 @@ import operator
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
+import pandas as pd
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai_v1beta3 as documentai
 from google.cloud import storage
-from google.cloud.exceptions import Conflict
-from google.cloud.exceptions import NotFound
+from google.cloud.exceptions import Conflict, NotFound
 from pandas import DataFrame
-import pandas as pd
 from PIL import Image
 
 pd.options.mode.chained_assignment = None  # default='warn'
@@ -784,13 +783,14 @@ def convert_and_upload_tiff_to_jpeg(
 ):
     """
     Convert a TIFF file from Google Cloud Storage to a JPEG file and upload it back.
-
     Args:
         project_id (str): The Google Cloud project ID.
         bucket_name (str): The name of the Google Cloud Storage bucket.
         input_tiff_path (str): The path of the TIFF file in the bucket to be converted.
         output_jpeg_path (str): The path where the converted JPEG file will be stored in the bucket.
     """
+    from io import BytesIO
+
     try:
         # Initialize Google Cloud Storage client
         storage_client = storage.Client(project=project_id)
@@ -813,8 +813,14 @@ def convert_and_upload_tiff_to_jpeg(
         blob = bucket.blob(output_jpeg_path)
         blob.upload_from_file(jpeg_file, content_type="image/jpeg")
 
+    except storage.exceptions.GoogleCloudError as gce:
+        print("Google Cloud Storage error: ", gce)
+        return False
+    except OSError as ose:
+        print("File operation error: ", ose)
+        return False
     except Exception as e:
-        print("An error occurred: ", e)
+        print("An unexpected error occurred: ", e)
         return False
 
     return True
@@ -826,7 +832,7 @@ def batch_process_documents_sample(
     processor_id: str,
     gcs_input_uri: str,
     gcs_output_uri: str,
-    processor_version_id: str = None,
+    processor_version_id: Optional[str] = None,
     timeout: int = 500,
 ) -> Any:
     """It will perform Batch Process on raw input documents
