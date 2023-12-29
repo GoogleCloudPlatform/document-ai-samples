@@ -20,8 +20,6 @@ Folder contains various tools which is made for the benefit of Doc AI users.
 * [Normalize Currency Entity Type](./currency_normalization)
 * [Compute Document Level Accuracy](./document_level_accuracy)
 * [Use Cloud Translate to Detect Languages in Documents](./language_detection)
-* [Calculate Mininum OCR Confidence Score across Tokens of an Entity](./ocr_confidence_score)
 * [Split PDF into Chunks](./pdf_splitter)
 * [Reorder Document Pages based on Unique Strings](./reorder_document_page_based_on_unique_strings)
 * [Test Harness Tool](./test_harness_guide)
-* [Convert TIF/TIFF Files to JPEG](./tif_to_jpeg_image_conversion)
