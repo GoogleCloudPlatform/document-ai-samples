@@ -2,12 +2,12 @@
 
 This tool uses labeled json files as an input and gives whether there are any labeling issues like blank entities, entities which have text anchor or page anchor issues and overlapping of entities as output in a csv and dictionary format for further use.
 
-# Input Details
+## Input Details
 
 * **GCS_INPUT_PATH**: GCS folder path of labelled JSON files
 
-# Output Details
-The output is in 2 CSV files and a dictionary. 
+## Output Details
+The output is in 2 CSV files and a dictionary.
 
 In the CSV files , the columns are as below  
 **File_Name**: File name of the labeled json in GCP folder  
@@ -15,14 +15,14 @@ In the CSV files , the columns are as below
 **Yes**- Denotes there are Blank entities  
 **No** - No Blank entities found in the json  
 
-### Labeling issues:
+### Labeling issues
 
 The entities which have issues in Text anchors or Page anchors are treated as labeling issues because of which you cannot convert into proto format.  
 **Yes** - denotes there are few entities which have labeling issues  
 **No** - denotes no labeling issues  
 
 
-### Overlapping issues:
+### Overlapping issues
 The entities where it is labeled more than once with same or different entity type like below  
 <img src="./images/overlapping_issue.png">  
 

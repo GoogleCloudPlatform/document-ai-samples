@@ -23,7 +23,7 @@ Folder contains various tools which is made for the benefit of Doc AI users.
 * [Split PDF into Chunks](./pdf_splitter)
 * [Reorder Document Pages based on Unique Strings](./reorder_document_page_based_on_unique_strings)
 * [Test Harness Tool](./test_harness_guide)
-* [Amount Rectification in Cheques](./amount_rectification_from_words_to_numbers)
+* [Amount Rectification in Cheque](./amount_rectification_from_words_to_numbers)
 * [Custom Splitter Dataset Creator](./cds_dataset_creator/)
 * [Clean Amount Fields](./clean_amount_data/)
 * [Combine Address Lines](./combine_address_line/)

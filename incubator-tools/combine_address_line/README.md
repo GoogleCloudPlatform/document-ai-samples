@@ -1,20 +1,8 @@
-# Combine Address Lines
+# Purpose and Description
 
+Customer requires a post processing script which combines the split address into one address. In the parsed sample json file it is observed that the single address_line item has been split into four multiple address_lines.
 
-* Author: docai-incubator@google.com
-
-
-
-## Disclaimer
-
-
-
-This tool is not supported by the Google engineering team or product team. It is provided and supported on a best-effort basis by the DocAI Incubator Team. No guarantees of performance are implied.
-
-
-## Purpose and Description
-
-Customer requires a post processing script which combines the split address into one address. In the parsed sample json file it is observed that the single address_line item has been split into four multiple address_lines. This can be corrected by combining the address lines into a single address and removing other split address elements in the json. The json Entity keys Normalized Vertices and Text Segments indexes are to be updated properly with correct values when the address line is combined.
+This can be corrected by combining the address lines into a single address and removing other split address elements in the json. The json Entity keys Normalized Vertices and Text Segments indexes are to be updated properly with correct values when the address line is combined.
 
 
 ## Prerequisites
@@ -28,7 +16,7 @@ Customer requires a post processing script which combines the split address into
 3. Output folder to upload the updated json files.
 
 
-## Step by Step procedure 
+## Step by Step procedure
 
 
 ### 1. Input details
@@ -37,7 +25,7 @@ input_path: GCS Storage name. It should contain DocAI processed output json file
 
 output_path: GCS URI of the folder, where the dataset is exported from the processor.<br>
 
-Entity_names : list of entity_names that needs to be combined. 
+Entity_names : list of entity_names that needs to be combined.
 
 
 
@@ -70,7 +58,6 @@ Upon running the post processing script against input data. The resultant output
 
 <img src="./Images/combine_address_lines_output_3.png" width=800 height=400 alt="Combine address line output image">
 
-    
 
 <span>When the output json document is imported into the processor, it is observed that the address is now a single entity and the bounding box as shown:</span><br><br>
 
