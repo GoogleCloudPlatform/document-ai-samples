@@ -1,5 +1,5 @@
 # Purpose and Description
-This tool is to clean amount entity, which cleans the mention_text and converts it to business readable text data.
+This tool performs post-processing by cleaning the mention_text field of an amount entity and converting it into business redable string-format.
 
 ## Input Details
 * **INPUT_GCS_PATH** : It is input GCS folder path which contains DocumentAI processor JSON results

@@ -1,6 +1,6 @@
 # Purpose and Description
 
-This document guides how to maximize the bounding box of the entities using the parsed jsons.
+This document guides how to maximize the bounding boxes of the entities using the parsed jsons and this updated documents can be used for training processor which covers maximum area of entities and gives better results.
 
 ## Input Details
 
