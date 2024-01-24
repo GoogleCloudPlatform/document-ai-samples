@@ -10,13 +10,12 @@ import operator
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
+import pandas as pd
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai_v1beta3 as documentai
 from google.cloud import storage
-from google.cloud.exceptions import Conflict
-from google.cloud.exceptions import NotFound
+from google.cloud.exceptions import Conflict, NotFound
 from pandas import DataFrame
-import pandas as pd
 from PIL import Image
 
 pd.options.mode.chained_assignment = None  # default='warn'
