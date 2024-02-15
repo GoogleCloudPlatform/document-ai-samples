@@ -10,6 +10,7 @@ on:
       - main
     paths:
       - "pdf-splitter-python/**"
+permissions: read-all
 jobs:
   unit:
     runs-on: ubuntu-latest
