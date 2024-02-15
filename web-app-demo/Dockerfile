@@ -8,9 +8,6 @@ WORKDIR $APP_HOME
 
 COPY . ./
 
-# Specify a non-root user
-USER node
-
 # Change WORKDIR to an absolute path
 WORKDIR /app/Frontend
 
