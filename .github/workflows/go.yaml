@@ -10,6 +10,7 @@ on:
       - main
     paths:
       - "cx-content-moderation/**"
+permissions: read-all
 jobs:
   # Split build and lint into a few different jobs so they can run in parallel.
   build:

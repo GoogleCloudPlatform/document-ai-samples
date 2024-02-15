@@ -13,6 +13,7 @@ on:
       - main
     paths:
       - "web-app-demo/**"
+permissions: read-all
 jobs:
   frontend-unit:
     runs-on: ubuntu-latest
@@ -36,15 +37,15 @@ jobs:
     defaults:
       run:
         working-directory: ./web-app-demo/Backend
-    permissions:
-      contents: "read"
-      id-token: "write"
+    strategy:
+      matrix:
+        python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.python-version }}
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
