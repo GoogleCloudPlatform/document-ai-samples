@@ -2,6 +2,10 @@
 # https://hub.docker.com/_/python
 FROM python:3.11-slim
 
+# Create a non-root user to run the application
+RUN adduser --system --group --disabled-password appuser
+USER appuser
+
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
 
@@ -12,6 +16,9 @@ COPY . ./
 
 # Install production dependencies.
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl --fail http://localhost:$PORT/ || exit 1
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.
