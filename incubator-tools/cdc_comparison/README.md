@@ -6,7 +6,7 @@ This tool uses ground truth and parsed CDC json files to develop a confusion mat
 ## Input Details
 
 * **project_id** : Enter your project ID.
-* **GT_GCS_path** : Enter the GCS folder where groundtruth is saved.      
+* **GT_GCS_path** : Enter the GCS folder where groundtruth is saved. 
 * **parsed_GCS_path** : Enter the GCS folder where parsed json is saved.
 
 ## Output Details
