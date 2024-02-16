@@ -5,8 +5,8 @@ This tool uses ground truth and parsed CDC json files to develop a confusion mat
 
 ## Input Details
 
-* **project_id** : Enter your project ID.    
-* **GT_GCS_path** : Enter the GCS folder where groundtruth is saved.            
+* **project_id** : Enter your project ID.
+* **GT_GCS_path** : Enter the GCS folder where groundtruth is saved.      
 * **parsed_GCS_path** : Enter the GCS folder where parsed json is saved.
 
 ## Output Details
@@ -19,7 +19,7 @@ The tool provides output in 4 formats
    This tool considers only the type of document which has maximum confidence in the predicted json files.
 
    Below screenshot shows the sample of csv file , the column names are self explanatory and match column indicates TP(true positive) if ground truth and prediction matches else it is FP(false positive)
-   
+
 <img src="./images/cdc_1.png" width=800 height=400 alt="sample csv"></img>
 
 2. **Confusion_matrix**:

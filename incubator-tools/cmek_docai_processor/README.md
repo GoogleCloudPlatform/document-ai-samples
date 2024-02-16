@@ -16,7 +16,7 @@ To Manage key through Python Jupyter notebook ,the service account which is used
 
 2.Key ring is mandatory to create a CMEK key. These are the inputs required for key ring creation:
 
-* **Project_id** : Project id of the project
+* **Project_id** : Project ID of the project
 * **Location_id** : Location of the CMEK key to be created
 * **Key_ring_id** : Unique key name has to be provided for the new key ring
 
@@ -31,8 +31,4 @@ To Manage key through Python Jupyter notebook ,the service account which is used
 ### Grating access to key for DOC AI and Cloud storage
 
 * To use the CMEK key to create a Doc AI processor and GCS bucket , we need to grant cloud KMS cryptokey Encrypter/Decrypter access for service agents in the CMEK key.
-
-* To create Doc AI processor - service-Project number:@gcp-sa-prod-dai-core.iam.gserviceaccount.com
-* To create GCS bucket-service-Project number@gs-project-accounts.iam.gserviceaccount.com
-
-<img src="./Images/key_ring_destroy.png" width=800 height=400 alt="key ring destroy"></img>
+<img src="./Images/key_ring_destroy.png" width=800 height=400 alt="Key Ring Destroy"></img>
