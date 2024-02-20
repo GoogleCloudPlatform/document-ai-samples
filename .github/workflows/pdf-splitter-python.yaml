@@ -10,6 +10,7 @@ on:
       - main
     paths:
       - "pdf-splitter-python/**"
+permissions: read-all
 jobs:
   unit:
     runs-on: ubuntu-latest
@@ -26,14 +27,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Install requirements.txt
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Install pylint
         run: |
           python -m pip install --upgrade pip
-          pip install pylint
+          python -m pip install pylint
       - name: Analyze code with pylint
         run: |
           pylint ./**.py

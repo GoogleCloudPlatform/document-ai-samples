@@ -777,3 +777,102 @@ def store_document_as_json(document, bucket_name: str, file_name: str):
         name=str(Path(file_name)), bucket=process_result_bucket
     )
     document_blob.upload_from_string(document, content_type="application/json")
+
+
+def convert_and_upload_tiff_to_jpeg(
+    project_id, bucket_name, input_tiff_path, output_jpeg_path
+):
+    """
+    Convert a TIFF file from Google Cloud Storage to a JPEG file and upload it back.
+    Args:
+        project_id (str): The Google Cloud project ID.
+        bucket_name (str): The name of the Google Cloud Storage bucket.
+        input_tiff_path (str): The path of the TIFF file in the bucket to be converted.
+        output_jpeg_path (str): The path where the converted JPEG file will be stored in the bucket.
+    """
+    from io import BytesIO
+
+    try:
+        # Initialize Google Cloud Storage client
+        storage_client = storage.Client(project=project_id)
+        bucket = storage_client.get_bucket(bucket_name)
+
+        # Download TIFF file from GCS
+        blob = bucket.blob(input_tiff_path)
+        tiff_file = BytesIO()
+        blob.download_to_file(tiff_file)
+        tiff_file.seek(0)
+
+        # Convert to JPEG
+        with Image.open(tiff_file) as im:
+            rgb_im = im.convert("RGB")
+            jpeg_file = BytesIO()
+            rgb_im.save(jpeg_file, "JPEG")
+            jpeg_file.seek(0)
+
+        # Upload JPEG file to GCS
+        blob = bucket.blob(output_jpeg_path)
+        blob.upload_from_file(jpeg_file, content_type="image/jpeg")
+
+    except storage.exceptions.GoogleCloudError as gce:
+        print("Google Cloud Storage error: ", gce)
+        return False
+    except OSError as ose:
+        print("File operation error: ", ose)
+        return False
+    except Exception as e:
+        print("An unexpected error occurred: ", e)
+        return False
+
+    return True
+
+
+def batch_process_documents_sample(
+    project_id: str,
+    location: str,
+    processor_id: str,
+    gcs_input_uri: str,
+    gcs_output_uri: str,
+    processor_version_id: Optional[str] = None,
+    timeout: int = 500,
+) -> Any:
+    """It will perform Batch Process on raw input documents
+
+    Args:
+        project_id (str): GCP project ID
+        location (str): Processor location us or eu
+        processor_id (str): GCP DocumentAI ProcessorID
+        gcs_input_uri (str): GCS path which contains all input files
+        gcs_output_uri (str): GCS path to store processed JSON results
+        processor_version_id (str, optional): VersionID of GCP DocumentAI Processor. Defaults to None.
+        timeout (int, optional): Maximum waiting time for operation to complete. Defaults to 500.
+
+    Returns:
+        operation.Operation: LRO operation ID for current batch-job
+    """
+
+    opts = {"api_endpoint": f"{location}-documentai.googleapis.com"}
+    client = documentai.DocumentProcessorServiceClient(client_options=opts)
+    input_config = documentai.BatchDocumentsInputConfig(
+        gcs_prefix=documentai.GcsPrefix(gcs_uri_prefix=gcs_input_uri)
+    )
+    output_config = documentai.DocumentOutputConfig(
+        gcs_output_config={"gcs_uri": gcs_output_uri}
+    )
+    print("Documents are processing(batch-documents)...")
+    name = (
+        client.processor_version_path(
+            project_id, location, processor_id, processor_version_id
+        )
+        if processor_version_id
+        else client.processor_path(project_id, location, processor_id)
+    )
+    request = documentai.types.document_processor_service.BatchProcessRequest(
+        name=name,
+        input_documents=input_config,
+        document_output_config=output_config,
+    )
+    operation = client.batch_process_documents(request)
+    print("Waiting for operation to complete...")
+    operation.result(timeout=timeout)
+    return operation
