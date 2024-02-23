@@ -1,3 +1,4 @@
+
 # DocumentAI Asynchronous Reference Architecture
 
 ## Overview of Document AI Toolkit - Asynchronous
@@ -180,33 +181,27 @@ Upon successful deployment, you can access the input storage in the GCP console 
 
 <img src="./images/cloud_shell.png" width=600 height=300 alt="cloud shell image" />
 
-Download the [INPUT FILES](https://drive.google.com/drive/folders/1wZjCcCQG50GiMgfQTkDbYDqZPVEdYEdz?usp=sharing) from Google Drive to your local computer. Note that the version may be updated(auto_deploy_v8 is considered for this example, but latest is auto_deploy_v10). There are two files:  
+Download the auto_deploy_v8 and DAIRA_init.sh to your local computer. Note that the version may be updated (auto_deploy_v8) is considered for this example.  
 
    <img src="./images/drive_folder_1.png" width=600 height=300 alt="Drive folder image" />  
 
-* Download the folder as shown. The downloaded file is a .zip file. Unzip the file in your computer.  
-
-    <img src="./images/drive_folder_2.png" width=600 height=300 alt="Drive folder image" />
+* Now, convert the downloaded auto_deploy_v8 folder into a zip file named auto_deploy_v8.zip. You can zip the folder using any tool or library of your choice, based on your convenience.
 
 * Next, with the shell terminal opened, find the option to upload files. This uploads files to your present working directory in the cloud shell.
 
 <img src="./images/cloud_shell_upload_1.png" width=800 height=300 alt="cloud shell upload image" />  
 
-<img src="./images/cloud_shell_upload_2.png" width=800 height=300 alt="cloud shell upload image" />  
+<img src="./images/cloud_shell_upload_2.png" width=400 height=300 alt="cloud shell upload image" />  
 
 * Use ‘cd’ command to change directory into the folder and ‘ls’ command to view the two uploaded files.
-  * **auto_deploy_\<ver>.tar file** : This file is a compressed .tar file which contains necessary scripts and files to start and set up the project.
-  * **DAIRA_init.sh file** : this shell script extracts the auto_deploy_\<ver>.tar file and provide a folder called ‘auto_deloy_\<ver>/’ in the same directory.
-
-    <img src="./images/cloud_shell_cmd1.png" width=600 height=200 alt="cloud shell cmd image" />  
+  * **auto_deploy_\<ver>.zip file** : This file is a compressed .zip file which contains necessary scripts and files to start and set up the project.
+  * **DAIRA_init.sh file** : this shell script extracts the auto_deploy_\<ver>.zip file and provide a folder called ‘auto_deloy_\<ver>/’ in the same directory.
 
 * Use the change mode command to provide permission to execute the DAIRA_init.sh shell script.
 
-  <img src="./images/cloud_shell_cmd2.png" width=600 height=200 alt="cloud shell cmd image" />
-
 * Run the DAIRA_init shell script and obtain the folder as shown in the image below.
 
-  <img src="./images/cloud_shell_cmd3.png" width=600 height=200 alt="cloud shell cmd image" />
+  <img src="./images/c_s.png" width=600 height=200 alt="cloud shell cmd image" />
 
 * Change directory into the auto_deploy_\<ver>/ folder and the below 4 files are observed.  
   * **Input.sh**:
