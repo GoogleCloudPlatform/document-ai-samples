@@ -66,6 +66,7 @@ def delete_blob(bucket_name: str, blob_name: str) -> None:
     except TypeError as te:
         print(f"TypeError occurred: {te}")
 
+
 def bucket_cleaner(bucket_name: str) -> None:
     """
     Deletes all the blob inside the Google Cloud Storage bucket .
