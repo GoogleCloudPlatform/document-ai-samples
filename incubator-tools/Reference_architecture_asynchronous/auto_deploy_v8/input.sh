@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 
 # Prompt user for project and function names
 PROJECT_NAME="<your-project-name>"
