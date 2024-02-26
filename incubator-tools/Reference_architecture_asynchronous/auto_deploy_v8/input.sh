@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Prompt user for project and function names
-PROJECT_NAME="rand-automl-project"
-FUNCTION_NAME="daira-test-function_github_zaid_5"
+PROJECT_NAME="<your-project-name>"
+FUNCTION_NAME="<your-cloud-function-name>"
 LOCATION="us"
-BUCKET_NAME="daira_test_zaid_5"
-SERVICE_ACCOUNT_NAME="diara-shell-test"
-SCHEDULER_NAME="daira-shell-scheduler-zaid-5"
+BUCKET_NAME="<your-bucket-name>"
+SERVICE_ACCOUNT_NAME="<your-service_account>"
+SCHEDULER_NAME="<your-scheduler-name>"

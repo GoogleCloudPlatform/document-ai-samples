@@ -1,26 +1,20 @@
+"""
+Reference architecture asynchronous main.py
+"""
+
 import concurrent.futures
 from typing import List
-
 import pandas as pd
 from google.cloud import documentai, firestore, storage
 from utilities import batch_process_documents_sample, copy_blob, list_blobs
 
-"""
-project_name          = 'xx-xx-xx'
-input_bucket_name     = 'xx-db-test'  #'xx_shell_input'
-project_id            = 'xxxxxx'
-location              = 'us'
-processor_id          = 'xxx6fxxec5xx'
-gcs_output_uri_prefix = 'daira_outputs'
-"""
-
-input_bucket_name = "daira_test_zaid_5"
-gcs_output_uri_prefix = "daira_outputs"
+INPUT_BUCKET_NAME = "your_test_bucket_name"
+GCS_OUTPUT_URI_PREFIX = "your_output_folder_prefix"
 
 # read the config data
 storage_client = storage.Client()
-bucket = storage_client.bucket(input_bucket_name)
-blob = bucket.blob("config/config.txt")  # gs://daira-db-test/config/config.txt
+bucket = storage_client.bucket(INPUT_BUCKET_NAME)
+blob = bucket.blob("config/config.txt")
 config_data = blob.download_as_string().decode("utf-8")
 
 print(str(config_data).split("\n"))
@@ -31,7 +25,7 @@ location = input_parameters[2].split(":")[1].strip()
 processor_id = input_parameters[6].split("/")[-1]
 project_id = input_parameters[6].split("/")[1]
 
-print("input_bucket_name ", input_bucket_name)
+print("INPUT_BUCKET_NAME", INPUT_BUCKET_NAME)
 print("project_name ", project_name)
 print("location ", location)
 print("processor_id ", processor_id)
@@ -44,26 +38,33 @@ connection = firestore.Client(project=project_name)
 
 def delete_blob(bucket_name: str, blob_name: str) -> None:
     """
-    Deletes specified blob name from Google Cloud Storage bucket .
+    Deletes specified blob name from Google Cloud Storage bucket.
 
     Args:
         bucket_name (str): The name of the bucket.
-        blob_name (str):  The name of the blob inside the bucket.
+        blob_name (str): The name of the blob inside the bucket.
 
     Returns:
-        None. If the blob exists, it will be deleted the blob.
-        If it doesn't exist or an error occurs,
-        the function will silently pass.
+        None. If the blob exists, it will be deleted. If it doesn't exist or an error occurs,
+        the function will log the error. This example catches ValueError and TypeError as
+        placeholders for more specific exceptions you might want to handle.
     """
     print("delete_blob")
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(blob_name)
+    storage_client_db = storage.Client()
+    bucket_db = storage_client_db.bucket(bucket_name)
+    blob_db = bucket_db.blob(blob_name)
     try:
-        blob.delete()
-    except BaseException:
-        pass
+        # Example operation that could, in theory, raise a ValueError or TypeError
+        if not isinstance(bucket_name, str) or not isinstance(blob_name, str):
+            raise ValueError("Bucket name and blob name must be strings.")
+        if bucket_name is None or blob_name is None:
+            raise TypeError("Bucket name and blob name cannot be None.")
 
+        blob_db.delete()
+    except ValueError as ve:
+        print(f"ValueError occurred: {ve}")
+    except TypeError as te:
+        print(f"TypeError occurred: {te}")
 
 def bucket_cleaner(bucket_name: str) -> None:
     """
@@ -87,7 +88,6 @@ def db_insert(info_list_holder: List) -> None:
         contains metadata of the file, operation id, file storage location.
     """
     print("db_insert")
-    global connection
     for i in info_list_holder:
         for j in i:
             file_name = j["filename"]
@@ -104,7 +104,6 @@ def db_print() -> pd.DataFrame:
             It returns the dataframe having all the logs from the database.
     """
     print("db_print")
-    global connection
     db_entries = []
     reference = connection.collection("daira_logs")
     docs = reference.stream()
@@ -126,11 +125,11 @@ def bucket_lister(bucket_name: str) -> List:
     """
 
     print("bucket_lister")
-    storage_client = storage.Client()
-    blobs = storage_client.list_blobs(bucket_name)
+    storage_client_bl = storage.Client()
+    blobs = storage_client_bl.list_blobs(bucket_name)
     blob_arr = []
-    for blob in blobs:
-        blob_arr.append("gs://" + bucket_name + "/" + blob.name)
+    for blob_bl in blobs:
+        blob_arr.append("gs://" + bucket_name + "/" + blob_bl.name)
     return blob_arr
 
 
@@ -146,10 +145,10 @@ def create_bucket_class_location(bucket_name: str) -> str:
         The bucket name as string form.
     """
     print("create_bucket_class_location")
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    print("Bucket Created successfully : ", bucket)
-    return bucket
+    storage_client_cb = storage.Client()
+    bucket_cb = storage_client_cb.bucket(bucket_name)
+    print("Bucket Created successfully : ", bucket_cb)
+    return bucket_cb
 
 
 def batch_caller(gcs_input_uri, gcs_output_uri):
@@ -159,21 +158,14 @@ def batch_caller(gcs_input_uri, gcs_output_uri):
         gcs_input_uri (str): GCS path which contains all input files
         gcs_output_uri (str): GCS path to store processed JSON results
     """
-
-    print("batch_caller:")
     print(gcs_input_uri, gcs_output_uri)
-    global project_id
-    global location
-    global processor_id
-    global gcs_output_uri_prefix
-    global metadata_array
     print("BATCH_CALLER project_id : ", project_id)
     operation = batch_process_documents_sample(
         project_id,
         location,
         processor_id,
         gcs_input_uri,
-        f"{gcs_output_uri}/{gcs_output_uri_prefix}/",
+        f"{gcs_output_uri}/{GCS_OUTPUT_URI_PREFIX}/",
     )
     metadata = documentai.BatchProcessMetadata(operation.metadata)
     metadata_array.append(metadata)
@@ -205,11 +197,8 @@ def metadata_reader(metadata: documentai.BatchProcessMetadata) -> List:
                 "operation_id": i.output_gcs_destination.split("/")[-2],
                 "file_output_gcs_destination": i.output_gcs_destination,
                 "file_human_review_status": i.human_review_status.state.name,
-                "file_human_review_operation_id": i.human_review_status.human_review_operation.split(
-                    "/"
-                )[
-                    -1
-                ],
+                "file_human_review_operation_id":
+                i.human_review_status.human_review_operation.split("/")[-1],
             }
         )
     return info_array
@@ -250,105 +239,20 @@ def file_copy(array_having_file_names: List, bucket_name_with_folder: str) -> No
         )
 
 
-def concurrentProcessing(
-    batch_caller, daira_output_test: str, batch_array: List
+def concurrent_processing(
+    daira_output_test: str, batch_array: List
 ) -> None:
     """
     To create a concurrent process for batch processing the files .
 
     Args:
         batch_caller (Function) : Function which will call the batch processing
-        daira_output_test (str): A temporary bucket name where all the batch processed file get stored.
-        batch_array (List): List of all the copied files from temporary bucket which needs to processed.
-
+        daira_output_test (str): A temporary bucket name where all
+        the batch processed file get stored.
+        batch_array (List): List of all the copied files from
+        temporary bucket which needs to processed.
     """
-    print("--concurrentProcessing--")
+    print("--concurrent_processing--")
+    print(daira_output_test, batch_array)
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         print("processing completed", executor)
-
-
-def hello_world(request) -> str:
-    """
-    HTTP Cloud Function which will get deployed and run by the cloud scheduler every hour.
-    For more information on how to deploy cloud function
-    https://cloud.google.com/functions/docs/create-deploy-gcloud-1st-gen.
-    Args:
-        request : urllib.request: The request object.
-
-    Return:
-        str:
-        Returns the success message.
-
-    """
-    print("--STARTED--")
-
-    # delete previous ran diara-logs in firestore - if u r testing for same
-    # files
-    try:
-        previously_done_files = list(db_print()["filename"])
-        print("previously_done_files : ", previously_done_files)
-    except BaseException:
-        previously_done_files = []
-
-    input_bucket_files_list = bucket_lister(input_bucket_name)
-
-    # pop the element (config file) from the input bucket file
-    input_bucket_files_list.remove("gs://" + input_bucket_name + "/config/config.txt")
-
-    files_to_process = [
-        i
-        for i in input_bucket_files_list
-        if i.split("/")[-1] not in previously_done_files
-    ]
-    print("files_to_process : ", files_to_process)
-    start = 0
-    end = len(files_to_process)
-    step = 50
-
-    process_batch_array = []
-    for i in range(start, end, step):
-        x = i
-        process_batch_array.append(files_to_process[x : x + step])
-    print("process_batch_array : ", process_batch_array)
-
-    # test vars
-    diara_processing_test = "daira-processing-test02"
-    daira_output_test = "daira-output-test02"
-
-    try:
-        print("creating : daira-processing-test")
-        create_bucket_class_location(diara_processing_test)  # 'daira-processing-test03'
-        print("creating : daira-output-test")
-        create_bucket_class_location(daira_output_test)  # 'daira-output-test03'
-    except Exception as exc:
-        print("Bucket exists!")
-        print(exc)
-
-    bucket_cleaner(diara_processing_test)  # 'daira-processing-test03'
-    lenght = len(process_batch_array)
-    print(process_batch_array)
-
-    for i in range(0, len(process_batch_array)):
-        array_having_file_names = process_batch_array[i]
-        bucket_name_with_folder = (
-            "gs://" + diara_processing_test + "/batches/" + str(i) + "/"
-        )
-        print(i, " | ", process_batch_array[i], " | ", bucket_name_with_folder)
-        file_copy(array_having_file_names, bucket_name_with_folder)
-
-    batch_array = [
-        "gs://" + diara_processing_test + "/batches/" + str(i) + "/"
-        for i in range(lenght)
-    ]
-    print(batch_array)
-
-    concurrentProcessing(batch_caller, daira_output_test, batch_array)
-
-    print("metadata_array:")
-    print(metadata_array)
-
-    info_list_holder = [metadata_reader(i) for i in metadata_array]
-    db_insert(info_list_holder)
-    print(info_list_holder)
-    print("--ENDED--")
-    return "Diara Done!"

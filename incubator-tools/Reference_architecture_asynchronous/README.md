@@ -184,6 +184,10 @@ Upon successful deployment, you can access the input storage in the GCP console 
 Download the auto_deploy_v8 and DAIRA_init.sh to your local computer. Note that the version may be updated (auto_deploy_v8) is considered for this example.  
 
    <img src="./images/drive_folder_1.png" width=600 height=300 alt="Drive folder image" />  
+        
+Download the `utilities.py` file from the following link and place it inside the `/auto_deploy_v8/CFScript` folder on your local machine.
+
+[Link to Download utilities.py](https://raw.githubusercontent.com/GoogleCloudPlatform/document-ai-samples/main/incubator-tools/best-practices/utilities/utilities.py)
 
 * Now, convert the downloaded auto_deploy_v8 folder into a zip file named auto_deploy_v8.zip. You can zip the folder using any tool or library of your choice, based on your convenience.
 
