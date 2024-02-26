@@ -2,6 +2,8 @@
 Reference architecture asynchronous main.py
 """
 
+# pylint: disable=E0401
+
 import concurrent.futures
 from typing import List
 import pandas as pd
