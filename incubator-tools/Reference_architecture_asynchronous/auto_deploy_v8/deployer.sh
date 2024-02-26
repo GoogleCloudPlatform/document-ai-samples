@@ -44,11 +44,7 @@ if gsutil ls gs://$BUCKET_NAME &>/dev/null; then
 	echo "Bucket already exists."
 else
 	# Create the GCS bucket
-	gcloud storage buckets create gs://$BUCKET_NAME \
-	--project=$PROJECT_NAME \
-	--default-storage-class=STANDARD \
-	--location=$LOCATION \
-	--uniform-bucket-level-access
+	gcloud storage buckets create gs://$BUCKET_NAME --project=$PROJECT_NAME --default-storage-class=STANDARD --location=$LOCATION --uniform-bucket-level-access
 fi
 
 # Move the input files ot input landing bucket
