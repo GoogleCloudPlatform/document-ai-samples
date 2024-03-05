@@ -11,6 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# pylint: disable=R1702
+# pylint: disable=R0912
+# pylint: disable=R0913
+# pylint: disable=R0914
+# pylint: disable=R0915
+# pylint: disable=E0401
+# pylint: disable=C0302
 """This module contains helper functions for Backmapping Tool"""
 import base64
 import io
@@ -192,30 +199,25 @@ def get_redact_bbox_from_text(
     part2 = re.escape(text_redact.split(" ")[-1])
     pattern = f"{part1}.*{part2}"
     matches = re.finditer(pattern, full_text, flags=re.IGNORECASE)
+
     redact_bbox = {}
     for match in matches:
-        start = match.start()
-        end_temp = full_text[start : start + 50].find(text_redact.split(" ")[-1])
-        end = start + end_temp + len(text_redact.split(" ")[-1])
-        x, y = [], []
-        page_num = 0
-        for page in json_data.pages:
+        start, end = match.span()
+        for page_num, page in enumerate(json_data.pages):
+            x, y = [], []
             for token in page.tokens:
-                text_anch = token.layout.text_anchor.text_segments
-                for an in text_anch:
-                    si = an.start_index
-                    ei = an.end_index
-                    cond1 = si >= int(start)
-                    cond2 = ei <= int(end) + 2
-                    if cond1 and cond2:
+                if token.layout.text_anchor.text_segments:
+                    si = token.layout.text_anchor.text_segments[0].start_index
+                    ei = token.layout.text_anchor.text_segments[0].end_index
+                    if si >= start and ei <= end:
                         norm_ver = token.layout.bounding_poly.normalized_vertices
-                        for ver in norm_ver:
-                            x.append(ver.x)
-                            y.append(ver.y)
-                        page = page_num
-            if isinstance(page, int):
-                redact_bbox[str(page)] = [[min(x), min(y), max(x), max(y)]]
-            page_num = page_num + 1
+                        x.extend([ver.x for ver in norm_ver])
+                        y.extend([ver.y for ver in norm_ver])
+
+            if x and y:  # Check if x and y have been modified
+                bbox = [min(x), min(y), max(x), max(y)]
+                redact_bbox[str(page_num)] = [bbox]
+
     return redact_bbox
 
 
@@ -234,7 +236,6 @@ def get_synthesized_images(json_data: documentai.Document) -> List[Image.Image]:
             image = Image.open(image_file)
             image.load()
         return image
-
     for page in json_data.pages:
         synthesized_images.append(decode_image(page.image.content))
     return synthesized_images
@@ -242,7 +243,7 @@ def get_synthesized_images(json_data: documentai.Document) -> List[Image.Image]:
 
 def draw_black_box(
     synthesized_images: List[Image.Image],
-    page_wise_bbox: Any,
+    page_wise_bbox: Any ,
 ) -> io.BytesIO:
     """
     Draw black boxes around PII entities in synthesized images and add synthetic data.
@@ -430,10 +431,8 @@ def find_matched_translation_pairs(
     if regex.match(ent_mt):
         best_match_pairs = [{"sourceText": ent_mt, "targetText": ent_mt}]
     else:
-
         def similar(a, b):
             return fuzz.ratio(a, b)
-
         target_lines = ent_mt.split("\n")
         best_match_pairs = []
         for target_line in target_lines:
@@ -458,7 +457,13 @@ def get_page_text_anc_mentiontext(
     diff_y: float,
     diff_x: float,
     english_page_num: int,
-) -> Tuple[Any, Dict[str, Dict[Any, Any]], str, List[List[str]], str,]:
+) -> Tuple[
+    Any,
+    Dict[str, Dict[Any, Any]],
+    str,
+    List[List[str]],
+    str,
+]:
     """
     Function returns the min-max coordinates, text anchors and mention text of backmapped entity
     using provided extracted source entity, corresponding x&y coordinates, and
@@ -494,8 +499,8 @@ def get_page_text_anc_mentiontext(
     min_x, _, min_y, _ = min_max_x_y
     matches: List[Any] = []
     match_string_pair: List[Any] = []
-    # Track whether entity is matched from OCR or Translated units
     method = ""
+    # Track whether entity is matched from OCR or Translated units
     orig_text = orig_invoice_json.text
     try:
         matches, match_string_pair = find_substring_indexes(
@@ -530,10 +535,7 @@ def get_page_text_anc_mentiontext(
             if matches:
                 method = "OCR-EntityMT"
     # Initialize variables.
-    bbox = {}
-    text_anc_1 = {}
-    new_mention_text = ""
-    expected_text_anc = {}
+    bbox, text_anc_1, new_mention_text, expected_text_anc = {}, {}, "", {}
     # Iterate through match pairs.
     for match, str_pair in zip(matches, match_string_pair):
         try:
@@ -547,8 +549,7 @@ def get_page_text_anc_mentiontext(
         if not bb:
             continue
         # Difference between the original and mapped bbox should be within defined offset.
-        cond1 = abs(bb["min_y"] - min_y) <= diff_y
-        cond2 = abs(bb["min_x"] - min_x) <= diff_x
+        cond1, cond2 = abs(bb["min_y"] - min_y) <= diff_y, abs(bb["min_x"] - min_x) <= diff_x
         if cond1 and cond2:
             diff_x = abs(bb["min_x"] - min_x)
             diff_y = abs(bb["min_y"] - min_y)
@@ -572,7 +573,13 @@ def updated_entity_secondary(
     min_max_x_y: Tuple[float, float, float, float],
     mapping_text: str,
     english_page_num: int,
-) -> Tuple[Any, Any, str, List[List[Any]], str,]:
+) -> Tuple[
+    Any,
+    Any,
+    str,
+    List[List[Any]],
+    str,
+]:
     """
     Function returns the min-max coordinates, text anchors and mention text of backmapped entity
     using provided extracted source entity x&y coordinates, and
@@ -612,28 +619,28 @@ def updated_entity_secondary(
         cond11 = abs(new_min_y - min_y) <= 0.01
         cond12 = abs(new_max_y - max_y) <= 0.01
         cond1 = cond11 and cond12
-        cond21 = new_min_x >= min_x
-        cond22 = new_min_y >= min_y
-        cond23 = new_max_x <= max_x
-        cond24 = new_max_y <= max_y
-        cond2 = all([cond21, cond22, cond23, cond24])
-        if cond1 or cond2:
-            text_anc_token = token.layout.text_anchor.text_segments
-            si = text_anc_token[0].start_index
-            ei = text_anc_token[0].end_index
-            orig_temp_text = orig_invoice_json.text[si:ei]
-            if orig_temp_text.strip().lower() in mapping_text.strip().lower():
-                for t3 in mapping_list:
-                    ratio = fuzz.ratio(t3.lower(), orig_temp_text.lower())
-                    if ratio > 75:
-                        mapping_list.remove(t3)
-                        match_string_pair.append([t3, orig_temp_text])
-                        for an1 in text_anc_token:
-                            text_anc_tokens.append(an1)
-                        page_anc["x"].extend([new_min_x, new_max_x])
-                        page_anc["y"].extend([new_min_y, new_max_y])
-                    confidence_temp = 0.9
-                    confidence.append(confidence_temp)
+        cond21 = (
+            new_min_x >= min_x and
+            new_min_y >= min_y and
+            new_max_x <= max_x and
+            new_max_y <= max_y
+        )
+        if not (cond1 or cond21):
+            continue
+        text_anc_token = token.layout.text_anchor.text_segments
+        si, ei = text_anc_token[0].start_index, text_anc_token[0].end_index
+        orig_temp_text = orig_invoice_json.text[si:ei].strip().lower()
+        mapping_text_stripped = mapping_text.strip().lower()
+        if orig_temp_text in mapping_text_stripped:
+            for t3 in list(mapping_list):
+                ratio = fuzz.ratio(t3.lower(), orig_temp_text)
+                if ratio > 75:
+                    mapping_list.remove(t3)
+                    match_string_pair.append([t3, orig_temp_text])
+                    text_anc_tokens.extend(text_anc_token)
+                    page_anc["x"].extend([new_min_x, new_max_x])
+                    page_anc["y"].extend([new_min_y, new_max_y])
+                    confidence.append(0.9)
     sorted_temp_token = sorted(text_anc_tokens, key=lambda x: x.end_index)
     temp_mention_text = ""
     for index, seg in enumerate(sorted_temp_token):
@@ -677,7 +684,10 @@ def get_token(
     json_dict: documentai.Document,
     page: int,
     text_anchors_check: MutableSequence[documentai.Document.TextAnchor.TextSegment],
-) -> Tuple[Union[Dict[str, float], None], Any,]:
+) -> Tuple[
+    Union[Dict[str, float], None],
+    Any,
+]:
     """
     This function takes a loaded JSON, page number, and text anchors as input
     and returns the text anchors and page anchors.
@@ -751,7 +761,14 @@ def get_updated_entity(
     english_page_num: int,
     diff_y: float = 0.05,
     diff_x: float = 0.3,
-) -> Tuple[Dict[str, Any], List[Any], str, List[List[str]], str, List[Dict[str, str]],]:
+) -> Tuple[
+    Dict[str, Any],
+    List[Any],
+    str,
+    List[List[str]],
+    str,
+    List[Dict[str, str]],
+]:
     """
     Function maps the entity from source to target and gives the back mapped entity.
     Args:
@@ -820,12 +837,8 @@ def get_updated_entity(
                 english_page_num,
             )
         if updated_page_anc:
-            main_page_anc1["x"].extend(
-                [updated_page_anc["min_x"], updated_page_anc["max_x"]]
-            )
-            main_page_anc1["y"].extend(
-                [updated_page_anc["min_y"], updated_page_anc["max_y"]]
-            )
+            main_page_anc1["x"].extend([updated_page_anc["min_x"], updated_page_anc["max_x"]])
+            main_page_anc1["y"].extend([updated_page_anc["min_y"], updated_page_anc["max_y"]])
             for text_anc in updated_text_anc["textSegments"]:
                 if text_anc not in main_text_anc:
                     main_text_anc.append(text_anc)
@@ -895,12 +908,6 @@ def find_substring_indexes(
                 matches.append((si, ei))
                 match_string_pair.append([substring, text[si:ei]])
     else:
-        # match first and last string as a combined str with OCR text
-        # pattern = re.compile(
-        #     r"{}.*{}".format(re.escape(list_str[0]), re.escape(list_str[-1])),
-        #     re.IGNORECASE,
-        # )
-        # full string
         part = f"{re.escape(substring.strip())}"
         pattern = re.compile(part, re.IGNORECASE)
         # remove new line if present
@@ -956,10 +963,8 @@ def translation_text_units(
             - json_response: Translated API json response.
     """
     # Translation API.
-    url = (
-        f"https://translate.googleapis.com/v3/projects/{project_id}"
-        f"/locations/global:translateDocument"
-    )
+    url = (f"https://translate.googleapis.com/v3/projects/{project_id}"
+           f"/locations/global:translateDocument")
     headers = {
         "content-type": "application/json",
         "Authorization": f"Bearer {get_access_token()}",

@@ -1,3 +1,7 @@
+# pylint: disable=R0913
+# pylint: disable=R0914
+# pylint: disable=E0401
+# pylint: disable=C0302
 # Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,9 +21,8 @@ import re
 import time
 from collections import defaultdict
 from io import BytesIO
-from typing import DefaultDict, Dict, List, MutableSequence, Tuple, Union
+from typing import Dict, List, MutableSequence, Tuple, Union, Any
 
-import traceback
 import numpy as np
 import pandas as pd
 import PyPDF2
@@ -270,10 +273,7 @@ def get_coordinates_map(
     """
 
     # row_keywords = {"taxonomy","sum","economic","taxonomy-eligible","taxonomy-non-eligible"}
-    x_coordinates_ = {}
-    y_coord_ = {}
-    row_map_ = {}
-    max_ycd_ = {}
+    x_coordinates_, y_coord_, row_map_, max_ycd_ = {}, {}, {}, {}
     for pn, _ in enumerate(document.pages):
         row_coords = []
         x_coordinates = []
@@ -382,7 +382,9 @@ def poll_hitl_operations(
         ]
         if not operations:
             break
-        print(f"Still waiting for {len(operations)} HITL operations to complete")
+        print(
+            f"Still waiting for {len(operations)} HITL operations to complete"
+        )
         time.sleep(100)
     print(f"Finished waiting for all {num_operations} HITL operations.")
 
@@ -447,7 +449,7 @@ def parse_document_tables(output_bucket, output_prefix, output_csv_prefix):
         output_bucket=output_bucket, output_prefix=output_prefix
     )
     for file_key, document in doc_obj_dict.items():
-        for _, page in enumerate(document.pages):
+        for _ , page in enumerate(document.pages):
             header_row_values: List[List[str]] = []
             body_row_values: List[List[str]] = []
             for index, table in enumerate(page.tables):
@@ -640,20 +642,20 @@ def get_entire_row(
         col: blockn + i for i, col in zip(range(dest_df.shape[1]), dest_df.columns)
     }
     col_occurence = {}
-    for bn, block in enumerate(page.blocks):
+    for bn, block1 in enumerate(page.blocks):
         # get the min and max y values for each block
         y_values = [
             round(vertex.y * height)
-            for vertex in block.layout.bounding_poly.normalized_vertices
+            for vertex in block1.layout.bounding_poly.normalized_vertices
         ]
         this_min_y = min(y_values) + 5
         this_max_y = max(y_values) - 5
         # compare if the block coordinates falls under required row block
         if this_min_y >= min_y and this_max_y <= max_y:
-            block_text = layout_to_text(block.layout, document_response.text)
+            block_text = layout_to_text(block1.layout, document_response.text)
             x_valuesn = [
                 round(vertex.x * width)
-                for vertex in block.layout.bounding_poly.normalized_vertices
+                for vertex in block1.layout.bounding_poly.normalized_vertices
             ]
             # this_max_x = round(max(x_valuesn) / 10)
             this_max_x = math.ceil(max(x_valuesn) / 10)
@@ -784,16 +786,16 @@ def get_table_data(
 
 
 def update_data(
-    final_df_: pd.DataFrame, final_data_: DefaultDict[str, List[str]], ea: str
-) -> DefaultDict[str, List[str]]:
+    final_df_: pd.DataFrame, final_data_: Dict[Any, Any], ea: str
+) -> Dict[Any, Any]:
     """
     Update the final dataframe.
     Args:
         final_df_ (pd.DataFrame): DataFrame containing the final data.
-        final_data_ (DefaultDict[str, List[str]]): DefaultDict to be updated.
+        final_data_ (Dict[Any, Any]): Dict to be updated.
         ea (str): Value to be added to the "taxonomy_disclosure" column.
     Returns:
-        DefaultDict[str, List[str]]: Updated defaultdict.
+        Dict[str, List[str]]: Updated defaultdict.
     """
 
     for column in final_df_.columns:
@@ -804,9 +806,174 @@ def update_data(
     return final_data_
 
 
+def process_taxonomy_disclosure(st: str) -> str:
+    """
+    Process a simple taxonomy disclosure string.
+
+    Args:
+        st (str): Input string containing a simple taxonomy disclosure.
+
+    Returns:
+        str: Extracted taxonomy disclosure.
+    """
+
+    ea = re.search(r"^[A-Z]\.\s[a-zA-Z\s-]+", st)
+    if ea:
+        span = ea.span()
+        interstr = st[span[0]:span[1]].split("\n")[0]
+    return interstr
+
+
+def process_taxonomy_disclosure_complex(st: str) -> Tuple[str, str]:
+    """
+    Process a complex taxonomy disclosure string.
+
+    Args:
+        st (str): Input string containing a complex taxonomy disclosure.
+
+    Returns:
+        Tuple[str, str]: Tuple containing the remaining string after processing
+                        and the extracted complex taxonomy disclosure.
+    """
+
+    ea = re.search(r"^[A-Z]\.[1-9](.|)[a-zA-Z()\s-]+", st)
+    if ea:
+        span = ea.span()
+        interstr = st[span[0]:span[1]].split("\n")[0:-1]
+        ans = " ".join(interstr)
+        st = st.replace(st[span[0] : span[1]], "")
+    return st, ans
+
+
+def process_taxonomy_disclosure_multiple(row: pd.Series) -> None:
+    """
+    Process a row containing multiple taxonomy disclosures.
+
+    Args:
+        row (pd.Series): Input row containing a "taxonomy_disclosure" column.
+
+    Returns:
+        None: The "taxonomy_disclosure" column in the row is updated in-place.
+    """
+
+    st = row["taxonomy_disclosure"]
+    row_ea = re.findall(r"\d.\d+ [a-zA-Z\s]+", st)
+    if len(row_ea) > 1:
+        row["taxonomy_disclosure"] = "\n".join([ea.replace("\n", " ").strip() for ea in row_ea])
+
+
+def collect_multiple_values(row: pd.Series, col: str) -> List:
+    """
+    Collect multiple values from a specific column in a row.
+
+    Args:
+        row (pd.Series): Input row containing the specified column.
+        col (str): Name of the column containing multiple values.
+
+    Returns:
+        List: The collected values are appended to the "split_row" list.
+    """
+
+    split_row = []
+    for val in row[col].split("\n"):
+        try:
+            if re.search(r"^[0-9]+(.|,)[0-9]+", val):
+                split_row.append(val)
+        except ValueError:
+            pass
+    return split_row
+
+
+def collect_and_extend_values(final_df_: pd.DataFrame, final_data_: dict,
+                              row: pd.Series, col: str) -> None:
+    """
+    Collect and extend values from a specific column in a row to the final data structure.
+
+    Args:
+        final_df_ (pd.DataFrame): Final DataFrame structure.
+        final_data_ (dict): Final data structure to be extended.
+        row (pd.Series): Input row containing the specified column.
+        col (str): Name of the column containing multiple values.
+
+    Returns:
+        None: The values are extended to the final data structure.
+    """
+
+    try:
+        split_row: List[str] = collect_multiple_values(row, col)
+        for column in final_df_.columns:
+            try:
+                if len(split_row) > 1:
+                    extend_column_data(final_data_, row, column, split_row)
+                else:
+                    extend_single_value(final_data_, row, column)
+            except ValueError:
+                extend_nan_values(final_data_, column, split_row)
+    except ValueError:
+        ea_ = row["taxonomy_disclosure"].replace("\n", " ")
+        final_data_ = update_data(final_df_, final_data_, ea_)
+
+
+def extend_column_data(final_data_: dict, row: pd.Series,
+                       column: str, split_row: List[str]) -> None:
+    """
+    Extend column data in the final data structure.
+
+    Args:
+        final_data_ (dict): Final data structure to be extended.
+        row (pd.Series): Input row containing the specified column.
+        column (str): Name of the column to be extended.
+        split_row (List[str]): List of values to be extended.
+
+    Returns:
+        None: The column data is extended in the final data structure.
+    """
+
+    column_data = [data for data in row[column].split("\n") if data]
+    diff = len(split_row) - len(column_data)
+    if diff != 0:
+        column_data.extend([np.nan] * diff)
+    final_data_[column].extend(column_data)
+
+
+def extend_single_value(final_data_: dict, row: pd.Series, column: str) -> None:
+    """
+    Extend single value in the final data structure.
+
+    Args:
+        final_data_ (dict): Final data structure to be extended.
+        row (pd.Series): Input row containing the specified column.
+        column (str): Name of the column to be extended.
+
+    Returns:
+        None: The single value is extended in the final data structure.
+    """
+
+    val = row[column].replace("\n", " ").strip()
+    if column != "taxonomy_disclosure":
+        val = val.replace("-", "").strip()
+    final_data_[column].extend([val])
+
+
+def extend_nan_values(final_data_: dict, column: str, split_row: List[str]) -> None:
+    """
+    Extend NaN values in the final data structure.
+
+    Args:
+        final_data_ (dict): Final data structure to be extended.
+        column (str): Name of the column to be extended.
+        split_row (List[str]): List of NaN values to be extended.
+
+    Returns:
+        None: The NaN values are extended in the final data structure.
+    """
+
+    final_data_[column].extend([np.nan] * len(split_row))
+
+
 def post_process(
     dest_df: pd.DataFrame, col: str, processed_map: Dict[str, List[int]]
-) -> DefaultDict[str, List[str]]:
+) -> Dict[Any, Any]:
     """
     Process the final dataframe to remove noise from the data.
     """
@@ -817,73 +984,53 @@ def post_process(
         )
     )
     # Post-processing code matches expected values and rearranges them into the final dataframe
-    final_data_: DefaultDict[str, List[str]] = defaultdict(list)
-    for _, row in dest_df.iterrows():
+    final_data_: Dict[Any, Any] = defaultdict(list)
+    for _ , row in dest_df.iterrows():
         if row["taxonomy_disclosure"] is np.nan:
             continue
         st = row["taxonomy_disclosure"]
-        # search for taxonomy pattern
-        ea = re.search(r"^[A-Z]\.\s[a-zA-Z\s-]+", st)
-        if ea:
-            span = ea.span()
-            interstr = st[span[0] : span[1]].split("\n")[0]
-            st = st.replace(interstr + "\n", "").strip()
-            final_data_ = update_data(final_df_, final_data_, interstr)
-            row["taxonomy_disclosure"] = st
-        st = row["taxonomy_disclosure"]
-        ea = re.search(r"^[A-Z]\.[1-9](.|)[a-zA-Z()\s-]+", st)
-        if ea:
-            span = ea.span()
-            interstr = st[span[0] : span[1]].split("\n")[0:-1]
-            ans = " ".join(interstr)
-            st = st.replace(st[span[0] : span[1]], "")
-            final_data_ = update_data(final_df_, final_data_, ans)
-            row["taxonomy_disclosure"] = st
-        st = row["taxonomy_disclosure"]
-        row_ea = re.findall(r"\d.\d+ [a-zA-Z\s]+", st)
-        if len(row_ea) > 1:
-            row["taxonomy_disclosure"] = "\n".join(
-                [ea.replace("\n", " ").strip() for ea in row_ea]
-            )
-        try:
-            # collect values if particular col(business measure) has more than one value
-            split_row = []
-            for val in row[col].split("\n"):
-                try:
-                    if re.search(r"^[0-9]+(.|,)[0-9]+", val):
-                        split_row.append(val)
-                except ValueError:
-                    pass
-            n = len(split_row)
-            for column in final_df_.columns:
-                try:
-                    if n > 1:
-                        column_data = [data for data in row[column].split("\n") if data]
+        st = st.replace(process_taxonomy_disclosure(row["taxonomy_disclosure"]) + "\n", "").strip()
+        final_data_ = update_data(final_df_, final_data_, process_taxonomy_disclosure(
+                    row["taxonomy_disclosure"]))
+        row["taxonomy_disclosure"] = st
 
-                        # if no. of values in particular column doesn't match with n
-                        diff = n - len(column_data)
-                        if diff != 0:
-                            column_data.extend([np.nan] * diff)
-                        final_data_[column].extend(column_data)
-                    else:
-                        # remove `-` character
-                        val = row[column].replace("\n", " ").strip()
-                        if column != "taxonomy_disclosure":
-                            val = val.replace("-", "").strip()
+        st = row["taxonomy_disclosure"]
+        st1, ans = process_taxonomy_disclosure_complex(st)
+        final_data_ = update_data(final_df_, final_data_, ans)
+        row["taxonomy_disclosure"] = st1
 
-                        final_data_[column].extend([val])
-                except ValueError:
-                    final_data_[column].extend([np.nan] * n)
-        except ValueError:
-            ea_ = row["taxonomy_disclosure"].replace("\n", " ")
-            final_data_ = update_data(final_df_, final_data_, ea_)
+        process_taxonomy_disclosure_multiple(row)
+        collect_and_extend_values(final_df_, final_data_, row, col)
+    #     try:
+    #         # collect values if particular col(business measure) has more than one value
+    #         split_row = collect_multiple_values(row, col)
+    #         for column in final_df_.columns:
+    #             try:
+    #                 if len(split_row) > 1:
+    #                     column_data = [data for data in row[column].split("\n") if data]
+
+    #                     # if no. of values in particular column doesn't match with n
+    #                     diff = len(split_row) - len(column_data)
+    #                     if diff != 0:
+    #                         column_data.extend([np.nan] * diff)
+    #                     final_data_[column].extend(column_data)
+    #                 else:
+    #                     # remove `-` character
+    #                     val = row[column].replace("\n", " ").strip()
+    #                     if column != "taxonomy_disclosure":
+    #                         val = val.replace("-", "").strip()
+
+    #                     final_data_[column].extend([val])
+    #             except ValueError:
+    #                 final_data_[column].extend([np.nan] * len(split_row))
+    #     except ValueError:
+    #         ea_ = row["taxonomy_disclosure"].replace("\n", " ")
+    #         final_data_ = update_data(final_df_, final_data_, ea_)
     return final_data_
 
 
 def run_table_extractor_pipeline(
     offset: int,
-    project_id: str,
-    location: str,
     gcs_output_bucket: str,
     gcs_output_uri_prefix: str,
     document_fp: documentai.Document,
@@ -906,10 +1053,10 @@ def run_table_extractor_pipeline(
         )
         final_data_2_processed = final_data_new2.copy()
         nrows = 0  # num of rows
-        for _, v in final_data_new2.items():
+        for _ , v in final_data_new2.items():
             nrows = max(len(v), nrows)
 
-        for _, v in final_data_2_processed.items():
+        for _ , v in final_data_2_processed.items():
             length = len(v)
             if length != nrows:
                 v.extend([np.nan] * (nrows - length))
@@ -928,8 +1075,6 @@ def run_table_extractor_pipeline(
 
 
 def walk_the_ocr(
-    project_id: str,
-    location: str,
     cde_input_output_map: Dict[str, Dict[str, str]],
     gcs_output_bucket: str,
     gcs_cde_hitl_output_prefix: str,
@@ -958,15 +1103,13 @@ def walk_the_ocr(
             )
             cde_document = cde_jsons[file[:-4]]
             print("NO HITL")
-        _, y_coord, row_map_cde, _ = get_coordinates_map(cde_document)
+        _ , y_coord, row_map_cde, _ = get_coordinates_map(cde_document)
         fp_document_path = fp_input_output_map[file]
         fp_document = read_json_output(
             output_bucket=gcs_output_bucket, output_prefix=fp_document_path
         )
         run_table_extractor_pipeline(
             offset=offset,
-            project_id=project_id,
-            location=location,
             gcs_output_bucket=gcs_output_bucket,
             gcs_output_uri_prefix=gcs_output_uri_prefix,
             document_fp=fp_document[file[:-4]],
@@ -974,6 +1117,124 @@ def walk_the_ocr(
             filen=file,
             ycord=y_coord,
         )
+
+
+def draw_vertical(
+    idx: int,
+    x_coordinates: Dict[int, List[List[int]]],
+    hoffset_: float,
+    min_height: int,
+    max_height: int,
+    line_colour: str,
+    line_width: int,
+    voffset: int,
+    draw: ImageDraw.ImageDraw,
+) -> None:
+    """
+    Draw vertical lines on an image using the provided coordinates and parameters.
+
+    Args:
+        idx (int): Index of the line to be drawn.
+        x_coordinates (Dict[int, List[List[int]]]): List of x-coordinates for the lines.
+        hoffset_ (float): Horizontal offset for the lines.
+        min_height (int): Minimum height for the lines.
+        max_height (int): Maximum height for the lines.
+        line_colour (str): Color of the lines.
+        line_width (int): Width of the lines.
+        voffset (int): Vertical offset for the lines.
+        draw (ImageDraw.ImageDraw): ImageDraw object for drawing on an image.
+
+    Returns:
+        None: The function draws vertical lines on the image.
+    """
+    for n, cor in enumerate(x_coordinates[idx]):
+        if n == 0:
+            draw.line(
+                [
+                    (cor[0] - hoffset_, min_height - hoffset_),
+                    (cor[0] - hoffset_, max_height + hoffset_),
+                ],
+                fill=line_colour,
+                width=line_width,
+            )
+        if (
+            n + 1 < len(x_coordinates[idx])
+            and (x_coordinates[idx][n + 1][1] + voffset // 2)
+            - (cor[1] + voffset // 2)
+            > 50
+        ):
+            draw.line(
+                [
+                    (cor[1] + voffset // 2, min_height - hoffset_),
+                    (cor[1] + voffset // 2, max_height + hoffset_),
+                ],
+                fill=line_colour,
+                width=line_width,
+            )
+        elif n + 1 == len(x_coordinates[idx]):
+            draw.line(
+                [
+                    (cor[1] + voffset // 2, min_height - hoffset_),
+                    (cor[1] + voffset // 2, max_height + hoffset_),
+                ],
+                fill=line_colour,
+                width=line_width,
+            )
+
+
+def draw_horizontal(
+    idx: int,
+    max_ycd: Dict[int, List[int]],
+    hoffset: Union[int, float],
+    hoffset_: Union[int, float],
+    min_x: int,
+    min_height: int,
+    max_x: int,
+    line_colour: str,
+    line_width: int,
+    draw: ImageDraw.ImageDraw,
+) -> None:
+    """
+    Draw horizontal lines on an image using the provided coordinates and parameters.
+
+    Args:
+        idx (int): Index of the line to be drawn.
+        max_ycd (Dict[int, List[int]]): List of y-coordinates for the lines.
+        hoffset (Union[int, float]): Horizontal offset for the lines.
+        hoffset_ (Union[int, float]): Another horizontal offset for specific cases.
+        min_x (int): Minimum x-coordinate for the lines.
+        min_height (int): Minimum height for the lines.
+        max_x (int): Maximum x-coordinate for the lines.
+        line_colour (str): Color of the lines.
+        line_width (int): Width of the lines.
+        draw (ImageDraw.ImageDraw): ImageDraw object for drawing on an image.
+
+    Returns:
+        None: The function draws horizontal lines on the image.
+    """
+    for n, y in enumerate(max_ycd[idx]):
+        if n == 0:  # column header min y coord
+            draw.line(
+                (
+                    min_x - (1 * hoffset),
+                    min_height - hoffset_,
+                    max_x + (1.5 * hoffset),
+                    min_height - hoffset_,
+                ),
+                fill=line_colour,
+                width=line_width,
+            )
+        else:
+            draw.line(
+                (
+                    min_x - (2 * hoffset),
+                    y + hoffset,
+                    max_x + (1.5 * hoffset),
+                    y + hoffset,
+                ),
+                fill=line_colour,
+                width=line_width,
+            )
 
 
 def enhance_and_save_pdfs(
@@ -993,12 +1254,8 @@ def enhance_and_save_pdfs(
     # Initialize Google Cloud Storage client
     storage_client = storage.Client()
     bucket = storage_client.bucket(output_bucket)
-    voffset = voffset_
-    hoffset = hoffset_
-    line_width = 5
-    line_colour = "black"
+    voffset, hoffset, line_width, line_colour = voffset_, hoffset_, 5, "black"
     for file, data in cde_input_output_map.items():
-        print("File:", file)
         file_key = file[:-4]
         if data.get("hitl", None):
             operation = data["hitl"]
@@ -1008,17 +1265,17 @@ def enhance_and_save_pdfs(
                 hitl=True,
             )
             document = cde_jsons[operation]
-            print("HITL")
+            # print("HITL")
         else:
             cde_jsons = read_json_output(
                 output_bucket=output_bucket, output_prefix=data["cde"]
             )
             document = cde_jsons[file_key]
-            print("NO HITL")
+            # print("NO HITL")
         try:
             images_for_pdf = []
             for idx, page in enumerate(document.pages):
-                x_coordinates, _, _, max_ycd = get_coordinates_map(document)
+                x_coordinates, _ , _ , max_ycd = get_coordinates_map(document)
                 image_content = page.image.content
                 image = PilImage.open(BytesIO(image_content))
                 draw = ImageDraw.Draw(image)
@@ -1027,64 +1284,68 @@ def enhance_and_save_pdfs(
                 hoffset_ = factor * voffset
                 # Draw horizontal
                 if idx in max_ycd:
-                    for n, y in enumerate(max_ycd[idx]):
-                        if n == 0:  # column header min y coord
-                            draw.line(
-                                (
-                                    min_x - (1 * hoffset),
-                                    min_height - hoffset_,
-                                    max_x + (1.5 * hoffset),
-                                    min_height - hoffset_,
-                                ),
-                                fill=line_colour,
-                                width=line_width,
-                            )
-                        else:
-                            draw.line(
-                                (
-                                    min_x - (2 * hoffset),
-                                    y + hoffset,
-                                    max_x + (1.5 * hoffset),
-                                    y + hoffset,
-                                ),
-                                fill=line_colour,
-                                width=line_width,
-                            )
+                    draw_horizontal(idx, max_ycd, hoffset, hoffset_, min_x,
+                                    min_height, max_x, line_colour, line_width, draw)
+                    # for n, y in enumerate(max_ycd[idx]):
+                    #     if n == 0:  # column header min y coord
+                    #         draw.line(
+                    #             (
+                    #                 min_x - (1 * hoffset),
+                    #                 min_height - hoffset_,
+                    #                 max_x + (1.5 * hoffset),
+                    #                 min_height - hoffset_,
+                    #             ),
+                    #             fill=line_colour,
+                    #             width=line_width,
+                    #         )
+                    #     else:
+                    #         draw.line(
+                    #             (
+                    #                 min_x - (2 * hoffset),
+                    #                 y + hoffset,
+                    #                 max_x + (1.5 * hoffset),
+                    #                 y + hoffset,
+                    #             ),
+                    #             fill=line_colour,
+                    #             width=line_width,
+                    #         )
                 # Drawing vertical lines
                 if idx in x_coordinates:
-                    for n, cor in enumerate(x_coordinates[idx]):
-                        if n == 0:
-                            draw.line(
-                                [
-                                    (cor[0] - hoffset_, min_height - hoffset_),
-                                    (cor[0] - hoffset_, max_height + hoffset_),
-                                ],
-                                fill=line_colour,
-                                width=line_width,
-                            )
-                        if (
-                            n + 1 < len(x_coordinates[idx])
-                            and (x_coordinates[idx][n + 1][1] + voffset // 2)
-                            - (cor[1] + voffset // 2)
-                            > 50
-                        ):
-                            draw.line(
-                                [
-                                    (cor[1] + voffset // 2, min_height - hoffset_),
-                                    (cor[1] + voffset // 2, max_height + hoffset_),
-                                ],
-                                fill=line_colour,
-                                width=line_width,
-                            )
-                        elif n + 1 == len(x_coordinates[idx]):
-                            draw.line(
-                                [
-                                    (cor[1] + voffset // 2, min_height - hoffset_),
-                                    (cor[1] + voffset // 2, max_height + hoffset_),
-                                ],
-                                fill=line_colour,
-                                width=line_width,
-                            )
+                    draw_vertical(idx, x_coordinates, hoffset_, min_height,
+                                  max_height, line_colour, line_width, voffset, draw)
+                    # for n, cor in enumerate(x_coordinates[idx]):
+                    #     if n == 0:
+                    #         draw.line(
+                    #             [
+                    #                 (cor[0] - hoffset_, min_height - hoffset_),
+                    #                 (cor[0] - hoffset_, max_height + hoffset_),
+                    #             ],
+                    #             fill=line_colour,
+                    #             width=line_width,
+                    #         )
+                    #     if (
+                    #         n + 1 < len(x_coordinates[idx])
+                    #         and (x_coordinates[idx][n + 1][1] + voffset // 2)
+                    #         - (cor[1] + voffset // 2)
+                    #         > 50
+                    #     ):
+                    #         draw.line(
+                    #             [
+                    #                 (cor[1] + voffset // 2, min_height - hoffset_),
+                    #                 (cor[1] + voffset // 2, max_height + hoffset_),
+                    #             ],
+                    #             fill=line_colour,
+                    #             width=line_width,
+                    #         )
+                    #     elif n + 1 == len(x_coordinates[idx]):
+                    #         draw.line(
+                    #             [
+                    #                 (cor[1] + voffset // 2, min_height - hoffset_),
+                    #                 (cor[1] + voffset // 2, max_height + hoffset_),
+                    #             ],
+                    #             fill=line_colour,
+                    #             width=line_width,
+                    #         )
                 # Append modified image to the list
                 images_for_pdf.append(image)
             # Save images to a single PDF
@@ -1105,7 +1366,6 @@ def enhance_and_save_pdfs(
             )
             print(f"Done Processing -{file_key}.pdf")
         except ValueError:
-            print(traceback.format_exc())
             print(f"Issue with processing -{file_key}.pdf")
             images_for_pdf = []
             for idx, page in enumerate(document.pages):
