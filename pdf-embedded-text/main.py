@@ -16,10 +16,8 @@ def process_document_ocr_sample(
     # For more information: https://cloud.google.com/document-ai/docs/document-ocr
     process_options = documentai.ProcessOptions(
         ocr_config=documentai.OcrConfig(
-            compute_style_info=True,
             enable_native_pdf_parsing=True,
             enable_image_quality_scores=True,
-            enable_symbol=True,
         )
     )
     # Online processing request to Document AI
@@ -47,14 +45,8 @@ def process_document_ocr_sample(
         print_lines(page.lines, text)
         print_tokens(page.tokens, text)
 
-        if page.symbols:
-            print_symbols(page.symbols, text)
-
         if page.image_quality_scores:
             print_image_quality_scores(page.image_quality_scores)
-
-    if document.text_styles:
-        print_styles(document.text_styles, text)
 
 
 def print_page_dimensions(dimension: documentai.Document.Page.Dimension) -> None:
@@ -108,16 +100,6 @@ def print_tokens(tokens: Sequence[documentai.Document.Page.Token], text: str) ->
     print(f"        Last token break type: {repr(last_token_break_type)}")
 
 
-def print_symbols(
-    symbols: Sequence[documentai.Document.Page.Symbol], text: str
-) -> None:
-    print(f"    {len(symbols)} symbols detected:")
-    first_symbol_text = layout_to_text(symbols[0].layout, text)
-    print(f"        First symbol text: {repr(first_symbol_text)}")
-    last_symbol_text = layout_to_text(symbols[-1].layout, text)
-    print(f"        Last symbol text: {repr(last_symbol_text)}")
-
-
 def print_image_quality_scores(
     image_quality_scores: documentai.Document.Page.ImageQualityScores,
 ) -> None:
@@ -126,19 +108,6 @@ def print_image_quality_scores(
 
     for detected_defect in image_quality_scores.detected_defects:
         print(f"        {detected_defect.type_}: {detected_defect.confidence:.1%}")
-
-
-def print_styles(styles: Sequence[documentai.Document.Style], text: str) -> None:
-    print(f"    {len(styles)} styles detected:")
-    first_style_text = layout_to_text(styles[0].layout, text)
-    print(f"        First style text: {repr(first_style_text)}")
-    print(f"           Color: {styles[0].color}")
-    print(f"           Background Color: {styles[0].background_color}")
-    print(f"           Font Weight: {styles[0].font_weight}")
-    print(f"           Text Style: {styles[0].text_style}")
-    print(f"           Text Decoration: {styles[0].text_decoration}")
-    print(f"           Font Size: {styles[0].font_size.size}{styles[0].font_size.unit}")
-    print(f"           Font Family: {styles[0].font_family}")
 
 
 def process_document(
@@ -201,7 +170,7 @@ def layout_to_text(layout: documentai.Document.Page.Layout, text: str) -> str:
 project_id = "YOUR_PROJECT_ID"
 location = "YOUR_PROCESSOR_LOCATION"  # Format is 'us' or 'eu'
 processor_id = "YOUR_PROCESSOR_ID"  # Create processor before running sample
-processor_version = "pretrained-ocr-v1.2-2022-11-10"
+processor_version = "pretrained-ocr-v2.0-2023-06-02"
 file_path = "DeclarationOfIndependence-Cursive.pdf"
 mime_type = "application/pdf"  # Refer to https://cloud.google.com/document-ai/docs/file-types for supported file types
 
