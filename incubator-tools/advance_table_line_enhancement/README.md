@@ -34,7 +34,7 @@ Sample image after training CDE processor for row columns & header columns
 ## Output Details : Table Sample from pdf file
 <img src="./Images/line_enhancement_basic_table_img.png" width=800 height=400 alt="line_enhancement_basic_table_img.png"></img>
 
-* 2.OCR Walk flow : This tool built using Python programming language. It converts tables present in pdf to csv files and stores them in GCS bucket without enhancing input pdf files by parsing them through Form Parser & CDE results.
+* 2.Table Parsing using CDE Headers and Form Parser : This tool built using Python programming language. It converts tables present in pdf to csv files and stores them in GCS bucket without enhancing input pdf files by parsing them through Form Parser & CDE results.
 
 ## Input Details for this tool : Input for this step is GCS bucket containing PDF files(which has only your specific-use-case tables)
 
