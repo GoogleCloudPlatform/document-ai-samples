@@ -20,23 +20,24 @@
 # pylint: disable=C0302
 """This module contains helper functions for Backmapping Tool"""
 import base64
+from collections import defaultdict
 import io
 import json
 import os
 import re
-from collections import defaultdict
 from typing import Any, Dict, List, MutableSequence, Optional, Tuple, Union
+
 import cv2
-import google.auth.transport.requests
-import numpy
-import pandas as pd
-import requests
 from dateutil.parser import parse
 from fuzzywuzzy import fuzz
 from google import auth
+import google.auth.transport.requests
 from google.cloud import documentai_v1beta3 as documentai
 from google.cloud import storage
+import numpy
+import pandas as pd
 from PIL import Image
+import requests
 
 
 def get_access_token() -> Union[str, Any]:
@@ -236,6 +237,7 @@ def get_synthesized_images(json_data: documentai.Document) -> List[Image.Image]:
             image = Image.open(image_file)
             image.load()
         return image
+
     for page in json_data.pages:
         synthesized_images.append(decode_image(page.image.content))
     return synthesized_images
@@ -243,7 +245,7 @@ def get_synthesized_images(json_data: documentai.Document) -> List[Image.Image]:
 
 def draw_black_box(
     synthesized_images: List[Image.Image],
-    page_wise_bbox: Any ,
+    page_wise_bbox: Any,
 ) -> io.BytesIO:
     """
     Draw black boxes around PII entities in synthesized images and add synthetic data.
@@ -431,8 +433,10 @@ def find_matched_translation_pairs(
     if regex.match(ent_mt):
         best_match_pairs = [{"sourceText": ent_mt, "targetText": ent_mt}]
     else:
+
         def similar(a, b):
             return fuzz.ratio(a, b)
+
         target_lines = ent_mt.split("\n")
         best_match_pairs = []
         for target_line in target_lines:
@@ -457,13 +461,7 @@ def get_page_text_anc_mentiontext(
     diff_y: float,
     diff_x: float,
     english_page_num: int,
-) -> Tuple[
-    Any,
-    Dict[str, Dict[Any, Any]],
-    str,
-    List[List[str]],
-    str,
-]:
+) -> Tuple[Any, Dict[str, Dict[Any, Any]], str, List[List[str]], str,]:
     """
     Function returns the min-max coordinates, text anchors and mention text of backmapped entity
     using provided extracted source entity, corresponding x&y coordinates, and
@@ -549,7 +547,10 @@ def get_page_text_anc_mentiontext(
         if not bb:
             continue
         # Difference between the original and mapped bbox should be within defined offset.
-        cond1, cond2 = abs(bb["min_y"] - min_y) <= diff_y, abs(bb["min_x"] - min_x) <= diff_x
+        cond1, cond2 = (
+            abs(bb["min_y"] - min_y) <= diff_y,
+            abs(bb["min_x"] - min_x) <= diff_x,
+        )
         if cond1 and cond2:
             diff_x = abs(bb["min_x"] - min_x)
             diff_y = abs(bb["min_y"] - min_y)
@@ -573,13 +574,7 @@ def updated_entity_secondary(
     min_max_x_y: Tuple[float, float, float, float],
     mapping_text: str,
     english_page_num: int,
-) -> Tuple[
-    Any,
-    Any,
-    str,
-    List[List[Any]],
-    str,
-]:
+) -> Tuple[Any, Any, str, List[List[Any]], str,]:
     """
     Function returns the min-max coordinates, text anchors and mention text of backmapped entity
     using provided extracted source entity x&y coordinates, and
@@ -620,10 +615,10 @@ def updated_entity_secondary(
         cond12 = abs(new_max_y - max_y) <= 0.01
         cond1 = cond11 and cond12
         cond21 = (
-            new_min_x >= min_x and
-            new_min_y >= min_y and
-            new_max_x <= max_x and
-            new_max_y <= max_y
+            new_min_x >= min_x
+            and new_min_y >= min_y
+            and new_max_x <= max_x
+            and new_max_y <= max_y
         )
         if not (cond1 or cond21):
             continue
@@ -684,10 +679,7 @@ def get_token(
     json_dict: documentai.Document,
     page: int,
     text_anchors_check: MutableSequence[documentai.Document.TextAnchor.TextSegment],
-) -> Tuple[
-    Union[Dict[str, float], None],
-    Any,
-]:
+) -> Tuple[Union[Dict[str, float], None], Any,]:
     """
     This function takes a loaded JSON, page number, and text anchors as input
     and returns the text anchors and page anchors.
@@ -761,14 +753,7 @@ def get_updated_entity(
     english_page_num: int,
     diff_y: float = 0.05,
     diff_x: float = 0.3,
-) -> Tuple[
-    Dict[str, Any],
-    List[Any],
-    str,
-    List[List[str]],
-    str,
-    List[Dict[str, str]],
-]:
+) -> Tuple[Dict[str, Any], List[Any], str, List[List[str]], str, List[Dict[str, str]],]:
     """
     Function maps the entity from source to target and gives the back mapped entity.
     Args:
@@ -837,8 +822,12 @@ def get_updated_entity(
                 english_page_num,
             )
         if updated_page_anc:
-            main_page_anc1["x"].extend([updated_page_anc["min_x"], updated_page_anc["max_x"]])
-            main_page_anc1["y"].extend([updated_page_anc["min_y"], updated_page_anc["max_y"]])
+            main_page_anc1["x"].extend(
+                [updated_page_anc["min_x"], updated_page_anc["max_x"]]
+            )
+            main_page_anc1["y"].extend(
+                [updated_page_anc["min_y"], updated_page_anc["max_y"]]
+            )
             for text_anc in updated_text_anc["textSegments"]:
                 if text_anc not in main_text_anc:
                     main_text_anc.append(text_anc)
@@ -963,8 +952,10 @@ def translation_text_units(
             - json_response: Translated API json response.
     """
     # Translation API.
-    url = (f"https://translate.googleapis.com/v3/projects/{project_id}"
-           f"/locations/global:translateDocument")
+    url = (
+        f"https://translate.googleapis.com/v3/projects/{project_id}"
+        f"/locations/global:translateDocument"
+    )
     headers = {
         "content-type": "application/json",
         "Authorization": f"Bearer {get_access_token()}",
