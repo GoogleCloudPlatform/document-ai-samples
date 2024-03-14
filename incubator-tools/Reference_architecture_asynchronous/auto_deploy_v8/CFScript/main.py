@@ -6,9 +6,14 @@ Reference architecture asynchronous main.py
 
 import concurrent.futures
 from typing import List
+
+from google.cloud import documentai
+from google.cloud import firestore
+from google.cloud import storage
 import pandas as pd
-from google.cloud import documentai, firestore, storage
-from utilities import batch_process_documents_sample, copy_blob, list_blobs
+from utilities import batch_process_documents_sample
+from utilities import copy_blob
+from utilities import list_blobs
 
 INPUT_BUCKET_NAME = "your_test_bucket_name"
 GCS_OUTPUT_URI_PREFIX = "your_output_folder_prefix"
@@ -200,8 +205,11 @@ def metadata_reader(metadata: documentai.BatchProcessMetadata) -> List:
                 "operation_id": i.output_gcs_destination.split("/")[-2],
                 "file_output_gcs_destination": i.output_gcs_destination,
                 "file_human_review_status": i.human_review_status.state.name,
-                "file_human_review_operation_id":
-                i.human_review_status.human_review_operation.split("/")[-1],
+                "file_human_review_operation_id": i.human_review_status.human_review_operation.split(  # pylint: line-too-long
+                    "/"
+                )[
+                    -1
+                ],
             }
         )
     return info_array
@@ -242,9 +250,7 @@ def file_copy(array_having_file_names: List, bucket_name_with_folder: str) -> No
         )
 
 
-def concurrent_processing(
-    daira_output_test: str, batch_array: List
-) -> None:
+def concurrent_processing(daira_output_test: str, batch_array: List) -> None:
     """
     To create a concurrent process for batch processing the files .
 

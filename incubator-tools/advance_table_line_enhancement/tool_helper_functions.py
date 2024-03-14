@@ -16,23 +16,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """This module contains helper functions for Advance Table Parsing Tool"""
+from collections import defaultdict
+from io import BytesIO
 import math
 import re
 import time
-from collections import defaultdict
-from io import BytesIO
-from typing import Dict, List, MutableSequence, Tuple, Union, Any
+from typing import Any, Dict, List, MutableSequence, Tuple, Union
 
-import numpy as np
-import pandas as pd
-import PyPDF2
 from google.api_core.client_options import ClientOptions
-from google.api_core.exceptions import InternalServerError, RetryError
-from google.cloud import documentai, storage
+from google.api_core.exceptions import InternalServerError
+from google.api_core.exceptions import RetryError
+from google.cloud import documentai
+from google.cloud import storage
 from google.longrunning import operations_pb2
 from google.longrunning.operations_pb2 import GetOperationRequest
+import numpy as np
+import pandas as pd
 from PIL import Image as PilImage
 from PIL import ImageDraw
+import PyPDF2
 
 
 def batch_process_documents(
@@ -382,9 +384,7 @@ def poll_hitl_operations(
         ]
         if not operations:
             break
-        print(
-            f"Still waiting for {len(operations)} HITL operations to complete"
-        )
+        print(f"Still waiting for {len(operations)} HITL operations to complete")
         time.sleep(100)
     print(f"Finished waiting for all {num_operations} HITL operations.")
 
@@ -449,7 +449,7 @@ def parse_document_tables(output_bucket, output_prefix, output_csv_prefix):
         output_bucket=output_bucket, output_prefix=output_prefix
     )
     for file_key, document in doc_obj_dict.items():
-        for _ , page in enumerate(document.pages):
+        for _, page in enumerate(document.pages):
             header_row_values: List[List[str]] = []
             body_row_values: List[List[str]] = []
             for index, table in enumerate(page.tables):
@@ -820,7 +820,7 @@ def process_taxonomy_disclosure(st: str) -> str:
     ea = re.search(r"^[A-Z]\.\s[a-zA-Z\s-]+", st)
     if ea:
         span = ea.span()
-        interstr = st[span[0]:span[1]].split("\n")[0]
+        interstr = st[span[0] : span[1]].split("\n")[0]
     return interstr
 
 
@@ -839,7 +839,7 @@ def process_taxonomy_disclosure_complex(st: str) -> Tuple[str, str]:
     ea = re.search(r"^[A-Z]\.[1-9](.|)[a-zA-Z()\s-]+", st)
     if ea:
         span = ea.span()
-        interstr = st[span[0]:span[1]].split("\n")[0:-1]
+        interstr = st[span[0] : span[1]].split("\n")[0:-1]
         ans = " ".join(interstr)
         st = st.replace(st[span[0] : span[1]], "")
     return st, ans
@@ -859,7 +859,9 @@ def process_taxonomy_disclosure_multiple(row: pd.Series) -> None:
     st = row["taxonomy_disclosure"]
     row_ea = re.findall(r"\d.\d+ [a-zA-Z\s]+", st)
     if len(row_ea) > 1:
-        row["taxonomy_disclosure"] = "\n".join([ea.replace("\n", " ").strip() for ea in row_ea])
+        row["taxonomy_disclosure"] = "\n".join(
+            [ea.replace("\n", " ").strip() for ea in row_ea]
+        )
 
 
 def collect_multiple_values(row: pd.Series, col: str) -> List:
@@ -884,8 +886,9 @@ def collect_multiple_values(row: pd.Series, col: str) -> List:
     return split_row
 
 
-def collect_and_extend_values(final_df_: pd.DataFrame, final_data_: dict,
-                              row: pd.Series, col: str) -> None:
+def collect_and_extend_values(
+    final_df_: pd.DataFrame, final_data_: dict, row: pd.Series, col: str
+) -> None:
     """
     Collect and extend values from a specific column in a row to the final data structure.
 
@@ -914,8 +917,9 @@ def collect_and_extend_values(final_df_: pd.DataFrame, final_data_: dict,
         final_data_ = update_data(final_df_, final_data_, ea_)
 
 
-def extend_column_data(final_data_: dict, row: pd.Series,
-                       column: str, split_row: List[str]) -> None:
+def extend_column_data(
+    final_data_: dict, row: pd.Series, column: str, split_row: List[str]
+) -> None:
     """
     Extend column data in the final data structure.
 
@@ -985,13 +989,18 @@ def post_process(
     )
     # Post-processing code matches expected values and rearranges them into the final dataframe
     final_data_: Dict[Any, Any] = defaultdict(list)
-    for _ , row in dest_df.iterrows():
+    for _, row in dest_df.iterrows():
         if row["taxonomy_disclosure"] is np.nan:
             continue
         st = row["taxonomy_disclosure"]
-        st = st.replace(process_taxonomy_disclosure(row["taxonomy_disclosure"]) + "\n", "").strip()
-        final_data_ = update_data(final_df_, final_data_, process_taxonomy_disclosure(
-                    row["taxonomy_disclosure"]))
+        st = st.replace(
+            process_taxonomy_disclosure(row["taxonomy_disclosure"]) + "\n", ""
+        ).strip()
+        final_data_ = update_data(
+            final_df_,
+            final_data_,
+            process_taxonomy_disclosure(row["taxonomy_disclosure"]),
+        )
         row["taxonomy_disclosure"] = st
 
         st = row["taxonomy_disclosure"]
@@ -1053,10 +1062,10 @@ def run_table_extractor_pipeline(
         )
         final_data_2_processed = final_data_new2.copy()
         nrows = 0  # num of rows
-        for _ , v in final_data_new2.items():
+        for _, v in final_data_new2.items():
             nrows = max(len(v), nrows)
 
-        for _ , v in final_data_2_processed.items():
+        for _, v in final_data_2_processed.items():
             length = len(v)
             if length != nrows:
                 v.extend([np.nan] * (nrows - length))
@@ -1103,7 +1112,7 @@ def walk_the_ocr(
             )
             cde_document = cde_jsons[file[:-4]]
             print("NO HITL")
-        _ , y_coord, row_map_cde, _ = get_coordinates_map(cde_document)
+        _, y_coord, row_map_cde, _ = get_coordinates_map(cde_document)
         fp_document_path = fp_input_output_map[file]
         fp_document = read_json_output(
             output_bucket=gcs_output_bucket, output_prefix=fp_document_path
@@ -1159,8 +1168,7 @@ def draw_vertical(
             )
         if (
             n + 1 < len(x_coordinates[idx])
-            and (x_coordinates[idx][n + 1][1] + voffset // 2)
-            - (cor[1] + voffset // 2)
+            and (x_coordinates[idx][n + 1][1] + voffset // 2) - (cor[1] + voffset // 2)
             > 50
         ):
             draw.line(
@@ -1275,7 +1283,7 @@ def enhance_and_save_pdfs(
         try:
             images_for_pdf = []
             for idx, page in enumerate(document.pages):
-                x_coordinates, _ , _ , max_ycd = get_coordinates_map(document)
+                x_coordinates, _, _, max_ycd = get_coordinates_map(document)
                 image_content = page.image.content
                 image = PilImage.open(BytesIO(image_content))
                 draw = ImageDraw.Draw(image)
@@ -1284,8 +1292,18 @@ def enhance_and_save_pdfs(
                 hoffset_ = factor * voffset
                 # Draw horizontal
                 if idx in max_ycd:
-                    draw_horizontal(idx, max_ycd, hoffset, hoffset_, min_x,
-                                    min_height, max_x, line_colour, line_width, draw)
+                    draw_horizontal(
+                        idx,
+                        max_ycd,
+                        hoffset,
+                        hoffset_,
+                        min_x,
+                        min_height,
+                        max_x,
+                        line_colour,
+                        line_width,
+                        draw,
+                    )
                     # for n, y in enumerate(max_ycd[idx]):
                     #     if n == 0:  # column header min y coord
                     #         draw.line(
@@ -1311,8 +1329,17 @@ def enhance_and_save_pdfs(
                     #         )
                 # Drawing vertical lines
                 if idx in x_coordinates:
-                    draw_vertical(idx, x_coordinates, hoffset_, min_height,
-                                  max_height, line_colour, line_width, voffset, draw)
+                    draw_vertical(
+                        idx,
+                        x_coordinates,
+                        hoffset_,
+                        min_height,
+                        max_height,
+                        line_colour,
+                        line_width,
+                        voffset,
+                        draw,
+                    )
                     # for n, cor in enumerate(x_coordinates[idx]):
                     #     if n == 0:
                     #         draw.line(
