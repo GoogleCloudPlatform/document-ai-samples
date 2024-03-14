@@ -205,7 +205,7 @@ def metadata_reader(metadata: documentai.BatchProcessMetadata) -> List:
                 "operation_id": i.output_gcs_destination.split("/")[-2],
                 "file_output_gcs_destination": i.output_gcs_destination,
                 "file_human_review_status": i.human_review_status.state.name,
-                "file_human_review_operation_id": i.human_review_status.human_review_operation.split(
+                "file_human_review_operation_id": i.human_review_status.human_review_operation.split(  # pylint: line-too-long
                     "/"
                 )[
                     -1
