@@ -20,7 +20,6 @@ import (
 	"log"
 	"os"
 
-	"cloud.google.com/go/compute/metadata"
 	documentai "cloud.google.com/go/documentai/apiv1beta3"
 	"cloud.google.com/go/documentai/apiv1beta3/documentaipb"
 
@@ -30,10 +29,8 @@ import (
 )
 
 var (
-	projectID                      string = getProjectID()
-	contentModerationProcessorName string = envCheck("CONTENT_MODERATION_NAME", "")
-	port                           string = envCheck("PORT", "8080")
-	logname                        string = envCheck("LOGNAME", "cx-content-moderation")
+	contentModerationProcessorName = envCheck("CONTENT_MODERATION_NAME", "")
+	port                           = envCheck("PORT", "8080")
 )
 
 const location = "us"
@@ -56,7 +53,7 @@ func analyzeCommentHandler(res *ezcx.WebhookResponse, req *ezcx.WebhookRequest) 
 	params := req.GetSessionParameters()
 	text := req.GetText()
 	if text == "" {
-		return fmt.Errorf("No text provided.")
+		return fmt.Errorf("no text provided")
 	}
 
 	// perform content moderation on text
@@ -73,7 +70,7 @@ func analyzeCommentHandler(res *ezcx.WebhookResponse, req *ezcx.WebhookRequest) 
 		attributes[attribute.GetType()] = attribute.GetConfidence()
 	}
 	if params == nil {
-		params = make(map[string]any)
+		params = make(map[string]interface{})
 	}
 	params["content-moderation"] = attributes
 
@@ -123,26 +120,9 @@ func apiEndpoint() string {
 
 // envCheck checks for an environment variable, otherwise returns default
 func envCheck(environmentVariable, defaultVar string) string {
-	if envar, ok := os.LookupEnv(environmentVariable); !ok {
+	envar, ok := os.LookupEnv(environmentVariable)
+	if envar == "" || !ok {
 		return defaultVar
-	} else if envar == "" {
-		return defaultVar
-	} else {
-		return envar
 	}
-}
-
-// getProjectID checks for a local environment variable and then GCP metadata to
-func getProjectID() string {
-	projectID := envCheck("PROJECT_ID", "")
-	if projectID == "" { // local
-		projectID = envCheck("GOOGLE_CLOUD_PROJECT", "") // appengine
-		if projectID == "" {                             // gcp metadata
-			var err error
-			if projectID, err = metadata.ProjectID(); err != nil {
-				log.Fatal("Unable to get Google Cloud Project ID", err)
-			}
-		}
-	}
-	return projectID
+	return envar
 }
