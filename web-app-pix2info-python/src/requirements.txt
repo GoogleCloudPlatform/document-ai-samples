@@ -14,4 +14,4 @@ Pillow==10.3.0
 Flask==3.0.2
 
 # https://pypi.org/project/gunicorn
-gunicorn==21.0.1
+gunicorn==22.0.0
