@@ -50,7 +50,7 @@ Folder contains various tools which is made for the benefit of Doc AI users.
 * [Document AI Processor Types](./docai_processor_types/)
 * [Schema from Form Parser Output](./document-schema-from-form-parser-output/)
 * [Migrating Schema Between the Processors](./documentai_migrating_schema_between_processors/)
-* [Enrich the Address for Invioce Parser ](./enrich_address_for_invoice/)
+* [Enrich the Address for Invioce Parser](./enrich_address_for_invoice/)
 * [Entity Sorting using Csharp](./entity_sorting_csharp/)
 * [Entity Sorting using Python](./entity_sorting_python/)
 * [Formparser Table to Entity Converter Tool](./formparser_table_to_entity_converter_tool/)
