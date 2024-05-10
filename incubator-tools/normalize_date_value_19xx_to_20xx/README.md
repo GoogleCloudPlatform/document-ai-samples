@@ -2,6 +2,7 @@
 This is a post processing tool to normalize year in date related entities from 19xx to 20xx. Document AI processors will give a normalized_value attribute for date entities in Document Object and sometimes this normalized value for year will be inferred as 19xx instead of 20xx.
 
 ## Input Details
+
 * **INPUT_GCS_PATH** : It is input GCS folder path which contains DocumentAI processor JSON results
 * **OUTPUT_GCS_PATH** : It is a GCS folder path to store post-processing results
 
@@ -19,10 +20,10 @@ Refer below images for preprocessed and postprocessed results
     </tr>
     <tr>
         <td>
-            <img src='./images/post_processing_image.png' width=400 height=600></img>
+            <img src='./images/post_processing_image.png' width=400 height=600 alt ="output_image1">
         </td>
         <td>
-            <img src='./images/pre_processing_image.png' width=400 height=600></img>
+            <img src='./images/pre_processing_image.png' width=400 height=600 alt ="output_image2">
         </td>
     </tr>
 </table>

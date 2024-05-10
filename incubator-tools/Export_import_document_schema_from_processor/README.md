@@ -27,7 +27,7 @@ The schema will be saved in a file named `Document_Schema_exported.xlsx`. The sp
 
 ## Importing Document Schema from a Spreadsheet
 
-### Input
+### Inputs for importing schema from a spreadsheet
 
 - `project_id="xxxxxxxxxx"`: Project ID of the project
 - `new_location="us"`: Location of the processor
@@ -42,6 +42,6 @@ Add any entities in the .xlsx file to be added to the new processor.
 
 Ensure the entities in the spreadsheet are not already in the schema of the processor to avoid issues.
 
-### Output
+### Output of the schema
 
 The schema of the new processor will be updated as per the spreadsheet provided.

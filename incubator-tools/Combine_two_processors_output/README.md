@@ -1,4 +1,5 @@
 # Purpose and Description
+
 The objective of the tooling is to efficiently integrate the output of one AI processor (proto) with another. This integration results in a comprehensive final output that reflects the combined capabilities of both parsers. Technically, this process involves sending the document proto object from one parser to the next.
 
 ## Input Details
@@ -14,5 +15,6 @@ The objective of the tooling is to efficiently integrate the output of one AI pr
 * **output_path1 :**  The path for output from the first parser.
 * **output_path2 :**  The path for output from the second parser.
 
-## Output Details 
+## Output Details
+
 The jsons will be stored in respective output folders.

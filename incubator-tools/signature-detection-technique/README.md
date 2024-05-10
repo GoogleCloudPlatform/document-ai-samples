@@ -1,16 +1,8 @@
-## Purpose and Description
+# Purpose and Description
 This documentation outlines the procedure for detecting the signature in the document by taking normalized bounding box coordinates of signature location.
 While using this code, the user needs to set two values while calling the function a) BlankLine Pixel count b)  Signature Pixel Count (only for the black pixels).
 
-## Prerequisites
-
-1. Access to vertex AI Notebook or Google Colab
-2. Python
-3. Python Libraries like cv2, PIL, base64, io, numpy etc.
-
-## Step by Step procedure 
-
-### 1. Input details
+## 1. Input details
 
 <ul>
     <li><b>input_path :</b> GCS Storage name. It should contain DocAI processed output json files. This bucket is used for processing input files in the folders.</li>
@@ -20,10 +12,9 @@ While using this code, the user needs to set two values while calling the functi
     <li><b>signature_threshold_pixel_count: </b>Threshold Count of the total black pixel (considering the image is a binary image(black & white)) signature field having signature in it.
 </ul>
 
+## 2.Output
 
-### 3.Output
-
-upon execution code , it will prompt whether the given image with bounding box coordinates is having the signature in it or not. 
+upon execution code , it will prompt whether the given image with bounding box coordinates is having the signature in it or not.
 
 <table>
     <tr>
@@ -31,8 +22,7 @@ upon execution code , it will prompt whether the given image with bounding box c
         <td><h3><b>Output</b></h3></td>
     </tr>
 <tr>
-<td><img src="./images/image_input.png"></td>
-<td><img src="./images/image_output.png"></td>
+<td><img src="./images/image_input.png" alt ="output_image1"></td>
+<td><img src="./images/image_output.png" alt ="output_image2"></td>
 </tr>
 </table>
-
