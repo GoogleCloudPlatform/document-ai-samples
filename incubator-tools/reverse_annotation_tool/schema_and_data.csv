@@ -1,0 +1,13 @@
+FileNames,line_item/quantity,line_item/description,line_item/unit_price,line_item/amount,invoice_date,invoice_id,ship_to_address,supplier_address,supplier_name,supplier_email,supplier_website,supplier_phone,total_amount,net_amount,receiver_email
+Type,,,,,,,,,,,,,,,
+file_name_1.pdf,< fill_data >,< fill_data >,< fill_data >,< fill_data >,,,,,,,,,,,
+file_name_1.pdf,< fill_data >,< fill_data >,< fill_data >,< fill_data >,,,,,,,,,,,
+file_name_1.pdf,< fill_data >,< fill_data >,< fill_data >,< fill_data >,,,,,,,,,,,
+file_name_1.pdf,< fill_data >,< fill_data >,< fill_data >,< fill_data >,,,,,,,,,,,
+file_name_1.pdf,< fill_data >,< fill_data >,< fill_data >,< fill_data >,,,,,,,,,,,
+file_name_1.pdf,< fill_data >,< fill_data >,< fill_data >,< fill_data >,,,,,,,,,,,
+file_name_1.pdf,,,,,< fill_data >,< fill_data >,< fill_data >,< fill_data >,< fill_data >,< fill_data >,< fill_data >,< fill_data >,< fill_data >,< fill_data >,< fill_data >
+file_name_2.pdf,< fill_data >,< fill_data >,< fill_data >,< fill_data >,,,,,,,,,,,
+file_name_2.pdf,< fill_data >,< fill_data >,< fill_data >,< fill_data >,,,,,,,,,,,
+file_name_2.pdf,< fill_data >,< fill_data >,< fill_data >,< fill_data >,,,,,,,,,,,
+file_name_2.pdf,,,,,< fill_data >,< fill_data >,< fill_data >,< fill_data >,< fill_data >,< fill_data >,,< fill_data >,< fill_data >,< fill_data >,< fill_data >
