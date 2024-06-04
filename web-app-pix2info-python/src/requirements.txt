@@ -5,7 +5,7 @@ google-cloud-documentai==2.15.0
 google-cloud-logging==3.5.0
 
 # https://pypi.org/project/google-auth
-google-auth==2.28.1
+google-auth==2.29.0
 
 # https://pypi.org/project/Pillow
 Pillow==10.3.0
