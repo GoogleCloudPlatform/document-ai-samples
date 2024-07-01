@@ -1,1 +1,0 @@
-unzip DocAI_vertexAI_Pipeline.zip
