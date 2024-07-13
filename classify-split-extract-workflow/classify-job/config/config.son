@@ -1,0 +1,50 @@
+{
+  "parser_config": {
+    "int1099_parser": {
+      "parser_type": "FORM_1099INT_PROCESSOR",
+      "processor_id": "",
+      "out_table_name": "INT1099"
+    },
+    "misc1099_parser": {
+      "parser_type": "FORM_1099MISC_PROCESSOR",
+      "processor_id": "",
+      "out_table_name": "MISC1099"
+    },
+    "w2_parser": {
+      "parser_type": "FORM_W2_PROCESSOR",
+      "processor_id": "",
+      "out_table_name": "W2"
+    },
+    "ocr_parser": {
+      "parser_type": "OCR_PROCESSOR",
+      "processor_id": "",
+      "out_table_name": "GENERIC_FORMS"
+    },
+    "classifier": {
+      "parser_type": "LENDING_DOCUMENT_SPLIT_PROCESSOR",
+      "processor_id": ""
+    }
+  },
+  "settings_config": {
+    "classification_confidence_threshold": 0.50,
+    "classification_default_class": "generic_form"
+  },
+  "document_types_config": {
+    "w2_form": {
+      "classifier_label": "w2_2020",
+      "parser": "w2_parser"
+    },
+    "misc1099_form": {
+      "classifier_label": "1099misc_2020",
+      "parser": "misc1099_parser"
+    },
+    "int1099_form": {
+      "classifier_label": "1099int_2020",
+      "parser": "int1099_parser"
+    },
+    "generic_form": {
+      "classifier_label": "NA",
+      "parser": "ocr_parser"
+    }
+  }
+}
