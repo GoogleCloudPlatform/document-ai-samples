@@ -22,71 +22,65 @@ logger = Logger.get_logger(__file__)
 
 
 def get_docai_input(processor_name: str) -> \
-    Tuple[Optional[documentai.types.processor.Processor], Optional[documentai.DocumentProcessorServiceClient]]:
-  """
-  Retrieves the Document AI processor and client based on the processor name.
+        Tuple[Optional[documentai.types.processor.Processor], Optional[documentai.DocumentProcessorServiceClient]]:
+    """
+    Retrieves the Document AI processor and client based on the processor name.
 
-  Args:
+    Args:
       processor_name (str): The name of the processor.
 
-  Returns:
+    Returns:
       Tuple[Optional[documentai.types.processor.Processor], Optional[documentai.DocumentProcessorServiceClient]]:
       A tuple containing the processor and the Document Processor Service client.
-  """
-  parser_details = get_parser_by_name(processor_name)
+    """
 
-  if not parser_details:
-    logger.error(f"Parser {processor_name} not defined in config")
-    return None, None
+    parser_details = get_parser_by_name(processor_name)
 
-  processor_path = parser_details["processor_id"]
-  location = parser_details.get("location", get_processor_location(processor_path))
-  if not location:
-    logger.error(f"Unidentified location for parser {processor_path}")
-    return None, None
+    if not parser_details:
+        logger.error(f"Parser {processor_name} not defined in config")
+        return None, None
 
-  opts = {"api_endpoint": f"{location}-documentai.googleapis.com"}
+    processor_path = parser_details["processor_id"]
+    location = parser_details.get("location", get_processor_location(processor_path))
+    if not location:
+        logger.error(f"Unidentified location for parser {processor_path}")
+        return None, None
 
-  dai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
-  processor = dai_client.get_processor(name=processor_path)
+    opts = {"api_endpoint": f"{location}-documentai.googleapis.com"}
 
-  logger.info(f"get_docai_input - processor={processor.name}, {processor.type_}")
-  return processor, dai_client
+    dai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
+    processor = dai_client.get_processor(name=processor_path)
+
+    logger.info(f"get_docai_input - processor={processor.name}, {processor.type_}")
+    return processor, dai_client
 
 
 def get_processor_location(processor_path: str) -> Optional[str]:
-  """
-  Extracts the location from the processor path.
+    """
+    Extracts the location from the processor path.
 
-  Args:
+    Args:
       processor_path (str): The processor path.
 
-  Returns:
+    Returns:
       Optional[str]: The location extracted from the processor path.
-  """
-  match = re.match(r'projects/(.+)/locations/(.+)/processors', processor_path)
-  if match and len(match.groups()) >= 2:
-    return match.group(2)
-  return None
+    """
 
-
-# TODO(developer): Uncomment these variables before running the sample.
-# Given a local document.proto or sharded document.proto from a splitter/classifier in path
-# document_path = "path/to/local/document.json"
-# pdf_path = "path/to/local/document.pdf"
-# output_path = "resources/output/"
+    match = re.match(r'projects/(.+)/locations/(.+)/processors', processor_path)
+    if match and len(match.groups()) >= 2:
+        return match.group(2)
+    return None
 
 
 def split_pdf_document(document_path: str, pdf_path: str, output_path: str) -> List[str]:
-  try:
-    wrapped_document = document.Document.from_document_path(document_path=document_path)
-    output_files = wrapped_document.split_pdf(
-      pdf_path=pdf_path, output_path=output_path
-    )
+    try:
+        wrapped_document = document.Document.from_document_path(document_path=document_path)
+        output_files = wrapped_document.split_pdf(
+            pdf_path=pdf_path, output_path=output_path
+        )
 
-    logger.info(f"Document {pdf_path} successfully split into {', '.join(output_files)}")
-    return output_files
-  except Exception as e:
-    logger.error(f"Error splitting PDF document: {e}")
-    return []
-
+        logger.info(f"Document {pdf_path} successfully split into {', '.join(output_files)}")
+        return output_files
+    except Exception as e:
+        logger.error(f"Error splitting PDF document: {e}")
+        return []
