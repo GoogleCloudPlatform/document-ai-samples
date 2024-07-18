@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +16,7 @@ import os
 
 import config
 from config import (FULL_JOB_NAME, CLASSIFIER)
-from docai_helper import get_docai_input
+from docai_helper import get_processor_and_client
 from gcs_helper import get_list_of_uris
 from logging_handler import Logger
 from split_and_classify import batch_classification, handle_no_classifier, \
@@ -39,7 +37,7 @@ def process():
     logger.info(f"CLOUD_RUN_EXECUTION={os.getenv('CLOUD_RUN_EXECUTION')}")
 
     try:
-        processor, dai_client = get_docai_input(CLASSIFIER)
+        processor, dai_client = get_processor_and_client(CLASSIFIER)
         f_uris = get_list_of_uris(input_bucket, input_file)
 
         # When classifier/splitter is not setup

@@ -206,11 +206,10 @@ def save_classification_results(classified_items: Dict) -> Tuple[Optional[str], 
     try:
 
         for document_type, f_uris in classified_items.items():
-            model_name = config.get_model_name(document_type)
+            model_name, out_table_name = config.get_model_name_table_name(document_type)
             processor_name = config.get_parser_name_by_doc_type(document_type)
-            out_table_name = config.get_out_table_name(document_type)
 
-            processor, _ = docai_helper.get_docai_input(processor_name)
+            processor, _ = docai_helper.get_processor_and_client(processor_name)
             object_table_name = bq_mlops.object_table_create(f_uris=f_uris, document_type=document_type)
             bq_mlops.remote_model_create(processor=processor, model_name=model_name)
 
@@ -273,33 +272,8 @@ def split_pdf(gcs_uri: str, entities: List[Document.Entity]) -> Dict:
 
     documents: Dict = {}
 
-    # Merge entities with the same type across consecutive pages
-    merged_entities = []
-    current_entity = None
-
-    for entity in entities:
-        if current_entity and entity.type_ == current_entity.type_ and \
-                (check_confidence_threshold_passed(entity.confidence) or
-                 (not check_confidence_threshold_passed(entity.confidence) and
-                  not check_confidence_threshold_passed(current_entity.confidence))):
-            current_entity.page_anchor.page_refs.extend(entity.page_anchor.page_refs)
-            current_entity.text_anchor.text_segments[-1].end_index = entity.text_anchor.text_segments[-1].end_index
-            current_entity.confidence = min(current_entity.confidence, entity.confidence)
-
-        else:
-            if current_entity:
-                merged_entities.append(current_entity)
-            current_entity = entity
-
-    if current_entity:
-        merged_entities.append(current_entity)
-
-    if not merged_entities:
-        logger.warning(f"No entities found for {gcs_uri}")
-        return documents
-
-    if len(merged_entities) == 1:
-        metadata = get_metadata(merged_entities[0])
+    if len(entities) == 1:
+        metadata = get_metadata(entities[0])
         metadata.update({
             "original": gcs_uri
         })
@@ -318,7 +292,7 @@ def split_pdf(gcs_uri: str, entities: List[Document.Entity]) -> Dict:
         bucket_name, _ = gcs_utilities.split_gcs_uri(gcs_uri)
 
         with Pdf.open(pdf_path) as pdf:
-            for entity in merged_entities:
+            for entity in entities:
                 subdoc_type = entity.type_ or "subdoc"
                 page_refs = entity.page_anchor.page_refs
                 if page_refs:

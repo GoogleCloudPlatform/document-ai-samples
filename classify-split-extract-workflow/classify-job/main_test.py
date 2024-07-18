@@ -19,9 +19,10 @@ from main import process
 logger = Logger.get_logger(__file__)
 
 if __name__ == "__main__":
-    # config.INPUT_FILE = "bsc-dme-pa-form.pdf"
-    config.INPUT_FILE = "blank-combined_6.pdf"
-    # config.INPUT_FILE = "CLINICAL NOTES 1.pdf"
-    config.INPUT_FILE = f"taxes/{config.START_PIPELINE_FILENAME}"
+    # To be used for testing from the local machine. Specify the file to trigger processing
+    # Either a single file like below (must be located in GCS: gs://PROJECT_ID--documents/)
+    config.INPUT_FILE = "taxes-combined.pdf"
+    # Or a path to the folder to trigger batch processing using START_PIPLEINE trigger file:
     config.INPUT_FILE = f"combined/{config.START_PIPELINE_FILENAME}"
+
     process()

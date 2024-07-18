@@ -54,7 +54,7 @@ All environment variables referred further on are defined in the [vars.sh](vars.
 2) Pub/Sub enet is forwarded to the  [GCP Workflow execution](https://console.cloud.google.com/workflows/workflow/us-central1/classify-extract/).
 3) Workflow checks the file uploaded and triggers Cloud Run Job for the Document Classification and Splitting.
 4) [Classification Cloud Run Job](https://console.cloud.google.com/run/jobs/details/us-central1/classify-job):
-  - Uses Document AI Classifier or Splitter as it is defined in the [config.json](classify-job/config/config.son) file (`parser_config`/`classifier`).
+  - Uses Document AI Classifier or Splitter as it is defined in the [config.json](classify-job/config/config.json) file (`parser_config`/`classifier`).
   - For each document sent for the processing, determines `confidence` and `type` (Classifier), determines page boundaries and type of each page (Splitter) and does the splitting into the `splitter_output` sub-folder.  
   - File `config.json` defines the relation between Classifier labels and Document Parsers to be used for those label (as well as the output BigQuery table for each model).
   - Creates a _json_ file inside `CLASSIFY_OUTPUT_BUCKET` bucket that is the result of the classification/splitting job and is used for the Extraction.
@@ -200,7 +200,7 @@ export DOCAI_PROJECT_ID=...
   - `W-2 Parser`
   - `1099 Parser(s)`
 
-Following script will generate following Document AI processors and update [config.json](classify-job/config/config.son) file for you.
+Following script will generate following Document AI processors and update [config.json](classify-job/config/config.json) file for you.
 - [OCR_PROCESSOR](https://cloud.google.com/document-ai/docs/processors-list#processor_doc-ocr)
 - LENDING_DOCUMENT_SPLIT_PROCESSOR
 - [FORM_W2_PROCESSOR](https://cloud.google.com/document-ai/docs/processors-list#processor_w2-parser)
@@ -222,7 +222,7 @@ Following script will generate following Document AI processors and update [conf
 
 ### Configuration
 
-Here is the explanation of the structure of the [config.json](classify-job/config/config.son) that defines agents being used in the pipeline:
+Here is the explanation of the structure of the [config.json](classify-job/config/config.json) that defines agents being used in the pipeline:
 
 `parser_config`:
 - Contains a list of the arbitrary number of the document extractors and a single classifier:
@@ -249,7 +249,7 @@ Here is the explanation of the structure of the [config.json](classify-job/confi
 - The classification_default_class
 
 
-* Modify [config.json](classify-job/config/config.son) file to match your needs or leave it as is for the demo with taxes.
+* Modify [config.json](classify-job/config/config.json) file to match your needs or leave it as is for the demo with taxes.
 * Copy file to GCS:
   ```shell
   source vars.sh

@@ -11,17 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""This module contains DocAI helper functions"""
 import re
 from typing import Tuple, Optional, List
 from google.cloud.documentai_toolbox import document
 from google.cloud import documentai_v1 as documentai
 from config import get_parser_by_name
 from logging_handler import Logger
+from google.api_core.client_options import ClientOptions
 
 logger = Logger.get_logger(__file__)
 
 
-def get_docai_input(processor_name: str) -> \
+def get_processor_and_client(processor_name: str) -> \
         Tuple[Optional[documentai.types.processor.Processor], Optional[documentai.DocumentProcessorServiceClient]]:
     """
     Retrieves the Document AI processor and client based on the processor name.
@@ -46,8 +48,7 @@ def get_docai_input(processor_name: str) -> \
         logger.error(f"Unidentified location for parser {processor_path}")
         return None, None
 
-    opts = {"api_endpoint": f"{location}-documentai.googleapis.com"}
-
+    opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
     dai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
     processor = dai_client.get_processor(name=processor_path)
 
