@@ -12,23 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=import-error,too-few-public-methods
+
+""" Helper Logger """
+
 import logging
 import os
 import sys
 import google.cloud.logging
-
-"""class and methods for logs handling.
-Sample usage:
->>> from common.utils.logging_handler import logger
-
->>> logger.get_logger(__file__)
-
->>> def my_function(){
->>>   logger.info("")
->>> }
-"""
-# TODO For Cloud Run Job, this needs additional setup for the Resource handling
-# See: https://stackoverflow.com/questions/74302649/log-to-cloud-logging-with-correct-severity-from-cloud-run-job-and-package-used-i
 
 CLOUD_LOGGING_ENABLED = True
 if CLOUD_LOGGING_ENABLED:
@@ -41,9 +32,15 @@ else:
 
 
 class Logger:
-    """class def handling logs."""
+    """Class for handling logs."""
 
     def __init__(self, name):
+        """
+        Initialize the Logger instance.
+
+        Args:
+            name (str): The name of the logger, typically the module name.
+        """
         dirname = os.path.dirname(name)
         filename = os.path.split(name)[1]
         folder = os.path.split(dirname)[1]
@@ -58,5 +55,14 @@ class Logger:
 
     @classmethod
     def get_logger(cls, name) -> logging.Logger:
+        """
+        Get a logger instance.
+
+        Args:
+            name (str): The name of the logger, typically the module name.
+
+        Returns:
+            logging.Logger: A configured logger instance.
+        """
         logger_instance = cls(name)
         return logger_instance.logger

@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=logging-fstring-interpolation,broad-exception-caught
+
+""" Main function to run Cloud Run job Classification/Splitting tasks """
+
 import os
 
 import config
@@ -26,6 +30,7 @@ logger = Logger.get_logger(__file__)
 
 
 def process():
+    """ Main function for the Classifier/Splitter Cloud Run Job """
     input_bucket = config.CLASSIFY_INPUT_BUCKET
     input_file = config.INPUT_FILE
 
@@ -52,7 +57,7 @@ def process():
         logger.info(f"Classified items: {classified_items}")
         out_bucket_name, out_file_name = save_classification_results(classified_items)
 
-    except Exception as e:  # Catch any potential exceptions
+    except Exception as e:
         logger.error(f"Error during batch classification: {e}")
 
     stream_classification_results(call_back_url=config.CALL_BACK_URL,

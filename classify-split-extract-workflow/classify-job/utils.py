@@ -12,6 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=logging-fstring-interpolation,import-error
+
+"""
+Utility functions  for obtaining authentication tokens,
+sending callback requests, splitting PDF files into multiple parts,
+getting the current UTC timestamp, and deleting directories.
+"""
+
 import glob
 import io
 import shutil
@@ -64,24 +72,50 @@ def send_callback_request(callback_url: Optional[str], payload: dict) -> None:
 def split_pages(file_pattern: str, bucket_name: str, output_dir: str) -> None:
     """Split a PDF file into parts with up to 15 pages and upload the parts to GCS."""
     bucket = storage_client.bucket(bucket_name)
-
     for file_path in glob.glob(file_pattern):
-        with open(file_path, 'rb') as pdf_file:
-            pdf_bytes = pdf_file.read()
+        split_and_upload_pdf(file_path, bucket, output_dir)
 
-        reader = PyPDF2.PdfReader(io.BytesIO(pdf_bytes))
-        num_pages = len(reader.pages)
-        num_shards = (num_pages + 14) // 15
 
-        pdf_writers = [PyPDF2.PdfWriter() for _ in range(num_shards)]
-        for page_index, page in enumerate(reader.pages):
-            pdf_writers[page_index // 15].add_page(page)
+def split_and_upload_pdf(file_path: str, bucket: storage.Bucket, output_dir: str) -> None:
+    """Split a single PDF file into parts and upload the parts to GCS."""
+    pdf_bytes = read_pdf_file(file_path)
+    reader = PyPDF2.PdfReader(io.BytesIO(pdf_bytes))
+    num_pages = len(reader.pages)
+    num_shards = (num_pages + 14) // 15
 
-        for shard_index, pdf_writer in enumerate(pdf_writers):
-            output_filename = f"{output_dir}/{file_path[3:-4]} - part {shard_index + 1} of {num_shards}.pdf"
-            blob = bucket.blob(output_filename)
-            with blob.open("wb", content_type='application/pdf') as output_file:
-                pdf_writer.write(output_file)
+    for shard_index in range(num_shards):
+        pdf_writer = PyPDF2.PdfWriter()
+        add_pages_to_writer(reader, pdf_writer, shard_index, num_pages)
+        output_filename = generate_output_filename(file_path, output_dir, shard_index, num_shards)
+        upload_pdf(bucket, pdf_writer, output_filename)
+
+
+def read_pdf_file(file_path: str) -> bytes:
+    """Read a PDF file and return its content as bytes."""
+    with open(file_path, 'rb') as pdf_file:
+        return pdf_file.read()
+
+
+def add_pages_to_writer(reader: PyPDF2.PdfReader, writer: PyPDF2.PdfWriter, shard_index: int,
+                        num_pages: int) -> None:
+    """Add pages to the PDF writer for a specific shard."""
+    for page_index in range(15):
+        page_number = shard_index * 15 + page_index
+        if page_number < num_pages:
+            writer.add_page(reader.pages[page_number])
+
+
+def generate_output_filename(file_path: str, output_dir: str, shard_index: int,
+                             num_shards: int) -> str:
+    """Generate the output filename for a PDF shard."""
+    return f"{output_dir}/{file_path[3:-4]} - part {shard_index + 1} of {num_shards}.pdf"
+
+
+def upload_pdf(bucket: storage.Bucket, writer: PyPDF2.PdfWriter, output_filename: str) -> None:
+    """Upload the PDF writer content to GCS."""
+    blob = bucket.blob(output_filename)
+    with blob.open("wb", content_type='application/pdf') as output_file:
+        writer.write(output_file)
 
 
 def get_utc_timestamp() -> str:

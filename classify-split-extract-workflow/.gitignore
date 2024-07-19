@@ -1,3 +1,4 @@
 /classify-extract.iml
 /.env
 /classify-job/config/config.json
+/classify-job/temp_files/

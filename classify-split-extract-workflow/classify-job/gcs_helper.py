@@ -12,20 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=logging-fstring-interpolation,import-error,broad-exception-caught
+
+"""
+Helper functions for interacting with Google Cloud Storage (GCS).
+
+This module includes functions for downloading and uploading files,
+adding metadata, retrieving lists of URIs, and writing data to GCS.
+"""
+
 import os
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 
 from google.cloud import storage
+from google.cloud.documentai_toolbox import gcs_utilities
 from logging_handler import Logger
 from config import START_PIPELINE_FILENAME, MIME_TYPES, PDF_EXTENSION, SPLITTER_OUTPUT_DIR
-from google.cloud.documentai_toolbox import gcs_utilities
 
 logger = Logger.get_logger(__file__)
 storage_client = storage.Client()
 
 
-def download_file(gcs_uri: str, bucket_name: str = None, file_to_download: str = None,
-                  output_filename: str = None) -> str:
+def download_file(
+        gcs_uri: str,
+        bucket_name: Optional[str] = None,
+        file_to_download: Optional[str] = None,
+        output_filename: Optional[str] = "gcs.pdf",
+) -> str:
     """
     Downloads a file from a Google Cloud Storage (GCS) bucket to the local directory.
 
@@ -33,7 +46,8 @@ def download_file(gcs_uri: str, bucket_name: str = None, file_to_download: str =
       gcs_uri (str): GCS URI of the object/file to download.
       bucket_name (str, optional): Name of the bucket. Defaults to None.
       file_to_download (str, optional): Desired filename in GCS. Defaults to None.
-      output_filename (str, optional): Local filename to save the downloaded file. Defaults to 'gcs.pdf'.
+      output_filename (str, optional): Local filename to save the downloaded file.
+      Defaults to 'gcs.pdf'.
 
     Returns:
       str: Local path of the downloaded file.
@@ -82,20 +96,13 @@ def add_metadata(gcs_uri: str, metadata: Dict[str, str]):
 
 
 def get_list_of_uris(bucket_name: str, file_uri: str) -> List[str]:
-    """
-    Retrieves a list of URIs from a GCS bucket.
-
-    Args:
-      bucket_name (str): Name of the GCS bucket.
-      file_uri (str): URI of the file or directory in the bucket.
-
-    Returns:
-      List[str]: List of URIs in the specified bucket and directory.
-    """
-    logger.info(f"Getting list of URIs for bucket=[{bucket_name}] and file=[{file_uri}]")
-    uri_list = []
+    """Retrieves a list of URIs from a GCS bucket."""
+    logger.info(
+        f"Getting list of URIs for bucket=[{bucket_name}] and file=[{file_uri}]"
+    )
+    uri_list: List[str] = []  # Type annotation for uri_list
     if not file_uri:
-        logger.warning(f"No file URI provided")
+        logger.warning("No file URI provided")
         return uri_list
 
     dirs, filename = split_uri_2_path_filename(file_uri)
@@ -114,7 +121,8 @@ def get_list_of_uris(bucket_name: str, file_uri: str) -> List[str]:
             logger.info(f"Skipping {file_uri} - not supported mime type: {mime_type}")
     else:
         # Batch Processing
-        logger.info(f"Starting pipeline to process documents inside bucket=[{bucket_name}] and sub-folder=[{dirs}]")
+        logger.info(f"Starting pipeline to process documents inside"
+                    f" bucket=[{bucket_name}] and sub-folder=[{dirs}]")
         if dirs is None or dirs == "":
             blob_list = storage_client.list_blobs(bucket_name)
         else:
@@ -123,8 +131,8 @@ def get_list_of_uris(bucket_name: str, file_uri: str) -> List[str]:
         count = 0
         for blob in blob_list:
             if blob.name and not blob.name.endswith('/') and \
-                    blob.name != START_PIPELINE_FILENAME and not os.path.dirname(blob.name).endswith(
-                SPLITTER_OUTPUT_DIR):
+                    blob.name != START_PIPELINE_FILENAME and \
+                    not os.path.dirname(blob.name).endswith(SPLITTER_OUTPUT_DIR):
                 count += 1
                 f_uri = f"gs://{bucket_name}/{blob.name}"
                 logger.info(f"Handling {count}(th) document - {f_uri}")
@@ -153,9 +161,8 @@ def split_uri_2_path_filename(uri: str) -> Tuple[str, str]:
     return dirs, file_name
 
 
-def upload_file(bucket_name, source_file_name, destination_blob_name) -> str:
+def upload_file(bucket_name: str, source_file_name: str, destination_blob_name: str) -> str:
     """Uploads a file to the bucket."""
-
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
 
@@ -166,7 +173,8 @@ def upload_file(bucket_name, source_file_name, destination_blob_name) -> str:
     return output_gcs
 
 
-def write_data_to_gcs(bucket_name: str, blob_name: str, content: str, mime_type: str = "text/plain") -> Tuple[str, str]:
+def write_data_to_gcs(bucket_name: str, blob_name: str, content: str,
+                      mime_type: str = "text/plain") -> Tuple[str, str]:
     """
     Writes data to a GCS bucket in the specified format.
 

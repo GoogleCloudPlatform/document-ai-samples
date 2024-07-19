@@ -12,19 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """This module contains DocAI helper functions"""
+
+# pylint: disable=logging-fstring-interpolation, import-error
+
 import re
-from typing import Tuple, Optional, List
-from google.cloud.documentai_toolbox import document
+from typing import Tuple, Optional
+
+from google.api_core.client_options import ClientOptions
 from google.cloud import documentai_v1 as documentai
+
 from config import get_parser_by_name
 from logging_handler import Logger
-from google.api_core.client_options import ClientOptions
 
 logger = Logger.get_logger(__file__)
 
 
-def get_processor_and_client(processor_name: str) -> \
-        Tuple[Optional[documentai.types.processor.Processor], Optional[documentai.DocumentProcessorServiceClient]]:
+def get_processor_and_client(
+        processor_name: str,
+) -> Tuple[
+    Optional[documentai.types.processor.Processor],
+    Optional[documentai.DocumentProcessorServiceClient],
+]:
     """
     Retrieves the Document AI processor and client based on the processor name.
 
@@ -32,7 +40,8 @@ def get_processor_and_client(processor_name: str) -> \
       processor_name (str): The name of the processor.
 
     Returns:
-      Tuple[Optional[documentai.types.processor.Processor], Optional[documentai.DocumentProcessorServiceClient]]:
+      Tuple[Optional[documentai.types.processor.Processor],
+      Optional[documentai.DocumentProcessorServiceClient]]:
       A tuple containing the processor and the Document Processor Service client.
     """
 
@@ -57,31 +66,9 @@ def get_processor_and_client(processor_name: str) -> \
 
 
 def get_processor_location(processor_path: str) -> Optional[str]:
-    """
-    Extracts the location from the processor path.
+    """Extracts the location from the processor path."""
 
-    Args:
-      processor_path (str): The processor path.
-
-    Returns:
-      Optional[str]: The location extracted from the processor path.
-    """
-
-    match = re.match(r'projects/(.+)/locations/(.+)/processors', processor_path)
+    match = re.match(r"projects/(.+)/locations/(.+)/processors", processor_path)
     if match and len(match.groups()) >= 2:
         return match.group(2)
     return None
-
-
-def split_pdf_document(document_path: str, pdf_path: str, output_path: str) -> List[str]:
-    try:
-        wrapped_document = document.Document.from_document_path(document_path=document_path)
-        output_files = wrapped_document.split_pdf(
-            pdf_path=pdf_path, output_path=output_path
-        )
-
-        logger.info(f"Document {pdf_path} successfully split into {', '.join(output_files)}")
-        return output_files
-    except Exception as e:
-        logger.error(f"Error splitting PDF document: {e}")
-        return []

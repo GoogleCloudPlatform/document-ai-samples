@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+""" Helper function to test locally Classification/Splitting processing """
+
 import config
 from logging_handler import Logger
 from main import process
