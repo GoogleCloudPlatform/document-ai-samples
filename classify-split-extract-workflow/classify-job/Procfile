@@ -1,0 +1,5 @@
+# Buildpacks require a web process to be defined
+# but this process will not be used.
+web: echo "no web"
+
+python: python
