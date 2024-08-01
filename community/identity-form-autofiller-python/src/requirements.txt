@@ -8,7 +8,7 @@ google-auth==2.29.0
 Pillow==10.3.0
 
 # https://pypi.org/project/flask
-Flask==3.0.2
+Flask==3.0.3
 
 # https://pypi.org/project/gunicorn
 gunicorn==22.0.0
