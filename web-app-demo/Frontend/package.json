@@ -40,7 +40,7 @@
     "@angular/compiler-cli": "17.0.8",
     "@types/jasmine": "5.1.4",
     "@types/node": "20.14.12",
-    "@types/webpack-env": "1.18.4",
+    "@types/webpack-env": "1.18.5",
     "@typescript-eslint/eslint-plugin": "7.0.1",
     "@typescript-eslint/parser": "7.0.1",
     "eslint": "8.57.0",
