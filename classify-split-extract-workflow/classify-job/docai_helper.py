@@ -16,19 +16,18 @@
 # pylint: disable=logging-fstring-interpolation, import-error
 
 import re
-from typing import Tuple, Optional
-
-from google.api_core.client_options import ClientOptions
-from google.cloud import documentai_v1 as documentai
+from typing import Optional, Tuple
 
 from config import get_parser_by_name
+from google.api_core.client_options import ClientOptions
+from google.cloud import documentai_v1 as documentai
 from logging_handler import Logger
 
 logger = Logger.get_logger(__file__)
 
 
 def get_processor_and_client(
-        processor_name: str,
+    processor_name: str,
 ) -> Tuple[
     Optional[documentai.types.processor.Processor],
     Optional[documentai.DocumentProcessorServiceClient],
