@@ -18,38 +18,49 @@ It includes functionality for loading configurations from Google Cloud Storage (
 retrieving specific configuration elements.
 """
 import datetime
-# pylint: disable=logging-fstring-interpolation,import-error,global-statement
-
 import json
 import os
-from typing import Optional, Dict, Any, cast, Tuple
+from typing import Any, cast, Dict, Optional, Tuple
 
 import google.auth
-from google.cloud import run_v2, storage
-
+from google.cloud import run_v2
+from google.cloud import storage
 from logging_handler import Logger
+
+# pylint: disable=logging-fstring-interpolation,import-error,global-statement
+
 
 logger = Logger.get_logger(__file__)
 
 # Environment variables and default settings
 PROJECT_ID = os.environ.get("PROJECT_ID") or google.auth.default()[1]
 
-CLASSIFY_INPUT_BUCKET = os.environ.get("CLASSIFY_INPUT_BUCKET", f"{PROJECT_ID}-documents")
-CLASSIFY_OUTPUT_BUCKET = os.environ.get("CLASSIFY_OUTPUT_BUCKET", f"{PROJECT_ID}-workflow")
+CLASSIFY_INPUT_BUCKET = os.environ.get(
+    "CLASSIFY_INPUT_BUCKET", f"{PROJECT_ID}-documents"
+)
+CLASSIFY_OUTPUT_BUCKET = os.environ.get(
+    "CLASSIFY_OUTPUT_BUCKET", f"{PROJECT_ID}-workflow"
+)
 INPUT_FILE = os.environ.get("INPUT_FILE")
 GOOGLE_APPLICATION_CREDENTIALS = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 OUTPUT_FILE_JSON = os.environ.get("OUTPUT_FILE_JSON", "classify_output.json")
 OUTPUT_FILE_CSV = os.environ.get("OUTPUT_FILE_CSV", "classify_output.csv")
 CALL_BACK_URL = os.environ.get("CALL_BACK_URL")
-BQ_DATASET_ID_PROCESSED_DOCS = os.environ.get("BQ_DATASET_ID_PROCESSED_DOCS", "processed_documents")
-BQ_OBJECT_TABLE_RETENTION_DAYS = int(os.environ.get("BQ_OBJECT_TABLE_RETENTION_DAYS", 7))
+BQ_DATASET_ID_PROCESSED_DOCS = os.environ.get(
+    "BQ_DATASET_ID_PROCESSED_DOCS", "processed_documents"
+)
+BQ_OBJECT_TABLE_RETENTION_DAYS = int(
+    os.environ.get("BQ_OBJECT_TABLE_RETENTION_DAYS", 7)
+)
 BQ_DATASET_ID_MLOPS = os.environ.get("BQ_DATASET_ID_MLOPS", "mlops")
 BQ_PROJECT_ID = os.environ.get("BQ_PROJECT_ID", PROJECT_ID)
 BQ_REGION = os.environ.get("BQ_REGION", "us")
 BQ_GCS_CONNECTION_NAME = os.environ.get("BQ_GCS_CONNECTION_NAME", "bq-connection-gcs")
 START_PIPELINE_FILENAME = "START_PIPELINE"
 CLASSIFIER = "classifier"
-DOCAI_OUTPUT_BUCKET = os.environ.get("DOCAI_OUTPUT_BUCKET", f"{PROJECT_ID}-docai-output")
+DOCAI_OUTPUT_BUCKET = os.environ.get(
+    "DOCAI_OUTPUT_BUCKET", f"{PROJECT_ID}-docai-output"
+)
 CONFIG_BUCKET = os.environ.get("CONFIG_BUCKET", f"{PROJECT_ID}-config")
 CONFIG_FILE_NAME = "config.json"
 CLASSIFICATION_UNDETECTABLE = "unclassified"
@@ -69,7 +80,7 @@ OTHER_MIME_TYPES_TO_SUPPORT = [
     "image/jpeg",
     "image/png",
     "image/bmp",
-    "image/webp"
+    "image/webp",
 ]
 
 NO_CLASSIFIER_LABEL = "No Classifier"
@@ -110,8 +121,9 @@ def init_bucket(bucket_name: str) -> Optional[storage.Bucket]:
     return bucket
 
 
-def get_config(config_name: Optional[str] = None,
-               element_path: Optional[str] = None) -> Optional[Dict[Any, Any]]:
+def get_config(
+    config_name: Optional[str] = None, element_path: Optional[str] = None
+) -> Optional[Dict[Any, Any]]:
     """
     Retrieves the configuration data.
 
@@ -127,21 +139,27 @@ def get_config(config_name: Optional[str] = None,
         CONFIG_DATA = load_config(CONFIG_BUCKET, CONFIG_FILE_NAME)
         assert CONFIG_DATA, "Unable to load configuration data"
 
-    config_data_loaded = CONFIG_DATA.get(config_name, {}) if config_name else CONFIG_DATA
+    config_data_loaded = (
+        CONFIG_DATA.get(config_name, {}) if config_name else CONFIG_DATA
+    )
 
     if element_path:
-        keys = element_path.split('.')
+        keys = element_path.split(".")
         for key in keys:
             if isinstance(config_data_loaded, dict):
                 config_data_loaded_new = config_data_loaded.get(key)
                 if config_data_loaded_new is None:
-                    logger.error(f"Key '{key}' not present in the "
-                                 f"configuration {json.dumps(config_data_loaded, indent=4)}")
+                    logger.error(
+                        f"Key '{key}' not present in the "
+                        f"configuration {json.dumps(config_data_loaded, indent=4)}"
+                    )
                     return None
                 config_data_loaded = config_data_loaded_new
             else:
-                logger.error(f"Expected a dictionary at '{key}' but found a "
-                             f"{type(config_data_loaded).__name__}")
+                logger.error(
+                    f"Expected a dictionary at '{key}' but found a "
+                    f"{type(config_data_loaded).__name__}"
+                )
                 return None
 
     return config_data_loaded
@@ -156,7 +174,10 @@ def get_parser_name_by_doc_type(doc_type: str) -> Optional[str]:
     Returns:
         Optional[str]: The parser name, or None if not found.
     """
-    return cast(Optional[str], get_config(CONFIG_JSON_DOCUMENT_TYPES_CONFIG, f"{doc_type}.parser"))
+    return cast(
+        Optional[str],
+        get_config(CONFIG_JSON_DOCUMENT_TYPES_CONFIG, f"{doc_type}.parser"),
+    )
 
 
 def get_document_types_config() -> Optional[Dict[Any, Any]]:
@@ -217,11 +238,15 @@ def load_config(bucket_name: str, filename: str) -> Optional[Dict[Any, Any]]:
         CONFIG_DATA = json.loads(blob.download_as_text(encoding="utf-8"))
         LAST_MODIFIED_TIME_OF_CONFIG = last_modified_time
     except (json.JSONDecodeError, OSError) as e:
-        logger.error(f"Error while obtaining file from GCS gs://{bucket_name}/{filename}: {e}")
+        logger.error(
+            f"Error while obtaining file from GCS gs://{bucket_name}/{filename}: {e}"
+        )
         logger.warning(f"Using local {filename}")
         try:
-            with open(os.path.join(os.path.dirname(__file__), "config", filename),
-                      encoding='utf-8') as json_file:
+            with open(
+                os.path.join(os.path.dirname(__file__), "config", filename),
+                encoding="utf-8",
+            ) as json_file:
                 CONFIG_DATA = json.load(json_file)
         except (FileNotFoundError, json.JSONDecodeError) as exc:
             logger.error(f"Error loading local config file {filename}: {exc}")
@@ -249,7 +274,9 @@ def get_classification_confidence_threshold() -> float:
     """
 
     settings = get_docai_settings()
-    return float(settings.get("classification_confidence_threshold", 0)) if settings else 0
+    return (
+        float(settings.get("classification_confidence_threshold", 0)) if settings else 0
+    )
 
 
 def get_classification_default_class() -> str:
@@ -261,9 +288,11 @@ def get_classification_default_class() -> str:
     """
 
     settings = get_docai_settings()
-    classification_default_class = settings.get("classification_default_class",
-                                                CLASSIFICATION_UNDETECTABLE) \
-        if settings else CLASSIFICATION_UNDETECTABLE
+    classification_default_class = (
+        settings.get("classification_default_class", CLASSIFICATION_UNDETECTABLE)
+        if settings
+        else CLASSIFICATION_UNDETECTABLE
+    )
     parser = get_parser_by_doc_type(classification_default_class)
     if parser:
         return classification_default_class
@@ -291,7 +320,9 @@ def get_document_class_by_classifier_label(label_name: str) -> Optional[str]:
         for k, v in doc_types_config.items():
             if v.get("classifier_label") == label_name:
                 return k
-    logger.error(f"classifier_label={label_name} is not assigned to any document in the config")
+    logger.error(
+        f"classifier_label={label_name} is not assigned to any document in the config"
+    )
     return None
 
 
@@ -308,7 +339,9 @@ def get_parser_by_name(parser_name: str) -> Optional[Dict[Any, Any]]:
     return get_config("parser_config", parser_name)
 
 
-def get_model_name_table_name(document_type: str) -> Tuple[Optional[str], Optional[str]]:
+def get_model_name_table_name(
+    document_type: str,
+) -> Tuple[Optional[str], Optional[str]]:
     """
     Retrieves the output table name and model name by document type.
 
@@ -324,12 +357,14 @@ def get_model_name_table_name(document_type: str) -> Tuple[Optional[str], Option
         model_name = (
             f"{BQ_PROJECT_ID}.{BQ_DATASET_ID_MLOPS}."
             f"{parser.get('model_name', parser_name.upper() + '_MODEL')}"
-            if parser else None
+            if parser
+            else None
         )
         out_table_name = (
             f"{BQ_PROJECT_ID}.{BQ_DATASET_ID_PROCESSED_DOCS}."
             f"{parser.get('out_table_name', parser_name.upper() + '_DOCUMENTS')}"
-            if parser else None
+            if parser
+            else None
         )
     else:
         logger.warning(f"No parser found for document type {document_type}")

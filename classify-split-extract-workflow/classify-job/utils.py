@@ -20,19 +20,18 @@ sending callback requests, splitting PDF files into multiple parts,
 getting the current UTC timestamp, and deleting directories.
 """
 
+from datetime import datetime
 import glob
 import io
 import shutil
-from datetime import datetime
 from typing import Optional
 
-import PyPDF2
 import google.auth
 import google.auth.transport.requests
-import requests
 from google.cloud import storage
-
 from logging_handler import Logger
+import PyPDF2
+import requests
 
 logger = Logger.get_logger(__file__)
 storage_client = storage.Client()
@@ -40,7 +39,9 @@ storage_client = storage.Client()
 
 def get_bearer_token() -> str:
     """Get bearer token through Application Default Credentials."""
-    creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+    creds, _ = google.auth.default(
+        scopes=["https://www.googleapis.com/auth/cloud-platform"]
+    )
 
     # creds.valid is False, and creds.token is None
     # Need to refresh credentials to populate those
@@ -76,7 +77,9 @@ def split_pages(file_pattern: str, bucket_name: str, output_dir: str) -> None:
         split_and_upload_pdf(file_path, bucket, output_dir)
 
 
-def split_and_upload_pdf(file_path: str, bucket: storage.Bucket, output_dir: str) -> None:
+def split_and_upload_pdf(
+    file_path: str, bucket: storage.Bucket, output_dir: str
+) -> None:
     """Split a single PDF file into parts and upload the parts to GCS."""
     pdf_bytes = read_pdf_file(file_path)
     reader = PyPDF2.PdfReader(io.BytesIO(pdf_bytes))
@@ -86,18 +89,21 @@ def split_and_upload_pdf(file_path: str, bucket: storage.Bucket, output_dir: str
     for shard_index in range(num_shards):
         pdf_writer = PyPDF2.PdfWriter()
         add_pages_to_writer(reader, pdf_writer, shard_index, num_pages)
-        output_filename = generate_output_filename(file_path, output_dir, shard_index, num_shards)
+        output_filename = generate_output_filename(
+            file_path, output_dir, shard_index, num_shards
+        )
         upload_pdf(bucket, pdf_writer, output_filename)
 
 
 def read_pdf_file(file_path: str) -> bytes:
     """Read a PDF file and return its content as bytes."""
-    with open(file_path, 'rb') as pdf_file:
+    with open(file_path, "rb") as pdf_file:
         return pdf_file.read()
 
 
-def add_pages_to_writer(reader: PyPDF2.PdfReader, writer: PyPDF2.PdfWriter, shard_index: int,
-                        num_pages: int) -> None:
+def add_pages_to_writer(
+    reader: PyPDF2.PdfReader, writer: PyPDF2.PdfWriter, shard_index: int, num_pages: int
+) -> None:
     """Add pages to the PDF writer for a specific shard."""
     for page_index in range(15):
         page_number = shard_index * 15 + page_index
@@ -105,16 +111,21 @@ def add_pages_to_writer(reader: PyPDF2.PdfReader, writer: PyPDF2.PdfWriter, shar
             writer.add_page(reader.pages[page_number])
 
 
-def generate_output_filename(file_path: str, output_dir: str, shard_index: int,
-                             num_shards: int) -> str:
+def generate_output_filename(
+    file_path: str, output_dir: str, shard_index: int, num_shards: int
+) -> str:
     """Generate the output filename for a PDF shard."""
-    return f"{output_dir}/{file_path[3:-4]} - part {shard_index + 1} of {num_shards}.pdf"
+    return (
+        f"{output_dir}/{file_path[3:-4]} - part {shard_index + 1} of {num_shards}.pdf"
+    )
 
 
-def upload_pdf(bucket: storage.Bucket, writer: PyPDF2.PdfWriter, output_filename: str) -> None:
+def upload_pdf(
+    bucket: storage.Bucket, writer: PyPDF2.PdfWriter, output_filename: str
+) -> None:
     """Upload the PDF writer content to GCS."""
     blob = bucket.blob(output_filename)
-    with blob.open("wb", content_type='application/pdf') as output_file:
+    with blob.open("wb", content_type="application/pdf") as output_file:
         writer.write(output_file)
 
 
@@ -127,6 +138,8 @@ def delete_directory(directory_path: str) -> None:
     """Delete the directory containing the PDF files."""
     try:
         shutil.rmtree(directory_path)
-        logger.info(f"Directory '{directory_path}' and its contents removed successfully.")
+        logger.info(
+            f"Directory '{directory_path}' and its contents removed successfully."
+        )
     except OSError as e:
         logger.info(f"Error removing directory: {e}")
