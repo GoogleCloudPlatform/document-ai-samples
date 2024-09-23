@@ -22,14 +22,16 @@ BigQuery tables, and creating or replacing remote models using Document AI proce
 # pylint: disable=logging-fstring-interpolation
 
 from typing import List, Optional
+
+from config import BQ_DATASET_ID_MLOPS
+from config import BQ_GCS_CONNECTION_NAME
+from config import BQ_OBJECT_TABLE_RETENTION_DAYS
+from config import BQ_PROJECT_ID
+from config import BQ_REGION
+from config import PROJECT_ID
 from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from google.cloud.documentai_v1 import Processor
-
-from config import (
-    PROJECT_ID, BQ_PROJECT_ID, BQ_REGION, BQ_GCS_CONNECTION_NAME,
-    BQ_DATASET_ID_MLOPS, BQ_OBJECT_TABLE_RETENTION_DAYS
-)
 from logging_handler import Logger
 from utils import get_utc_timestamp
 
@@ -39,10 +41,10 @@ logger = Logger.get_logger(__file__)
 
 
 def object_table_create(
-        f_uris: List[str],
-        document_type: str,
-        table_suffix: str = get_utc_timestamp(),
-        retention_days: int = BQ_OBJECT_TABLE_RETENTION_DAYS
+    f_uris: List[str],
+    document_type: str,
+    table_suffix: str = get_utc_timestamp(),
+    retention_days: int = BQ_OBJECT_TABLE_RETENTION_DAYS,
 ) -> str:
     """
     Creates an external table in BigQuery to store document URIs.
@@ -59,8 +61,10 @@ def object_table_create(
     """
 
     uris = "', '".join(f_uris)
-    object_table_name = f"{BQ_PROJECT_ID}.{BQ_DATASET_ID_MLOPS}." \
-                        f"{document_type.upper()}_DOCUMENTS_{table_suffix}"
+    object_table_name = (
+        f"{BQ_PROJECT_ID}.{BQ_DATASET_ID_MLOPS}."
+        f"{document_type.upper()}_DOCUMENTS_{table_suffix}"
+    )
     query = f"""
     CREATE OR REPLACE EXTERNAL TABLE `{object_table_name}`
         WITH CONNECTION `{BQ_PROJECT_ID}.{BQ_REGION}.{BQ_GCS_CONNECTION_NAME}`
@@ -106,7 +110,9 @@ def remote_model_create(processor: Processor, model_name: Optional[str] = None) 
     """
 
     if not model_name:
-        model_name = f"{BQ_PROJECT_ID}.{BQ_DATASET_ID_MLOPS}.{processor.name.upper()}_MODEL"
+        model_name = (
+            f"{BQ_PROJECT_ID}.{BQ_DATASET_ID_MLOPS}.{processor.name.upper()}_MODEL"
+        )
     query = f"""
     CREATE OR REPLACE MODEL `{model_name}`
         REMOTE WITH CONNECTION `{BQ_PROJECT_ID}.{BQ_REGION}.{BQ_GCS_CONNECTION_NAME}`
