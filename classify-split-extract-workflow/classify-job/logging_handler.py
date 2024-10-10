@@ -19,14 +19,16 @@
 import logging
 import os
 import sys
+
 import google.cloud.logging
 
 CLOUD_LOGGING_ENABLED = True
 if CLOUD_LOGGING_ENABLED:
     client = google.cloud.logging.Client()
     client.setup_logging()
-    logging.basicConfig(format="%(asctime)s:%(levelname)s:%(message)s",
-                        level=logging.INFO)
+    logging.basicConfig(
+        format="%(asctime)s:%(levelname)s:%(message)s", level=logging.INFO
+    )
 else:
     logging.basicConfig(level=logging.INFO)
 
@@ -47,8 +49,9 @@ class Logger:
         module_name = f"{folder}/{filename}"
         self.logger = logging.getLogger(module_name)
         handler = logging.StreamHandler(sys.stdout)
-        log_format = "%(levelname)s: [%(name)s:%(lineno)d - " \
-                     "%(funcName)s()] %(message)s"
+        log_format = (
+            "%(levelname)s: [%(name)s:%(lineno)d - " "%(funcName)s()] %(message)s"
+        )
         handler.setFormatter(logging.Formatter(log_format))
         self.logger.addHandler(handler)
         self.logger.propagate = False

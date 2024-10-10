@@ -19,18 +19,21 @@
 import os
 
 import config
-from config import (FULL_JOB_NAME, CLASSIFIER)
+from config import CLASSIFIER
+from config import FULL_JOB_NAME
 from docai_helper import get_processor_and_client
 from gcs_helper import get_list_of_uris
 from logging_handler import Logger
-from split_and_classify import batch_classification, handle_no_classifier, \
-    stream_classification_results, save_classification_results
+from split_and_classify import batch_classification
+from split_and_classify import handle_no_classifier
+from split_and_classify import save_classification_results
+from split_and_classify import stream_classification_results
 
 logger = Logger.get_logger(__file__)
 
 
 def process():
-    """ Main function for the Classifier/Splitter Cloud Run Job """
+    """Main function for the Classifier/Splitter Cloud Run Job"""
     input_bucket = config.CLASSIFY_INPUT_BUCKET
     input_file = config.INPUT_FILE
 
@@ -51,7 +54,9 @@ def process():
             classified_items = handle_no_classifier(f_uris)
         else:
             # Run Classification job
-            logger.info(f"Using {processor.name} processor for Classification/Splitting")
+            logger.info(
+                f"Using {processor.name} processor for Classification/Splitting"
+            )
             classified_items = batch_classification(processor, dai_client, f_uris)
 
         logger.info(f"Classified items: {classified_items}")
@@ -60,9 +65,11 @@ def process():
     except Exception as e:
         logger.error(f"Error during batch classification: {e}")
 
-    stream_classification_results(call_back_url=config.CALL_BACK_URL,
-                                  bucket_name=out_bucket_name,
-                                  file_name=out_file_name, )
+    stream_classification_results(
+        call_back_url=config.CALL_BACK_URL,
+        bucket_name=out_bucket_name,
+        file_name=out_file_name,
+    )
 
 
 if __name__ == "__main__":

@@ -22,22 +22,25 @@ adding metadata, retrieving lists of URIs, and writing data to GCS.
 """
 
 import os
-from typing import List, Tuple, Dict, Optional
+from typing import Dict, List, Optional, Tuple
 
+from config import MIME_TYPES
+from config import PDF_EXTENSION
+from config import SPLITTER_OUTPUT_DIR
+from config import START_PIPELINE_FILENAME
 from google.cloud import storage
 from google.cloud.documentai_toolbox import gcs_utilities
 from logging_handler import Logger
-from config import START_PIPELINE_FILENAME, MIME_TYPES, PDF_EXTENSION, SPLITTER_OUTPUT_DIR
 
 logger = Logger.get_logger(__file__)
 storage_client = storage.Client()
 
 
 def download_file(
-        gcs_uri: str,
-        bucket_name: Optional[str] = None,
-        file_to_download: Optional[str] = None,
-        output_filename: Optional[str] = "gcs.pdf",
+    gcs_uri: str,
+    bucket_name: Optional[str] = None,
+    file_to_download: Optional[str] = None,
+    output_filename: Optional[str] = "gcs.pdf",
 ) -> str:
     """
     Downloads a file from a Google Cloud Storage (GCS) bucket to the local directory.
@@ -54,11 +57,11 @@ def download_file(
     """
 
     if bucket_name is None:
-        bucket_name = gcs_uri.split('/')[2]
+        bucket_name = gcs_uri.split("/")[2]
 
     # if file to download is not provided it can be extracted from the GCS URI
     if file_to_download is None and gcs_uri is not None:
-        file_to_download = '/'.join(gcs_uri.split('/')[3:])
+        file_to_download = "/".join(gcs_uri.split("/")[3:])
 
     if output_filename is None:
         _, base_name = split_uri_2_path_filename(gcs_uri)
@@ -67,9 +70,11 @@ def download_file(
     bucket = storage_client.get_bucket(bucket_name)
     blob = bucket.blob(file_to_download)
 
-    with open(output_filename, 'wb') as file_obj:
+    with open(output_filename, "wb") as file_obj:
         blob.download_to_file(file_obj)
-        logger.info(f"Downloaded gs://{bucket_name}/{file_to_download} to {output_filename}")
+        logger.info(
+            f"Downloaded gs://{bucket_name}/{file_to_download} to {output_filename}"
+        )
 
     return output_filename
 
@@ -114,15 +119,18 @@ def get_list_of_uris(bucket_name: str, file_uri: str) -> List[str]:
         mime_type = blob.content_type
 
         if (mime_type and mime_type in MIME_TYPES) or (
-                not mime_type and filename.lower().endswith(PDF_EXTENSION.lower())):
+            not mime_type and filename.lower().endswith(PDF_EXTENSION.lower())
+        ):
             logger.info(f"Handling single file {file_uri}")
             uri_list.append(f"gs://{bucket_name}/{file_uri}")
         else:
             logger.info(f"Skipping {file_uri} - not supported mime type: {mime_type}")
     else:
         # Batch Processing
-        logger.info(f"Starting pipeline to process documents inside"
-                    f" bucket=[{bucket_name}] and sub-folder=[{dirs}]")
+        logger.info(
+            f"Starting pipeline to process documents inside"
+            f" bucket=[{bucket_name}] and sub-folder=[{dirs}]"
+        )
         if dirs is None or dirs == "":
             blob_list = storage_client.list_blobs(bucket_name)
         else:
@@ -130,15 +138,20 @@ def get_list_of_uris(bucket_name: str, file_uri: str) -> List[str]:
 
         count = 0
         for blob in blob_list:
-            if blob.name and not blob.name.endswith('/') and \
-                    blob.name != START_PIPELINE_FILENAME and \
-                    not os.path.dirname(blob.name).endswith(SPLITTER_OUTPUT_DIR):
+            if (
+                blob.name
+                and not blob.name.endswith("/")
+                and blob.name != START_PIPELINE_FILENAME
+                and not os.path.dirname(blob.name).endswith(SPLITTER_OUTPUT_DIR)
+            ):
                 count += 1
                 f_uri = f"gs://{bucket_name}/{blob.name}"
                 logger.info(f"Handling {count}(th) document - {f_uri}")
                 mime_type = blob.content_type
                 if mime_type not in MIME_TYPES:
-                    logger.info(f"Skipping {f_uri} - not supported mime type: {mime_type}")
+                    logger.info(
+                        f"Skipping {f_uri} - not supported mime type: {mime_type}"
+                    )
                     continue
                 uri_list.append(f_uri)
 
@@ -161,7 +174,9 @@ def split_uri_2_path_filename(uri: str) -> Tuple[str, str]:
     return dirs, file_name
 
 
-def upload_file(bucket_name: str, source_file_name: str, destination_blob_name: str) -> str:
+def upload_file(
+    bucket_name: str, source_file_name: str, destination_blob_name: str
+) -> str:
     """Uploads a file to the bucket."""
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
@@ -173,8 +188,9 @@ def upload_file(bucket_name: str, source_file_name: str, destination_blob_name: 
     return output_gcs
 
 
-def write_data_to_gcs(bucket_name: str, blob_name: str, content: str,
-                      mime_type: str = "text/plain") -> Tuple[str, str]:
+def write_data_to_gcs(
+    bucket_name: str, blob_name: str, content: str, mime_type: str = "text/plain"
+) -> Tuple[str, str]:
     """
     Writes data to a GCS bucket in the specified format.
 

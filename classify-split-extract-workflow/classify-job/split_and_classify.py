@@ -24,33 +24,36 @@ metadata and callbacks.
 import json
 import os
 import re
-from typing import Dict, Optional, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
-from google.cloud.documentai_toolbox import gcs_utilities
-from google.cloud import documentai_v1 as documentai
-from google.cloud import storage
-from google.cloud.documentai_v1.types.document import Document
-from google.cloud.documentai_v1.types.document_processor_service import BatchProcessMetadata
-from pikepdf import Pdf
-
+import bq_mlops
 import config
+from config import DOCAI_OUTPUT_BUCKET
+from config import METADATA_CONFIDENCE
+from config import METADATA_DOCUMENT_TYPE
+from config import NO_CLASSIFIER_LABEL
+from config import SPLITTER_OUTPUT_DIR
 import docai_helper
 import gcs_helper
-import utils
-import bq_mlops
-from config import (
-    DOCAI_OUTPUT_BUCKET, NO_CLASSIFIER_LABEL, METADATA_CONFIDENCE,
-    METADATA_DOCUMENT_TYPE, SPLITTER_OUTPUT_DIR)
+from google.cloud import documentai_v1 as documentai
+from google.cloud import storage
+from google.cloud.documentai_toolbox import gcs_utilities
+from google.cloud.documentai_v1.types.document import Document
+from google.cloud.documentai_v1.types.document_processor_service import (
+    BatchProcessMetadata,
+)
 from logging_handler import Logger
+from pikepdf import Pdf
+import utils
 
 storage_client = storage.Client()
 logger = Logger.get_logger(__file__)
 
 
 def batch_classification(
-        processor: documentai.types.processor.Processor,
-        dai_client: documentai.DocumentProcessorServiceClient,
-        input_uris: List[str]
+    processor: documentai.types.processor.Processor,
+    dai_client: documentai.DocumentProcessorServiceClient,
+    input_uris: List[str],
 ) -> Optional[Dict]:
     """Performs batch classification on a list of documents using Document AI."""
     logger.info(f"input_uris = {input_uris}")
@@ -107,7 +110,9 @@ def process_classify_results(metadata: BatchProcessMetadata) -> Optional[Dict]:
         if matches:
             output_bucket, output_prefix = matches.groups()
         else:
-            logger.error(f"Invalid GCS destination format: {process.output_gcs_destination}")
+            logger.error(
+                f"Invalid GCS destination format: {process.output_gcs_destination}"
+            )
             continue
         input_gcs_source = process.input_gcs_source
 
@@ -120,7 +125,9 @@ def process_classify_results(metadata: BatchProcessMetadata) -> Optional[Dict]:
 
         # Adding support for shards using toolbox after the issue is addressed
         # https://github.com/googleapis/python-documentai-toolbox/issues/332
-        output_blob = list(storage_client.list_blobs(output_bucket, prefix=output_prefix + "/"))[0]
+        output_blob = list(
+            storage_client.list_blobs(output_bucket, prefix=output_prefix + "/")
+        )[0]
 
         if ".json" not in output_blob.name:
             logger.info(
@@ -145,8 +152,9 @@ def process_classify_results(metadata: BatchProcessMetadata) -> Optional[Dict]:
             metadata = get_metadata(max_confidence_entity)
             gcs_helper.add_metadata(input_gcs_source, metadata)
 
-            add_predicted_document_type(metadata, input_gcs_source=input_gcs_source,
-                                        documents=documents)
+            add_predicted_document_type(
+                metadata, input_gcs_source=input_gcs_source, documents=documents
+            )
 
     return documents
 
@@ -166,7 +174,9 @@ def get_metadata(entity: Optional[Document.Entity] = None) -> Dict:
     }
 
 
-def add_predicted_document_type(metadata: dict, input_gcs_source: str, documents: Dict) -> None:
+def add_predicted_document_type(
+    metadata: dict, input_gcs_source: str, documents: Dict
+) -> None:
     """Add predicted document type to the documents dictionary."""
     classification_default_class = config.get_classification_default_class()
 
@@ -177,13 +187,15 @@ def add_predicted_document_type(metadata: dict, input_gcs_source: str, documents
     else:
         logger.warning(
             f"Using default document type={classification_default_class} for {input_gcs_source},"
-            f" due to low confidence={predicted_confidence}")
+            f" due to low confidence={predicted_confidence}"
+        )
         predicted_class = classification_default_class
 
     if not predicted_class:
         logger.warning(
             f"No document type found for {predicted_label} and no default one defined, "
-            f"using the default class = {classification_default_class}")
+            f"using the default class = {classification_default_class}"
+        )
         predicted_class = classification_default_class
 
     if predicted_class not in documents:
@@ -195,18 +207,24 @@ def handle_no_classifier(f_uris: List[str]) -> Dict:
     """Handles cases where no classifier is used."""
     documents: Dict[str, List[str]] = {}
     for uri in f_uris:
-        add_predicted_document_type(get_metadata(), input_gcs_source=uri, documents=documents)
+        add_predicted_document_type(
+            get_metadata(), input_gcs_source=uri, documents=documents
+        )
 
     return documents
 
 
-def stream_classification_results(call_back_url: str, bucket_name: Optional[str],
-                                  file_name: Optional[str]):
+def stream_classification_results(
+    call_back_url: str, bucket_name: Optional[str], file_name: Optional[str]
+):
     """Streams classification results to a specified callback URL."""
     logger.info(f"bucket={bucket_name}, blob_object={file_name}")
     success = bool(bucket_name and file_name)
-    result = "Classification Job completed successfully, proceed with extraction" if success else \
-        "Classification Job failed"
+    result = (
+        "Classification Job completed successfully, proceed with extraction"
+        if success
+        else "Classification Job failed"
+    )
 
     payload = {
         "result": result,
@@ -218,7 +236,9 @@ def stream_classification_results(call_back_url: str, bucket_name: Optional[str]
     utils.send_callback_request(call_back_url, payload)
 
 
-def save_classification_results(classified_items: Dict) -> Tuple[Optional[str], Optional[str]]:
+def save_classification_results(
+    classified_items: Dict,
+) -> Tuple[Optional[str], Optional[str]]:
     """Saves classification results to Google Cloud Storage."""
     payload_data = []
     try:
@@ -231,15 +251,18 @@ def save_classification_results(classified_items: Dict) -> Tuple[Optional[str], 
                 logger.error(f"No processor found for document type: {document_type}")
                 continue
 
-            object_table_name = bq_mlops.object_table_create(f_uris=f_uris,
-                                                             document_type=document_type)
+            object_table_name = bq_mlops.object_table_create(
+                f_uris=f_uris, document_type=document_type
+            )
             bq_mlops.remote_model_create(processor=processor, model_name=model_name)
 
-            payload_data.append({
-                "object_table_name": object_table_name,
-                "model_name": model_name,
-                "out_table_name": out_table_name
-            })
+            payload_data.append(
+                {
+                    "object_table_name": object_table_name,
+                    "model_name": model_name,
+                    "out_table_name": out_table_name,
+                }
+            )
 
         if not payload_data:
             logger.warning("Payload data is empty, skipping")
@@ -251,21 +274,26 @@ def save_classification_results(classified_items: Dict) -> Tuple[Optional[str], 
             bucket_name=config.CLASSIFY_OUTPUT_BUCKET,
             blob_name=f"{prefix}_{config.OUTPUT_FILE_JSON}",
             content=json.dumps(payload_data, indent=4),
-            mime_type='application/json'
+            mime_type="application/json",
         )
     except (json.JSONDecodeError, OSError, ValueError) as e:
         logger.error(f"Exception while saving classification results: {e}")
         return None, None
 
-    logger.info(f"Saved classification results to, bucket={bucket}, file_name={blob_object}")
+    logger.info(
+        f"Saved classification results to, bucket={bucket}, file_name={blob_object}"
+    )
     return bucket, blob_object
 
 
 def is_splitting_required(entities: List[Document.Entity]) -> bool:
     """Check if splitting is required based on entities."""
     try:
-        return not all(len(entity.page_anchor.page_refs) == 0 or
-                       all(not ref for ref in entity.page_anchor.page_refs) for entity in entities)
+        return not all(
+            len(entity.page_anchor.page_refs) == 0
+            or all(not ref for ref in entity.page_anchor.page_refs)
+            for entity in entities
+        )
     except AttributeError:
         return False
 
@@ -274,8 +302,10 @@ def check_confidence_threshold_passed(predicted_confidence: float) -> bool:
     """Check if the confidence threshold is passed."""
     confidence_threshold = config.get_classification_confidence_threshold()
     if predicted_confidence < confidence_threshold:
-        logger.warning(f"Confidence threshold not passed for "
-                       f"{predicted_confidence} < {confidence_threshold}")
+        logger.warning(
+            f"Confidence threshold not passed for "
+            f"{predicted_confidence} < {confidence_threshold}"
+        )
         return False
     return True
 
@@ -298,16 +328,16 @@ def split_pdf(gcs_uri: str, entities: List[Document.Entity]) -> Dict:
 
     if len(entities) == 1:
         metadata = get_metadata(entities[0])
-        metadata.update({
-            "original": gcs_uri
-        })
+        metadata.update({"original": gcs_uri})
 
         gcs_helper.add_metadata(gcs_uri=gcs_uri, metadata=metadata)
-        add_predicted_document_type(metadata=metadata, input_gcs_source=gcs_uri,
-                                    documents=documents)
+        add_predicted_document_type(
+            metadata=metadata, input_gcs_source=gcs_uri, documents=documents
+        )
     else:
-        temp_local_dir = os.path.join(os.path.dirname(__file__), "temp_files",
-                                      utils.get_utc_timestamp())
+        temp_local_dir = os.path.join(
+            os.path.dirname(__file__), "temp_files", utils.get_utc_timestamp()
+        )
         if not os.path.exists(temp_local_dir):
             os.makedirs(temp_local_dir)
 
@@ -325,7 +355,9 @@ def split_pdf(gcs_uri: str, entities: List[Document.Entity]) -> Dict:
                     start_page = int(page_refs[0].page)
                     end_page = int(page_refs[-1].page)
                 else:
-                    logger.warning(f"Skipping {pdf_path} entity due to no page refs, no splitting")
+                    logger.warning(
+                        f"Skipping {pdf_path} entity due to no page refs, no splitting"
+                    )
                     continue
                 page_range = (
                     f"pg{start_page + 1}"
@@ -336,27 +368,32 @@ def split_pdf(gcs_uri: str, entities: List[Document.Entity]) -> Dict:
                     f"{input_filename}_{page_range}_{subdoc_type}{input_extension}"
                 )
                 metadata = get_metadata(entity)
-                metadata.update({
-                    "original": gcs_uri
-                })
+                metadata.update({"original": gcs_uri})
 
                 gcs_path = gcs_utilities.split_gcs_uri(os.path.dirname(gcs_uri))[1]
-                destination_blob_name = os.path.join(gcs_path, SPLITTER_OUTPUT_DIR, output_filename)
+                destination_blob_name = os.path.join(
+                    gcs_path, SPLITTER_OUTPUT_DIR, output_filename
+                )
                 destination_blob_uri = f"gs://{bucket_name}/{destination_blob_name}"
 
                 local_out_file = os.path.join(temp_local_dir, output_filename)
 
                 subdoc = Pdf.new()
-                subdoc.pages.extend(pdf.pages[start_page: end_page + 1])
+                subdoc.pages.extend(pdf.pages[start_page : end_page + 1])
                 subdoc.save(local_out_file, min_version=pdf.pdf_version)
 
-                gcs_helper.upload_file(bucket_name=bucket_name, source_file_name=local_out_file,
-                                       destination_blob_name=destination_blob_name)
+                gcs_helper.upload_file(
+                    bucket_name=bucket_name,
+                    source_file_name=local_out_file,
+                    destination_blob_name=destination_blob_name,
+                )
                 gcs_helper.add_metadata(destination_blob_uri, metadata)
 
-                add_predicted_document_type(metadata=metadata,
-                                            input_gcs_source=destination_blob_uri,
-                                            documents=documents)
+                add_predicted_document_type(
+                    metadata=metadata,
+                    input_gcs_source=destination_blob_uri,
+                    documents=documents,
+                )
 
         utils.delete_directory(temp_local_dir)
     return documents
