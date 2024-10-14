@@ -58,6 +58,7 @@ Folder contains various tools which is made for the benefit of Doc AI users.
 * [Identity Document Proofing Evaluation](./identity_document_proofing_evaluation/)
 * [Normalize Date Entities from 19xx to 20xx](./normalize_date_value_19xx_to_20xx/)
 * [OCR Based Document Section Splitter](./ocr_based_document_section_splitter/)
+* [OCR Upgradation Tool](./ocr_upgradation_tool/)
 * [Reprocess Old OCR Json to New OCR Engine](./old_ocr_to_new_ocr_conversion/)
 * [Seperation of Paragraphs in a Document](./paragraph_separation/)
 * [Replace PII Data with Synthetic Data](./pii_synthetic_redaction_tool/)
