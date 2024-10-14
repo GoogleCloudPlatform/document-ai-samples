@@ -16,6 +16,7 @@
 
 import config
 from logging_handler import Logger
+
 from main import process
 
 logger = Logger.get_logger(__file__)
