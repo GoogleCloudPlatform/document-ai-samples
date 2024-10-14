@@ -5,13 +5,13 @@ google-cloud-documentai==2.15.0
 google-cloud-logging==3.5.0
 
 # https://pypi.org/project/google-auth
-google-auth==2.29.0
+google-auth==2.33.0
 
 # https://pypi.org/project/Pillow
 Pillow==10.3.0
 
 # https://pypi.org/project/flask
-Flask==3.0.2
+Flask==3.0.3
 
 # https://pypi.org/project/gunicorn
-gunicorn==22.0.0
+gunicorn==23.0.0
