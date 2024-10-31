@@ -1,4 +1,4 @@
-FROM node:21-slim
+FROM node:22-slim
 
 # Specify a non-root user
 USER node
