@@ -1,5 +1,5 @@
 google-cloud-logging
-google-cloud-documentai==2.16.1
+google-cloud-documentai==2.35.0
 google-cloud-storage
 google-cloud-contentwarehouse==0.7.9
 fireo==2.2.1

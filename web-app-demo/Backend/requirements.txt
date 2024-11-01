@@ -1,7 +1,7 @@
 Flask==3.0.3
 Flask-Cors==4.0.1
 Flask-RESTful==0.3.10
-google-cloud-documentai==2.15.0
+google-cloud-documentai==2.35.0
 google-auth==2.33.0
 pylint==3.0.3
 gunicorn==23.0.0
