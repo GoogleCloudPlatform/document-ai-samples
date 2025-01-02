@@ -8,7 +8,7 @@ google-cloud-logging==3.5.0
 google-auth==2.36.0
 
 # https://pypi.org/project/Pillow
-Pillow==10.3.0
+Pillow==11.1.0
 
 # https://pypi.org/project/flask
 Flask==3.0.3
