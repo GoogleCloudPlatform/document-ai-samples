@@ -1,3 +1,5 @@
+# pylint: disable=C0301
+# pylint: disable=W0212
 """
 Google Cloud Document AI Processing Pipeline
 
@@ -28,9 +30,8 @@ Environment Variables Required:
 from datetime import datetime
 import json
 import os
-import sys
 import tempfile
-from typing import Any, List, Optional, Union
+from typing import List, Optional
 
 from flask import Request
 import functions_framework
@@ -175,8 +176,7 @@ def get_sync_batch(gcs_input_uri: str) -> Optional[str]:
     # Process synchronously if less than 15 pages
     if page_count <= 15:
         return "sync"
-    else:
-        return "batch"
+    return "batch"
 
 
 def populate_queue(file_paths: List[str]) -> None:
@@ -209,8 +209,8 @@ def populate_queue(file_paths: List[str]) -> None:
         try:
             # Add a new document with the data
             collection_ref.add(doc_data)
-        except e:
-            print(f"Couldn't insert {path} into Firestore collection")
+        except Exception as e:
+            print(f"Couldn't insert {path} into Firestore collection", e)
             continue
 
     print(
@@ -316,9 +316,7 @@ def copy_failed_file_to_folder(
     destination_bucket = storage_client.bucket(destination_bucket_name)
 
     # Copy the failed file to the destination folder
-    new_blob = source_bucket.copy_blob(
-        source_blob, destination_bucket, failed_blob_name
-    )
+    source_bucket.copy_blob(source_blob, destination_bucket, failed_blob_name)
 
     print(f"Copied failed file to: gs://{destination_bucket_name}/{failed_blob_name}")
 
@@ -385,7 +383,7 @@ def process_document_sync(gcs_input_uri: str) -> bool:
         return True  # Successfully processed the document synchronously
 
     except ResourceExhausted:
-        print(f"Quota limit hit for synchronous processing")
+        print("Quota limit hit for synchronous processing")
         # Moving to batch mode if Quota limit hit
         update_sync_to_batch(gcs_input_uri)
         trigger_batch_processing()
@@ -442,7 +440,7 @@ def update_sync_to_batch(file_path: str) -> None:
             doc_ref.update(update_data)
 
     except Exception as e:
-        print(f"Error updating process_mode for {file_path}")
+        print(f"Error updating process_mode for {file_path}", e)
 
 
 def update_queue_status(

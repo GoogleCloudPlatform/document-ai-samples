@@ -1,3 +1,4 @@
+# pylint: disable=C0301
 """
 Google Cloud Document AI Batch Processing Module
 
@@ -28,12 +29,10 @@ Environment Variables Required:
 
 from datetime import datetime
 import os
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Optional, Union
 
-from cloudevents.http import CloudEvent
 import functions_framework
 from google.api_core.client_options import ClientOptions
-from google.api_core.operation import Operation
 from google.cloud import documentai_v1beta3 as documentai
 from google.cloud import firestore
 from google.cloud import pubsub_v1
@@ -56,6 +55,9 @@ GCS_FAILED_FILES_PREFIX = os.environ.get("GCS_FAILED_FILES_PREFIX")
 
 # Initialize Firestore client
 db = firestore.Client(PROJECT_ID)
+
+# Initialize Pub/Sub client
+publisher = pubsub_v1.PublisherClient()
 
 
 def get_active_batches() -> int:
@@ -234,9 +236,7 @@ def copy_failed_file_to_folder(
     destination_bucket = storage_client.bucket(destination_bucket_name)
 
     # Copy the failed file to the destination folder
-    new_blob = source_bucket.copy_blob(
-        source_blob, destination_bucket, failed_blob_name
-    )
+    source_bucket.copy_blob(source_blob, destination_bucket, failed_blob_name)
 
     print(f"Copied failed file to: gs://{destination_bucket_name}/{failed_blob_name}")
 
@@ -327,12 +327,9 @@ def process_document(file_path: str) -> str:
 
 # Triggered from a message on a Cloud Pub/Sub topic.
 @functions_framework.cloud_event
-def process_batch_documents(event: CloudEvent) -> Union[str, tuple[str, int]]:
+def process_batch_documents() -> Union[str, tuple[str, int]]:
     """
     Cloud Function triggered by Pub/Sub to manage batch document processing.
-
-    Args:
-        event: Cloud Event trigger from Pub/Sub
 
     Returns:
         Status message and HTTP status code if slots are available,

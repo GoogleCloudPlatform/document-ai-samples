@@ -1,6 +1,8 @@
+# pylint: disable=C0301
+# pylint: disable=E501
+"""This file will compare two JSONS and uploads the xlsx file to GCS Bucket."""
 from collections import Counter
-import json
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 from google.cloud import documentai_v1beta3 as documentai
 from google.cloud import storage
@@ -234,7 +236,8 @@ def calculate_consistency(
             - Page_Number: Page number of the entity.
             - Majority_Text: The most common mention text across folders.
             - Consistency_Percentage: Percentage consistency of the entity across folders.
-            - Folder_N_Text, Folder_N_Bounding_Box, Folder_N_page_number: Mention text, bounding box, and page number for each folder.
+            - Folder_N_Text, Folder_N_Bounding_Box, Folder_N_page_number:
+            Mention text, bounding box, and page number for each folder.
 
     Example:
         results = calculate_consistency(extracted_data, num_folders=3)
@@ -257,7 +260,7 @@ def calculate_consistency(
                         entity["Bounding_Box"], compare_entity["Bounding_Box"]
                     )
                     # print(overlap)
-                    # print(entity['Bounding_Box'], compare_entity['Bounding_Box'],compare_entity["Text"],entity["Text"])
+
                     if overlap >= 40:
                         grouped_data[key].append(entity)
                         grouped = True
@@ -280,7 +283,7 @@ def calculate_consistency(
 
     for key, entities in grouped_data.items():
         mention_texts = [entity["Text"] for entity in entities]
-        folder_indices = [entity["folder_index"] for entity in entities]
+        # folder_indices = [entity["folder_index"] for entity in entities]
 
         mention_text_counter = Counter(mention_texts)
         majority_text, majority_count = mention_text_counter.most_common(1)[0]
