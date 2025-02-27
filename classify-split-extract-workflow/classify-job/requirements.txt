@@ -4,5 +4,5 @@ google-cloud-documentai==3.0.0
 pypdf2==3.0.1
 pikepdf==8.15.1
 google-cloud-run==0.10.7
-google-cloud-bigquery==3.27.0
+google-cloud-bigquery==3.30.0
 google-cloud-documentai-toolbox==0.13.5a0
