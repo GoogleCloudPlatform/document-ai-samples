@@ -326,7 +326,7 @@ def process_document(file_path: str) -> str:
         )
 
         return batch_id  # Return batch process ID
-    return None
+    return ""
 
 
 # Triggered from a message on a Cloud Pub/Sub topic.
