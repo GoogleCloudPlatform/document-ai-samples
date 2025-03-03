@@ -263,7 +263,6 @@ def calculate_consistency(
                         entity["Bounding_Box"], compare_entity["Bounding_Box"]
                     )
                     # print(overlap)
-                    # print(entity['Bounding_Box'], compare_entity['Bounding_Box'],compare_entity["Text"],entity["Text"])
                     if overlap >= 40:
                         dic_value.append(entity)
                         grouped = True
