@@ -1,0 +1,19 @@
+{
+  "indexes": [
+    {
+      "collectionId": "queue_collection",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "added_time", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionId": "queue_collection",
+      "fields": [
+        { "fieldPath": "process_mode", "order": "ASCENDING" },
+        { "fieldPath": "added_time", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

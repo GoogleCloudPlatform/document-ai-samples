@@ -1,0 +1,6 @@
+functions-framework
+google-cloud-firestore
+google-cloud-pubsub
+google-cloud-storage
+google-cloud-documentai
+google-api-core

@@ -1,0 +1,10 @@
+functions-framework
+google-cloud-firestore
+google-api-core
+google-cloud-pubsub
+google-cloud-storage
+google-cloud-documentai
+google-cloud-core
+google-api-python-client
+protobuf
+PyPDF2
