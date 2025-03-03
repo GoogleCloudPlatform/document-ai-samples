@@ -59,10 +59,10 @@ PUBSUB_TOPIC_PROCESS = os.environ.get("PUBSUB_TOPIC_PROCESS")
 LOCATION = os.environ.get("PROCESSOR_LOCATION")
 PROCESSOR_ID = os.environ.get("PROCESSOR_ID")
 INPUT_MIME_TYPE = os.environ.get("INPUT_MIME_TYPE")
-GCS_OUTPUT_BUCKET = os.environ.get("GCS_OUTPUT_BUCKET")
-GCS_OUTPUT_PREFIX = os.environ.get("GCS_OUTPUT_PREFIX", "")
-GCS_FAILED_FILES_BUCKET = os.environ.get("GCS_FAILED_FILES_BUCKET")
-GCS_FAILED_FILES_PREFIX = os.environ.get("GCS_FAILED_FILES_PREFIX")
+GCS_OUTPUT_BUCKET = os.environ.get("GCS_OUTPUT_BUCKET", None)
+GCS_OUTPUT_PREFIX = os.environ.get("GCS_OUTPUT_PREFIX", None)
+GCS_FAILED_FILES_BUCKET = os.environ.get("GCS_FAILED_FILES_BUCKET", None)
+GCS_FAILED_FILES_PREFIX = os.environ.get("GCS_FAILED_FILES_PREFIX", None)
 
 # Initialize Firestore client
 db = firestore.Client(PROJECT_ID)
@@ -239,7 +239,7 @@ def trigger_batch_processing() -> None:
 
 
 def save_json_to_gcs(
-    data: str, destination_bucket: str, filename: str, prefix_folder: str = ""
+    data: str, destination_bucket: str | None, filename: str, prefix_folder: str | None
 ) -> str:
     """
     Saves JSON data to a specified location in Google Cloud Storage.
@@ -284,7 +284,7 @@ def save_json_to_gcs(
 
 
 def copy_failed_file_to_folder(
-    file_path: str, destination_bucket_name: str, destination_folder: str
+    file_path: str, destination_bucket_name: str | None, destination_folder: str | None
 ) -> None:
     """
     Copies a failed document to a designated failure handling bucket/folder.
@@ -391,6 +391,7 @@ def process_document_sync(gcs_input_uri: str) -> bool:
         # Moving to batch mode if Quota limit hit
         update_sync_to_batch(gcs_input_uri)
         trigger_batch_processing()
+        return True
 
     except GoogleAPIError as e:
         print(f"Error during synchronous processing: {e}")
