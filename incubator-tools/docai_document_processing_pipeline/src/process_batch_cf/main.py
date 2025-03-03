@@ -1,4 +1,6 @@
 # pylint: disable=C0301
+# pylint: disable=E0606
+# pylint: disable=W0718
 """
 Google Cloud Document AI Batch Processing Module
 

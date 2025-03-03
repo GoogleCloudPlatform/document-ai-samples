@@ -1,5 +1,9 @@
 # pylint: disable=C0301
-# pylint: disable=E501
+# pylint: disable=R0914
+# pylint: disable=R1702
+# pylint: disable=R0912
+# pylint: disable=E1133
+# pylint: disable=E1101
 """This file will compare two JSONS and uploads the xlsx file to GCS Bucket."""
 from collections import Counter
 from typing import Any, Dict, List
@@ -32,7 +36,6 @@ def upload_xlsx_to_gcs(
     print(
         f"File {source_file_path} uploaded to gs://{bucket_name}/{destination_blob_name}"
     )
-    return None
 
 
 def calculate_bbox_overlap(box1: List[float], box2: List[float]) -> float:
@@ -116,7 +119,7 @@ def read_json_files_from_gcs(
                 # json_data = json.loads(blob.download_as_text())
                 json_data = documentai.Document.from_json(blob.download_as_bytes())
                 # json_data=documentai.Document.to_dict(doc)
-
+                # if hasattr(json_data, "entities") and isinstance(json_data.entities, list):
                 for entity in json_data.entities:
                     if entity.properties == []:
                         # print(entity.keys())
@@ -247,7 +250,7 @@ def calculate_consistency(
     for entity in data:
         # print(entity)
         grouped = False
-        for key in grouped_data.keys():
+        for key, dic_value in grouped_data.items():
             # print(entity['Entity_name'],key[0],entity['Page_Number'],key[1],entity['filename'],key[2])
             if (
                 entity["Entity_name"] == key[0]
@@ -255,14 +258,14 @@ def calculate_consistency(
                 and entity["filename"] == key[2]
             ):
                 # print(grouped_data[key])
-                for compare_entity in grouped_data[key]:
+                for compare_entity in dic_value:
                     overlap = calculate_bbox_overlap(
                         entity["Bounding_Box"], compare_entity["Bounding_Box"]
                     )
                     # print(overlap)
-
+                    # print(entity['Bounding_Box'], compare_entity['Bounding_Box'],compare_entity["Text"],entity["Text"])
                     if overlap >= 40:
-                        grouped_data[key].append(entity)
+                        dic_value.append(entity)
                         grouped = True
                         break
                 if grouped:
@@ -283,7 +286,7 @@ def calculate_consistency(
 
     for key, entities in grouped_data.items():
         mention_texts = [entity["Text"] for entity in entities]
-        # folder_indices = [entity["folder_index"] for entity in entities]
+        # folder_indices = [entity['folder_index'] for entity in entities]
 
         mention_text_counter = Counter(mention_texts)
         majority_text, majority_count = mention_text_counter.most_common(1)[0]
@@ -430,6 +433,7 @@ def main(
     sorted_result = sorted(results, key=lambda x: x["FileName"])
     # Convert to DataFrame and save to CSV
     df = pd.DataFrame(sorted_result)
+
     doc_consistency = calculate_document_level_consistency(df)
     entity_consistency = calculate_entity_level_consistency(df)
     file_name = output_file_name + "_output.xlsx"

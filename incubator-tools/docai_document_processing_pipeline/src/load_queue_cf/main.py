@@ -1,5 +1,9 @@
 # pylint: disable=C0301
 # pylint: disable=W0212
+# pylint: disable=E0606
+# pylint: disable=W0718
+# pylint: disable=R1721
+# pylint: disable=R1710
 """
 Google Cloud Document AI Processing Pipeline
 
