@@ -245,8 +245,7 @@ def calculate_consistency(
     Example:
         results = calculate_consistency(extracted_data, num_folders=3)
     """
-    grouped_data: dict[str, Any] = {}
-    key: tuple[Any, str, Any, tuple[float, float, float, float]] = ()
+    grouped_data: dict[tuple[Any, str, Any, tuple[float, float, float, float]], Any] = {}
 
     for entity in data:
         # print(entity)
