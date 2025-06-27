@@ -1,0 +1,7 @@
+functions-framework
+google-cloud-bigquery
+google-cloud-storage
+google-cloud-documentai
+google-cloud-bigquery-storage
+google-api-core
+pandas
