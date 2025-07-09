@@ -36,7 +36,6 @@ def delete_blobs_from_prefix(bucket : str, prefix : str) -> None:
             blob.delete()
         except Exception as e:
             print(e)
-            pass
 
 
 def copy_to_feedback_folder(input_bucket : str, input_prefix : str,

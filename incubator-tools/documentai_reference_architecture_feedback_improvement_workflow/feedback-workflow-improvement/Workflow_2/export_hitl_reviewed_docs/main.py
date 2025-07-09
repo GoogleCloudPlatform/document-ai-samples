@@ -28,7 +28,6 @@ def delete_blobs_from_prefix(bucket : str, prefix : str) -> None:
             blob.delete()
         except Exception as e:
             print(e)
-            pass
 
 
 # 2. Export Dataset to after human review folder

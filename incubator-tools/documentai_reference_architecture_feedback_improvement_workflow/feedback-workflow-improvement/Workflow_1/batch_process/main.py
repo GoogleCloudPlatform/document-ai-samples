@@ -127,8 +127,9 @@ def batch_process_update(project_id : str, location : str,
     """
 
     res = batch_process_documents(project_id=project_id, location=location,
-                                processor_id=processor_id,
-                                gcs_input_uri=batch_input_path, gcs_output_uri=gcs_output_uri)
+                                  processor_id=processor_id,
+                                  gcs_input_uri=batch_input_path, gcs_output_uri=gcs_output_uri
+                                 )
 
     while not res.done():
         time.sleep(10)

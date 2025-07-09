@@ -202,8 +202,11 @@ def process_training_request(request):
 
             # Get label statistics by examining document annotations
             print("Getting dataset and labels statistics for validation...")
-            train_label_stats, test_label_stats, train_count, test_count = get_label_stats(client,
-                                                                                           project_id, processor_id)
+            train_label_stats, test_label_stats, train_count, test_count = get_label_stats(
+                client,
+                project_id,
+                processor_id
+            )
 
             # Validate label statistics
             print("Validating dataset and labels criteria before training...")

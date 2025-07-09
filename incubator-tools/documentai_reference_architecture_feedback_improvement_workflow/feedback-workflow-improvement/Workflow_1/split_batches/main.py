@@ -76,11 +76,13 @@ def process_files(project_id, df, gcs_temp_path, gcs_input_path, batch_size=30):
     except Exception as e:
         # Log or handle unexpected issues
         print(f"Failed to delete GCS folder: {e}")
-        pass
+
     # Step 2: Split the files into batches of `batch_size`
     files = [{"File_name": row["File_name"],
               "GCS_folder_path": row["GCS_folder_path"]} for index, row in df.iterrows()]
+
     file_batches = [files[i:i + batch_size] for i in range(0, len(files), batch_size)]
+
     # print(file_batches)
     # Step 3: Function to copy files and create temporary GCS folder
     def create_temp_folder_and_copy(batch, batch_number):

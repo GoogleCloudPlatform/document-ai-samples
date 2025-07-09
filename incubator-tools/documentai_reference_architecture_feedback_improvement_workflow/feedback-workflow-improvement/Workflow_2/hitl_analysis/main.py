@@ -58,7 +58,6 @@ def bucket_delete(bucket_name : str) -> None:
         bucket.delete(force=True)
     except Exception as e:
         print(e)
-        pass
 
 
 def file_names(file_path : str) -> Tuple:
@@ -456,7 +455,6 @@ def generate_compare_analysis_report(project_id, pre_hitl_output_uri, post_hitl_
             bucket_delete(post_hitl_bucket_name_temp)
         except Exception as e:
             print(e)
-            pass
         compare_merged.drop(["Match", "Fuzzy Ratio"], axis=1, inplace=True)
 
         for k in non_relation_dict:
@@ -481,8 +479,8 @@ def generate_compare_analysis_report(project_id, pre_hitl_output_uri, post_hitl_
             bucket_delete(pre_hitl_bucket_name_temp)
             bucket_delete(post_hitl_bucket_name_temp)
             print("unable to process the file   : ", e)
-        except Exception as e:
-            print("unable to process the file   : ", e)
+        except Exception as e1:
+            print("unable to process the file   : ", e1)
     return compare_merged
 
 
