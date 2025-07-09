@@ -6,11 +6,13 @@ Exporting HITL Reviewed Documents
 # pylint: disable=R0914
 # pylint: disable=W0718
 # pylint: disable=W0702
+# pylint: disable=R0801
 
 import traceback
 from google.cloud import storage
 from google.cloud import documentai_v1beta3 as documentai
 import functions_framework
+
 
 # 1. delete files in after human_review folder before exporting dataset
 def delete_blobs_from_prefix(bucket : str, prefix : str) -> None:
@@ -24,8 +26,10 @@ def delete_blobs_from_prefix(bucket : str, prefix : str) -> None:
         try:
             print(f"\tdeleting {blob.name}")
             blob.delete()
-        except:
+        except Exception as e:
+            print(e)
             pass
+
 
 # 2. Export Dataset to after human review folder
 def export_dataset(project_id : str, location : str, processor_id : str,
@@ -65,8 +69,9 @@ def export_dataset(project_id : str, location : str, processor_id : str,
         doc = res.document
         blob_name = f"{output_prefix}/train/{display_name}.json"
         blob = output_bucket_obj.blob(blob_name)
-        blob.upload_from_string(documentai.Document.to_json(doc),content_type='application/json')
+        blob.upload_from_string(documentai.Document.to_json(doc), content_type='application/json')
         print(f"\tExport Done for {display_name}")
+
 
 @functions_framework.http
 def export_hitl_reviewed_docs(request):
@@ -98,15 +103,15 @@ def export_hitl_reviewed_docs(request):
             print(f"Exporting Dataset from Processor: {processor_id} to {post_hitl_output_uri}")
             export_dataset(project_id, location, processor_id, post_hitl_output_uri)
 
-            return {"state": "SUCCESS", "message": f"""Dataset exported from
-                    Processor: {processor_id} to {post_hitl_output_uri}"""}, 200
+            return {"state" : "SUCCESS", "message" : f"""Dataset exported from
+                    Processor : {processor_id} to {post_hitl_output_uri}"""}, 200
 
         except Exception as e:
             print(e)
-            return {"state":"FAILED","message":f"""UNABLE TO COMPLETE BECAUSE OF {e},
+            return {"state" : "FAILED", "message" : f"""UNABLE TO COMPLETE BECAUSE OF {e},
                     {traceback.format_exc()}"""}, 500
 
     except Exception as e:
         print(e)
-        return {"state":"FAILED","message":"""UNABLE TO GET THE NEEDED PARAMETERS
+        return {"state" : "FAILED", "message" : """UNABLE TO GET THE NEEDED PARAMETERS
                                             TO RUN THE CLOUD FUNCTION"""}, 400

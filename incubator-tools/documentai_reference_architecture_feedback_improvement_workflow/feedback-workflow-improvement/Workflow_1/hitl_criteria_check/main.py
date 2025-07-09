@@ -9,6 +9,7 @@ Confidence level (by default all entities are considered). Critical entities & C
 # pylint: disable=R0913
 # pylint: disable=W0613
 # pylint: disable=C0121
+# pylint: disable=R0801
 
 import os
 from io import StringIO
@@ -21,6 +22,7 @@ from google.cloud import documentai_v1beta3 as documentai
 from google.cloud import storage
 from google.cloud import bigquery
 import pandas as pd
+
 
 def documentai_json_proto_downloader(bucket_name : str,
                                      blob_name_with_prefix_path : str) -> object:
@@ -45,9 +47,10 @@ def documentai_json_proto_downloader(bucket_name : str,
 
     return doc
 
+
 def copy_folder(source_path : str, destination_path : str, file_name : str) -> None:
     """
-    Copying files from source bukcet to destination bucket 
+    Copying files from source bukcet to destination bucket
     """
 
     # Initialize the Google Cloud Storage client
@@ -79,6 +82,7 @@ def copy_folder(source_path : str, destination_path : str, file_name : str) -> N
         destination_bucket.copy_blob(blob, destination_bucket, new_blob_name)
         # print(f'Blob {blob.name} copied to {new_blob_name}.')
 
+
 def list_gcs_files_with_uri(bucket_name : str, folder_uri : str) -> List:
     """
     Returns all the files present inside the bucket.
@@ -101,6 +105,7 @@ def list_gcs_files_with_uri(bucket_name : str, folder_uri : str) -> List:
 
     return files
 
+
 def criteria_check(json_data : Dict, confidence_threshold : float,
                    critical_entities : List) -> bool:
     """
@@ -115,28 +120,26 @@ def criteria_check(json_data : Dict, confidence_threshold : float,
         bool: True if all entities meet the criteria, False otherwise.
     """
 
-    hitl_criteria_satisfied=True
-    if len(critical_entities)>0:
+    hitl_criteria_satisfied = True
+    if len(critical_entities) > 0:
         for entity in json_data.entities:
             if entity.type in critical_entities:
-                # print(entity.confidence)
-                if entity.confidence<confidence_threshold:
-                    hitl_criteria_satisfied= False
+                if entity.confidence < confidence_threshold:
+                    hitl_criteria_satisfied = False
                     return hitl_criteria_satisfied
             for sub_entity in entity.properties:
                 if sub_entity.type in critical_entities:
-                    # print(sub_entity.confidence)
-                    if sub_entity.confidence<confidence_threshold:
-                        hitl_criteria_satisfied= False
+                    if sub_entity.confidence < confidence_threshold:
+                        hitl_criteria_satisfied = False
                         return hitl_criteria_satisfied
     else:
         for entity in json_data.entities:
-            if entity.confidence<confidence_threshold:
-                hitl_criteria_satisfied= False
+            if entity.confidence < confidence_threshold:
+                hitl_criteria_satisfied = False
                 return hitl_criteria_satisfied
             for sub_entity in entity.properties:
-                if sub_entity.confidence<confidence_threshold:
-                    hitl_criteria_satisfied= False
+                if sub_entity.confidence < confidence_threshold:
+                    hitl_criteria_satisfied = False
                     return hitl_criteria_satisfied
     return hitl_criteria_satisfied
 
@@ -164,34 +167,32 @@ def process_file(file : dict, dataset_id : str, table_id : str, confidence_thres
     bucket_name_1 = file['file_path'].split('/')[2]
     folder_uri = '/'.join(file['file_path'].split('/')[3:])
     list_files = list_gcs_files_with_uri(bucket_name_1, folder_uri)
-    hitl_check_status= True
+    hitl_check_status = True
     for f1 in list_files:
         source_path_1 = '/'.join(f1.rsplit('/', 1)[:-1])
         if file['file_name'].rsplit('.', 1)[0] in f1:
             json_data = documentai_json_proto_downloader(f1.split('/')[2],
                                                          '/'.join(f1.split('/')[3:]))
-            if criteria_check(json_data, confidence_threshold, critical_entities)==False:
-                # Copy folder
-                # print(file['file_name'])
-                copy_folder(source_path_1, gsc_hitl_folder_path,file['file_name'])
+            if not criteria_check(json_data, confidence_threshold, critical_entities):
+                copy_folder(source_path_1, gsc_hitl_folder_path, file['file_name'])
                 hitl_temp_path = os.path.join(gsc_hitl_folder_path,
                                               file['file_name'].rsplit('.', 1)[0])
-                hitl_check_status= False
+                hitl_check_status = False
                 break
-    # print(hitl_check_status)
-    if hitl_check_status==True:
 
-        print('PASSED',file['file_name'])
+    if hitl_check_status:
+        print('PASSED', file['file_name'])
         hitl_passed.append({'file_name': file['file_name'],
                             'batch_processed_path': file['file_path'],
                             'hitl_path': ''})
-    elif hitl_check_status==False:
-        print('Failed',file['file_name'])
+    elif not hitl_check_status:
+        print('Failed', file['file_name'])
         hitl_failed.append({'file_name': file['file_name'],
                             'batch_processed_path': file['file_path'],
                             'hitl_path': hitl_temp_path})
 
     return hitl_passed, hitl_failed
+
 
 # Define the main function to handle parallel processing
 def process_files_in_parallel(dataset_id : str, table_id : str, confidence_threshold : float,
@@ -229,7 +230,6 @@ def process_files_in_parallel(dataset_id : str, table_id : str, confidence_thres
                                    gsc_hitl_folder_path): file for file in file_data}
 
         for future in concurrent.futures.as_completed(futures):
-            file = futures[future]
             try:
                 hitl_passed, hitl_failed = future.result()
                 all_hitl_passed.extend(hitl_passed)
@@ -238,6 +238,7 @@ def process_files_in_parallel(dataset_id : str, table_id : str, confidence_thres
                 print(f'File processing generated an exception: {exc}')
 
     return all_hitl_passed, all_hitl_failed
+
 
 def copy_selected_files(hitl_passed : List, gsc_hitl_folder_path : str,
                         percentage : int = 10, max_workers : int = 4):
@@ -255,7 +256,7 @@ def copy_selected_files(hitl_passed : List, gsc_hitl_folder_path : str,
     """
     # Define the number of files to select based on the percentage
     num_files_to_select = round(len(hitl_passed) * percentage / 100)
-    print("num_files_to_select",num_files_to_select)
+    print("num_files_to_select", num_files_to_select)
 
     # Randomly select the files
     selected_files = random.sample(hitl_passed, num_files_to_select)
@@ -264,7 +265,7 @@ def copy_selected_files(hitl_passed : List, gsc_hitl_folder_path : str,
         source_path = file['batch_processed_path']
 
         # Perform folder copying
-        copy_folder(source_path, gsc_hitl_folder_path,file['file_name'])
+        copy_folder(source_path, gsc_hitl_folder_path, file['file_name'])
 
         # Construct the hitl_temp_path
         if gsc_hitl_folder_path.endswith('/'):
@@ -303,7 +304,7 @@ def hitl_feedback(request):
             confidence_threshold = request_json.get("confidence_threshold")
             critical_entities = request_json.get("critical_entities")
             test_files_percentage = request_json.get("test_files_percentage")
-            df=pd.read_json(StringIO(request_json.get('dataframe')), orient='records')
+            df = pd.read_json(StringIO(request_json.get('dataframe')), orient='records')
         else:
             project_id = request.args.get("project_id")
             dataset_id = request.args.get("dataset_id")
@@ -312,13 +313,13 @@ def hitl_feedback(request):
             confidence_threshold = request.args.get("confidence_threshold")
             critical_entities = request.args.get("critical_entities")
             test_files_percentage = request.args.get("test_files_percentage")
-            df=pd.read_json(StringIO(request.args.get('dataframe')), orient='records')
+            df = pd.read_json(StringIO(request.args.get('dataframe')), orient='records')
         try:
             table_ref = f"{project_id}.{dataset_id}.{table_id}"
             hitl_passed, hitl_failed = process_files_in_parallel(dataset_id,
                                                                  table_id, confidence_threshold,
                                                                  critical_entities,
-                                                                 gsc_hitl_folder_path,df)
+                                                                 gsc_hitl_folder_path, df)
 
             copy_selected_files(hitl_passed, gsc_hitl_folder_path,
                                 percentage=test_files_percentage, max_workers=4)
@@ -346,13 +347,13 @@ def hitl_feedback(request):
             # job = client.load_table_from_dataframe(df, table_ref)
             job.result()
 
-            return {"dataframe":df.to_json(orient="records"),"state":"DONE",
-                    "message":"HITL Criteria checked and moved to folder"}, 200
+            return {"dataframe" : df.to_json(orient="records"), "state" : "DONE",
+                    "message" : "HITL Criteria checked and moved to folder"}, 200
         except Exception as e:
             print(e)
-            return {"state":"FAILED",
-                    "message":f"Unable to complete HITL criteria check because of {e}"}, 500
+            return {"state" : "FAILED",
+                    "message" : f"Unable to complete HITL criteria check because of {e}"}, 500
     except Exception as e:
         print(e)
-        return {"state":"FAILED",
-                "message":f"Missing parameters needed to process the request because of {e}"}, 400
+        return {"state" : "FAILED",
+                "message" : f"Missing parameters need to process the request because of {e}"}, 400

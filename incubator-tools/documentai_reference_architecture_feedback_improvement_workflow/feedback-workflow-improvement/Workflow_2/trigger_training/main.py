@@ -6,6 +6,7 @@ Trigger Training in UI
 # pylint: disable=W0613
 # pylint: disable=W0718
 # pylint: disable=R0914
+# pylint: disable=R0801
 
 
 import traceback
@@ -14,6 +15,7 @@ import functions_framework
 # from google.cloud import storage
 from google.cloud import documentai_v1beta3 as documentai
 from google.api_core.client_options import ClientOptions
+
 
 def list_documents(client, project_id, processor_id):
     """
@@ -26,6 +28,7 @@ def list_documents(client, project_id, processor_id):
         documents.append(document)
 
     return documents
+
 
 def extract_labels_from_document(document):
     """
@@ -104,7 +107,7 @@ def get_label_stats(client, project_id, processor_id):
         # print(document.dataset_type)
         if str(document.dataset_type) == "DatasetSplitType.DATASET_SPLIT_TRAIN":
             train_count += 1
-        elif str(document.dataset_type) ==  "DatasetSplitType.DATASET_SPLIT_TEST":
+        elif str(document.dataset_type) == "DatasetSplitType.DATASET_SPLIT_TEST":
             test_count += 1
 
         document_data = get_document(
@@ -117,10 +120,11 @@ def get_label_stats(client, project_id, processor_id):
             if label in valid_labels:
                 if str(document.dataset_type) == "DatasetSplitType.DATASET_SPLIT_TRAIN":
                     train_label_count[label] += count
-                elif str(document.dataset_type) ==  "DatasetSplitType.DATASET_SPLIT_TEST":
+                elif str(document.dataset_type) == "DatasetSplitType.DATASET_SPLIT_TEST":
                     test_label_count[label] += count
 
     return train_label_count, test_label_count, train_count, test_count
+
 
 def validate_labels(train_label_stats, test_label_stats, train_count, test_count):
     """
@@ -148,6 +152,7 @@ def validate_labels(train_label_stats, test_label_stats, train_count, test_count
         return False, {"train": train_failed_annotations, "test": test_failed_annotations}
 
     return True, None
+
 
 def train_processor(client, project_id, processor_id, dataset_name, new_version_name):
     """
@@ -198,31 +203,31 @@ def process_training_request(request):
             # Get label statistics by examining document annotations
             print("Getting dataset and labels statistics for validation...")
             train_label_stats, test_label_stats, train_count, test_count = get_label_stats(client,
-                                                project_id, processor_id)
+                                                                                           project_id, processor_id)
 
             # Validate label statistics
             print("Validating dataset and labels criteria before training...")
             status, failed_annotations = validate_labels(train_label_stats,
-                                        test_label_stats, train_count, test_count)
+                                                         test_label_stats, train_count, test_count)
 
             if status:
                 # Initiate training if the dataset is valid
                 client = documentai.DocumentProcessorServiceClient(client_options=client_options)
                 train_processor(client, project_id, processor_id, dataset_name, new_version_name)
-                return { "state:":"SUCCESS",
-                        "message": f"Training started for processor {processor_id}" }, 200
+                return {"state:" : "SUCCESS",
+                        "message" : f"Training started for processor {processor_id}"}, 200
             print("""Dataset doesn't have sufficient documents or
-            some labels do not have sufficient annotations""")
+                    some labels do not have sufficient annotations""")
             print("Details:", failed_annotations)
 
-            return {"state":"FAILED","message":"Dataset doesn't meet the training criteria",
-                    "details": failed_annotations}, 400
+            return {"state" : "FAILED", "message" : "Dataset doesn't meet the training criteria",
+                    "details" : failed_annotations}, 400
 
         except Exception as e:
             print(e)
-            return {"state":"FAILED",
-                    "message":f"UNABLE TO COMPLETE BECAUSE OF {e}, {traceback.format_exc()}"}, 500
+            return {"state" : "FAILED",
+                    "message" : f"UNABLE TO COMPLETE BECAUSE {e}, {traceback.format_exc()}"}, 500
     except Exception as e:
         print(e)
-        return {"state":"FAILED",
-                "message":"UNABLE TO GET THE NEEDED PARAMETERS TO RUN THE CLOUD FUNCTION"}, 400
+        return {"state" : "FAILED",
+                "message" : "UNABLE TO GET THE NEEDED PARAMETERS TO RUN THE CLOUD FUNCTION"}, 400

@@ -5,12 +5,14 @@ Bigquery Dataset Input Main file
 # pylint: disable=E0401
 # pylint: disable=W0718
 # pylint: disable=W0612
+# pylint: disable=R0801
 
 from datetime import datetime
 import functions_framework
 from google.cloud import bigquery, storage
 from google.api_core.exceptions import NotFound
 import pandas as pd
+
 
 def create_dataset_and_table(project_id : str, dataset_id : str,
                              table_id : str) -> None:
@@ -76,11 +78,12 @@ def create_dataset_and_table(project_id : str, dataset_id : str,
         client.create_table(table)
         print(f"Table '{table_id}' created in dataset '{dataset_id}'.")
 
+
 def list_and_insert_gcs_files(project_id : str, dataset_id : str,
                               table_id : str, gcs_input_path : str) -> pd.DataFrame:
 
     """
-    Lists all files in a GCS folder and prepares a DataFrame with metadata 
+    Lists all files in a GCS folder and prepares a DataFrame with metadata
     to insert into a BigQuery table.
 
     Args:
@@ -108,6 +111,7 @@ def list_and_insert_gcs_files(project_id : str, dataset_id : str,
 
     dataset_ref = bigquery_client.dataset(dataset_id, project=project_id)
     table_ref = dataset_ref.table(table_id)
+    print(table_ref)
 
     rows_to_insert = [
         {
@@ -125,6 +129,7 @@ def list_and_insert_gcs_files(project_id : str, dataset_id : str,
 
     df = pd.DataFrame(rows_to_insert)
     return df
+
 
 @functions_framework.http
 def bqdataset(request):

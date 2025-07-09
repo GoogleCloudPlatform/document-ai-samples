@@ -10,6 +10,7 @@ HITL Analysis
 # pylint: disable=W0718
 # pylint: disable=W0702
 # pylint: disable=C0206
+# pylint: disable=R0801
 
 import traceback
 import re
@@ -26,16 +27,10 @@ from google.cloud import bigquery
 import pandas as pd
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
-
-
-
-
-
 pd.options.mode.chained_assignment = None  # default='warn'
 
-#  Start generating analysis report b/w pre&post hitl data
 
+#  Start generating analysis report b/w pre&post hitl data
 # checking whether bucket exists else create temperary bucket
 def check_create_bucket(bucket_name: str) -> object:
     """This Function is to create a temperary bucket
@@ -46,10 +41,12 @@ def check_create_bucket(bucket_name: str) -> object:
     try:
         bucket = storage_client.get_bucket(bucket_name)
         print(f"Bucket {bucket_name} already exists.")
-    except:
+    except Exception as e:
         bucket = storage_client.create_bucket(bucket_name)
         print(f"Bucket {bucket_name} created.")
+        print(e)
     return bucket
+
 
 def bucket_delete(bucket_name : str) -> None:
     """This function deltes the bucket and used for deleting the temporary
@@ -59,8 +56,10 @@ def bucket_delete(bucket_name : str) -> None:
     try:
         bucket = storage_client.get_bucket(bucket_name)
         bucket.delete(force=True)
-    except:
+    except Exception as e:
+        print(e)
         pass
+
 
 def file_names(file_path : str) -> Tuple:
     """This Function will load the bucket and get the list of files
@@ -86,6 +85,7 @@ def file_names(file_path : str) -> Tuple:
             file_dict[x] = filenames[i]
     return file_names_list, file_dict
 
+
 def list_blobs(bucket_name : str) -> List:
     """This function will give the list of files in a bucket
     args: gcs bucket name
@@ -96,6 +96,7 @@ def list_blobs(bucket_name : str) -> List:
     for blob in blobs:
         blob_list.append(blob.name)
     return blob_list
+
 
 # Bucket operations
 def relation_dict_generator(pre_hitl_output_bucket : str, post_hitl_output_bucket : str) -> Tuple:
@@ -120,6 +121,7 @@ def relation_dict_generator(pre_hitl_output_bucket : str, post_hitl_output_bucke
 
     return relation_dict, non_relation_dict
 
+
 def blob_downloader(bucket_name : str, blob_name : str) -> dict:
     """This Function is used to download the files from gcs bucket"""
     storage_client = storage.Client()
@@ -127,6 +129,7 @@ def blob_downloader(bucket_name : str, blob_name : str) -> dict:
     blob = bucket.blob(blob_name)
     contents = blob.download_as_string()
     return json.loads(contents.decode())
+
 
 def copy_blob(bucket_name : str, blob_name : str, destination_bucket_name : str,
               destination_blob_name : str) -> None:
@@ -451,7 +454,8 @@ def generate_compare_analysis_report(project_id, pre_hitl_output_uri, post_hitl_
             bucket_delete(pre_hitl_bucket_name_temp)
             print("Deleting temporary buckets created")
             bucket_delete(post_hitl_bucket_name_temp)
-        except:
+        except Exception as e:
+            print(e)
             pass
         compare_merged.drop(["Match", "Fuzzy Ratio"], axis=1, inplace=True)
 
@@ -468,7 +472,7 @@ def generate_compare_analysis_report(project_id, pre_hitl_output_uri, post_hitl_
         print("CSV file created")
         print("***********ENTITIES UPDATED IN HITL**********")
         print("\n")
-        print("rows, cols ",len(compare_merged), len(compare_merged.columns))
+        print("rows, cols ", len(compare_merged), len(compare_merged.columns))
         print("\n")
         print("For More details look into CSV created")
         print("\n")
@@ -477,9 +481,10 @@ def generate_compare_analysis_report(project_id, pre_hitl_output_uri, post_hitl_
             bucket_delete(pre_hitl_bucket_name_temp)
             bucket_delete(post_hitl_bucket_name_temp)
             print("unable to process the file   : ", e)
-        except:
+        except Exception as e:
             print("unable to process the file   : ", e)
     return compare_merged
+
 
 def create_bigquery_dataset(bq_client, project_id, dataset_id):
     """Create a Bigquery Dataset"""
@@ -489,11 +494,13 @@ def create_bigquery_dataset(bq_client, project_id, dataset_id):
     try:
         dataset = bq_client.get_dataset(dataset_name)  # API request
         print(f"Dataset already exists: {dataset_name}")
-    except:
+    except Exception as e:
+        print(e)
         # Dataset does not exist, create it
         dataset = bigquery.Dataset(dataset_name)
         dataset = bq_client.create_dataset(dataset)  # API request
         print(f"Created BigQuery dataset: {dataset_name}")
+
 
 def create_bigquery_table(bq_client, project_id, dataset_id, table_id):
     """Create a bigquery Table"""
@@ -524,7 +531,7 @@ def load_data_bigquery(project_id, dataset_id, table_id, df):
     # dataset_ref = bigquery.DatasetReference(project=project_id, dataset_id=dataset_id)
     # dataset = bigquery.Dataset(dataset_ref)
     # dataset = bc.create_dataset(dataset, exists_ok=True)
-    cols = list(map(lambda x: x.replace(" ", "_").lower() ,df.columns))
+    cols = list(map(lambda x: x.replace(" ", "_").lower(), df.columns))
     df.columns = cols
     table = bigquery.Table(table_ref=table_uri)
     # table = bc.create_table(table, exists_ok=True)
@@ -556,7 +563,7 @@ def hitl_analysis(request):
             df = generate_compare_analysis_report(project_id, pre_hitl_output_uri,
                                                   post_hitl_output_uri)
 
-             # Load analysis report to Bigquery
+            # Load analysis report to Bigquery
             load_data_bigquery(project_id, dataset_id, table_id, df)
 
             return {"state": "SUCCESS", "message": f"""Analysis completed and status
@@ -564,10 +571,10 @@ def hitl_analysis(request):
 
         except Exception as e:
             print(e)
-            return {"state":"FAILED","message":f"""UNABLE TO COMPLETE BECAUSE OF {e},
+            return {"state" : "FAILED", "message" : f"""UNABLE TO COMPLETE BECAUSE OF {e},
             {traceback.format_exc()}"""}, 500
 
     except Exception as e:
         print(e)
-        return {"state":"FAILED","message":"""UNABLE TO GET THE NEEDED PARAMETERS
+        return {"state" : "FAILED", "message" : """UNABLE TO GET THE NEEDED PARAMETERS
                                             TO RUN THE CLOUD FUNCTION"""}, 400

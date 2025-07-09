@@ -7,6 +7,7 @@ Batch Process main.py
 # pylint: disable=R0917
 # pylint: disable=C0325
 # pylint: disable=W0718
+# pylint: disable=R0801
 
 
 import time
@@ -49,9 +50,9 @@ def batch_process_documents(
         opts = {"api_endpoint": "eu-documentai.googleapis.com"}
     elif location == "us":
         opts = {"api_endpoint": "us-documentai.googleapis.com"}
-        #opts = {"api_endpoint": "us-autopush-documentai.sandbox.googleapis.com"}
+        # opts = {"api_endpoint": "us-autopush-documentai.sandbox.googleapis.com"}
     client = documentai.DocumentProcessorServiceClient(client_options=opts)
-    input_config= documentai.BatchDocumentsInputConfig(
+    input_config = documentai.BatchDocumentsInputConfig(
         gcs_prefix=documentai.GcsPrefix(gcs_uri_prefix=gcs_input_uri)
     )
     sharding_config = documentai.DocumentOutputConfig.GcsOutputConfig.ShardingConfig(
@@ -78,6 +79,7 @@ def batch_process_documents(
     # operation.result(timeout=timeout)
     return operation
 
+
 def list_folders(bucket_name : str, folder_prefix : str) -> List:
 
     """
@@ -103,6 +105,7 @@ def list_folders(bucket_name : str, folder_prefix : str) -> List:
 
     return folders
 
+
 def batch_process_update(project_id : str, location : str,
                          processor_id : str, batch_input_path : str,
                          gcs_output_uri : str) -> List[dict]:
@@ -119,23 +122,26 @@ def batch_process_update(project_id : str, location : str,
         gcs_output_uri (str): GCS output path where results will be stored.
 
     Returns:
-        List[dict]: A list of dictionaries containing source and destination paths of processed documents.
-                    Example: [{'source': 'gs://bucket/input/doc1.pdf', 'destination': 'gs://bucket/output/doc1.json'}, ...]
+        List[dict]: A list of dictionaries containing source and destination paths
+                    of processed documents.
     """
 
-    res=batch_process_documents(project_id=project_id,location=location,processor_id=processor_id,
-                                gcs_input_uri=batch_input_path,gcs_output_uri=gcs_output_uri)
+    res = batch_process_documents(project_id=project_id, location=location,
+                                processor_id=processor_id,
+                                gcs_input_uri=batch_input_path, gcs_output_uri=gcs_output_uri)
 
     while not res.done():
         time.sleep(10)
 
-    meta_data_dictionary=[]
+    meta_data_dictionary = []
     for meta_data in res.metadata.individual_process_statuses:
         meta_data_dictionary.append(
-            {'source':meta_data.input_gcs_source,'destination':meta_data.output_gcs_destination}
+            {'source' : meta_data.input_gcs_source,
+             'destination' : meta_data.output_gcs_destination}
         )
 
     return meta_data_dictionary
+
 
 # Extract file names from the source URLs
 def extract_file_name(source_url : str) -> str:
@@ -152,11 +158,12 @@ def extract_file_name(source_url : str) -> str:
 
     return source_url.split('/')[-1]
 
+
 # Create BigQuery client and update records
 def update_bigquery(meta_data_bq : List, df : pd.DataFrame) -> pd.DataFrame:
 
     """
-    Updates the given DataFrame with batch processed file paths and status 
+    Updates the given DataFrame with batch processed file paths and status
     based on the metadata returned from batch processing.
 
     Args:
@@ -193,6 +200,7 @@ def update_bigquery(meta_data_bq : List, df : pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+
 def process_folder(folder : str, gcs_temp_path : str,
                    project_id : str, location : str,
                    processor_id : str, gcs_output_uri : str) -> List :
@@ -211,11 +219,12 @@ def process_folder(folder : str, gcs_temp_path : str,
     Returns:
         list: Metadata dictionary containing 'source' and 'destination' paths.
     """
-    gcs_temp_bucket_name=gcs_temp_path.split('/')[2]
+    gcs_temp_bucket_name = gcs_temp_path.split('/')[2]
     batch_input_path = f"gs://{gcs_temp_bucket_name}/{folder}"
     meta_data_dictionary = batch_process_update(
         project_id, location, processor_id, batch_input_path, gcs_output_uri)
     return meta_data_dictionary
+
 
 @functions_framework.http
 def concurrent_batch_process(request):
@@ -244,18 +253,18 @@ def concurrent_batch_process(request):
             gcs_output_uri = request_json.get("gcs_output_uri")
             location = request_json.get("location")
             processor_id = request_json.get("processor_id")
-            df=pd.read_json(StringIO(request_json.get('dataframe')), orient='records')
+            df = pd.read_json(StringIO(request_json.get('dataframe')), orient='records')
         else:
             project_id = request.args.get("project_id")
             gcs_temp_path = request.args.get("gcs_temp_path")
             gcs_output_uri = request.args.get("gcs_output_uri")
             location = request.args.get("location")
             processor_id = request.args.get("processor_id")
-            df=pd.read_json(StringIO(request.args.get('dataframe')), orient='records')
+            df = pd.read_json(StringIO(request.args.get('dataframe')), orient='records')
         try:
             meta_data_bq = []
-            gcs_temp_bucket_name=gcs_temp_path.split('/')[2]
-            gcs_temp_folder_path=('/').join(gcs_temp_path.split('/')[3:])
+            gcs_temp_bucket_name = gcs_temp_path.split('/')[2]
+            gcs_temp_folder_path = ('/').join(gcs_temp_path.split('/')[3:])
             folders = list_folders(gcs_temp_bucket_name, gcs_temp_folder_path)
             # Using ThreadPoolExecutor with 4 workers for parallel processing
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
@@ -266,13 +275,13 @@ def concurrent_batch_process(request):
             # Append results to meta_data_bq
             meta_data_bq.extend(results)
             # Define the dataset and table
-            df=update_bigquery(meta_data_bq,df)
+            df = update_bigquery(meta_data_bq, df)
 
-            return {"dataframe":df.to_json(orient="records"),
-                    "state":"DONE",
-                    "message":"BATCH PROCESSING AND DATAFRAME IS UPDATED"}, 200
+            return {"dataframe" : df.to_json(orient="records"),
+                    "state" : "DONE",
+                    "message" : "BATCH PROCESSING AND DATAFRAME IS UPDATED"}, 200
         except Exception as e:
-            return {"state":"FAILED","message":f"Unable to process {e}"}, 500
+            return {"state" : "FAILED", "message" : f"Unable to process {e}"}, 500
     except Exception as e:
-        return {"state":"FAILED",
-                "message":f"Missing parameters needed to process the request {e}"}, 400
+        return {"state" : "FAILED",
+                "message" : f"Missing parameters needed to process the request {e}"}, 400

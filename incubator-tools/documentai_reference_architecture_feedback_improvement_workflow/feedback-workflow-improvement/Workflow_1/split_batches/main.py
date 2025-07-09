@@ -6,6 +6,7 @@ Splitting the files into several batches
 # pylint: disable=W0718
 # pylint: disable=W0613
 # pylint: disable=W0702
+# pylint: disable=R0801
 
 
 from io import StringIO
@@ -14,15 +15,16 @@ import functions_framework
 from google.cloud import storage
 import pandas as pd
 
+
 def delete_gcs_folder(gcs_temp_path_delete):
     """
     Deletes all files inside a specific folder in a GCS bucket and the folder itself.
-    
+
     :param gcs_folder_path.
     """
     # Initialize the GCS client
-    bucket_name=gcs_temp_path_delete.split('/')[2]
-    folder_path=('/').join(gcs_temp_path_delete.split('/')[3:])
+    bucket_name = gcs_temp_path_delete.split('/')[2]
+    folder_path = ('/').join(gcs_temp_path_delete.split('/')[3:])
     client = storage.Client()
 
     # Get the bucket
@@ -42,7 +44,8 @@ def delete_gcs_folder(gcs_temp_path_delete):
 
     # print(f"Deleted all files in {folder_path}")
 
-def process_files(project_id,df, gcs_temp_path, gcs_input_path, batch_size=30):
+
+def process_files(project_id, df, gcs_temp_path, gcs_input_path, batch_size=30):
     """
     Process files by copying them from the input path to temporary batches in GCS.
 
@@ -70,7 +73,9 @@ def process_files(project_id,df, gcs_temp_path, gcs_input_path, batch_size=30):
 
     try:
         delete_gcs_folder(gcs_temp_path)
-    except:
+    except Exception as e:
+        # Log or handle unexpected issues
+        print(f"Failed to delete GCS folder: {e}")
         pass
     # Step 2: Split the files into batches of `batch_size`
     files = [{"File_name": row["File_name"],
@@ -79,6 +84,7 @@ def process_files(project_id,df, gcs_temp_path, gcs_input_path, batch_size=30):
     # print(file_batches)
     # Step 3: Function to copy files and create temporary GCS folder
     def create_temp_folder_and_copy(batch, batch_number):
+
         temp_folder_path = f"{gcs_temp_folder_path}temp_batch_{batch_number}/"
         temp_bucket = storage_client.bucket(gcs_temp_bucket_name)
         origin_bucket = storage_client.bucket(origin_bucket_name)
@@ -109,6 +115,7 @@ def process_files(project_id,df, gcs_temp_path, gcs_input_path, batch_size=30):
             except Exception as e:
                 print(f"An error occurred: {e}")
 
+
 @functions_framework.http
 def split_copy_files(request):
     """
@@ -134,25 +141,25 @@ def split_copy_files(request):
             gcs_temp_path = request_json.get("gcs_temp_path")
             gcs_input_path = request_json.get("gcs_input_path")
             batch_size = request_json.get("batch_size")
-            df=pd.read_json(StringIO(request_json.get('dataframe')), orient='records')
+            df = pd.read_json(StringIO(request_json.get('dataframe')), orient='records')
         else:
             project_id = request.args.get("project_id")
             gcs_temp_path = request.args.get("gcs_temp_path")
             gcs_input_path = request.args.get("gcs_input_path")
             batch_size = request.args.get("batch_size")
-            df=pd.read_json(StringIO(request.args.get('dataframe')), orient='records')
+            df = pd.read_json(StringIO(request.args.get('dataframe')), orient='records')
         print(df)
         # Call the function
         try:
-            process_files(project_id,df, gcs_temp_path, gcs_input_path, batch_size)
+            process_files(project_id, df, gcs_temp_path, gcs_input_path, batch_size)
 
-            return {'dataframe':df.to_json(orient="records"),"state":"DONE",
-                    "message":"""Files are split into batches and moved
+            return {'dataframe' : df.to_json(orient="records"), "state" : "DONE",
+                    "message" : """Files are split into batches and moved
                     to temporary folders for bacth processing"""}, 200
         except Exception as e:
             print(e)
-            return {"state":"FAILED","message":f"UNABLE TO copy files because of {e}"}, 500
+            return {"state" : "FAILED", "message" : f"UNABLE TO copy files because of {e}"}, 500
     except Exception as e:
         print(e)
-        return {"state":"FAILED","message":f"""UNABLE TO GET THE NEEDED PARAMETERS
+        return {"state" : "FAILED", "message" : f"""UNABLE TO GET THE NEEDED PARAMETERS
         TO RUN THE CLOUD FUNCTION BECAUSE OF {e}"""}, 400

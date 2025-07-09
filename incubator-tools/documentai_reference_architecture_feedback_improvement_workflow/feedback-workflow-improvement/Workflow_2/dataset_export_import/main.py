@@ -7,6 +7,7 @@ Dataset Export and Import
 # pylint: disable=R0914
 # pylint: disable=W0718
 # pylint: disable=W0702
+# pylint: disable=R0801
 
 import datetime
 import traceback
@@ -33,8 +34,10 @@ def delete_blobs_from_prefix(bucket : str, prefix : str) -> None:
         try:
             print(f"\tdeleting {blob.name}")
             blob.delete()
-        except:
+        except Exception as e:
+            print(e)
             pass
+
 
 def copy_to_feedback_folder(input_bucket : str, input_prefix : str,
                             output_bucket : str, output_prefix : str) -> None:
@@ -59,6 +62,7 @@ def copy_to_feedback_folder(input_bucket : str, input_prefix : str,
         new_name = f"{output_prefix}/{old_name}"
         print(f"\t Copying files to gs://{output_bucket}/{new_name}")
         ip_buck_obj.copy_blob(blob, out_buck_obj, new_name)
+
 
 def export_dataset(project_id : str, location : str, processor_id : str, gcs_dest_uri : str):
     """
@@ -96,8 +100,9 @@ def export_dataset(project_id : str, location : str, processor_id : str, gcs_des
         doc = res.document
         blob_name = f"{output_prefix}/train/{display_name}.json"
         blob = output_bucket_obj.blob(blob_name)
-        blob.upload_from_string(documentai.Document.to_json(doc),content_type='application/json')
+        blob.upload_from_string(documentai.Document.to_json(doc), content_type='application/json')
         print(f"\tExport Done for {display_name}")
+
 
 def import_dataset(gcs_path_to_import : str, dataset_name : str) -> None:
     """
@@ -130,6 +135,7 @@ def import_dataset(gcs_path_to_import : str, dataset_name : str) -> None:
         print(str(e))
     print(operation.metadata)
 
+
 @functions_framework.http
 def dataset_export_import(request):
     """
@@ -153,18 +159,14 @@ def dataset_export_import(request):
         try:
 
             post_hitl_output_uri = post_hitl_output_uri.rstrip("/")
-            splits = post_hitl_output_uri.split("/")
-            input_bucket, input_prefix = splits[2], "/".join(splits[3:])
 
             # Backing up existing dataset before training new processor
             now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
             gcs_backup_uri = f'{gcs_backup_uri.rstrip("/")}/{now}'
-            splits = gcs_backup_uri.split("/")
-            output_bucket, output_prefix = splits[2], "/".join(splits[3:])
             print(f"Exporting Dataset from {processor_id} to {gcs_backup_uri}")
             export_dataset(project_id, location, processor_id, gcs_backup_uri)
 
-             # Import dataset from post_HITL_output_URI folder
+            # Import dataset from post_HITL_output_URI folder
             dataset_name = f"""projects/{project_id}/locations/{location}/processors/
                             {processor_id}/dataset"""
             import_dataset(post_hitl_output_uri, dataset_name)
@@ -174,11 +176,10 @@ def dataset_export_import(request):
 
         except Exception as e:
             print(e)
-            return {"state":"FAILED","message":f"""UNABLE TO COMPLETE BECAUSE OF {e},
-            {traceback.format_exc()}", "backup_uri": f"{gcs_backup_uri}"""}, 500
+            return {"state" : "FAILED", "message" : f"""UNABLE TO COMPLETE BECAUSE OF {e},
+            {traceback.format_exc()}", "backup_uri" : f"{gcs_backup_uri}"""}, 500
 
     except Exception as e:
         print(e)
-        return {"state":"FAILED","message":"""UNABLE TO GET THE NEEDED
+        return {"state" : "FAILED", "message" : """UNABLE TO GET THE NEEDED
                 PARAMETERS TO RUN THE CLOUD FUNCTION"""}, 400
-            
