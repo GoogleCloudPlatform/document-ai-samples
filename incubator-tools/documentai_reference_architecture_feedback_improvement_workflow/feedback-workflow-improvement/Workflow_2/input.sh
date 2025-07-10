@@ -1,6 +1,8 @@
 #!/bin/bash
+# pylint: disable=C0103
 
-# Variables
+"""Variables & Prompt user for project and function names"""
+
 project_id=""
 location=""
 hitl_processor_id=""                                              # Processor ID where the Output of workflow 1 is imported.
