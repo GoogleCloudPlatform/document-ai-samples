@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Variables
 project_id=""
 location=""

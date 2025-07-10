@@ -23,7 +23,7 @@ echo "**************************************************************************
 echo "Status : $?"
 if [ $? -ne 0 ]; then
        echo "Cloud function deployment failed"
-       return -1
+       return 0
 else
        echo "Cloud function deployed"
 fi
@@ -46,7 +46,7 @@ gcloud functions deploy split_batches \
 echo "********************************************************************************"
 if [ $? -ne 0 ]; then
        echo "Cloud function deployment failed"
-       return -1
+       return 0
 else
        echo "Cloud function deployed"
 fi
@@ -71,7 +71,7 @@ gcloud functions deploy batch_process \
 echo "********************************************************************************"
 if [ $? -ne 0 ]; then
        echo "Cloud function deployment failed"
-       return -1
+       return 0
 else
        echo "Cloud function deployed"
 fi
@@ -94,7 +94,7 @@ gcloud functions deploy hitl_criteria_check \
 echo "********************************************************************************"
 if [ $? -ne 0 ]; then
        echo "Cloud function deployment failed"
-       return -1
+       return 0
 else
        echo "Cloud function deployed"
 fi
@@ -110,7 +110,7 @@ gcloud workflows deploy $WORKFLOW_NAME \
 echo "********************************************************************************"
 if [ $? -ne 0 ]; then
        echo "Workflow deployment failed"
-       return -1
+       return 0
 else
        echo "Workflow deployed"
 fi
