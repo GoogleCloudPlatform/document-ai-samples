@@ -60,11 +60,17 @@ def bucket_delete(bucket_name : str) -> None:
         print(e)
 
 
-def file_names(file_path : str) -> Tuple:
-    """This Function will load the bucket and get the list of files
-    in the gs path given
-    args: gs path
-    output: file names as list and dictionary with file names as keys and file path as values
+def file_names(file_path: str) -> Tuple[list[str], dict[str, str]]:
+    """
+    Loads the GCS bucket and returns:
+    - list of file names
+    - dictionary mapping file name to full path
+
+    Args:
+        file_path (str): GCS path (e.g., gs://bucket/path/to/folder)
+
+    Returns:
+        Tuple[list[str], dict[str, str]]
     """
     bucket = file_path.split("/")[2]
     file_names_list = []
@@ -72,16 +78,14 @@ def file_names(file_path : str) -> Tuple:
     storage_client = storage.Client()
     source_bucket = storage_client.get_bucket(bucket)
     filenames = [
-        filename.name
-        for filename in list(
-            source_bucket.list_blobs(prefix=(("/").join(file_path.split("/")[3:])))
-        )
+        blob.name
+        for blob in source_bucket.list_blobs(prefix="/".join(file_path.split("/")[3:]))
     ]
-    for i in enumerate(filenames):
-        x = filenames[i].split("/")[-1]
+    for filename in filenames:
+        x = filename.split("/")[-1]
         if x != "":
             file_names_list.append(x)
-            file_dict[x] = filenames[i]
+            file_dict[x] = filename
     return file_names_list, file_dict
 
 

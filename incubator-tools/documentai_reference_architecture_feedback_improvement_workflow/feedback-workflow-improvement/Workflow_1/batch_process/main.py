@@ -17,6 +17,7 @@ from typing import List
 import pandas as pd
 import functions_framework
 
+from google.api_core.operation import Operation
 from google.cloud import documentai_v1beta3 as documentai
 from google.cloud import storage
 
@@ -27,7 +28,7 @@ def batch_process_documents(
     processor_id : str,
     gcs_input_uri : str,
     gcs_output_uri : str
-) -> object:
+) -> Operation:
 
     """
     Initiates a batch processing job using Document AI for documents stored in a GCS bucket.

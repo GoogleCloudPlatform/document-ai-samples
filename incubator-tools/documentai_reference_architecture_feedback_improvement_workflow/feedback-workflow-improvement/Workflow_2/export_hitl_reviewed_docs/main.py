@@ -20,8 +20,8 @@ def delete_blobs_from_prefix(bucket : str, prefix : str) -> None:
     Delete files in after human_review folder before exporting dataset
     """
     sc = storage.Client()
-    bucket = sc.get_bucket(bucket)
-    blobs = bucket.list_blobs(prefix=prefix)
+    bucket1 = sc.get_bucket(bucket)
+    blobs = bucket1.list_blobs(prefix=prefix)
     for blob in blobs:
         try:
             print(f"\tdeleting {blob.name}")

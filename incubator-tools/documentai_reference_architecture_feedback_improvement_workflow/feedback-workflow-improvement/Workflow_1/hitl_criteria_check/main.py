@@ -16,7 +16,7 @@ from io import StringIO
 from concurrent.futures import ThreadPoolExecutor
 import random
 import concurrent.futures
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Any
 import functions_framework
 from google.cloud import documentai_v1beta3 as documentai
 from google.cloud import storage
@@ -106,7 +106,7 @@ def list_gcs_files_with_uri(bucket_name : str, folder_uri : str) -> List:
     return files
 
 
-def criteria_check(json_data : Dict, confidence_threshold : float,
+def criteria_check(json_data : dict[Any, Any], confidence_threshold : float,
                    critical_entities : List) -> bool:
     """
     Check if the entities in the JSON data meet the confidence threshold criteria.
