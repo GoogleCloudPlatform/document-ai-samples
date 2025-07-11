@@ -9,19 +9,23 @@ Trigger Training in UI
 # pylint: disable=R0801
 
 
-import traceback
 from collections import defaultdict
+import traceback
+
 import functions_framework
+from google.api_core.client_options import ClientOptions
+
 # from google.cloud import storage
 from google.cloud import documentai_v1beta3 as documentai
-from google.api_core.client_options import ClientOptions
 
 
 def list_documents(client, project_id, processor_id):
     """
     Lists all documents in the processor's dataset.
     """
-    dataset_name = f"projects/{project_id}/locations/us/processors/{processor_id}/dataset"
+    dataset_name = (
+        f"projects/{project_id}/locations/us/processors/{processor_id}/dataset"
+    )
     documents = []
     # Paginated document list
     for document in client.list_documents(dataset=dataset_name):
@@ -90,7 +94,9 @@ def get_label_stats(client, project_id, processor_id):
     Fetch label statistics from all documents in the dataset by examining annotations.
     """
 
-    dataset_name = f"projects/{project_id}/locations/us/processors/{processor_id}/dataset"
+    dataset_name = (
+        f"projects/{project_id}/locations/us/processors/{processor_id}/dataset"
+    )
 
     valid_labels = get_dataset_schema(client, project_id, processor_id)
     documents = list_documents(client, project_id, processor_id)
@@ -120,7 +126,9 @@ def get_label_stats(client, project_id, processor_id):
             if label in valid_labels:
                 if str(document.dataset_type) == "DatasetSplitType.DATASET_SPLIT_TRAIN":
                     train_label_count[label] += count
-                elif str(document.dataset_type) == "DatasetSplitType.DATASET_SPLIT_TEST":
+                elif (
+                    str(document.dataset_type) == "DatasetSplitType.DATASET_SPLIT_TEST"
+                ):
                     test_label_count[label] += count
 
     return train_label_count, test_label_count, train_count, test_count
@@ -134,10 +142,14 @@ def validate_labels(train_label_stats, test_label_stats, train_count, test_count
     test_failed_annotations = {}
 
     if train_count < 10 or test_count < 10:
-        print(f"""Train Dataset has {train_count} documents
-                    and Test dataset has {test_count} documents""")
-        print("""There must be atleast 10 documents in each
-                    of these splits to continue with the training""")
+        print(
+            f"""Train Dataset has {train_count} documents
+                    and Test dataset has {test_count} documents"""
+        )
+        print(
+            """There must be atleast 10 documents in each
+                    of these splits to continue with the training"""
+        )
         return False, None
 
     for label, count in train_label_stats.items():
@@ -149,7 +161,10 @@ def validate_labels(train_label_stats, test_label_stats, train_count, test_count
             test_failed_annotations[label] = count
 
     if len(train_failed_annotations) > 0 or len(test_failed_annotations) > 0:
-        return False, {"train": train_failed_annotations, "test": test_failed_annotations}
+        return False, {
+            "train": train_failed_annotations,
+            "test": test_failed_annotations,
+        }
 
     return True, None
 
@@ -164,9 +179,7 @@ def train_processor(client, project_id, processor_id, dataset_name, new_version_
     # Create the train processor version request
     request = documentai.TrainProcessorVersionRequest(
         parent=parent,
-        processor_version=documentai.ProcessorVersion(
-            display_name=new_version_name
-        )
+        processor_version=documentai.ProcessorVersion(display_name=new_version_name),
     )
 
     # Trigger the training process
@@ -196,41 +209,60 @@ def process_training_request(request):
                             {location}/processors/{processor_id}/dataset"""
 
             # Create Document AI client
-            client_options = ClientOptions(api_endpoint=f'{location}-documentai.googleapis.com')
+            client_options = ClientOptions(
+                api_endpoint=f"{location}-documentai.googleapis.com"
+            )
 
             client = documentai.DocumentServiceClient(client_options=client_options)
 
             # Get label statistics by examining document annotations
             print("Getting dataset and labels statistics for validation...")
-            train_label_stats, test_label_stats, train_count, test_count = get_label_stats(
-                client,
-                project_id,
-                processor_id
-            )
+            (
+                train_label_stats,
+                test_label_stats,
+                train_count,
+                test_count,
+            ) = get_label_stats(client, project_id, processor_id)
 
             # Validate label statistics
             print("Validating dataset and labels criteria before training...")
-            status, failed_annotations = validate_labels(train_label_stats,
-                                                         test_label_stats, train_count, test_count)
+            status, failed_annotations = validate_labels(
+                train_label_stats, test_label_stats, train_count, test_count
+            )
 
             if status:
                 # Initiate training if the dataset is valid
-                client = documentai.DocumentProcessorServiceClient(client_options=client_options)
-                train_processor(client, project_id, processor_id, dataset_name, new_version_name)
-                return {"state:" : "SUCCESS",
-                        "message" : f"Training started for processor {processor_id}"}, 200
-            print("""Dataset doesn't have sufficient documents or
-                    some labels do not have sufficient annotations""")
+                client = documentai.DocumentProcessorServiceClient(
+                    client_options=client_options
+                )
+                train_processor(
+                    client, project_id, processor_id, dataset_name, new_version_name
+                )
+                return {
+                    "state:": "SUCCESS",
+                    "message": f"Training started for processor {processor_id}",
+                }, 200
+            print(
+                """Dataset doesn't have sufficient documents or
+                    some labels do not have sufficient annotations"""
+            )
             print("Details:", failed_annotations)
 
-            return {"state" : "FAILED", "message" : "Dataset doesn't meet the training criteria",
-                    "details" : failed_annotations}, 400
+            return {
+                "state": "FAILED",
+                "message": "Dataset doesn't meet the training criteria",
+                "details": failed_annotations,
+            }, 400
 
         except Exception as e:
             print(e)
-            return {"state" : "FAILED",
-                    "message" : f"UNABLE TO COMPLETE BECAUSE {e}, {traceback.format_exc()}"}, 500
+            return {
+                "state": "FAILED",
+                "message": f"UNABLE TO COMPLETE BECAUSE {e}, {traceback.format_exc()}",
+            }, 500
     except Exception as e:
         print(e)
-        return {"state" : "FAILED",
-                "message" : "UNABLE TO GET THE NEEDED PARAMETERS TO RUN THE CLOUD FUNCTION"}, 400
+        return {
+            "state": "FAILED",
+            "message": "UNABLE TO GET THE NEEDED PARAMETERS TO RUN THE CLOUD FUNCTION",
+        }, 400

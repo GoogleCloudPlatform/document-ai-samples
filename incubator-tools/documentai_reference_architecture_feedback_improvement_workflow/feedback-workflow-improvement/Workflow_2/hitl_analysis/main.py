@@ -12,21 +12,21 @@ HITL Analysis
 # pylint: disable=C0206
 # pylint: disable=R0801
 
-import traceback
-import re
-import operator
+import datetime
 import difflib
 import json
-import datetime
+import operator
+import re
+import traceback
 from typing import List, Tuple
-
 import warnings
+
 import functions_framework
-from google.cloud import storage
 from google.cloud import bigquery
+from google.cloud import storage
 import pandas as pd
 
-warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.simplefilter(action="ignore", category=FutureWarning)
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
@@ -48,7 +48,7 @@ def check_create_bucket(bucket_name: str) -> object:
     return bucket
 
 
-def bucket_delete(bucket_name : str) -> None:
+def bucket_delete(bucket_name: str) -> None:
     """This function deltes the bucket and used for deleting the temporary
     bucket
     args: bucket name"""
@@ -89,7 +89,7 @@ def file_names(file_path: str) -> Tuple[list[str], dict[str, str]]:
     return file_names_list, file_dict
 
 
-def list_blobs(bucket_name : str) -> List:
+def list_blobs(bucket_name: str) -> List:
     """This function will give the list of files in a bucket
     args: gcs bucket name
     output: list of files"""
@@ -102,7 +102,9 @@ def list_blobs(bucket_name : str) -> List:
 
 
 # Bucket operations
-def relation_dict_generator(pre_hitl_output_bucket : str, post_hitl_output_bucket : str) -> Tuple:
+def relation_dict_generator(
+    pre_hitl_output_bucket: str, post_hitl_output_bucket: str
+) -> Tuple:
     """This Function will check the files from pre_hitl_output_bucket and post_hitl_output_bucket
     and finds the json with same names(relation)"""
     pre_hitl_bucket_blobs = list_blobs(pre_hitl_output_bucket)
@@ -125,7 +127,7 @@ def relation_dict_generator(pre_hitl_output_bucket : str, post_hitl_output_bucke
     return relation_dict, non_relation_dict
 
 
-def blob_downloader(bucket_name : str, blob_name : str) -> dict:
+def blob_downloader(bucket_name: str, blob_name: str) -> dict:
     """This Function is used to download the files from gcs bucket"""
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
@@ -134,20 +136,22 @@ def blob_downloader(bucket_name : str, blob_name : str) -> dict:
     return json.loads(contents.decode())
 
 
-def copy_blob(bucket_name : str, blob_name : str, destination_bucket_name : str,
-              destination_blob_name : str) -> None:
+def copy_blob(
+    bucket_name: str,
+    blob_name: str,
+    destination_bucket_name: str,
+    destination_blob_name: str,
+) -> None:
     """This Method will copy files from one bucket(or folder) to another"""
     storage_client = storage.Client()
     source_bucket = storage_client.bucket(bucket_name)
     source_blob = source_bucket.blob(blob_name)
     destination_bucket = storage_client.bucket(destination_bucket_name)
-    source_bucket.copy_blob(
-        source_blob, destination_bucket, destination_blob_name
-    )
+    source_bucket.copy_blob(source_blob, destination_bucket, destination_blob_name)
 
 
 def bbox_maker(bounding_poly):
-    """ Gathers the Bounding Poly of x,y"""
+    """Gathers the Bounding Poly of x,y"""
     x_list = []
     y_list = []
     for i in bounding_poly:
@@ -157,7 +161,7 @@ def bbox_maker(bounding_poly):
     return bbox
 
 
-def json_to_dataframe(data : dict) -> pd.DataFrame:
+def json_to_dataframe(data: dict) -> pd.DataFrame:
     """Returns entities in dataframe format"""
     df = pd.DataFrame(columns=["type", "mentionText", "bbox"])
 
@@ -326,7 +330,6 @@ def compare_pre_hitl_and_post_hitl_output(file1, file2):
     # df_compare['Match'] = df_compare['Ground Truth Text'] == df_compare['Output Text']
     match_array = []
     for i in range(0, len(df_compare)):
-
         match_string = ""
         if (
             df_compare.iloc[i]["Pre_HITL_Output"] == "Entity not found."
@@ -369,7 +372,9 @@ def compare_pre_hitl_and_post_hitl_output(file1, file2):
     return df_compare, score
 
 
-def generate_compare_analysis_report(project_id, pre_hitl_output_uri, post_hitl_output_uri):
+def generate_compare_analysis_report(
+    project_id, pre_hitl_output_uri, post_hitl_output_uri
+):
     """Compare two files and generate analysis report"""
     compare_merged = pd.DataFrame()
     try:
@@ -393,12 +398,19 @@ def generate_compare_analysis_report(project_id, pre_hitl_output_uri, post_hitl_
             print("unable to create bucket because of exception : ", e)
 
         try:
-            pre_hitl_output_files, pre_hitl_output_dict = file_names(pre_hitl_output_uri)
-            post_hitl_output_files, post_hitl_output_dict = file_names(post_hitl_output_uri)
+            pre_hitl_output_files, pre_hitl_output_dict = file_names(
+                pre_hitl_output_uri
+            )
+            post_hitl_output_files, post_hitl_output_dict = file_names(
+                post_hitl_output_uri
+            )
             print("copying files to temporary bucket")
             for i in pre_hitl_output_files:
                 copy_blob(
-                    pre_hitl_bucket, pre_hitl_output_dict[i], pre_hitl_bucket_name_temp, i
+                    pre_hitl_bucket,
+                    pre_hitl_output_dict[i],
+                    pre_hitl_bucket_name_temp,
+                    i,
                 )
             for i in post_hitl_output_files:
                 copy_blob(
@@ -421,7 +433,9 @@ def generate_compare_analysis_report(project_id, pre_hitl_output_uri, post_hitl_
         print("comparing the PRE-HITL Jsons and POST-HITL jsons ....Wait for Summary ")
         for i in relation_dict:
             pre_hitl_json = blob_downloader(pre_hitl_bucket_name_temp, i)
-            post_hitl_json = blob_downloader(post_hitl_bucket_name_temp, relation_dict[i])
+            post_hitl_json = blob_downloader(
+                post_hitl_bucket_name_temp, relation_dict[i]
+            )
             compare_output = compare_pre_hitl_and_post_hitl_output(
                 pre_hitl_json, post_hitl_json
             )[0]
@@ -511,8 +525,12 @@ def create_bigquery_table(bq_client, project_id, dataset_id, table_id):
         bigquery.SchemaField("document_path", "STRING", mode="REQUIRED"),
         bigquery.SchemaField("status", "STRING", mode="REQUIRED"),
         bigquery.SchemaField("batch_id", "STRING"),
-        bigquery.SchemaField("created_at", "TIMESTAMP", mode="REQUIRED",
-                             default_value_expression="CURRENT_TIMESTAMP"),
+        bigquery.SchemaField(
+            "created_at",
+            "TIMESTAMP",
+            mode="REQUIRED",
+            default_value_expression="CURRENT_TIMESTAMP",
+        ),
     ]
 
     table = bigquery.Table(table_name, schema=schema)
@@ -562,21 +580,40 @@ def hitl_analysis(request):
 
         try:
             #  Generating Analysis report pre&post HITL
-            df = generate_compare_analysis_report(project_id, pre_hitl_output_uri,
-                                                  post_hitl_output_uri)
+            df = generate_compare_analysis_report(
+                project_id, pre_hitl_output_uri, post_hitl_output_uri
+            )
 
             # Load analysis report to Bigquery
             load_data_bigquery(project_id, dataset_id, table_id, df)
 
-            return {"state": "SUCCESS", "message": f"""Analysis completed and status
-            updated in BigQuery table {project_id}.{dataset_id}.{table_id}"""}, 200
+            return (
+                {
+                    "state": "SUCCESS",
+                    "message": f"""Analysis completed and status
+            updated in BigQuery table {project_id}.{dataset_id}.{table_id}""",
+                },
+                200,
+            )
 
         except Exception as e:
             print(e)
-            return {"state" : "FAILED", "message" : f"""UNABLE TO COMPLETE BECAUSE OF {e},
-            {traceback.format_exc()}"""}, 500
+            return (
+                {
+                    "state": "FAILED",
+                    "message": f"""UNABLE TO COMPLETE BECAUSE OF {e},
+            {traceback.format_exc()}""",
+                },
+                500,
+            )
 
     except Exception as e:
         print(e)
-        return {"state" : "FAILED", "message" : """UNABLE TO GET THE NEEDED PARAMETERS
-                                            TO RUN THE CLOUD FUNCTION"""}, 400
+        return (
+            {
+                "state": "FAILED",
+                "message": """UNABLE TO GET THE NEEDED PARAMETERS
+                                            TO RUN THE CLOUD FUNCTION""",
+            },
+            400,
+        )

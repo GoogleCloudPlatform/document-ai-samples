@@ -9,13 +9,14 @@ Exporting HITL Reviewed Documents
 # pylint: disable=R0801
 
 import traceback
-from google.cloud import storage
-from google.cloud import documentai_v1beta3 as documentai
+
 import functions_framework
+from google.cloud import documentai_v1beta3 as documentai
+from google.cloud import storage
 
 
 # 1. delete files in after human_review folder before exporting dataset
-def delete_blobs_from_prefix(bucket : str, prefix : str) -> None:
+def delete_blobs_from_prefix(bucket: str, prefix: str) -> None:
     """
     Delete files in after human_review folder before exporting dataset
     """
@@ -31,8 +32,9 @@ def delete_blobs_from_prefix(bucket : str, prefix : str) -> None:
 
 
 # 2. Export Dataset to after human review folder
-def export_dataset(project_id : str, location : str, processor_id : str,
-                   gcs_dest_uri : str) -> None:
+def export_dataset(
+    project_id: str, location: str, processor_id: str, gcs_dest_uri: str
+) -> None:
     """
     gcs_dest_uri (str): must start with gs://BUCKET/prefix/to/destination
     """
@@ -42,12 +44,12 @@ def export_dataset(project_id : str, location : str, processor_id : str,
     sc = storage.Client()
     output_bucket_obj = sc.get_bucket(output_bucket)
     _sc = documentai.DocumentServiceClient()
-    dataset_name = f"projects/{project_id}/locations/{location}/processors/{processor_id}/dataset"
+    dataset_name = (
+        f"projects/{project_id}/locations/{location}/processors/{processor_id}/dataset"
+    )
     print("Listing all documents in a dataset")
     existing_dataset_documents = _sc.list_documents(
-        request=documentai.ListDocumentsRequest(
-            dataset=dataset_name
-        )
+        request=documentai.ListDocumentsRequest(dataset=dataset_name)
     )
     existing_train_dataset = {}
     for existing_dataset_document in existing_dataset_documents:
@@ -62,13 +64,15 @@ def export_dataset(project_id : str, location : str, processor_id : str,
         unmanaged_doc_id = documentai.DocumentId.UnmanagedDocumentId(doc_id=doc_id)
         get_document_request = documentai.GetDocumentRequest(
             dataset=dataset_name,
-            document_id=documentai.DocumentId(unmanaged_doc_id=unmanaged_doc_id)
+            document_id=documentai.DocumentId(unmanaged_doc_id=unmanaged_doc_id),
         )
         res = _sc.get_document(request=get_document_request)
         doc = res.document
         blob_name = f"{output_prefix}/train/{display_name}.json"
         blob = output_bucket_obj.blob(blob_name)
-        blob.upload_from_string(documentai.Document.to_json(doc), content_type='application/json')
+        blob.upload_from_string(
+            documentai.Document.to_json(doc), content_type="application/json"
+        )
         print(f"\tExport Done for {display_name}")
 
 
@@ -99,18 +103,38 @@ def export_hitl_reviewed_docs(request):
             print(f"Deleting existing files from {post_hitl_output_uri}")
             delete_blobs_from_prefix(output_bucket, output_prefix)
 
-            print(f"Exporting Dataset from Processor: {processor_id} to {post_hitl_output_uri}")
+            print(
+                f"Exporting Dataset from Processor: {processor_id} to {post_hitl_output_uri}"
+            )
             export_dataset(project_id, location, processor_id, post_hitl_output_uri)
 
-            return {"state" : "SUCCESS", "message" : f"""Dataset exported from
-                    Processor : {processor_id} to {post_hitl_output_uri}"""}, 200
+            return (
+                {
+                    "state": "SUCCESS",
+                    "message": f"""Dataset exported from
+                    Processor : {processor_id} to {post_hitl_output_uri}""",
+                },
+                200,
+            )
 
         except Exception as e:
             print(e)
-            return {"state" : "FAILED", "message" : f"""UNABLE TO COMPLETE BECAUSE OF {e},
-                    {traceback.format_exc()}"""}, 500
+            return (
+                {
+                    "state": "FAILED",
+                    "message": f"""UNABLE TO COMPLETE BECAUSE OF {e},
+                    {traceback.format_exc()}""",
+                },
+                500,
+            )
 
     except Exception as e:
         print(e)
-        return {"state" : "FAILED", "message" : """UNABLE TO GET THE NEEDED PARAMETERS
-                                            TO RUN THE CLOUD FUNCTION"""}, 400
+        return (
+            {
+                "state": "FAILED",
+                "message": """UNABLE TO GET THE NEEDED PARAMETERS
+                                            TO RUN THE CLOUD FUNCTION""",
+            },
+            400,
+        )

@@ -8,15 +8,15 @@ Bigquery Dataset Input Main file
 # pylint: disable=R0801
 
 from datetime import datetime
+
 import functions_framework
-from google.cloud import bigquery, storage
 from google.api_core.exceptions import NotFound
+from google.cloud import bigquery
+from google.cloud import storage
 import pandas as pd
 
 
-def create_dataset_and_table(project_id : str, dataset_id : str,
-                             table_id : str) -> None:
-
+def create_dataset_and_table(project_id: str, dataset_id: str, table_id: str) -> None:
     """
     Creates a BigQuery dataset and table if they do not already exist.
 
@@ -44,16 +44,20 @@ def create_dataset_and_table(project_id : str, dataset_id : str,
             client.get_table(table_ref)
             print(f"Table '{table_id}' exists in dataset '{dataset_id}'.")
         except NotFound:
-            print(f"Table '{table_id}' does not exist in dataset '{dataset_id}', creating table...")
+            print(
+                f"Table '{table_id}' does not exist in dataset '{dataset_id}', creating table..."
+            )
             schema = [
                 bigquery.SchemaField("File_name", "STRING", mode="REQUIRED"),
                 bigquery.SchemaField("GCS_folder_path", "STRING", mode="REQUIRED"),
                 bigquery.SchemaField("Batch_processed", "STRING", mode="REQUIRED"),
-                bigquery.SchemaField("Batch_processed_file_path", "STRING", mode="NULLABLE"),
+                bigquery.SchemaField(
+                    "Batch_processed_file_path", "STRING", mode="NULLABLE"
+                ),
                 bigquery.SchemaField("HITL_checked", "STRING", mode="REQUIRED"),
                 bigquery.SchemaField("HITL_criteria_passed", "STRING", mode="REQUIRED"),
                 bigquery.SchemaField("HITL_folder_path", "STRING", mode="NULLABLE"),
-                bigquery.SchemaField("timestamp", "TIMESTAMP", mode="REQUIRED")
+                bigquery.SchemaField("timestamp", "TIMESTAMP", mode="REQUIRED"),
             ]
             table = bigquery.Table(table_ref, schema=schema)
             client.create_table(table)
@@ -68,20 +72,22 @@ def create_dataset_and_table(project_id : str, dataset_id : str,
             bigquery.SchemaField("File_name", "STRING", mode="REQUIRED"),
             bigquery.SchemaField("GCS_folder_path", "STRING", mode="REQUIRED"),
             bigquery.SchemaField("Batch_processed", "STRING", mode="REQUIRED"),
-            bigquery.SchemaField("Batch_processed_file_path", "STRING", mode="NULLABLE"),
+            bigquery.SchemaField(
+                "Batch_processed_file_path", "STRING", mode="NULLABLE"
+            ),
             bigquery.SchemaField("HITL_checked", "STRING", mode="REQUIRED"),
             bigquery.SchemaField("HITL_criteria_passed", "STRING", mode="REQUIRED"),
             bigquery.SchemaField("HITL_folder_path", "STRING", mode="NULLABLE"),
-            bigquery.SchemaField("timestamp", "TIMESTAMP", mode="REQUIRED")
+            bigquery.SchemaField("timestamp", "TIMESTAMP", mode="REQUIRED"),
         ]
         table = bigquery.Table(table_ref, schema=schema)
         client.create_table(table)
         print(f"Table '{table_id}' created in dataset '{dataset_id}'.")
 
 
-def list_and_insert_gcs_files(project_id : str, dataset_id : str,
-                              table_id : str, gcs_input_path : str) -> pd.DataFrame:
-
+def list_and_insert_gcs_files(
+    project_id: str, dataset_id: str, table_id: str, gcs_input_path: str
+) -> pd.DataFrame:
     """
     Lists all files in a GCS folder and prepares a DataFrame with metadata
     to insert into a BigQuery table.
@@ -98,8 +104,8 @@ def list_and_insert_gcs_files(project_id : str, dataset_id : str,
     bigquery_client = bigquery.Client()
     storage_client = storage.Client()
 
-    gcs_bucket_name = gcs_input_path.split('/')[2]
-    gcs_folder_path = '/'.join(gcs_input_path.split('/')[3:])
+    gcs_bucket_name = gcs_input_path.split("/")[2]
+    gcs_folder_path = "/".join(gcs_input_path.split("/")[3:])
 
     def list_gcs_files(bucket_name, folder_path):
         bucket = storage_client.bucket(bucket_name)
@@ -122,7 +128,7 @@ def list_and_insert_gcs_files(project_id : str, dataset_id : str,
             "HITL_checked": "No",
             "HITL_criteria_passed": "NA",
             "HITL_folder_path": "NA",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
         for file in files
     ]
@@ -133,7 +139,6 @@ def list_and_insert_gcs_files(project_id : str, dataset_id : str,
 
 @functions_framework.http
 def bqdataset(request):
-
     """
     Cloud Function HTTP handler to create a BigQuery dataset and table,
     and populate it with metadata from files in a GCS path.
@@ -166,22 +171,24 @@ def bqdataset(request):
 
         try:
             create_dataset_and_table(project_id, dataset_id, table_id)
-            df = list_and_insert_gcs_files(project_id, dataset_id, table_id, gcs_input_path)
+            df = list_and_insert_gcs_files(
+                project_id, dataset_id, table_id, gcs_input_path
+            )
             print(df)
             return {
                 "dataframe": df.to_json(orient="records"),
                 "state": "DONE",
-                "message": "Dataset is created and file details added to BigQuery table"
+                "message": "Dataset is created and file details added to BigQuery table",
             }, 200
         except Exception as e:
             print(e)
             return {
                 "state": "FAILED",
-                "message": f"Unable to complete due to: {e}"
+                "message": f"Unable to complete due to: {e}",
             }, 500
     except Exception as e:
         print(e)
         return {
             "state": "FAILED",
-            "message": f"Unable to get needed parameters: {e}"
+            "message": f"Unable to get needed parameters: {e}",
         }, 400

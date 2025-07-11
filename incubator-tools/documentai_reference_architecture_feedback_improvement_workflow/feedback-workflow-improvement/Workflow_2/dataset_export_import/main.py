@@ -11,12 +11,13 @@ Dataset Export and Import
 
 import datetime
 import traceback
-from google.cloud import storage
-from google.cloud import documentai_v1beta3 as documentai
+
 import functions_framework
+from google.cloud import documentai_v1beta3 as documentai
+from google.cloud import storage
 
 
-def delete_blobs_from_prefix(bucket : str, prefix : str) -> None:
+def delete_blobs_from_prefix(bucket: str, prefix: str) -> None:
     """
     Delete all blobs with the given prefix from the specified bucket.
 
@@ -38,8 +39,9 @@ def delete_blobs_from_prefix(bucket : str, prefix : str) -> None:
             print(e)
 
 
-def copy_to_feedback_folder(input_bucket : str, input_prefix : str,
-                            output_bucket : str, output_prefix : str) -> None:
+def copy_to_feedback_folder(
+    input_bucket: str, input_prefix: str, output_bucket: str, output_prefix: str
+) -> None:
     """
     Copy blobs from an input bucket and prefix to an output bucket and prefix.
 
@@ -63,7 +65,9 @@ def copy_to_feedback_folder(input_bucket : str, input_prefix : str,
         ip_buck_obj.copy_blob(blob, out_buck_obj, new_name)
 
 
-def export_dataset(project_id : str, location : str, processor_id : str, gcs_dest_uri : str):
+def export_dataset(
+    project_id: str, location: str, processor_id: str, gcs_dest_uri: str
+):
     """
     gcs_dest_uri (str): must start with gs://BUCKET/prefix/to/destination
     """
@@ -73,12 +77,12 @@ def export_dataset(project_id : str, location : str, processor_id : str, gcs_des
     sc = storage.Client()
     output_bucket_obj = sc.get_bucket(output_bucket)
     _sc = documentai.DocumentServiceClient()
-    dataset_name = f"projects/{project_id}/locations/{location}/processors/{processor_id}/dataset"
+    dataset_name = (
+        f"projects/{project_id}/locations/{location}/processors/{processor_id}/dataset"
+    )
     print("Listing all documents in a dataset")
     existing_dataset_documents = _sc.list_documents(
-        request=documentai.ListDocumentsRequest(
-            dataset=dataset_name
-        )
+        request=documentai.ListDocumentsRequest(dataset=dataset_name)
     )
     print("Extracting only Train docs/samples")
     existing_train_dataset = {}
@@ -93,17 +97,19 @@ def export_dataset(project_id : str, location : str, processor_id : str, gcs_des
         unmanaged_doc_id = documentai.DocumentId.UnmanagedDocumentId(doc_id=doc_id)
         get_document_request = documentai.GetDocumentRequest(
             dataset=dataset_name,
-            document_id=documentai.DocumentId(unmanaged_doc_id=unmanaged_doc_id)
+            document_id=documentai.DocumentId(unmanaged_doc_id=unmanaged_doc_id),
         )
         res = _sc.get_document(request=get_document_request)
         doc = res.document
         blob_name = f"{output_prefix}/train/{display_name}.json"
         blob = output_bucket_obj.blob(blob_name)
-        blob.upload_from_string(documentai.Document.to_json(doc), content_type='application/json')
+        blob.upload_from_string(
+            documentai.Document.to_json(doc), content_type="application/json"
+        )
         print(f"\tExport Done for {display_name}")
 
 
-def import_dataset(gcs_path_to_import : str, dataset_name : str) -> None:
+def import_dataset(gcs_path_to_import: str, dataset_name: str) -> None:
     """
     Import a dataset into Document AI from Google Cloud Storage.
 
@@ -118,12 +124,14 @@ def import_dataset(gcs_path_to_import : str, dataset_name : str) -> None:
     _sc = documentai.DocumentServiceClient()
     gcs_prefix = documentai.GcsPrefix(gcs_uri_prefix=gcs_path_to_import)
     input_config = documentai.BatchDocumentsInputConfig(gcs_prefix=gcs_prefix)
-    batch_documents_import_configs = documentai.ImportDocumentsRequest.BatchDocumentsImportConfig()
+    batch_documents_import_configs = (
+        documentai.ImportDocumentsRequest.BatchDocumentsImportConfig()
+    )
     batch_documents_import_configs.dataset_split = "DATASET_SPLIT_TRAIN"
     batch_documents_import_configs.batch_input_config = input_config
     request = documentai.ImportDocumentsRequest(
         dataset=dataset_name,
-        batch_documents_import_configs=[batch_documents_import_configs]
+        batch_documents_import_configs=[batch_documents_import_configs],
     )
     operation = _sc.import_documents(request=request)
 
@@ -156,7 +164,6 @@ def dataset_export_import(request):
             gcs_backup_uri = request.args.get("gcs_backup_uri")
 
         try:
-
             post_hitl_output_uri = post_hitl_output_uri.rstrip("/")
 
             # Backing up existing dataset before training new processor
@@ -170,15 +177,33 @@ def dataset_export_import(request):
                             {processor_id}/dataset"""
             import_dataset(post_hitl_output_uri, dataset_name)
 
-            return {"state": "SUCCESS", "message": f"""Dataset exported to {gcs_backup_uri}
-            and data from {post_hitl_output_uri} imported to processor {processor_id}"""}, 200
+            return (
+                {
+                    "state": "SUCCESS",
+                    "message": f"""Dataset exported to {gcs_backup_uri}
+            and data from {post_hitl_output_uri} imported to processor {processor_id}""",
+                },
+                200,
+            )
 
         except Exception as e:
             print(e)
-            return {"state" : "FAILED", "message" : f"""UNABLE TO COMPLETE BECAUSE OF {e},
-            {traceback.format_exc()}", "backup_uri" : f"{gcs_backup_uri}"""}, 500
+            return (
+                {
+                    "state": "FAILED",
+                    "message": f"""UNABLE TO COMPLETE BECAUSE OF {e},
+            {traceback.format_exc()}", "backup_uri" : f"{gcs_backup_uri}""",
+                },
+                500,
+            )
 
     except Exception as e:
         print(e)
-        return {"state" : "FAILED", "message" : """UNABLE TO GET THE NEEDED
-                PARAMETERS TO RUN THE CLOUD FUNCTION"""}, 400
+        return (
+            {
+                "state": "FAILED",
+                "message": """UNABLE TO GET THE NEEDED
+                PARAMETERS TO RUN THE CLOUD FUNCTION""",
+            },
+            400,
+        )
