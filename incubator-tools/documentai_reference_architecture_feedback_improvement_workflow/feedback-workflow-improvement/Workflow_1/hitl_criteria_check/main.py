@@ -106,13 +106,13 @@ def list_gcs_files_with_uri(bucket_name : str, folder_uri : str) -> List:
     return files
 
 
-def criteria_check(json_data : dict, confidence_threshold : float,
+def criteria_check(json_data : documentai.Document, confidence_threshold : float,
                    critical_entities : List) -> bool:
     """
     Check if the entities in the JSON data meet the confidence threshold criteria.
 
     Args:
-        json_data (Dict): The JSON data containing entities and their properties.
+        json_data (documentai.Document): The documentai.Document object containing entities and their properties.
         confidence_threshold (float): The minimum confidence score required.
         critical_entities (list): List of entity types considered critical.
 
@@ -133,7 +133,7 @@ def criteria_check(json_data : dict, confidence_threshold : float,
                         hitl_criteria_satisfied = False
                         return hitl_criteria_satisfied
     else:
-        for entity in json_data.entities:
+        for entity in  json_data.entities:
             if entity.confidence < confidence_threshold:
                 hitl_criteria_satisfied = False
                 return hitl_criteria_satisfied
