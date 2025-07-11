@@ -1,0 +1,5 @@
+functions-framework
+google-cloud-bigquery
+google-cloud-storage
+google-api-core
+pandas

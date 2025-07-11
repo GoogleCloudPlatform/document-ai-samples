@@ -1,0 +1,170 @@
+main:
+  params: [args]
+  steps:
+    # Initialize the variables from args
+    - init:
+        assign:
+          - project_id: ${args.project_id}
+          - dataset_id: ${args.dataset_id}
+          - table_id: ${args.table_id}
+          - gcs_input_path: ${args.gcs_input_path}
+          - gcs_temp_path: ${args.gcs_temp_path}
+          - batch_size: ${args.batch_size}
+          - gcs_output_uri: ${args.gcs_output_uri}
+          - location: ${args.location}
+          - processor_id: ${args.processor_id}
+          - Gcs_HITL_folder_path: ${args.Gcs_HITL_folder_path}
+          - critical_entities: ${args.critical_entities}
+          - confidence_threshold: ${args.confidence_threshold}
+          - test_files_percentage: ${args.test_files_percentage}
+
+    # Step 1: Dataset and Table Creation in BigQuery
+    - create_bq_dataset_and_table:
+        try:
+          call: http.post
+          args:
+            url: https://us-central1-rand-automl-project.cloudfunctions.net/bqdataset_input
+            body:
+              project_id: ${project_id}
+              dataset_id: ${dataset_id}
+              table_id: ${table_id}
+              gcs_input_path: ${gcs_input_path}
+            auth:
+              type: OIDC
+            timeout: 1800
+          result: create_bq_dataset_result
+        retry:
+          predicate: ${custom_retry_predicate}
+          max_retries: 3
+          backoff:
+            initial_delay: 10
+            max_delay: 300
+            multiplier: 2
+    - log_result_create_bq_dataset_and_table:
+        call: sys.log
+        args:
+            data: ${create_bq_dataset_result}
+            severity: "INFO"  # Set appropriate severity level (INFO, WARNING, ERROR, etc.)
+            # text: "Result after processing"
+            # json: ${true}
+
+    # Step 2: Split Input Files into Batches
+    - split_into_batches:
+        try:
+          call: http.post
+          args:
+            url: https://us-central1-rand-automl-project.cloudfunctions.net/split_batches
+            body:
+              project_id: ${project_id}
+              gcs_input_path: ${gcs_input_path}
+              gcs_temp_path: ${gcs_temp_path}
+              batch_size: ${batch_size}
+              dataframe: ${create_bq_dataset_result.body["dataframe"]}
+            auth:
+              type: OIDC
+            timeout: 1800
+          result: split_batches_result
+        retry:
+          predicate: ${custom_retry_predicate}
+          max_retries: 3
+          backoff:
+            initial_delay: 10
+            max_delay: 300
+            multiplier: 2
+    - log_result_split_into_batches:
+        call: sys.log
+        args:
+            data: ${split_batches_result}
+            severity: "INFO"  # Set appropriate severity level (INFO, WARNING, ERROR, etc.)
+
+    # Step 3: Perform Parallel Batch Processing
+    - batch_processing:
+        try:
+          call: http.post
+          args:
+            url: https://us-central1-rand-automl-project.cloudfunctions.net/batch_process
+            body:
+              project_id: ${project_id}
+              dataframe: ${split_batches_result.body["dataframe"]}
+              gcs_temp_path: ${gcs_temp_path}
+              gcs_output_uri: ${gcs_output_uri}
+              location: ${location}
+              processor_id: ${processor_id}
+            auth:
+              type: OIDC
+            timeout: 1800
+          result: batch_processing_result
+        retry:
+          predicate: ${custom_retry_predicate}
+          max_retries: 3
+          backoff:
+            initial_delay: 10
+            max_delay: 300
+            multiplier: 2
+    - log_result_batch_processing:
+        call: sys.log
+        args:
+            data: ${batch_processing_result}
+            severity: "INFO"  # Set appropriate severity level (INFO, WARNING, ERROR, etc.)
+
+    - extract_dataframe:
+        assign:
+          - parsed_body: ${batch_processing_result.body}
+          - dataframe: ${parsed_body["dataframe"]}
+
+    # Step 4: HITL Feedback and Validation
+    - hitl_feedback:
+        try:
+          call: http.post
+          args:
+            url: https://us-central1-rand-automl-project.cloudfunctions.net/hitl_criteria_check
+            body:
+              project_id: ${project_id}
+              dataset_id: ${dataset_id}
+              table_id: ${table_id}
+              Gcs_HITL_folder_path: ${Gcs_HITL_folder_path}
+              critical_entities: ${critical_entities}
+              confidence_threshold: ${confidence_threshold}
+              test_files_percentage: ${test_files_percentage}
+              dataframe: ${dataframe}
+              # dataframe: ${batch_processing_result.body["dataframe"]}
+            auth:
+              type: OIDC
+            timeout: 1800
+          result: hitl_feedback_result
+        retry:
+          max_retries: 3
+          backoff:
+            initial_delay: 10
+            max_delay: 300
+            multiplier: 2
+    
+    - log_result_hitl_feedback:
+        call: sys.log
+        args:
+            data: ${hitl_feedback_result}
+            severity: "INFO"  # Set appropriate severity level (INFO, WARNING, ERROR, etc.)
+# Updated Custom retry predicate function
+custom_retry_predicate:
+  params: [result]
+  steps:
+    - init:
+        assign:
+          - should_retry: false
+    - parse_body:
+        # try:
+        assign:
+        - body: ${result.body}
+        # except:
+        #   assign:
+        #     - body: {}
+    - check_result:
+        switch:
+          - condition: ${body["state"] == "FAILED"}
+            assign:
+              - should_retry: true
+          - condition: ${body["state"] == "DONE"}
+            assign:
+              - should_retry: false
+    - return_result:
+        return: ${should_retry}

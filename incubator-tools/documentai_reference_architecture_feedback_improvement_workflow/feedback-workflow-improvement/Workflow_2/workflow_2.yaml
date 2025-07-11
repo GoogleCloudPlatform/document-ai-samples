@@ -1,0 +1,161 @@
+main:
+  params: [args]
+  steps:
+    # Initialize the variables from args
+    - init:
+        assign:
+            #For cloud function 1
+            - project_id: ${args.project_id}
+            - location: ${args.location}
+            - hitl_processor_id: ${args.hitl_processor_id}
+            - post_HITL_output_URI: ${args.post_HITL_output_URI}
+            # For cloud function 2
+            - pre_HITL_output_URI: ${args.pre_HITL_output_URI}
+            - dataset_id: ${args.dataset_id}
+            - table_id: ${args.table_id}
+            # For cloud function 3
+            - gcs_backup_uri: ${args.gcs_backup_uri}
+            - train_processor_id: ${args.train_processor_id}
+            # For cloud function 4
+            - new_version_name: ${args.new_version_name}
+
+    # Step 1: Exporting HITL reviewed documents from processor to GCS folder
+    - export_hitl_reviewed_docs:
+        try:
+          call: http.post
+          args:
+            url: https://us-central1-rand-automl-project.cloudfunctions.net/export_hitl_reviewed_docs
+            body:
+                project_id: ${project_id}
+                location: ${location}
+                hitl_processor_id: ${hitl_processor_id}
+                post_HITL_output_URI: ${post_HITL_output_URI}
+            auth:
+              type: OIDC
+            timeout: 1800
+          result: export_hitl_reviewed_docs_result
+        retry:
+          predicate: ${custom_retry_predicate}
+          max_retries: 3
+          backoff:
+            initial_delay: 10
+            max_delay: 300
+            multiplier: 2
+    - log_export_hitl_reviewed_docs:
+        call: sys.log
+        args:
+            data: ${export_hitl_reviewed_docs_result}
+            severity: "INFO"  # Set appropriate severity level (INFO, WARNING, ERROR, etc.)
+            # text: "Result after processing"
+            # json: ${true}
+
+    # Step 2: Pre-HITL and Post-HITL analysis report and BigQuery table updation 
+    - hitl_analysis:
+        try:
+          call: http.post
+          args:
+            url: https://us-central1-rand-automl-project.cloudfunctions.net/hitl_analysis
+            body:
+              project_id: ${project_id}
+              pre_HITL_output_URI: ${pre_HITL_output_URI}
+              post_HITL_output_URI: ${post_HITL_output_URI}
+              dataset_id: ${dataset_id}
+              table_id: ${table_id}
+            auth:
+              type: OIDC
+            timeout: 1800
+          result: hitl_analysis_result
+        retry:
+          predicate: ${custom_retry_predicate}
+          max_retries: 3
+          backoff:
+            initial_delay: 10
+            max_delay: 300
+            multiplier: 2
+    - log_hitl_analysis:
+        call: sys.log
+        args:
+            data: ${hitl_analysis_result}
+            severity: "INFO"  # Set appropriate severity level (INFO, WARNING, ERROR, etc.)
+
+    # Step 3: Backing up of dataset before training and importing the feedback dataset to processor
+    - dataset_export_import:
+        try:
+          call: http.post
+          args:
+            url: https://us-central1-rand-automl-project.cloudfunctions.net/dataset_export_import
+            body:
+              project_id: ${project_id}
+              location: ${location}
+              post_HITL_output_URI: ${post_HITL_output_URI}
+              gcs_backup_uri: ${gcs_backup_uri}
+              train_processor_id: ${train_processor_id}
+            auth:
+              type: OIDC
+            timeout: 1800
+          result: dataset_export_import_result
+        retry:
+          predicate: ${custom_retry_predicate}
+          max_retries: 3
+          backoff:
+            initial_delay: 10
+            max_delay: 300
+            multiplier: 2
+    - log_dataset_export_import:
+        call: sys.log
+        args:
+            data: ${dataset_export_import_result}
+            severity: "INFO"  # Set appropriate severity level (INFO, WARNING, ERROR, etc.)
+
+    # Step 4: Dataset validation for training and trigger training
+    - trigger_training:
+        try:
+          call: http.post
+          args:
+            url: https://us-central1-rand-automl-project.cloudfunctions.net/trigger_training
+            body:
+              project_id: ${project_id}
+              location: ${location}
+              train_processor_id: ${train_processor_id}
+              new_version_name: ${new_version_name}
+            auth:
+              type: OIDC
+            timeout: 1800
+          result: trigger_training_result
+        retry:
+          predicate: ${custom_retry_predicate}
+          max_retries: 3
+          backoff:
+            initial_delay: 10
+            max_delay: 300
+            multiplier: 2
+    
+    - log_trigger_training:
+        call: sys.log
+        args:
+            data: ${trigger_training_result}
+            severity: "INFO"  # Set appropriate severity level (INFO, WARNING, ERROR, etc.)
+# Updated Custom retry predicate function
+custom_retry_predicate:
+  params: [result]
+  steps:
+    - init:
+        assign:
+          - should_retry: false
+    - parse_body:
+        # try:
+        assign:
+        - body: ${result.body}
+        # except:
+        #   assign:
+        #     - body: {}
+    - check_result:
+        switch:
+          - condition: ${body["state"] == "FAILED"}
+            assign:
+              - should_retry: true
+          - condition: ${body["state"] == "SUCCESS"}
+            assign:
+              - should_retry: false
+    - return_result:
+        return: ${should_retry}
