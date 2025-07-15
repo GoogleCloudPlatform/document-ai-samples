@@ -49,7 +49,7 @@ def main(args):
         return 1
     # If a output path is not specified, use input directory
     if not args.output:
-        args.output = f'{os.path.abspath(args.input).rstrip(".pdf")}_annotated.pdf'
+        args.output = f'{os.path.abspath(args.input).removesuffix(".pdf")}_annotated.pdf'
 
     print("Calling Document AI API...", end="")
     with open(args.input, "rb") as pdf_file:
