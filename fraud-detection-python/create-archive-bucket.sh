@@ -4,4 +4,4 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "${DIR}/.env.local"
 
-gsutil mb -p ${PROJECT_ID} -c standard -l ${BUCKET_LOCATION} -b on gs://${PROJECT_ID}-archived-invoices
+gcloud storage buckets create --project=${PROJECT_ID} --default-storage-class=standard --location=${BUCKET_LOCATION} --uniform-bucket-level-access gs://${PROJECT_ID}-archived-invoices

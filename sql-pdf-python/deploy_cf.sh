@@ -57,7 +57,7 @@ gcloud storage buckets create gs://"${BUCKET_NAME}"
 echo "Bucket ${BUCKET_NAME} has been created"
 
 echo "Uploading sample expense docs from data folder to ${BUCKET_NAME} "
-gsutil cp ~/document-ai-samples/sql-pdf-python/src/data/* gs://"${BUCKET_NAME}"
+gcloud storage cp ~/document-ai-samples/sql-pdf-python/src/data/* gs://"${BUCKET_NAME}"
 
 bq mk --external_table_definition=gs://"${BUCKET_NAME}"/*@projects/"${PROJECT_ID}"/locations/us/connections/gcf-docai-conn  --object_metadata=DIRECTORY  --max_staleness=0:30:0   --metadata_cache_mode=AUTOMATIC   --table docai.repos
 

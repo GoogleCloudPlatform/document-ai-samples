@@ -267,7 +267,7 @@ Here is the explanation of the structure of the [config.json](classify-job/confi
 
   ```shell
   source vars.sh
-  gsutil cp classify-job/config/config.json gs://$CONFIG_BUCKET/
+  gcloud storage cp classify-job/config/config.json gs://$CONFIG_BUCKET/
   ```
 
 ## Running the Pipeline
@@ -278,7 +278,7 @@ If you followed the steps of LDAI Splitter & Classifier you can try the single d
 
 ```shell
   source vars.sh
-  gsutil cp sample-docs/taxes-combined.pdf gs://$CLASSIFY_INPUT_BUCKET/
+  gcloud storage cp sample-docs/taxes-combined.pdf gs://$CLASSIFY_INPUT_BUCKET/
 ```
 
 * Go the [Workflows](https://console.cloud.google.com/workflows/workflow/us-central1/classify-extract/) and check the execution status
@@ -320,7 +320,7 @@ All .pdf files in that folder will be processed.
 
 ```shell
 source vars.sh
-gsutil cp START_PIPELINE gs://"$CLASSIFY_INPUT_BUCKET"/
+gcloud storage cp START_PIPELINE gs://"$CLASSIFY_INPUT_BUCKET"/
 ```
 
 ## Next Steps

@@ -41,7 +41,7 @@ fi
 #fi
 
 # Check if the GCS bucket exists | Works!
-if gsutil ls gs://$BUCKET_NAME &>/dev/null; then
+if gcloud storage ls gs://$BUCKET_NAME &>/dev/null; then
 	echo "Bucket already exists."
 else
 	# Create the GCS bucket
@@ -49,7 +49,7 @@ else
 fi
 
 # Move the input files ot input landing bucket
-gsutil cp input_files/* gs://$BUCKET_NAME/
+gcloud storage cp input_files/* gs://$BUCKET_NAME/
 
 #https://g3doc.corp.google.com/cloud/ai/documentai/core/c/g3doc/infra_dev_guide/how_to_use_call_dai.md?cl=head#http-api
 #Create Invoice Processor | jq will parse the JSON response get the 'name' attribute | PROCESSOR_DETAILS is a variable which holds 'name' attribute
@@ -64,7 +64,7 @@ echo 'PROCESSOR_DETAILS : ' $PROCESSOR_DETAILS &>>config.txt
 echo "DAIRA_Test_PROCESSOR is created..."
 
 #Move the generated config file to input landing page directory
-gsutil cp config.txt gs://$BUCKET_NAME/config/
+gcloud storage cp config.txt gs://$BUCKET_NAME/config/
 
 #SA: if its existing, use it. else create SA and use it
 if gcloud iam service-accounts describe $SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com &>/dev/null; then

@@ -93,7 +93,7 @@ export PROJECT_ID="<insert here>"
 
 ```shell
 gcloud storage buckets create gs://${PROJECT_ID}-data --project  $PROJECT_ID
-gsutil -m cp -r sample_data/invoices/*  gs://${PROJECT_ID}-data/invoices/
+gcloud storage cp --recursive sample_data/invoices/*  gs://${PROJECT_ID}-data/invoices/
 ```
 
 3. Create Document AI Invoice parser: go to [GCP Document AI page](https://console.cloud.google.com/ai/document-ai/processors) and create [Invoice processor](https://cloud.google.com/document-ai/docs/processors-list#processor_invoice-processor).
