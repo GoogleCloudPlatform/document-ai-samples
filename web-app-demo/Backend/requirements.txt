@@ -1,4 +1,4 @@
-Flask==3.0.3
+Flask==3.1.2
 Flask-Cors==4.0.1
 Flask-RESTful==0.3.10
 google-cloud-documentai==3.0.0
