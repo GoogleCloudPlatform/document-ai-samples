@@ -63,13 +63,13 @@ create_bucket () {
   BUCKET_NAME=$1
   VERSIONING=$2
 
-  gsutil ls "gs://${BUCKET_NAME}" 2> /dev/null
+  gcloud storage ls "gs://${BUCKET_NAME}" 2> /dev/null
   RETURN=$?
   if [[ $RETURN -gt 0 ]]; then
-      gsutil mb -l "$REGION" gs://"${BUCKET_NAME}"
+      gcloud storage buckets create gs://"${BUCKET_NAME}" --location "$REGION"
       if [ -n "$VERSIONING" ]; then
         echo "Enabling versioning on gs://${BUCKET_NAME} "
-        gsutil versioning set on gs://${BUCKET_NAME}
+        gcloud storage buckets update gs://${BUCKET_NAME} --versioning
       fi
   else
       echo "Bucket $BUCKET_NAME exists, skipping creation"
@@ -218,10 +218,10 @@ gcloud projects get-iam-policy $PROJECT_ID  \
 ##################################
 # Create a Cloud Storage trigger
 ##################################
-gsutil iam ch serviceAccount:"${SERVICE_ACCOUNT_CLASSIFY_JOB_EMAIL}":objectViewer gs://"${CLASSIFY_INPUT_BUCKET}"
+gcloud storage buckets add-iam-policy-binding gs://"${CLASSIFY_INPUT_BUCKET}" --member="serviceAccount:${SERVICE_ACCOUNT_CLASSIFY_JOB_EMAIL}" --role="roles/storage.objectViewer"
 
 # You also need to add the pubsub.publisher role to the Cloud Storage service account for Cloud Storage triggers:
-SERVICE_ACCOUNT_STORAGE=$(gsutil kms serviceaccount -p $PROJECT_ID)
+SERVICE_ACCOUNT_STORAGE=$(gcloud storage service-agent --project $PROJECT_ID)
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member serviceAccount:$SERVICE_ACCOUNT_STORAGE \
     --role="roles/pubsub.publisher"

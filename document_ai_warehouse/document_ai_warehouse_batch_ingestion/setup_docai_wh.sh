@@ -80,11 +80,11 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 
 
 echo "Creating Document AI output bucket  ${DOCAI_OUTPUT_BUCKET}" | tee -a "$LOG"
-gsutil ls "gs://${DOCAI_OUTPUT_BUCKET}" 2> /dev/null
+gcloud storage ls "gs://${DOCAI_OUTPUT_BUCKET}" 2> /dev/null
 RETURN=$?
 if [[ $RETURN -gt 0 ]]; then
     echo "Bucket does not exist, creating gs://${DOCAI_OUTPUT_BUCKET}" | tee -a "$LOG"
-    gsutil mb gs://"$DOCAI_OUTPUT_BUCKET" | tee -a "$LOG"
+    gcloud storage buckets create gs://"$DOCAI_OUTPUT_BUCKET" | tee -a "$LOG"
     gcloud storage buckets add-iam-policy-binding  gs://"$DOCAI_OUTPUT_BUCKET" --member="serviceAccount:${SA_EMAIL}" --role="roles/storage.admin" | tee -a "$LOG"
 fi
 

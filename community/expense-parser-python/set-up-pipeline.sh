@@ -6,13 +6,13 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "${DIR}/.env.local"
 
 # create input bucket
-gsutil mb -p ${PROJECT_ID} -c standard -l ${BUCKET_LOCATION} -b on gs://${PROJECT_ID}-input-receipts
+gcloud storage buckets create --project ${PROJECT_ID} --default-storage-class standard --location ${BUCKET_LOCATION} --uniform-bucket-level-access gs://${PROJECT_ID}-input-receipts
 
 # create archive bucket
-gsutil mb -p ${PROJECT_ID} -c standard -l ${BUCKET_LOCATION} -b on gs://${PROJECT_ID}-archived-receipts
+gcloud storage buckets create --project ${PROJECT_ID} --default-storage-class standard --location ${BUCKET_LOCATION} --uniform-bucket-level-access gs://${PROJECT_ID}-archived-receipts
 
 # create bucket to store rejected files
-gsutil mb -p ${PROJECT_ID} -c standard -l ${BUCKET_LOCATION} -b on gs://${PROJECT_ID}-rejected-files
+gcloud storage buckets create --project ${PROJECT_ID} --default-storage-class standard --location ${BUCKET_LOCATION} --uniform-bucket-level-access gs://${PROJECT_ID}-rejected-files
 
 # create bq table
 bq --location=US mk  -d \
