@@ -1,4 +1,4 @@
-google-cloud-contentwarehouse==0.7.9
+google-cloud-contentwarehouse==0.9.0
 google-cloud-core==2.4.1
 google-cloud-documentai==3.0.0
 google-cloud-storage==2.9.0
