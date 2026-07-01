@@ -1,4 +1,4 @@
-google-cloud-storage==2.17.0
+google-cloud-storage==2.19.0
 google-cloud-logging==3.8.0
 google-cloud-documentai==3.0.0
 pypdf2==3.0.1
