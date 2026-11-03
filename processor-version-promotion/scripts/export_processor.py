@@ -25,15 +25,18 @@ plan on it, merging runs apply.yml). Optionally takes a restorable GCS snapshot
 (schema + split-categorized documents) of the source processor at the same time.
 """
 
+# pylint: disable=missing-function-docstring,too-many-arguments,too-many-branches
+# pylint: disable=too-many-locals,too-many-statements,wrong-import-position
+
 from __future__ import annotations
 
 import argparse
 import datetime
 import os
+from pathlib import Path
 import re
 import shutil
 import subprocess
-from pathlib import Path
 from typing import Optional
 
 # gRPC prints info-level "FD from fork parent still in poll list" lines when a process that has
@@ -41,10 +44,7 @@ from typing import Optional
 os.environ.setdefault("GRPC_VERBOSITY", "ERROR")
 os.environ.setdefault("GRPC_ENABLE_FORK_SUPPORT", "false")
 
-from google.api_core.client_options import ClientOptions  # noqa: E402
-from google.cloud import storage  # noqa: E402
-
-from copy_processor import (
+from copy_processor import (  # noqa: E402
     BOLD,
     GREEN,
     RESET,
@@ -57,11 +57,16 @@ from copy_processor import (
     parse_processor,
     snapshot_processor_to_gcs,
 )
+from google.api_core.client_options import ClientOptions  # noqa: E402
+from google.cloud import storage  # type: ignore[attr-defined]  # noqa: E402
 
 
 def main(argv: Optional[list[str]] = None) -> int:
     p = argparse.ArgumentParser(
-        description="Export a Document AI processor's schema.json and release manifest YAML for Git tracking."
+        description=(
+            "Export a Document AI processor's schema.json and release manifest "
+            "YAML for Git tracking."
+        )
     )
     p.add_argument(
         "--source-processor",
@@ -71,7 +76,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument(
         "--processor-key",
         required=True,
-        help="Short identifier for Git files (e.g. 'invoice_extractor' -> schemas/invoice_extractor.schema.json)",
+        help="Short identifier for Git files (e.g. 'invoice_extractor')",
     )
     p.add_argument(
         "--env",
@@ -81,18 +86,24 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument(
         "--manifests-dir",
         default=None,
-        help="Directory for the manifest instead of manifests/<env> (e.g. environments/qa/manifests). "
-             "Must match the manifests_dir Terraform variable of that environment's stack.",
+        help=(
+            "Directory for the manifest instead of manifests/<env> "
+            "(e.g. environments/qa/manifests). Must match the manifests_dir "
+            "Terraform variable of that environment's stack."
+        ),
     )
     p.add_argument(
         "--version-id",
         default=None,
-        help="Specific source processor version ID to pin (defaults to the source processor's default version)",
+        help=(
+            "Specific source processor version ID to pin "
+            "(defaults to the source processor's default version)"
+        ),
     )
     p.add_argument(
         "--dest-display-name",
         default=None,
-        help="Display name for the destination processor (defaults to source processor display name)",
+        help="Display name for the destination processor (defaults to source display name)",
     )
     p.add_argument(
         "--quota-project",
@@ -102,21 +113,35 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument(
         "--snapshot-to-gcs",
         default=None,
-        help="Optional GCS URI (gs://bucket[/prefix]) to also snapshot the source dataset & schema",
+        help="Optional GCS URI (gs://bucket[/prefix]) to snapshot the source dataset & schema",
     )
     p.add_argument(
         "--rewrite-manifest",
         action="store_true",
-        help="Regenerate the whole manifest instead of only updating the version/schema lines of an existing one",
+        help=(
+            "Regenerate the whole manifest instead of only updating the "
+            "version/schema lines of an existing one"
+        ),
     )
     p.add_argument(
         "--open-pr",
         action="store_true",
-        help="After export: create branch promote/<env>/<key>-<version>, commit the two files, push, and open a "
-        "GitHub pull request with gh. plan.yml runs on the PR; merging runs apply.yml.",
+        help=(
+            "After export: create branch promote/<env>/<key>-<version>, commit "
+            "the two files, push, and open a GitHub pull request with gh. "
+            "plan.yml runs on the PR; merging runs apply.yml."
+        ),
     )
-    p.add_argument("--git-remote", default="origin", help="Git remote to push the promotion branch to (default: origin)")
-    p.add_argument("--base-branch", default="main", help="Pull request base branch (default: main)")
+    p.add_argument(
+        "--git-remote",
+        default="origin",
+        help="Git remote to push the promotion branch to (default: origin)",
+    )
+    p.add_argument(
+        "--base-branch",
+        default="main",
+        help="Pull request base branch (default: main)",
+    )
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args(argv)
 
@@ -131,19 +156,30 @@ def main(argv: Optional[list[str]] = None) -> int:
     proc = proc_client.get_processor(name=src_ref.name)
     # Key by short version ID: the API returns resource names using the project *number*
     # (projects/1234/...), so matching on full names built from the project ID would miss.
-    versions = {v.name.split("/")[-1]: v for v in proc_client.list_processor_versions(parent=src_ref.name)}
+    versions = {
+        v.name.split("/")[-1]: v
+        for v in proc_client.list_processor_versions(parent=src_ref.name)
+    }
 
-    default_short = proc.default_processor_version.split("/")[-1] if proc.default_processor_version else ""
+    default_short = (
+        proc.default_processor_version.split("/")[-1]
+        if proc.default_processor_version
+        else ""
+    )
     if args.dry_run or not args.version_id:
         log_info(
             f"Source '{proc.display_name}' ({proc.type_}): {len(versions)} version(s), "
             f"default = {default_short or 'none'}"
         )
-        for vid, v in sorted(versions.items(), key=lambda kv: str(kv[1].create_time or "")):
+        for vid, v in sorted(
+            versions.items(), key=lambda kv: str(kv[1].create_time or "")
+        ):
             kind = "google-managed" if v.google_managed else "custom"
             state = getattr(v.state, "name", str(v.state))
             marker = "  <- default" if vid == default_short else ""
-            print(f"      {vid:<50} {v.display_name[:32]:<32} {state:<11} {kind}{marker}")
+            print(
+                f"      {vid:<50} {v.display_name[:32]:<32} {state:<11} {kind}{marker}"
+            )
 
     if args.version_id:
         full_ver_name = (
@@ -157,20 +193,32 @@ def main(argv: Optional[list[str]] = None) -> int:
     short_ver_id = full_ver_name.split("/")[-1] if full_ver_name else ""
     ver_obj = versions.get(short_ver_id) if short_ver_id else None
     if short_ver_id and ver_obj is None:
-        print(f"  [WARN] Version {short_ver_id} not found on source processor; available: {sorted(versions)}")
+        print(
+            f"  [WARN] Version {short_ver_id} not found on source processor; "
+            f"available: {sorted(versions)}"
+        )
     ver_display_name = ver_obj.display_name if ver_obj else ""
 
     log_info(
         f"Pinning version {short_ver_id or '(none)'}"
         + (f" ('{ver_display_name}')" if ver_display_name else "")
-        + ("" if args.version_id else " — the source default; pass --version-id to pin another")
+        + (
+            ""
+            if args.version_id
+            else " — the source default; pass --version-id to pin another"
+        )
     )
     custom_ids = [vid for vid, v in versions.items() if not v.google_managed]
-    if not args.version_id and ver_obj is not None and ver_obj.google_managed and custom_ids:
+    if (
+        not args.version_id
+        and ver_obj is not None
+        and ver_obj.google_managed
+        and custom_ids
+    ):
         print(
-            f"  [WARN] The source default is a Google-managed version, but this processor also has "
-            f"custom-trained version(s): {', '.join(custom_ids)}. If the trained model is what should be "
-            f"promoted, re-run with --version-id <one of these>."
+            f"  [WARN] The source default is a Google-managed version, but this processor "
+            f"also has custom-trained version(s): {', '.join(custom_ids)}. If the trained "
+            f"model is what should be promoted, re-run with --version-id <one of these>."
         )
 
     # One schema file per approved version, never edited in place. QA and prod manifests
@@ -181,7 +229,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     if ver_obj is not None and ver_obj.google_managed:
         schema_tag = short_ver_id
     else:
-        schema_tag = re.sub(r"[^A-Za-z0-9._-]+", "-", ver_display_name).strip("-") or short_ver_id
+        schema_tag = (
+            re.sub(r"[^A-Za-z0-9._-]+", "-", ver_display_name).strip("-")
+            or short_ver_id
+        )
     schema_rel_path = (
         f"schemas/{args.processor_key}/{schema_tag}.schema.json"
         if schema_tag
@@ -191,7 +242,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     manifest_rel_path = f"{manifests_dir}/{args.processor_key}.yaml"
 
     if args.dry_run:
-        log_info(f"[dry-run] Would export schema to {schema_rel_path} and manifest to {manifest_rel_path}")
+        log_info(
+            f"[dry-run] Would export schema to {schema_rel_path} "
+            f"and manifest to {manifest_rel_path}"
+        )
         return 0
 
     if args.open_pr:
@@ -225,27 +279,29 @@ def main(argv: Optional[list[str]] = None) -> int:
             else:
                 updated = updated.rstrip("\n") + f'\n{key}: "{value}"\n'
         if updated == existing:
-            log_info(f"Manifest {manifest_path} already pins {short_ver_id}; no change.")
+            log_info(
+                f"Manifest {manifest_path} already pins {short_ver_id}; no change."
+            )
         else:
             manifest_path.write_text(updated, encoding="utf-8")
             log_pass(f"Updated release lines in existing manifest {manifest_path}")
     else:
         manifest_content = (
             f"# Declarative Document AI Processor Manifest ({args.env})\n"
-            f"processor_key: \"{args.processor_key}\"\n"
-            f"display_name: \"{dest_display}\"\n"
-            f"processor_type: \"{proc.type_}\"\n"
-            f"# Day 0 only: set to the ID of a destination processor that already exists so Terraform\n"
-            f"# adopts it instead of creating a new one. Delete this line after the first apply.\n"
-            f"# existing_processor_id: \"\"\n"
-            f"location: \"{src_ref.location}\"\n"
-            f"source_project_id: \"{src_ref.project}\"\n"
-            f"source_processor: \"{src_ref.name}\"\n"
-            f"# Approved version to promote ({version_kind}). versions_mode is only used when this is empty.\n"
-            f"source_version_id: \"{short_ver_id}\"\n"
-            f"version_display_name: \"{ver_display_name}\"\n"
-            f"versions_mode: \"default\"\n"
-            f"schema_file: \"{schema_rel_path}\"\n"
+            f'processor_key: "{args.processor_key}"\n'
+            f'display_name: "{dest_display}"\n'
+            f'processor_type: "{proc.type_}"\n'
+            f"# Day 0 only: set to the ID of a destination processor that already exists so\n"
+            f"# Terraform adopts it instead of creating a new one. Delete after first apply.\n"
+            f'# existing_processor_id: ""\n'
+            f'location: "{src_ref.location}"\n'
+            f'source_project_id: "{src_ref.project}"\n'
+            f'source_processor: "{src_ref.name}"\n'
+            f"# Approved version to promote ({version_kind}).\n"
+            f'source_version_id: "{short_ver_id}"\n'
+            f'version_display_name: "{ver_display_name}"\n'
+            f'versions_mode: "default"\n'
+            f'schema_file: "{schema_rel_path}"\n'
             f"deploy: true\n"
             f"set_default: true\n"
             f"copy_dataset: false\n"
@@ -254,8 +310,13 @@ def main(argv: Optional[list[str]] = None) -> int:
         log_pass(f"Wrote release manifest to {manifest_path}")
 
     if args.snapshot_to_gcs:
-        st_client = storage.Client(project=quota_proj, client_options=ClientOptions(quota_project_id=quota_proj))
-        snapshot_processor_to_gcs(ds_client, st_client, src_ref, args.snapshot_to_gcs, dry_run=False)
+        st_client = storage.Client(
+            project=quota_proj,
+            client_options=ClientOptions(quota_project_id=quota_proj),
+        )
+        snapshot_processor_to_gcs(
+            ds_client, st_client, src_ref, args.snapshot_to_gcs, dry_run=False
+        )
 
     if args.open_pr:
         return open_pull_request(
@@ -271,7 +332,10 @@ def main(argv: Optional[list[str]] = None) -> int:
             base=args.base_branch,
         )
 
-    print(f"\n{GREEN}{BOLD}✓ Export complete! Commit {schema_rel_path} and {manifest_rel_path} to Git.{RESET}")
+    print(
+        f"\n{GREEN}{BOLD}✓ Export complete! Commit {schema_rel_path} "
+        f"and {manifest_rel_path} to Git.{RESET}"
+    )
     return 0
 
 
@@ -280,9 +344,12 @@ def main(argv: Optional[list[str]] = None) -> int:
 # plan.yml runs on it automatically and apply.yml runs on merge.
 # ---------------------------------------------------------------------------
 def _git(*args: str, check: bool = True, capture: bool = True) -> str:
-    res = subprocess.run(["git", *args], text=True, capture_output=capture, check=False)
+    res = subprocess.run(
+        ["git", *args], text=True, capture_output=capture, check=False
+    )
     if check and res.returncode != 0:
-        raise RuntimeError(f"git {' '.join(args)} failed: {(res.stderr or res.stdout).strip()}")
+        err = (res.stderr or res.stdout).strip()
+        raise RuntimeError(f"git {' '.join(args)} failed: {err}")
     return (res.stdout or "").strip()
 
 
@@ -290,7 +357,9 @@ def _github_repo_from_remote(remote: str) -> str:
     url = _git("remote", "get-url", remote)
     m = re.search(r"github\.com[:/]([^/]+/[^/.]+?)(?:\.git)?/?$", url)
     if not m:
-        raise RuntimeError(f"Remote {remote!r} ({url}) is not a GitHub URL; use --git-remote to pick one.")
+        raise RuntimeError(
+            f"Remote {remote!r} ({url}) is not a GitHub URL; use --git-remote to pick one."
+        )
     return m.group(1)
 
 
@@ -303,7 +372,10 @@ def _sync_base_branch(remote: str, base: str) -> None:
     """
     current = _git("rev-parse", "--abbrev-ref", "HEAD")
     if current != base:
-        print(f"  [WARN] On branch {current!r}, not {base!r}: comparing against the local branch, not {remote}/{base}.")
+        print(
+            f"  [WARN] On branch {current!r}, not {base!r}: comparing against "
+            f"the local branch, not {remote}/{base}."
+        )
         return
     try:
         _git("fetch", "-q", remote, base)
@@ -311,9 +383,14 @@ def _sync_base_branch(remote: str, base: str) -> None:
         _git("merge", "-q", "--ff-only", "FETCH_HEAD")
         after = _git("rev-parse", "HEAD")
         if before != after:
-            log_info(f"Fast-forwarded {base} to {remote}/{base} ({after[:7]}) before comparing.")
+            log_info(
+                f"Fast-forwarded {base} to {remote}/{base} ({after[:7]}) before comparing."
+            )
     except RuntimeError as e:
-        print(f"  [WARN] Could not fast-forward {base} from {remote}: {e}. Comparing against the local checkout.")
+        print(
+            f"  [WARN] Could not fast-forward {base} from {remote}: {e}. "
+            f"Comparing against the local checkout."
+        )
 
 
 def open_pull_request(
@@ -330,7 +407,9 @@ def open_pull_request(
     base: str,
 ) -> int:
     if shutil.which("gh") is None:
-        print("  [FAILED] --open-pr needs the GitHub CLI (gh) on PATH and `gh auth login` done.")
+        print(
+            "  [FAILED] --open-pr needs the GitHub CLI (gh) on PATH and `gh auth login` done."
+        )
         return 1
     repo = _github_repo_from_remote(remote)
     original_branch = _git("rev-parse", "--abbrev-ref", "HEAD")
@@ -338,15 +417,17 @@ def open_pull_request(
     # Anything to promote? Compare the generated files with HEAD before creating a branch.
     if not _git("status", "--porcelain", "--", *files):
         log_info(
-            f"{', '.join(files)} match the committed state; nothing to promote, no pull request opened. "
-            f"({base} already pins this version; if you expected a change, check `git log -1 -- {files[1]}`.)"
+            f"{', '.join(files)} match the committed state; nothing to promote, "
+            f"no pull request opened. ({base} already pins this version; if you "
+            f"expected a change, check `git log -1 -- {files[1]}`.)"
         )
         return 0
 
     tag = re.sub(r"[^A-Za-z0-9._-]+", "-", version_display).strip("-") or version_id
     branch = f"promote/{env}/{processor_key}-{tag}"
     if _git("rev-parse", "--verify", "--quiet", branch, check=False):
-        branch = f"{branch}-{datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S')}"
+        ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d%H%M%S")
+        branch = f"{branch}-{ts}"
 
     log_check(f"Opening pull request on {repo}: {branch} -> {base}")
     _git("checkout", "-b", branch)
@@ -367,18 +448,38 @@ def open_pull_request(
         _git("commit", "-q", "-m", title, "-m", body)
         _git("push", "-q", "-u", remote, branch)
         res = subprocess.run(
-            ["gh", "pr", "create", "--repo", repo, "--base", base, "--head", branch, "--title", title, "--body", body],
-            text=True, capture_output=True, check=False,
+            [
+                "gh",
+                "pr",
+                "create",
+                "--repo",
+                repo,
+                "--base",
+                base,
+                "--head",
+                branch,
+                "--title",
+                title,
+                "--body",
+                body,
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
         )
         if res.returncode != 0:
-            raise RuntimeError(f"gh pr create failed: {(res.stderr or res.stdout).strip()}")
+            err = (res.stderr or res.stdout).strip()
+            raise RuntimeError(f"gh pr create failed: {err}")
         pr_url = res.stdout.strip().splitlines()[-1]
     finally:
         # Leave the working tree where the user started; the change lives on the pushed branch.
         _git("checkout", "-q", original_branch, check=False)
 
     print(f"\n{GREEN}{BOLD}✓ Pull request opened: {pr_url}{RESET}")
-    print(f"  Review the plan comment, approve and merge to apply to {env}. Local branch: {original_branch}")
+    print(
+        f"  Review the plan comment, approve and merge to apply to {env}. "
+        f"Local branch: {original_branch}"
+    )
     return 0
 
 

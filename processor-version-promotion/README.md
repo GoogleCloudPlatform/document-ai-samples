@@ -24,7 +24,7 @@ workflows run from it.
 | `.github/workflows/` | `plan.yml` (pull request), `apply.yml` (merge: qa, then prod), `export.yml` (export from the GitHub UI) |
 | `bootstrap/setup_cicd.sh` | one-time setup per destination project: service account, state bucket, Workload Identity Federation for GitHub Actions, IAM grants, `environments/<env>.tfvars` |
 | `tests/` | offline unit tests for the version map and the default switch |
-| `docs/` | [CICD_SETUP.md](docs/CICD_SETUP.md), [IAM.md](docs/IAM.md), [audit_query.sql](docs/audit_query.sql) |
+| `docs/` | [CICD_SETUP.md](docs/CICD_SETUP.md), [IAM.md](docs/IAM.md) |
 
 ## How a promotion works
 
@@ -145,8 +145,23 @@ stays that fast.
 **The run log** is one BigQuery row per run, in
 `<training project>.docai_migration_logs.migration_events` by default: what was promoted where, when,
 the version action (`imported`, `reused`, `adopted`) and the result. The dataset and table are created
-if they're missing. [docs/audit_query.sql](docs/audit_query.sql) lists the latest runs. Set
-`bigquery_dataset_id = ""` to turn it off.
+if they're missing. Set `bigquery_dataset_id = ""` to turn it off.
+
+```sql
+SELECT
+  FORMAT_TIMESTAMP('%m-%d %H:%M', execution_timestamp) AS at_utc,
+  destination_project_id                              AS project,
+  destination_processor_name                          AS processor,
+  version_action,
+  source_version_id,
+  destination_version_id,
+  destination_processor_id,
+  execution_status,
+  dataset_copied
+FROM `PROJECT.docai_migration_logs.migration_events`
+ORDER BY execution_timestamp DESC
+LIMIT 15;
+```
 
 `copy_processor.py` exit codes: `0` success, `1` error, `2` pre-flight failure or bad arguments,
 `3` a check failed (the default is unchanged).

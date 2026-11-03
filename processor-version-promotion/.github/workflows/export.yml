@@ -108,7 +108,9 @@ jobs:
           python scripts/export_processor.py "${args[@]}" 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee export.log
           title="export: ${{ inputs.processor_key }} -> ${{ inputs.environment }}"
           [ "${{ inputs.dry_run }}" = "true" ] && title="$title (dry run, read-only)"
-          echo "## $title" >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          grep -vE '^\s*$' export.log | tail -40 >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## $title"
+            echo '```'
+            grep -vE '^\s*$' export.log | tail -40
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

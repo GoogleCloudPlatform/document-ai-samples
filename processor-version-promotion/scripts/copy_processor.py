@@ -30,7 +30,13 @@ Document AI Cross-Project & Same-Project Migration Script with:
 
 from __future__ import annotations
 
+# pylint: disable=broad-exception-caught,import-outside-toplevel,line-too-long
+# pylint: disable=missing-class-docstring,missing-function-docstring,too-many-arguments
+# pylint: disable=no-member,not-an-iterable,too-many-branches,too-many-instance-attributes
+# pylint: disable=too-many-lines,too-many-locals,too-many-statements
+
 import argparse
+from dataclasses import dataclass
 import datetime
 import json
 import os
@@ -38,8 +44,16 @@ from pathlib import Path
 import re
 import sys
 import time
-from dataclasses import dataclass
 from typing import Any, Optional
+
+from google.api_core import exceptions as gexc
+from google.api_core.client_options import ClientOptions
+from google.api_core.exceptions import GoogleAPICallError, NotFound, PermissionDenied
+from google.cloud import bigquery
+from google.cloud import documentai_v1beta3 as docai
+from google.cloud import resourcemanager_v3
+from google.cloud import storage  # type: ignore[attr-defined]
+from google.protobuf import field_mask_pb2
 
 _RUN_T0 = time.monotonic()  # process start, for the total in the final banner
 
@@ -49,14 +63,6 @@ def _elapsed(t0: float) -> str:
     secs = int(time.monotonic() - t0)
     return f"{secs // 60}m {secs % 60:02d}s" if secs >= 60 else f"{secs}s"
 
-from google.api_core.client_options import ClientOptions
-from google.api_core import exceptions as gexc
-from google.api_core.exceptions import GoogleAPICallError, NotFound, PermissionDenied
-from google.cloud import bigquery
-from google.cloud import documentai_v1beta3 as docai
-from google.cloud import resourcemanager_v3
-from google.cloud import storage
-from google.protobuf import field_mask_pb2
 
 GREEN = "\033[92m"
 RED = "\033[91m"
@@ -106,8 +112,12 @@ def with_retries(fn, label: str, attempts: int = 3, base_delay: float = 2.0):
             if attempt == attempts:
                 raise
             delay = base_delay * (2 ** (attempt - 1))
-            log_info(f"Retrying {label} (attempt {attempt}/{attempts} failed: {e}); waiting {delay:.0f}s...")
+            log_info(
+                f"Retrying {label} (attempt {attempt}/{attempts} failed: {e}); "
+                f"waiting {delay:.0f}s..."
+            )
             time.sleep(delay)
+    return None
 
 
 _IMPORTABLE_STATES = {
@@ -202,7 +212,7 @@ def parse_gcs_uri(uri: str) -> tuple[str, str]:
     """Splits 'gs://bucket/optional/prefix' into (bucket, prefix_without_trailing_slash)."""
     clean = uri.strip()
     if clean.startswith("gs://"):
-        clean = clean[len("gs://") :]
+        clean = clean[len("gs://"):]
     clean = clean.strip("/")
     if "/" in clean:
         bucket, prefix = clean.split("/", 1)
@@ -743,7 +753,7 @@ def backup_and_purge_destination_dataset(
     ops_client = dataset_client.transport.operations_client
 
     for i in range(0, len(dest_docs), chunk_size):
-        chunk = dest_docs[i : i + chunk_size]
+        chunk = dest_docs[i:i + chunk_size]
         doc_ids = [d.document_id for d in chunk]
         del_req = docai.BatchDeleteDocumentsRequest(
             dataset=dest_dataset_name,
@@ -992,7 +1002,10 @@ def copy_dataset_data(
     purge_destination()
 
     if dry_run:
-        print(f"[dry-run] Would import preserved splits from gs://{clean_dest_bucket}/{target_prefix}/ to {dest_dataset_name}")
+        print(
+            f"[dry-run] Would import preserved splits from gs://{clean_dest_bucket}/{target_prefix}/ "
+            f"to {dest_dataset_name}"
+        )
         return
 
     split_enum_map = {
@@ -1053,7 +1066,10 @@ def copy_dataset_data(
                 )
                 return
 
-            log_pass("Documents successfully imported into destination preserving exact source train/test/unassigned splits!")
+            log_pass(
+                "Documents successfully imported into destination preserving exact source "
+                "train/test/unassigned splits!"
+            )
         except Exception as e:
             op_ref = f" (operation {op_name})" if op_name else ""
             log_deferred_error(f"Dataset import failed{op_ref}: {e}")
@@ -1072,6 +1088,8 @@ def select_source_versions(
     by_id = {v.name.split("/")[-1]: v for v in all_versions}
 
     if mode == "specific":
+        if not version_id:
+            raise ValueError("--version-id is required when mode is 'specific'.")
         short_id = version_id.split("/")[-1]
         if short_id not in by_id:
             raise ValueError(f"Version {version_id!r} not found. Available: {sorted(by_id)}")
@@ -1100,7 +1118,10 @@ def select_source_versions(
                 )
                 pretrained.append(v)
             else:
-                log_info(f"Skipping '{v.name.split('/')[-1]}': Google-managed pretrained version (not the source default).")
+                log_info(
+                    f"Skipping '{v.name.split('/')[-1]}': Google-managed pretrained version "
+                    "(not the source default)."
+                )
             continue
         if is_versioned_foundation(v):
             log_info(f"Found Pinned Google Foundation model '{v.display_name}'. Schema will be copied.")
@@ -1205,7 +1226,7 @@ class VersionMap:
             if self._blob.exists():
                 raw = self._blob.download_as_text()
         elif self._path is not None and self._path.exists():
-            raw = self._path.read_text()
+            raw = self._path.read_text(encoding="utf-8")
         if raw:
             data = json.loads(raw)
             data.setdefault("versions", {})
@@ -1221,9 +1242,9 @@ class VersionMap:
         body = json.dumps(self.data, indent=2, sort_keys=True) + "\n"
         if self._blob is not None:
             self._blob.upload_from_string(body, content_type="application/json")
-        else:
+        elif self._path is not None:
             self._path.parent.mkdir(parents=True, exist_ok=True)
-            self._path.write_text(body)
+            self._path.write_text(body, encoding="utf-8")
 
     # -- queries -----------------------------------------------------------------------------
     @property
@@ -1302,9 +1323,15 @@ def import_version(
                         f"(state={docai.ProcessorVersion.State(mv.state).name}). Reusing, no import."
                     )
                     return _done(mapped, "reused")
-                print(f"  {YELLOW}[WARNING]{RESET} Version map points {src_ver_id} at {mapped.split('/')[-1]}, which is FAILED. Re-importing.")
+                print(
+                    f"  {YELLOW}[WARNING]{RESET} Version map points {src_ver_id} at "
+                    f"{mapped.split('/')[-1]}, which is FAILED. Re-importing."
+                )
             except NotFound:
-                print(f"  {YELLOW}[WARNING]{RESET} Version map points {src_ver_id} at {mapped.split('/')[-1]}, which no longer exists. Re-importing.")
+                print(
+                    f"  {YELLOW}[WARNING]{RESET} Version map points {src_ver_id} at "
+                    f"{mapped.split('/')[-1]}, which no longer exists. Re-importing."
+                )
             if not dry_run:
                 version_map.forget(src_ver_id)
 
@@ -1326,18 +1353,20 @@ def import_version(
         state_name = docai.ProcessorVersion.State(ev.state).name
         if version_map is None:
             print(
-                f"  {YELLOW}[WARNING]{RESET} No --version-map configured: reusing destination version '{ev.display_name}' "
-                f"({ev_id}, state={state_name}) by display name only. If source {src_ver_id} is a different "
-                f"model with the same name this is WRONG; configure --version-map to pin by id."
+                f"  {YELLOW}[WARNING]{RESET} No --version-map configured: reusing destination "
+                f"version '{ev.display_name}' ({ev_id}, state={state_name}) by display name only. "
+                f"If source {src_ver_id} is a different model with the same name this is WRONG; "
+                f"configure --version-map to pin by id."
             )
             return _done(ev.name, "reused_by_name")
         claimed_by = version_map.source_for(ev.name)
         if claimed_by is None:
             # Destination predates the map (or was created by hand): adopt once, then it is pinned.
             print(
-                f"  {YELLOW}[WARNING]{RESET} Adopting destination version '{ev.display_name}' ({ev_id}, state={state_name}) "
-                f"as the import of source {src_ver_id}: it is not yet in the version map and nothing else claims it. "
-                f"Verify once; from now on it is pinned by id in {version_map.uri}."
+                f"  {YELLOW}[WARNING]{RESET} Adopting destination version '{ev.display_name}' "
+                f"({ev_id}, state={state_name}) as the import of source {src_ver_id}: it is not yet "
+                f"in the version map and nothing else claims it. Verify once; from now on it is "
+                f"pinned by id in {version_map.uri}."
             )
             if not dry_run:
                 version_map.record(src_ver_id, ev.name, ev.display_name, "adopted")
@@ -1385,9 +1414,10 @@ def wait_until_deployed(
         try:
             v = dst_client.get_processor_version(name=version_name)
             if v.state == docai.ProcessorVersion.State.DEPLOYED:
-                log_pass(f"Version {version_name.split('/')[-1]} is fully DEPLOYED (waited {int(time.time() - start_time)}s).")
+                waited = int(time.time() - start_time)
+                log_pass(f"Version {version_name.split('/')[-1]} is fully DEPLOYED (waited {waited}s).")
                 return True
-            elif v.state == docai.ProcessorVersion.State.FAILED:
+            if v.state == docai.ProcessorVersion.State.FAILED:
                 log_fail(f"Version {version_name.split('/')[-1]} deployment failed in Google Cloud.")
                 return False
             time.sleep(poll_interval)
@@ -1507,7 +1537,10 @@ def _schema_difference(expected: docai.DocumentSchema, actual: docai.DocumentSch
     if extra:
         parts.append(f"extra on the copy: {', '.join(extra[:limit])}{'…' if len(extra) > limit else ''}")
     if changed:
-        parts.append(f"different type/occurrence/method/description: {', '.join(changed[:limit])}{'…' if len(changed) > limit else ''}")
+        parts.append(
+            f"different type/occurrence/method/description: {', '.join(changed[:limit])}"
+            f"{'…' if len(changed) > limit else ''}"
+        )
     if not parts and list(a) != list(b):
         parts.append("same fields in a different order")
     return "; ".join(parts) or "schema display name, description or entity-type metadata differ"
@@ -1547,7 +1580,11 @@ def verify_copy(
     infos: list[str] = []
 
     dst_proc = dst_client.get_processor(name=dest_ref.name)
-    checks.append(("processor type equal", dst_proc.type_ == src_proc.type_, f"source {src_proc.type_} / copy {dst_proc.type_}"))
+    checks.append((
+        "processor type equal",
+        dst_proc.type_ == src_proc.type_,
+        f"source {src_proc.type_} / copy {dst_proc.type_}",
+    ))
 
     # 2. the copy's dataset schema must be the released schema: the Git file, else the source's live schema
     dst_schema = dataset_client.get_dataset_schema(
@@ -1561,7 +1598,10 @@ def verify_copy(
             name=src_ds_client.dataset_schema_path(src.project, src.location, src.processor_id)
         ).document_schema
     except Exception as e:  # viewer on the source may be missing; the file is still the reference
-        infos.append(f"could not read the source's live dataset schema ({type(e).__name__}); compared against the schema file only")
+        infos.append(
+            f"could not read the source's live dataset schema ({type(e).__name__}); "
+            "compared against the schema file only"
+        )
     if schema_file:
         expected, expected_label = load_schema_from_file(schema_file), "the Git schema file"
     elif src_schema is not None:
@@ -1572,10 +1612,18 @@ def verify_copy(
         checks.append(("dataset schema identical", False, "neither a schema file nor the source schema could be read"))
     else:
         same = dst_json == document_schema_to_canonical_json(expected)
-        checks.append((f"dataset schema identical to {expected_label} (fields, types, occurrence, method, descriptions, order)",
-                       same, f"{_field_count(expected)} fields expected, {_field_count(dst_schema)} on the copy"
-                       + ("" if same else f"; {_schema_difference(expected, dst_schema)}")))
-        if schema_file and src_schema is not None and document_schema_to_canonical_json(src_schema) != document_schema_to_canonical_json(expected):
+        checks.append((
+            f"dataset schema identical to {expected_label} "
+            "(fields, types, occurrence, method, descriptions, order)",
+            same,
+            f"{_field_count(expected)} fields expected, {_field_count(dst_schema)} on the copy"
+            + ("" if same else f"; {_schema_difference(expected, dst_schema)}"),
+        ))
+        if (
+            schema_file
+            and src_schema is not None
+            and document_schema_to_canonical_json(src_schema) != document_schema_to_canonical_json(expected)
+        ):
             infos.append("the source's live schema no longer matches the Git schema file (edited after the export); "
                          "the copy follows the file - re-export if the change is wanted")
 
@@ -1602,7 +1650,11 @@ def verify_copy(
     elif expect_deployed:
         checks.append((f"copy's version {dst_vid} is deployed", deployed, f"state {dst_v.state.name}"))
     elif expect_default:
-        checks.append((f"copy's default version is {dst_vid}", current_default == dst_vid, f"default is {current_default}"))
+        checks.append((
+            f"copy's default version is {dst_vid}",
+            current_default == dst_vid,
+            f"default is {current_default}",
+        ))
     if src_vid.startswith("pretrained-"):
         checks.append(("same pretrained version pinned on the copy", dst_vid == src_vid, f"copy pinned to {dst_vid}"))
         return checks, infos
@@ -1610,19 +1662,29 @@ def verify_copy(
         return checks, infos
     checks.append(("copy's version has the source version's name", dst_v.display_name == src_v.display_name,
                    f"source '{src_v.display_name}' / copy '{dst_v.display_name}'"))
-    checks.append(("a real copy, not Google's pretrained model", (not dst_v.google_managed) and dst_v.model_type == src_v.model_type,
-                   f"copy modelType {dst_v.model_type.name}, googleManaged {bool(dst_v.google_managed)}"))
+    checks.append((
+        "a real copy, not Google's pretrained model",
+        (not dst_v.google_managed) and dst_v.model_type == src_v.model_type,
+        f"copy modelType {dst_v.model_type.name}, googleManaged {bool(dst_v.google_managed)}",
+    ))
     ks, kd = _model_kind(src_v), _model_kind(dst_v)
     checks.append(("same kind and base model", ks == kd, f"source {ks} / copy {kd}"))
     # the version carries the schema it was created with - that is what inference uses
-    sv_json, dv_json = document_schema_to_canonical_json(src_v.document_schema), document_schema_to_canonical_json(dst_v.document_schema)
+    sv_json = document_schema_to_canonical_json(src_v.document_schema)
+    dv_json = document_schema_to_canonical_json(dst_v.document_schema)
     n_sv, n_dv = _field_count(src_v.document_schema), _field_count(dst_v.document_schema)
-    checks.append(("version's own schema identical (what inference uses)", sv_json == dv_json and n_sv > 0,
-                   f"{n_sv} fields in the source version, {n_dv} in the copy's"
-                   + ("" if sv_json == dv_json else f"; {_schema_difference(src_v.document_schema, dst_v.document_schema)}")))
+    diff_str = "" if sv_json == dv_json else f"; {_schema_difference(src_v.document_schema, dst_v.document_schema)}"
+    checks.append((
+        "version's own schema identical (what inference uses)",
+        sv_json == dv_json and n_sv > 0,
+        f"{n_sv} fields in the source version, {n_dv} in the copy's{diff_str}",
+    ))
     if n_dv and dv_json != dst_json:
-        infos.append("the copy's dataset schema differs from the schema inside its version (the released schema was edited "
-                     "after the version was created); inference uses the version's own schema")
+        infos.append(
+            "the copy's dataset schema differs from the schema inside its version "
+            "(the released schema was edited after the version was created); "
+            "inference uses the version's own schema"
+        )
     return checks, infos
 
 
@@ -1672,14 +1734,18 @@ def switch_default_after_verification(
     print(f"\n{BOLD}8. Set as default{RESET}")
     if verified is False:
         current = (dst_client.get_processor(name=dest_processor_name).default_processor_version or "").split("/")[-1]
-        print(f"  info: not switched - verification did not pass; the processor keeps its current default ({current or 'none'})")
+        print(
+            "  info: not switched - verification did not pass; "
+            f"the processor keeps its current default ({current or 'none'})"
+        )
         run_row["default_processor_version"] = current or None
         return None
     deploy_and_default(dst_client, dest_processor_name, version_name, deploy, True, False)
     run_row["default_processor_version"] = vid
     now = (dst_client.get_processor(name=dest_processor_name).default_processor_version or "").split("/")[-1]
     ok = now == vid
-    print(f"  {GREEN if ok else RED}[{'PASS' if ok else 'FAIL'}]{RESET} copy's default version is {vid}  - default is {now or 'none'}")
+    status_str = f"{GREEN}[PASS]{RESET}" if ok else f"{RED}[FAIL]{RESET}"
+    print(f"  {status_str} copy's default version is {vid}  - default is {now or 'none'}")
     return None if ok else f"the default version is {now or 'none'}, expected {vid}"
 
 
@@ -1783,7 +1849,10 @@ def log_run_to_bigquery(row: dict, project_id: str, dataset_id: str, table_id: s
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
         )
         client.load_table_from_json([row], table_ref, job_config=job_config).result(timeout=120)
-        log_pass(f"Logged run to BigQuery table {project_id}.{dataset_id}.{table_id} (status: {row['execution_status']}).")
+        log_pass(
+            f"Logged run to BigQuery table {project_id}.{dataset_id}.{table_id} "
+            f"(status: {row['execution_status']})."
+        )
     except Exception as e:
         print(f"  {YELLOW}[WARNING]{RESET} Could not log this run to BigQuery ({e}). Migration result is unaffected.")
 
@@ -1886,8 +1955,16 @@ def main(argv: Optional[list[str]] = None) -> int:
         default=None,
         help="Source GCP project ID for the run log (defaults to the project segment of --source-processor)",
     )
-    p.add_argument("--bigquery-project", default=None, help="Project for the BigQuery run log (defaults to the source project)")
-    p.add_argument("--bigquery-dataset-id", default=None, help="BigQuery dataset for the run log (logging is off if unset)")
+    p.add_argument(
+        "--bigquery-project",
+        default=None,
+        help="Project for the BigQuery run log (defaults to the source project)",
+    )
+    p.add_argument(
+        "--bigquery-dataset-id",
+        default=None,
+        help="BigQuery dataset for the run log (logging is off if unset)",
+    )
     p.add_argument("--bigquery-table-id", default=None, help="BigQuery table for the run log (logging is off if unset)")
     p.add_argument(
         "--version-map",
@@ -1995,12 +2072,17 @@ def main(argv: Optional[list[str]] = None) -> int:
         raise
     finally:
         if bq_enabled:
+            src_ref_opt: Optional[ProcessorRef] = None
             try:
-                src_ref = parse_processor(args.source_processor)
+                src_ref_opt = parse_processor(args.source_processor)
             except ValueError:
-                src_ref = None
-            bq_project = args.bigquery_project or run_row["source_project_id"] or (src_ref.project if src_ref else None)
-            bq_location = bigquery_location_for(src_ref.location) if src_ref else "US"
+                src_ref_opt = None
+            bq_project = (
+                args.bigquery_project
+                or run_row["source_project_id"]
+                or (src_ref_opt.project if src_ref_opt else None)
+            )
+            bq_location = bigquery_location_for(src_ref_opt.location) if src_ref_opt else "US"
             if bq_project:
                 log_run_to_bigquery(
                     run_row, bq_project, args.bigquery_dataset_id, args.bigquery_table_id, bq_location
@@ -2155,7 +2237,7 @@ def run_migration(args: argparse.Namespace, run_row: dict) -> int:
                         if not wait_until_deployed(dst_client, imported):
                             raise RuntimeError(
                                 f"Deployment of {v.display_name} ({imported}) failed or timed out."
-                            )
+                            ) from e
 
         if args.dry_run and versions_to_import and (args.deploy or args.set_default):
             # import_version() returns None in dry-run, so narrate the steps that would follow.
@@ -2214,7 +2296,10 @@ def run_migration(args: argparse.Namespace, run_row: dict) -> int:
             run_row["verification"] = "SKIPPED"
             log_info("Verification skipped (--no-verify).")
         elif args.dry_run:
-            print("[dry-run] Would verify the copy before it becomes the default: eight read-only checks against the source")
+            print(
+                "[dry-run] Would verify the copy before it becomes the default: "
+                "eight read-only checks against the source"
+            )
         else:
             dest_to_source = {d: s for s, d in source_to_dest_version.items()}
             try:
@@ -2228,7 +2313,9 @@ def run_migration(args: argparse.Namespace, run_row: dict) -> int:
                 if failed:
                     verified = False
                     run_row["verification"] = ("FAIL: " + "; ".join(failed))[:_BQ_ERROR_MESSAGE_MAX_LEN]
-                    log_deferred_error(f"Verification: {len(failed)} of {len(checks)} checks failed - {'; '.join(failed)}")
+                    log_deferred_error(
+                        f"Verification: {len(failed)} of {len(checks)} checks failed - {'; '.join(failed)}"
+                    )
                 else:
                     verified = True
                     run_row["verification"] = f"PASS {len(checks)}/{len(checks)}"

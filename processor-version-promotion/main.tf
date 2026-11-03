@@ -94,6 +94,7 @@ locals {
 
 # 1. Authorize destination Document AI SA to read/export from source project (only needed if cross-project)
 resource "google_project_iam_member" "source_docai_editor" {
+  # checkov:skip=CKV_GCP_42:ImportProcessorVersion requires the destination Document AI service agent to hold roles/documentai.editor on the source project
   count   = local.is_cross_project ? 1 : 0
   project = var.source_project_id
   role    = "roles/documentai.editor"
@@ -110,6 +111,7 @@ resource "google_project_iam_member" "source_storage_viewer" {
 
 # 3. Create destination dataset & snapshot bucket with Object Versioning enabled so backups cannot be lost
 resource "google_storage_bucket" "dest_dataset" {
+  # checkov:skip=CKV_GCP_62:Optional dataset bucket uses Cloud Audit Logs; separate GCS access-log bucket is not provisioned by default
   count                       = local.any_copy_dataset && var.destination_dataset_bucket != "" ? 1 : 0
   name                        = var.destination_dataset_bucket
   project                     = var.destination_project_id
@@ -130,6 +132,7 @@ resource "google_storage_bucket" "dest_dataset" {
 #    into a plan error instead. For a throwaway test environment, set it to false to allow
 #    `terraform destroy`.
 resource "google_document_ai_processor" "managed" {
+  # checkov:skip=CKV2_GCP_22:Sample uses Google-managed encryption keys by default; set kms_key_name when CMEK is required
   for_each     = local.native_processors
   project      = var.destination_project_id
   location     = try(each.value.location, var.destination_location)
