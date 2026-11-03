@@ -1,0 +1,64 @@
+{
+  "description": "Custom Document Extractor schema for standard commercial invoices.",
+  "display_name": "Invoice Extractor Schema",
+  "document_prompt": "",
+  "entity_types": [
+    {
+      "base_types": [
+        "document"
+      ],
+      "description": "",
+      "display_name": "custom_extraction_document_type",
+      "entity_type_metadata": {
+        "inactive": false
+      },
+      "name": "custom_extraction_document_type",
+      "properties": [
+        {
+          "description": "Unique identifier or number of the invoice.",
+          "display_name": "invoice_id",
+          "method": "EXTRACT",
+          "name": "invoice_id",
+          "occurrence_type": "OPTIONAL_ONCE",
+          "property_metadata": {
+            "inactive": false
+          },
+          "value_type": "string"
+        },
+        {
+          "description": "Date the invoice was issued.",
+          "display_name": "invoice_date",
+          "method": "EXTRACT",
+          "name": "invoice_date",
+          "occurrence_type": "OPTIONAL_ONCE",
+          "property_metadata": {
+            "inactive": false
+          },
+          "value_type": "datetime"
+        },
+        {
+          "description": "Legal name of the supplier or vendor issuing the invoice.",
+          "display_name": "supplier_name",
+          "method": "EXTRACT",
+          "name": "supplier_name",
+          "occurrence_type": "OPTIONAL_ONCE",
+          "property_metadata": {
+            "inactive": false
+          },
+          "value_type": "string"
+        },
+        {
+          "description": "Total amount due on the invoice including tax.",
+          "display_name": "total_amount",
+          "method": "EXTRACT",
+          "name": "total_amount",
+          "occurrence_type": "OPTIONAL_ONCE",
+          "property_metadata": {
+            "inactive": false
+          },
+          "value_type": "money"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Apply on merge to main: qa applies first, then prod. To require a person's approval before the
+# prod apply, add a required reviewer to the `prod` GitHub Environment (docs/CICD_SETUP.md).
+name: apply
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "manifests/**"
+      - "environments/**"
+      - "schemas/**"
+      - "scripts/**"
+      - "*.tf"
+      - ".github/workflows/**"
+  workflow_dispatch:   # manual re-run, e.g. to finish processors left pending after a failure
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: terraform-apply
+  cancel-in-progress: false
+
+env:
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180        # version import + deploy can take 20-40 minutes per processor
+    strategy:
+      max-parallel: 1           # qa finishes before prod starts
+      matrix:
+        environment: [qa, prod]
+    environment: ${{ matrix.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+          terraform_wrapper: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+
+      # Installed once here, not inside the provisioner, so parallel processors do not race.
+      - name: Install script dependencies
+        run: pip install -r scripts/requirements.txt
+
+      # The code declares no backend, so each runner chooses where the state lives. Here it lives in
+      # GCS: activate the GCS backend from the example override, bucket = this environment's
+      # TF_STATE_BUCKET variable, prefix = environment name.
+      - name: Terraform init (GCS state, bucket from the Environment variable)
+        run: |
+          cp backend_override.tf.example backend_override.tf
+          terraform init -no-color \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="prefix=${{ matrix.environment }}"
+
+      - name: Terraform apply
+        run: |
+          set -o pipefail
+          terraform apply -no-color -auto-approve \
+            -var-file=environments/${{ matrix.environment }}.tfvars \
+            2>&1 | tee apply-${{ matrix.environment }}.log
+
+      # Step 7 of copy_processor.py reads every copy back and checks it against its source before step 8
+      # makes it the default; a FAIL already failed the apply above (and left the default unchanged).
+      # This step lifts those lines, and step 8's confirmation, out of the log onto the run's
+      # summary page so the result is visible without scrolling.
+      - name: Verification summary
+        if: always()
+        run: |
+          python3 - "apply-${{ matrix.environment }}.log" "${{ matrix.environment }}" >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          import pathlib, re, sys
+          log, env = pathlib.Path(sys.argv[1]), sys.argv[2]
+          print(f"## Verification ({env})\n")
+          if not log.exists():
+              print("    no apply log (the job failed before terraform apply)")
+              sys.exit(0)
+          ansi = re.compile(r"\x1b\[[0-9;]*m")
+          # Terraform prefixes every provisioner line: terraform_data.promote["key"] (local-exec): ...
+          prefix = re.compile(r'^\s*terraform_data\.promote\["?([^"\]]+)"?\]\s+\(local-exec\):\s?')
+          keep = re.compile(r"^\s*(\[(PASS|FAIL)\]|info:|VERIFY RESULT|Destination Processor:)")
+          shown = 0
+          for raw in log.read_text(errors="replace").splitlines():
+              line = ansi.sub("", raw)
+              key = ""
+              m = prefix.match(line)
+              if m:
+                  key, line = m.group(1), line[m.end():]
+              if keep.match(line):
+                  shown += 1
+                  print("    " + (f"{key}: " if key else "") + line.strip())
+          if not shown:
+              print("    no verification lines (no processor needed a run, or the apply failed before step 7)")
+          EOF
+
+      - name: Keep the apply log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apply-log-${{ matrix.environment }}-${{ github.run_id }}
+          path: apply-${{ matrix.environment }}.log
+          if-no-files-found: ignore
+          retention-days: 90
+
+      # The script writes a pre-change copy of any destination schema it replaces to .schema_backups/.
+      # The runner is ephemeral, so keep it as a workflow artifact (Git history remains the real record).
+      - name: Keep schema backups
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: schema-backups-${{ matrix.environment }}-${{ github.run_id }}
+          path: .schema_backups/
+          if-no-files-found: ignore
+          retention-days: 30

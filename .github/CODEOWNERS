@@ -17,6 +17,8 @@
 /cx-content-moderation @ghchinoy @GoogleCloudPlatform/ml-apis
 /form-parser-cde @HSbedi87 @GoogleCloudPlatform/ml-apis
 /document-processing-workflows @ffeldhaus @GoogleCloudPlatform/ml-apis
+# @Julia-Bobo-Hu is the default owner for the processor version promotion sample
+/processor-version-promotion @Julia-Bobo-Hu @GoogleCloudPlatform/ml-apis
 
 # Community owners
 /community/identity-form-autofiller-python @PicardParis @GoogleCloudPlatform/ml-apis

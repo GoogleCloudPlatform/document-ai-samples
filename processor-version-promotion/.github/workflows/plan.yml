@@ -1,0 +1,115 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Plan on every pull request that touches a tracked file: one plan per environment, posted on the
+# pull request as a comment. Nothing is applied here.
+name: plan
+
+on:
+  pull_request:
+    paths:
+      - "manifests/**"
+      - "environments/**"
+      - "schemas/**"
+      - "scripts/**"
+      - "*.tf"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+  id-token: write        # Workload Identity Federation token
+  pull-requests: write   # plan comment
+
+concurrency:
+  group: terraform-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [qa, prod]
+    # Same binding as apply.yml: the GitHub Environment of the same name holds the identity
+    # (WIF_PROVIDER, GCP_SERVICE_ACCOUNT) and the state bucket (TF_STATE_BUCKET); everything else about
+    # the environment is Git-tracked in environments/<env>.tfvars.
+    # A "required reviewers" rule on the prod Environment holds this plan job too, until someone
+    # approves it; docs/CICD_SETUP.md ("Approval before prod") shows how to avoid that.
+    environment: ${{ matrix.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+          terraform_wrapper: false
+
+      # The code declares no backend, so each runner chooses where the state lives. Here it lives in
+      # GCS: activate the GCS backend from the example override, bucket = this environment's
+      # TF_STATE_BUCKET variable, prefix = environment name.
+      - name: Terraform init (GCS state, bucket from the Environment variable)
+        run: |
+          cp backend_override.tf.example backend_override.tf
+          terraform init -no-color \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="prefix=${{ matrix.environment }}"
+
+      - name: Terraform plan
+        id: plan
+        # -detailed-exitcode: 0 = no changes, 2 = changes pending, 1 = error. Captured, not fatal,
+        # so the comment step always runs; the last step fails the job on a real error.
+        run: |
+          set +e
+          set -o pipefail
+          terraform plan -no-color -detailed-exitcode -out=tfplan \
+            -var-file=environments/${{ matrix.environment }}.tfvars \
+            2>&1 | tee plan.txt
+          echo "exit=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Comment plan on the pull request
+        uses: actions/github-script@v7
+        env:
+          ENVIRONMENT: ${{ matrix.environment }}
+          PLAN_EXIT: ${{ steps.plan.outputs.exit }}
+        with:
+          script: |
+            const fs = require('fs');
+            const env = process.env.ENVIRONMENT;
+            const exit = process.env.PLAN_EXIT;
+            const verdict = exit === '0' ? 'No changes' : exit === '2' ? 'Changes pending' : 'Plan failed';
+            let plan = fs.readFileSync('plan.txt', 'utf8');
+            if (plan.length > 60000) plan = plan.slice(0, 60000) + '\n... (truncated)';
+            const body = `### terraform plan: \`${env}\` — ${verdict}\n\n<details><summary>Show plan</summary>\n\n\`\`\`\n${plan}\n\`\`\`\n</details>`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+      - name: Fail the job if the plan itself failed
+        if: steps.plan.outputs.exit == '1'
+        run: exit 1
