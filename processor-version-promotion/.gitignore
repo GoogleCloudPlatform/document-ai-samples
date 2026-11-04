@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+tfplan*
+plan.txt
+# Local backend override (see backend_override.tf.example) and laptop-only variables
+*_override.tf
+terraform.tfvars
+local.auto.tfvars
+
+# Written by the scripts
+.schema_backups/
+.version_map/
+bootstrap/out/
+apply-*.log
+export.log
+
+# Credentials never belong in the repository
+*.pem
+*.key
+credentials.json
+service-account*.json
+
+# OS and editors
+.DS_Store
+.idea/
+.vscode/

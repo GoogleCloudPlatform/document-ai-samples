@@ -1,0 +1,28 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The code declares NO Terraform backend on purpose, so each runner chooses where the state lives
+# (Terraform automation services that manage state themselves inject their own backend).
+#
+# To keep the state in Cloud Storage, copy this file to the git-ignored backend_override.tf
+# (Terraform merges *_override.tf files last) and pass the environment's bucket at init. The
+# GitHub Actions workflows do exactly this:
+#
+#   cp backend_override.tf.example backend_override.tf
+#   terraform init -backend-config="bucket=<project>-tfstate" -backend-config="prefix=<env>"
+#
+# For a throwaway run with local state, replace the block below with:  backend "local" {}
+terraform {
+  backend "gcs" {}
+}

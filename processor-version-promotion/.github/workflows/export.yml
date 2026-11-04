@@ -1,0 +1,116 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Stage 1 from the GitHub UI: Actions -> export -> "Run workflow". Runs scripts/export_processor.py
+# against the training project and opens the promotion pull request. plan.yml then runs on that
+# pull request by itself; merging runs apply.yml. Same result as running the script on a laptop
+# with --open-pr; this just makes the trigger a button.
+name: export
+
+on:
+  workflow_dispatch:
+    inputs:
+      processor_key:
+        description: "Manifest key, e.g. invoice_extractor (file names under manifests/ and schemas/)"
+        required: true
+      source_processor:
+        description: "Training processor: projects/<project>/locations/<loc>/processors/<id>"
+        required: true
+      version_id:
+        description: "Approved source processor version ID to pin (empty = source default version)"
+        required: false
+        default: ""
+      environment:
+        description: "Target environment folder"
+        required: true
+        type: choice
+        options: [qa, prod]
+        default: qa
+      dest_display_name:
+        description: "Destination processor display name (empty = source display name; only used for a new manifest)"
+        required: false
+        default: ""
+      dry_run:
+        description: "Read-only: list the source's versions and what would be written; no files, no pull request"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: export-${{ inputs.environment }}-${{ inputs.processor_key }}
+  cancel-in-progress: false
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          # A pull request created with the default GITHUB_TOKEN does not trigger other workflows
+          # (plan.yml would stay silent). Add a fine-grained PAT with contents+pull-requests write
+          # as repository secret GH_PR_TOKEN so the plan comment appears automatically.
+          token: ${{ secrets.GH_PR_TOKEN || github.token }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install script dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Git identity for the promotion commit
+        run: |
+          git config user.name "docai-promoter[bot]"
+          git config user.email "docai-promoter@users.noreply.github.com"
+
+      - name: Export schema + manifest and open the pull request
+        env:
+          GH_TOKEN: ${{ secrets.GH_PR_TOKEN || github.token }}
+        run: |
+          set -euo pipefail
+          args=(
+            --source-processor "${{ inputs.source_processor }}"
+            --processor-key "${{ inputs.processor_key }}"
+            --env "${{ inputs.environment }}"
+          )
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            args+=(--dry-run)                                   # reads the source, writes nothing, opens nothing
+          else
+            args+=(--open-pr --git-remote origin --base-branch main)
+          fi
+          [ -n "${{ inputs.version_id }}" ] && args+=(--version-id "${{ inputs.version_id }}")
+          [ -n "${{ inputs.dest_display_name }}" ] && args+=(--dest-display-name "${{ inputs.dest_display_name }}")
+          python scripts/export_processor.py "${args[@]}" 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee export.log
+          title="export: ${{ inputs.processor_key }} -> ${{ inputs.environment }}"
+          [ "${{ inputs.dry_run }}" = "true" ] && title="$title (dry run, read-only)"
+          {
+            echo "## $title"
+            echo '```'
+            grep -vE '^\s*$' export.log | tail -40
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
