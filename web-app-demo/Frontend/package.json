@@ -14,7 +14,7 @@
     "@angular/animations": "17.0.8",
     "@angular/cdk": "17.0.4",
     "@angular/cli": "17.0.8",
-    "@angular/common": "17.0.8",
+    "@angular/common": "19.2.16",
     "@angular/compiler": "17.0.8",
     "@angular/core": "17.0.8",
     "@angular/forms": "17.0.8",
