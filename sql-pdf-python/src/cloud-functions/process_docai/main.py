@@ -1,3 +1,9 @@
+"""Cloud Function that extracts entities from GCS documents with Document AI."""
+
+# pylint: disable=missing-function-docstring,redefined-outer-name
+# pylint: disable=inconsistent-return-statements,invalid-name
+# pylint: disable=consider-using-with,too-many-locals
+
 import json
 import re
 import urllib.request
