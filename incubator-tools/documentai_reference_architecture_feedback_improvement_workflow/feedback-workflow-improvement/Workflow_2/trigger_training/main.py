@@ -10,6 +10,7 @@ Trigger Training in UI
 
 
 from collections import defaultdict
+import re
 import traceback
 
 import functions_framework
@@ -203,6 +204,9 @@ def process_training_request(request):
             location = request.args.get("location")
             processor_id = request.args.get("processor_id")
             new_version_name = request.args.get("new_version_name")
+
+        if not location or not re.fullmatch(r"[a-z0-9-]+", location):
+            return {"state": "FAILED", "message": "Invalid location"}, 400
 
         try:
             dataset_name = f"""projects/{project_id}/locations/
