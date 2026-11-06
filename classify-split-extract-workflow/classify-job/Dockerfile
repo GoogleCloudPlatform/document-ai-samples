@@ -1,5 +1,5 @@
 # https://hub.docker.com/_/python
-FROM python:3.10-buster
+FROM python:3.11-buster
 
 ENV PYTHONUNBUFFERED True
 
