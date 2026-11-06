@@ -11,7 +11,7 @@ gcloud functions deploy bqdataset_input \
 	--gen2 \
 	--runtime python310 \
 	--trigger-http \
-	--allow-unauthenticated \
+	--no-allow-unauthenticated \
 	--entry-point bqdataset \
 	--region $REGION \
 	--source bqdataset_input \
@@ -35,7 +35,7 @@ gcloud functions deploy split_batches \
 	--gen2 \
 	--runtime python310 \
 	--trigger-http \
-	--allow-unauthenticated \
+	--no-allow-unauthenticated \
 	--entry-point split_copy_files \
 	--region $REGION \
 	--source split_batches \
@@ -58,7 +58,7 @@ gcloud functions deploy batch_process \
 	--gen2 \
 	--runtime python310 \
 	--trigger-http \
-	--allow-unauthenticated \
+	--no-allow-unauthenticated \
 	--entry-point concurrent_batch_process \
 	--region $REGION \
 	--source batch_process \
@@ -82,7 +82,7 @@ gcloud functions deploy hitl_criteria_check \
 	--gen2 \
 	--runtime python310 \
 	--trigger-http \
-	--allow-unauthenticated \
+	--no-allow-unauthenticated \
 	--entry-point HITL_Feedback \
 	--region $REGION \
 	--source hitl_criteria_check \

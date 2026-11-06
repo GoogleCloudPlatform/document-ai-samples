@@ -27,7 +27,7 @@ def get_gcs_file(uri):
     matches = re.match("gs://(.*?)/(.*)", uri)
     if matches:
         bucket_name, object_name = matches.groups()
-        bucket = storage_client.get_bucket(bucket_name)
+        bucket = storage_client.bucket(bucket_name)
         gcs_file = bucket.get_blob(object_name)
         file_blob = gcs_file.download_as_bytes()
         return file_blob

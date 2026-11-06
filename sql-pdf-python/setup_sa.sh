@@ -57,7 +57,7 @@ gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
     
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
     --member=serviceAccount:"${SERVICE_ACCOUNT}" \
-    --role=roles/storage.admin
+    --role=roles/storage.objectViewer
     
 gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
     --member=serviceAccount:"${SERVICE_ACCOUNT}" \

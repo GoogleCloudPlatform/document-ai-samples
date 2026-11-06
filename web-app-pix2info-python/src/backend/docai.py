@@ -43,6 +43,8 @@ DocumentData: TypeAlias = tuple[Document, DocumentJson]
 
 def get_client(location: str) -> DocumentProcessorServiceClient:
     """Return a Document AI client."""
+    if location not in DEMO_PROCESSING_LOCATIONS:
+        raise ValueError(f"Unsupported location: {location!r}")
     client_options = dict(api_endpoint=f"{location}-documentai.googleapis.com")
     return DocumentProcessorServiceClient(client_options=client_options)
 

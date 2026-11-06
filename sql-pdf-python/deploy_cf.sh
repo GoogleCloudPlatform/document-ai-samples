@@ -19,7 +19,7 @@ echo "Deploying Doc AI CF"
 cd ~/document-ai-samples/sql-pdf-python/src/cloud-functions/create_docai || exit
 
 # shellcheck disable=SC2154
-gcloud functions deploy ${cf_create_docai} --entry-point get_request --runtime python39 --trigger-http --allow-unauthenticated --project "${project_id}" --service-account "${doc_sa}" --gen2 --region "${REGION}" --run-service-account "${doc_sa}" --memory 256MB
+gcloud functions deploy ${cf_create_docai} --entry-point get_request --runtime python39 --trigger-http --no-allow-unauthenticated --project "${project_id}" --service-account "${doc_sa}" --gen2 --region "${REGION}" --run-service-account "${doc_sa}" --memory 256MB
 
 endpoint_create_docai=$(gcloud functions describe ${cf_create_docai} --region="${REGION}" --gen2 --format=json | jq -r '.serviceConfig.uri')
 
@@ -33,7 +33,7 @@ processor_id=$(curl -m 1010 -X POST "${endpoint_create_docai}" -H "Authorization
 
 cd ~/document-ai-samples/sql-pdf-python/src/cloud-functions/process_docai || exit
 
-gcloud functions deploy ${cf_process_docai} --entry-point get_doc --runtime python39 --trigger-http --allow-unauthenticated --project "${project_id}" --service-account "${doc_sa}" --gen2 --region "${REGION}" --run-service-account "${doc_sa}" --memory 256MB
+gcloud functions deploy ${cf_process_docai} --entry-point get_doc --runtime python39 --trigger-http --no-allow-unauthenticated --project "${project_id}" --service-account "${doc_sa}" --gen2 --region "${REGION}" --run-service-account "${doc_sa}" --memory 256MB
 
 echo "Processor Id ${processor_id} has been created"
 
