@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+# pylint: disable=invalid-name,use-dict-literal,too-many-locals
+# pylint: disable=broad-exception-caught
 from io import BytesIO
 import logging
 from mimetypes import guess_type
@@ -43,6 +45,8 @@ DocumentData: TypeAlias = tuple[Document, DocumentJson]
 
 def get_client(location: str) -> DocumentProcessorServiceClient:
     """Return a Document AI client."""
+    if location not in DEMO_PROCESSING_LOCATIONS:
+        raise ValueError(f"Unsupported location: {location!r}")
     client_options = dict(api_endpoint=f"{location}-documentai.googleapis.com")
     return DocumentProcessorServiceClient(client_options=client_options)
 

@@ -11,17 +11,18 @@ gcloud functions deploy bqdataset_input \
 	--gen2 \
 	--runtime python310 \
 	--trigger-http \
-	--allow-unauthenticated \
+	--no-allow-unauthenticated \
 	--entry-point bqdataset \
 	--region $REGION \
 	--source bqdataset_input \
 	--service-account $SERVICE_ACCOUNT \
 	--run-service-account $SERVICE_ACCOUNT \
 	--memory 256MB
+status=$?
 
 echo "********************************************************************************"
-echo "Status : $?"
-if [ $? -ne 0 ]; then
+echo "Status : $status"
+if [ "$status" -ne 0 ]; then
 	echo "Cloud function deployment failed"
 	return 0
 else
@@ -35,16 +36,17 @@ gcloud functions deploy split_batches \
 	--gen2 \
 	--runtime python310 \
 	--trigger-http \
-	--allow-unauthenticated \
+	--no-allow-unauthenticated \
 	--entry-point split_copy_files \
 	--region $REGION \
 	--source split_batches \
 	--service-account $SERVICE_ACCOUNT \
 	--run-service-account $SERVICE_ACCOUNT \
 	--memory 256MB
+status=$?
 
 echo "********************************************************************************"
-if [ $? -ne 0 ]; then
+if [ "$status" -ne 0 ]; then
 	echo "Cloud function deployment failed"
 	return 0
 else
@@ -58,7 +60,7 @@ gcloud functions deploy batch_process \
 	--gen2 \
 	--runtime python310 \
 	--trigger-http \
-	--allow-unauthenticated \
+	--no-allow-unauthenticated \
 	--entry-point concurrent_batch_process \
 	--region $REGION \
 	--source batch_process \
@@ -66,9 +68,10 @@ gcloud functions deploy batch_process \
 	--run-service-account $SERVICE_ACCOUNT \
 	--memory 256MB \
 	--timeout 3600
+status=$?
 
 echo "********************************************************************************"
-if [ $? -ne 0 ]; then
+if [ "$status" -ne 0 ]; then
 	echo "Cloud function deployment failed"
 	return 0
 else
@@ -82,16 +85,17 @@ gcloud functions deploy hitl_criteria_check \
 	--gen2 \
 	--runtime python310 \
 	--trigger-http \
-	--allow-unauthenticated \
+	--no-allow-unauthenticated \
 	--entry-point HITL_Feedback \
 	--region $REGION \
 	--source hitl_criteria_check \
 	--service-account $SERVICE_ACCOUNT \
 	--run-service-account $SERVICE_ACCOUNT \
 	--memory 2GB
+status=$?
 
 echo "********************************************************************************"
-if [ $? -ne 0 ]; then
+if [ "$status" -ne 0 ]; then
 	echo "Cloud function deployment failed"
 	return 0
 else
@@ -105,9 +109,10 @@ gcloud workflows deploy $WORKFLOW_NAME \
 	--source=$YAML_FILE \
 	--project=$project_id \
 	--service-account=$SERVICE_ACCOUNT
+status=$?
 
 echo "********************************************************************************"
-if [ $? -ne 0 ]; then
+if [ "$status" -ne 0 ]; then
 	echo "Workflow deployment failed"
 	return 0
 else

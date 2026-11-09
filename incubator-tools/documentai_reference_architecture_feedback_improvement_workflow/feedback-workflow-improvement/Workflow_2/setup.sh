@@ -11,7 +11,7 @@ gcloud functions deploy export_hitl_reviewed_docs \
 	--gen2 \
 	--runtime python310 \
 	--trigger-http \
-	--allow-unauthenticated \
+	--no-allow-unauthenticated \
 	--entry-point export_hitl_reviewed_docs \
 	--region $REGION \
 	--source export_hitl_reviewed_docs \
@@ -28,7 +28,7 @@ gcloud functions deploy hitl_analysis \
 	--gen2 \
 	--runtime python310 \
 	--trigger-http \
-	--allow-unauthenticated \
+	--no-allow-unauthenticated \
 	--entry-point hitl_analysis \
 	--region $REGION \
 	--source hitl_analysis \
@@ -45,7 +45,7 @@ gcloud functions deploy dataset_export_import \
 	--gen2 \
 	--runtime python310 \
 	--trigger-http \
-	--allow-unauthenticated \
+	--no-allow-unauthenticated \
 	--entry-point dataset_export_import \
 	--region $REGION \
 	--source dataset_export_import \
@@ -62,7 +62,7 @@ gcloud functions deploy trigger_training \
 	--gen2 \
 	--runtime python310 \
 	--trigger-http \
-	--allow-unauthenticated \
+	--no-allow-unauthenticated \
 	--entry-point process_training_request \
 	--region $REGION \
 	--source trigger_training \
