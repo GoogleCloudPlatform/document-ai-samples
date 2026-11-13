@@ -31,6 +31,7 @@ from flask import render_template
 from flask import request
 from tax_pipeline import calculate_tax_values
 from werkzeug.exceptions import HTTPException
+from werkzeug.utils import secure_filename
 
 SESSION_ID = str(uuid4())
 FIRESTORE_COLLECTION = f"{FIRESTORE_COLLECTION_PREFIX}-{SESSION_ID}"
@@ -122,7 +123,7 @@ def save_files_to_temp_directory(files, temp_dir) -> List[Tuple[str, str]]:
     Returns a list of tuples containing file paths and mimetypes
     """
     uploaded_filenames: List[Tuple[str, str]] = []
-    for file in files:
+    for file_index, file in enumerate(files):
         if not file or file.filename == "":
             print("Skipping corrupt file")
             continue
@@ -131,7 +132,14 @@ def save_files_to_temp_directory(files, temp_dir) -> List[Tuple[str, str]]:
             print(f"Invalid File Type: {file.filename}: {file.mimetype}")
             continue
 
-        input_file_path = os.path.join(temp_dir.name, file.filename)
+        # The filename comes from the client, so it must not decide where the
+        # file is written. Keep only its last path component, sanitize it, and
+        # save each file in its own subdirectory so names cannot collide.
+        basename = file.filename.replace("\\", "/").split("/")[-1]
+        filename = secure_filename(basename)
+        file_dir = os.path.join(temp_dir.name, str(file_index))
+        os.mkdir(file_dir)
+        input_file_path = os.path.join(file_dir, filename or "document")
         file.save(input_file_path)
         uploaded_filenames.append((input_file_path, file.mimetype))
         print(f"Uploaded file: {input_file_path}, {file.mimetype}")
