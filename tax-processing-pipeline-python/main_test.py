@@ -20,9 +20,16 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from google.auth.credentials import AnonymousCredentials
 from werkzeug.datastructures import FileStorage
 
-import main
+# docai_utils creates its Document AI client at import time, which looks up
+# Application Default Credentials. These tests make no Google Cloud calls, so
+# hand it anonymous credentials instead.
+with patch(
+    "google.auth.default", return_value=(AnonymousCredentials(), "test-project")
+):
+    import main  # pylint: disable=wrong-import-position
 
 
 def make_file(filename, content=b"%PDF-1.4", mimetype="application/pdf"):
