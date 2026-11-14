@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.15-slim
 
 # Create a non-root user to run the application
 RUN adduser --system --group --disabled-password appuser
