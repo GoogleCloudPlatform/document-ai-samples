@@ -16,12 +16,14 @@ limitations under the License.
 import functools
 from io import BytesIO
 import logging
+import os
 from pathlib import Path
 
 from backend import docai
 from backend import processors
 from backend import render
 from backend import samples
+from flask import abort
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -40,6 +42,18 @@ assert isinstance(PROJECT_ID, str)
 app = Flask(__name__, static_folder=STATIC_FOLDER, static_url_path="")
 with app.app_context():
     from backend.etag import ETAG
+
+
+@app.before_request
+def _admin_guard():
+    # /admin/* routes mutate GCP project state (create processors, etc.) and
+    # must not be reachable by unauthenticated callers. Operators must set the
+    # ADMIN_TOKEN environment variable and pass it as X-Admin-Token.
+    if request.path.startswith("/admin/"):
+        expected = os.environ.get("ADMIN_TOKEN")
+        provided = request.headers.get("X-Admin-Token")
+        if not expected or provided != expected:
+            abort(403)
 
 
 @app.get("/")
