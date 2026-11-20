@@ -21,6 +21,7 @@ BigQuery tables, and creating or replacing remote models using Document AI proce
 """
 # pylint: disable=logging-fstring-interpolation
 
+import re
 from typing import List, Optional
 
 from config import BQ_DATASET_ID_MLOPS
@@ -60,6 +61,9 @@ def object_table_create(
         str: The name of the created BigQuery table.
     """
 
+    for u in f_uris:
+        if not re.fullmatch(r"gs://[A-Za-z0-9._\-]+/[A-Za-z0-9._\-/]+", u):
+            raise ValueError(f"unsafe GCS URI rejected: {u!r}")
     uris = "', '".join(f_uris)
     object_table_name = (
         f"{BQ_PROJECT_ID}.{BQ_DATASET_ID_MLOPS}."

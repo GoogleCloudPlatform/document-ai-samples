@@ -29,14 +29,25 @@ from flask import after_this_request
 from flask import Flask
 from flask import render_template
 from flask import request
+from flask import session
 from tax_pipeline import calculate_tax_values
 from werkzeug.exceptions import HTTPException
 from werkzeug.utils import secure_filename
 
-SESSION_ID = str(uuid4())
-FIRESTORE_COLLECTION = f"{FIRESTORE_COLLECTION_PREFIX}-{SESSION_ID}"
-
 app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(24))
+
+
+@app.before_request
+def _ensure_session_id() -> None:
+    """Assign a per-browser-session ID so each user's extracted data is
+    isolated in its own Firestore collection."""
+    if "sid" not in session:
+        session["sid"] = str(uuid4())
+
+
+def _firestore_collection() -> str:
+    return f"{FIRESTORE_COLLECTION_PREFIX}-{session['sid']}"
 
 UPLOAD_FOLDER = "/tmp"
 ALLOWED_MIMETYPES = set(["application/pdf", "image/tiff", "image/jpeg"])
@@ -75,7 +86,7 @@ def file_upload() -> str:
     if not uploaded_filenames:
         return render_template("index.html", message_error="No valid files provided")
 
-    status_messages = run_docai_pipeline(uploaded_filenames, FIRESTORE_COLLECTION)
+    status_messages = run_docai_pipeline(uploaded_filenames, _firestore_collection())
 
     return render_template(
         "index.html",
@@ -89,7 +100,7 @@ def view_extracted_data() -> str:
     """
     Display Raw extracted data from Documents
     """
-    extracted_data = read_collection(FIRESTORE_PROJECT_ID, FIRESTORE_COLLECTION)
+    extracted_data = read_collection(FIRESTORE_PROJECT_ID, _firestore_collection())
     if not extracted_data:
         return render_template("index.html", message_error="No data to display")
     return render_template("index.html", extracted_data=extracted_data)
@@ -100,7 +111,7 @@ def view_tax_bill() -> str:
     """
     Calculate Tax Return with Document Information from Firestore
     """
-    extracted_data = read_collection(FIRESTORE_PROJECT_ID, FIRESTORE_COLLECTION)
+    extracted_data = read_collection(FIRESTORE_PROJECT_ID, _firestore_collection())
     tax_data = calculate_tax_values(extracted_data)
 
     if not tax_data:
@@ -113,7 +124,7 @@ def delete_data() -> str:
     """
     Remove Saved Data from Database
     """
-    delete_collection(FIRESTORE_PROJECT_ID, FIRESTORE_COLLECTION)
+    delete_collection(FIRESTORE_PROJECT_ID, _firestore_collection())
     return render_template("index.html", message_success="Successfully deleted data")
 
 

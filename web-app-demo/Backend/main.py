@@ -31,7 +31,7 @@ LOCATION = "us"  # Format is 'us' or 'eu'
 
 processor_id_by_processor_type: Dict[str, str] = {}
 
-app = Flask(__name__, static_url_path="", static_folder="")
+app = Flask(__name__, static_folder=None)
 
 CORS(app)
 api = Api(app)

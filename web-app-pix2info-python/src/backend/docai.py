@@ -121,9 +121,12 @@ def process_sample(
         return document, json
 
     location, processor_id = processor_for_sample(project, processor_name)
+    root = samples_root.resolve()
     documents: list[DocumentIO] = []
     for samples_file in samples_paths:
-        path = samples_root.joinpath(processor_name, samples_file)
+        path = samples_root.joinpath(processor_name, samples_file).resolve()
+        if not path.is_relative_to(root):
+            raise ValueError("sample path is outside samples_root")
         mime_type, _ = guess_type(path)
         if mime_type is None:
             raise RuntimeError(f"Could not determine MIME type for {path}")
